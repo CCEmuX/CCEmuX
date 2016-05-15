@@ -11,6 +11,13 @@ repositories {
     mavenCentral()
 }
 
+project.ext.lwjglVersion = "3.0.0b"
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+
+    compile "org.lwjgl:lwjgl:${lwjglVersion}"
+    compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-windows"
+    compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-linux"
+    compile "org.lwjgl:lwjgl-platform:${lwjglVersion}:natives-osx"
 }
