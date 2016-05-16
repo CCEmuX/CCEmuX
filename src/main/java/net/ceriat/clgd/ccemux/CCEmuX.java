@@ -1,5 +1,10 @@
 package net.ceriat.clgd.ccemux;
 
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -17,7 +22,25 @@ public class CCEmuX {
     /** A helper object that aids with graphical stuff */
     public Graphics graphics;
 
+    public Logger logger = Logger.getLogger("CCEmuX");
+
     public CCEmuX() throws Exception {
+        CCEmuX.instance = this;
+
+        logger.setUseParentHandlers(false);
+
+        for (Handler h : logger.getHandlers()) {
+            logger.removeHandler(h);
+        }
+
+        ConsoleHandler ch = new ConsoleHandler();
+        ch.setLevel(Level.ALL);
+        ch.setFormatter(new LogFormatter());
+
+        logger.addHandler(ch);
+
+        logger.setLevel(Level.ALL);
+
         window = new EmuWindow(EMU_TITLE, EMU_WIDTH, EMU_HEIGHT);
         window.show();
 
@@ -26,9 +49,6 @@ public class CCEmuX {
 
         graphics = new Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
     }
 
     /**
@@ -37,15 +57,7 @@ public class CCEmuX {
     public void startLoop() {
         while (!window.shouldClose()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            glPushMatrix();
-            {
-                glScalef(64.0f, 64.0f, 1.0f);
-                graphics.enableDrawAttribs(graphics.rectBuffer);
-                glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-                graphics.disableDrawAttribs();
-            }
-            glPopMatrix();
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
             window.swapBuffers();
             EmuWindow.pollEvents();
@@ -59,7 +71,6 @@ public class CCEmuX {
         initLibs();
 
         CCEmuX emux = new CCEmuX();
-        CCEmuX.instance = emux;
         emux.startLoop();
     }
 
