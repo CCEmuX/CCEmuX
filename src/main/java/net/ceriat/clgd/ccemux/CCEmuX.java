@@ -10,7 +10,11 @@ public class CCEmuX {
     private static final int EMU_HEIGHT = 720;
 
     // Emulator components
+
+    /** The emulator's window */
     public EmuWindow window;
+
+    /** A helper object that aids with graphical stuff */
     public Graphics graphics;
 
     public CCEmuX() throws Exception {
@@ -27,6 +31,9 @@ public class CCEmuX {
         glLoadIdentity();
     }
 
+    /**
+     * Starts the emulator loop.
+     */
     public void startLoop() {
         while (!window.shouldClose()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -45,6 +52,7 @@ public class CCEmuX {
         }
     }
 
+    /** A CCEmuX instance */
     public static CCEmuX instance;
 
     public static void main(String[] args) throws Exception {
