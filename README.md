@@ -1,0 +1,1 @@
+# CCEmuX [![Build Status](https://travis-ci.org/Lignumm/CCEmuX.svg?branch=master)](https://travis-ci.org/Lignumm/CCEmuX)
