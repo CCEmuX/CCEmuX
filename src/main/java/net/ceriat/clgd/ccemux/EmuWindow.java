@@ -66,7 +66,10 @@ public class EmuWindow implements Closeable {
             @Override
             public void invoke(long window, int width, int height) {
                 glViewport(0, 0, width, height);
-                CCEmuX.instance.graphics.refresh(width, height);
+
+                if (CCEmuX.instance.graphics != null) {
+                    CCEmuX.instance.graphics.refresh(width, height);
+                }
             }
         });
     }
