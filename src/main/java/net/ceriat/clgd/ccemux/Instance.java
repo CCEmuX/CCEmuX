@@ -23,4 +23,7 @@ public class Instance {
 
     /** The size of one Instance in bytes */
     public static final int SIZE = (4 * 4) * 4 + 4 * 4;
+
+    /** The size of one Instance in floats */
+    public static final int SIZE_FLOATS = SIZE / 4;
 }

@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 
+import javax.swing.*;
 import java.io.Closeable;
 import java.nio.IntBuffer;
 
@@ -31,6 +32,9 @@ public class EmuWindow implements Closeable {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        // TODO: Disable debug mode on release somehow.
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
         handle = glfwCreateWindow(width, height, title, NULL, NULL);
 
         if (handle == NULL) {
@@ -45,6 +49,18 @@ public class EmuWindow implements Closeable {
         glfwSwapInterval(1); // vsync, set to 0 for immediate swap
 
         GL.createCapabilities(true);
+
+        if (!GL.getCapabilities().OpenGL33) {
+            JOptionPane.showMessageDialog(
+                null,
+                "This application requires at least OpenGL 3.3.\n" +
+                "Try updating your graphics drivers.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+            System.exit(1);
+            return;
+        }
 
         glfwSetWindowSizeCallback(handle, new GLFWWindowSizeCallback() {
             @Override

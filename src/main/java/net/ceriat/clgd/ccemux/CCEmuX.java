@@ -2,6 +2,8 @@ package net.ceriat.clgd.ccemux;
 
 import org.joml.Matrix4f;
 
+import java.awt.*;
+import java.util.Random;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -29,7 +31,7 @@ public class CCEmuX {
 
     public Logger logger = Logger.getLogger("CCEmuX");
 
-    private int testVAO, testInsts;
+    private TerminalRenderer termRenderer;
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
@@ -57,30 +59,29 @@ public class CCEmuX {
         graphics = new Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
-        testInsts = graphics.createInstanceBuffer(new Instance[] {
-            new Instance(new Matrix4f().translate(128.0f, 64.0f, 0.0f).scale(128.0f, 64.0f, 1.0f), 1.0f, 0.0f, 0.0f, 1.0f),
-            new Instance(new Matrix4f().translate(0.0f, 0.0f, 0.0f).scale(64.0f, 128.0f, 1.0f), 0.0f, 1.0f, 0.0f, 1.0f),
-            new Instance(new Matrix4f().translate(512.0f, 128.0f, 0.0f).scale(64.0f, 64.0f, 1.0f).rotateZ((float)Math.toRadians(260.0f)), 0.0f, 0.0f, 1.0f, 1.0f),
-            new Instance(new Matrix4f().translate(64.0f, 256.0f, 0.0f).scale(64.0f, 64.0f, 1.0f).rotateZ((float)Math.toRadians(34.0f)), 1.0f, 0.0f, 1.0f, 1.0f)
-        }, GL_STATIC_DRAW);
-
-        testVAO = graphics.createVertexAttribs(graphics.rectBuffer, testInsts);
+        termRenderer = new TerminalRenderer(51, 19, 10.6f, 16.0f);
     }
 
     /**
      * Starts the emulator loop.
      */
     public void startLoop() {
+        Random rand = new Random();
+
         while (!window.shouldClose()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            graphics.modelviewMat.pushMatrix();
+            termRenderer.startUpdate();
 
-            glBindVertexArray(testVAO);
-            graphics.setRenderUniforms(graphics.shaderDefault);
-            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, 4);
+            for (int y = 5; y < 10; ++y) {
+                for (int x = 5; x < 40; ++x) {
+                    termRenderer.updatePixel(new Point(x, y), new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), 255));
+                }
+            }
 
-            graphics.modelviewMat.popMatrix();
+            termRenderer.stopUpdate();
+
+            termRenderer.render();
 
             window.swapBuffers();
             EmuWindow.pollEvents();

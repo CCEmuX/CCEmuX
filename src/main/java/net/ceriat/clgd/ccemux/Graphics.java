@@ -3,14 +3,19 @@ package net.ceriat.clgd.ccemux;
 import org.joml.Matrix4f;
 import org.joml.MatrixStackf;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.egl.KHRDebug;
+import org.lwjgl.opengl.*;
+import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
+import java.util.logging.Level;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL33.*;
+import static org.lwjgl.opengl.ARBDebugOutput.*;
 
 public class Graphics {
     /** A static vertex buffer containing a unit rectangle. To be used with GL_TRIANGLE_STRIP. */
@@ -43,6 +48,58 @@ public class Graphics {
 
         projectionMat.identity();
         modelviewMat.identity();
+
+        setupDebugOutput();
+    }
+
+    private void setupDebugOutput() {
+        // TODO: Only do this in debug mode.
+
+        if (GL.getCapabilities().GL_ARB_debug_output) {
+            ARBDebugOutput.glDebugMessageCallbackARB(new GLDebugMessageARBCallback() {
+                @Override
+                public void invoke(int source, int type, int id, int severity, int length, long message, long userParam) {
+                    String msg = GLDebugMessageARBCallback.getMessage(length, message);
+
+                    Level l = Level.INFO;
+                    switch (severity) {
+                        case GL_DEBUG_SEVERITY_HIGH_ARB:
+                            l = Level.SEVERE;
+                            break;
+
+                        case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+                            l = Level.WARNING;
+                            break;
+
+                        case GL_DEBUG_SEVERITY_LOW_ARB:
+                            l = Level.FINE;
+                            break;
+                    }
+
+                    CCEmuX.instance.logger.log(l, "OpenGL: " + msg);
+
+                    if (l == Level.SEVERE) {
+                        Thread.dumpStack();
+                    }
+                }
+            }, MemoryUtil.NULL);
+
+            glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
+
+            glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, null, false);
+            glDebugMessageControlARB(GL_DONT_CARE, GL_DEBUG_TYPE_ERROR_ARB, GL_DONT_CARE, 0, null, true);
+            glDebugMessageControlARB(GL_DONT_CARE, GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB, GL_DONT_CARE, 0, null, true);
+            glDebugMessageControlARB(GL_DONT_CARE, GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB, GL_DONT_CARE, 0, null, true);
+            glDebugMessageControlARB(GL_DONT_CARE, GL_DEBUG_TYPE_PERFORMANCE_ARB, GL_DEBUG_SEVERITY_HIGH_ARB, 0, null, true);
+
+            glDebugMessageInsertARB(
+                GL_DEBUG_SOURCE_APPLICATION_ARB,
+                GL_DEBUG_TYPE_OTHER_ARB,
+                0,
+                GL_DEBUG_SEVERITY_LOW_ARB,
+                "Debug mode enabled."
+            );
+        }
     }
 
     /**
@@ -83,6 +140,29 @@ public class Graphics {
     }
 
     /**
+     * Reinitialises a vertex buffer.
+     * @param buffer The buffer to orphan.
+     * @param vertices The vertices it shall contain.
+     * @param usage The usage of the buffer.
+     * @see Graphics#createVBO(Vertex[], int)
+     */
+    public void orphanVBO(int buffer, Vertex[] vertices, int usage) {
+        FloatBuffer fbuf = BufferUtils.createFloatBuffer(vertices.length * Vertex.SIZE);
+
+        for (Vertex v : vertices) {
+            fbuf.put(new float[] {
+                    v.x, v.y, v.z,
+                    v.u, v.v
+            });
+        }
+
+        fbuf.flip();
+
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+        glBufferData(GL_ARRAY_BUFFER, fbuf, usage);
+    }
+
+    /**
      * Creates an array of vertices on the GPU. Will bind the buffer as a side effect.
      * @param vertices The vertices.
      * @param usage How this buffer will be used.
@@ -93,13 +173,26 @@ public class Graphics {
      */
     public int createVBO(Vertex[] vertices, int usage) {
         int buffer = glGenBuffers();
+        orphanVBO(buffer, vertices, usage);
+        return buffer;
+    }
 
-        FloatBuffer fbuf = BufferUtils.createFloatBuffer(vertices.length * Vertex.SIZE);
+    /**
+     * Reinitialises an instance buffer.
+     * @param buffer The buffer to orphan.
+     * @param instances The instance that it shall contain.
+     * @param usage The usage of this buffer.
+     * @see Graphics#createInstanceBuffer(Instance[], int)
+     */
+    public void orphanInstanceBuffer(int buffer, Instance[] instances, int usage) {
+        FloatBuffer fbuf = BufferUtils.createFloatBuffer(instances.length * Instance.SIZE);
 
-        for (Vertex v : vertices) {
-            fbuf.put(new float[] {
-                v.x, v.y, v.z,
-                v.u, v.v
+        for (Instance inst : instances) {
+            float[] mat = new float[4 * 4];
+            inst.transform.get(mat);
+
+            fbuf.put(mat).put(new float[] {
+                    inst.r, inst.g, inst.b, inst.a
             });
         }
 
@@ -107,8 +200,6 @@ public class Graphics {
 
         glBindBuffer(GL_ARRAY_BUFFER, buffer);
         glBufferData(GL_ARRAY_BUFFER, fbuf, usage);
-
-        return buffer;
     }
 
     /**
@@ -122,23 +213,7 @@ public class Graphics {
      */
     public int createInstanceBuffer(Instance[] instances, int usage) {
         int buffer = glGenBuffers();
-
-        FloatBuffer fbuf = BufferUtils.createFloatBuffer(instances.length * Instance.SIZE);
-
-        for (Instance inst : instances) {
-            float[] mat = new float[4 * 4];
-            inst.transform.get(mat);
-
-            fbuf.put(mat).put(new float[] {
-                inst.r, inst.g, inst.b, inst.a
-            });
-        }
-
-        fbuf.flip();
-
-        glBindBuffer(GL_ARRAY_BUFFER, buffer);
-        glBufferData(GL_ARRAY_BUFFER, fbuf, usage);
-
+        orphanInstanceBuffer(buffer, instances, usage);
         return buffer;
     }
 
