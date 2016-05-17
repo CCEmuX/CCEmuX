@@ -1,12 +1,11 @@
 package net.ceriat.clgd.ccemux;
 
+import de.matthiasmann.twl.utils.PNGDecoder;
 import org.lwjgl.BufferUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.Closeable;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -20,20 +19,26 @@ public class Texture implements Closeable {
      * @param filename The path to the texture in the classpath.
      */
     public Texture(String filename) {
+        this(Texture.class.getResourceAsStream(filename));
+    }
 
-
+    public Texture(InputStream stream) {
         try {
-            BufferedImage img = ImageIO.read(getClass().getResource(filename));
-
             handle = glGenTextures();
             glBindTexture(GL_TEXTURE_2D, handle);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-            int width = img.getWidth();
-            int height = img.getHeight();
+            PNGDecoder decoder = new PNGDecoder(stream);
+            int width = decoder.getWidth();
+            int height = decoder.getHeight();
 
-            // retrieve pixel data from bufferedimage
-            byte[] pixels = ((DataBufferByte)img.getRaster().getDataBuffer()).getData();
-            upload(pixels, width, height);
+            final int channels = 4; // RGBA
+
+            ByteBuffer bbuf = BufferUtils.createByteBuffer(width * height * channels);
+            decoder.decode(bbuf, width * channels, PNGDecoder.Format.RGBA);
+            bbuf.flip();
+
+            upload(bbuf, width, height);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -47,13 +52,16 @@ public class Texture implements Closeable {
     }
 
     private void upload(byte[] pixels, int width, int height) {
-        // put the pixels into a byte buffer so that it's directly allocated
         ByteBuffer bbuf = BufferUtils.createByteBuffer(pixels.length);
         bbuf.put(pixels);
         bbuf.flip();
 
+        upload(bbuf, width, height);
+    }
+
+    private void upload(ByteBuffer pixels, int width, int height) {
         // upload the texture
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, bbuf);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
         this.width = width;
         this.height = height;

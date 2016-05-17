@@ -1,6 +1,8 @@
 package net.ceriat.clgd.ccemux;
 
+import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.Random;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
@@ -26,10 +28,40 @@ public class CCEmuX {
 
     public Logger logger = Logger.getLogger("CCEmuX");
 
+    public File assetsDir = new File("assets");
+    public File ccJarFile = new File(assetsDir, "ComputerCraft.jar");
+
+    public CCAssets ccAssets;
+
     private TerminalRenderer termRenderer;
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
+
+        if (!assetsDir.exists()) {
+            JOptionPane.showMessageDialog(
+                null,
+                "The assets directory is missing!\nPlease put it in the same directory as CCEmuX.jar.",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+
+            System.exit(1);
+            return;
+        }
+
+        if (!ccJarFile.exists()) {
+            JOptionPane.showMessageDialog(
+                null,
+                "There is no ComputerCraft.jar file present.\n" +
+                "Please download one from computercraft.info and put it in the assets directory with the name \"ComputerCraft.jar\".",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+
+            System.exit(1);
+            return;
+        }
 
         logger.setUseParentHandlers(false);
 
@@ -54,7 +86,8 @@ public class CCEmuX {
         graphics = new Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
-        termRenderer = new TerminalRenderer(graphics.texWhite, 51, 19, 10.6f, 16.0f);
+        ccAssets = new CCAssets(ccJarFile);
+        termRenderer = new TerminalRenderer(ccAssets.font, 51, 19, 10.6f, 16.0f);
     }
 
     /**
@@ -75,7 +108,6 @@ public class CCEmuX {
             }
 
             termRenderer.stopUpdate();
-
             termRenderer.render();
 
             window.swapBuffers();
