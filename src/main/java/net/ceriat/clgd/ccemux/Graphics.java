@@ -21,6 +21,8 @@ public class Graphics {
 
     public Shader shaderDefault = new Shader("default").compile().link();
 
+    private int defaultInstBuffer;
+
     /**
      * Creates a new Graphics object. Must be created in the presence of an OpenGL context.
      */
@@ -33,6 +35,10 @@ public class Graphics {
             new Vertex(0.0f, 1.0f, 0.0f, 0.0f, 1.0f),
             new Vertex(1.0f, 0.0f, 0.0f, 1.0f, 0.0f),
             new Vertex(1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
+        }, GL_STATIC_DRAW);
+
+        defaultInstBuffer = createInstanceBuffer(new Instance[] {
+            new Instance(new Matrix4f().identity(), 1.0f, 1.0f, 1.0f, 1.0f)
         }, GL_STATIC_DRAW);
 
         projectionMat.identity();
@@ -49,6 +55,11 @@ public class Graphics {
         projectionMat.ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
     }
 
+    /**
+     * Reinitialises the projection matrix to fit the new resolution.
+     * @param width The new framebuffer width.
+     * @param height The new framebuffer height.
+     */
     public void refresh(int width, int height) {
         makeOrthographic(width, height);
     }
@@ -155,23 +166,31 @@ public class Graphics {
 
         if (instanceBuffer > 0) {
             glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
-
-            glEnableVertexAttribArray(2);
-            glVertexAttribPointer(2, 4, GL_FLOAT, false, Instance.SIZE, (4L * 0L) * 4L);
-            glVertexAttribDivisor(2, 1);
-
-            glEnableVertexAttribArray(3);
-            glVertexAttribPointer(3, 4, GL_FLOAT, false, Instance.SIZE, (4L * 1L) * 4L);
-            glVertexAttribDivisor(3, 1);
-
-            glEnableVertexAttribArray(4);
-            glVertexAttribPointer(4, 4, GL_FLOAT, false, Instance.SIZE, (4L * 2L) * 4L);
-            glVertexAttribDivisor(4, 1);
-
-            glEnableVertexAttribArray(5);
-            glVertexAttribPointer(5, 4, GL_FLOAT, false, Instance.SIZE, (4L * 3L) * 4L);
-            glVertexAttribDivisor(5, 1);
+        } else {
+            glBindBuffer(GL_ARRAY_BUFFER, defaultInstBuffer);
         }
+
+        // instance matrix
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 4, GL_FLOAT, false, Instance.SIZE, (4L * 0L) * 4L);
+        glVertexAttribDivisor(2, 1);
+
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 4, GL_FLOAT, false, Instance.SIZE, (4L * 1L) * 4L);
+        glVertexAttribDivisor(3, 1);
+
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 4, GL_FLOAT, false, Instance.SIZE, (4L * 2L) * 4L);
+        glVertexAttribDivisor(4, 1);
+
+        glEnableVertexAttribArray(5);
+        glVertexAttribPointer(5, 4, GL_FLOAT, false, Instance.SIZE, (4L * 3L) * 4L);
+        glVertexAttribDivisor(5, 1);
+
+        // instance colour
+        glEnableVertexAttribArray(6);
+        glVertexAttribPointer(6, 4, GL_FLOAT, false, Instance.SIZE, (4L * 4L) * 4L);
+        glVertexAttribDivisor(6, 1);
 
         return vao;
     }

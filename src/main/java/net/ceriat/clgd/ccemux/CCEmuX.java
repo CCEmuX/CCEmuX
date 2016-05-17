@@ -1,5 +1,7 @@
 package net.ceriat.clgd.ccemux;
 
+import org.joml.Matrix4f;
+
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -7,7 +9,9 @@ import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL31.*;
 
 public class CCEmuX {
     // Constants
@@ -25,7 +29,7 @@ public class CCEmuX {
 
     public Logger logger = Logger.getLogger("CCEmuX");
 
-    private int testVAO;
+    private int testVAO, testInsts;
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
@@ -53,7 +57,14 @@ public class CCEmuX {
         graphics = new Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
-        testVAO = graphics.createVertexAttribs(graphics.rectBuffer, 0);
+        testInsts = graphics.createInstanceBuffer(new Instance[] {
+            new Instance(new Matrix4f().translate(128.0f, 64.0f, 0.0f).scale(128.0f, 64.0f, 1.0f), 1.0f, 0.0f, 0.0f, 1.0f),
+            new Instance(new Matrix4f().translate(0.0f, 0.0f, 0.0f).scale(64.0f, 128.0f, 1.0f), 0.0f, 1.0f, 0.0f, 1.0f),
+            new Instance(new Matrix4f().translate(512.0f, 128.0f, 0.0f).scale(64.0f, 64.0f, 1.0f).rotateZ((float)Math.toRadians(260.0f)), 0.0f, 0.0f, 1.0f, 1.0f),
+            new Instance(new Matrix4f().translate(64.0f, 256.0f, 0.0f).scale(64.0f, 64.0f, 1.0f).rotateZ((float)Math.toRadians(34.0f)), 1.0f, 0.0f, 1.0f, 1.0f)
+        }, GL_STATIC_DRAW);
+
+        testVAO = graphics.createVertexAttribs(graphics.rectBuffer, testInsts);
     }
 
     /**
@@ -64,11 +75,10 @@ public class CCEmuX {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             graphics.modelviewMat.pushMatrix();
-            graphics.modelviewMat.scale(64.0f, 64.0f, 1.0f);
 
             glBindVertexArray(testVAO);
             graphics.setRenderUniforms(graphics.shaderDefault);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, 4);
 
             graphics.modelviewMat.popMatrix();
 
