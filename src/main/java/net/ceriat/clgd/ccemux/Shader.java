@@ -2,17 +2,14 @@ package net.ceriat.clgd.ccemux;
 
 import org.lwjgl.BufferUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL11.*;
 
-public class Shader {
+public class Shader implements Closeable {
     private int fragShader, vertShader;
     private int program;
     private String pathPrefix, name;
@@ -109,15 +106,7 @@ public class Shader {
 
         if (status.get() != GL_TRUE) {
             CCEmuX.instance.logger.severe("Link error: " + glGetProgramInfoLog(program));
-
-            glDetachShader(program, fragShader);
-            glDetachShader(program, vertShader);
-
-            glDeleteShader(fragShader);
-            glDeleteShader(vertShader);
-
-            glDeleteProgram(program);
-
+            close();
             return this;
         }
 
@@ -137,5 +126,15 @@ public class Shader {
      */
     public int getProgramHandle() {
         return program;
+    }
+
+    public void close() {
+        glDetachShader(program, fragShader);
+        glDetachShader(program, vertShader);
+
+        glDeleteShader(fragShader);
+        glDeleteShader(vertShader);
+
+        glDeleteProgram(program);
     }
 }

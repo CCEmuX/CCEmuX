@@ -5,15 +5,13 @@ import org.joml.Matrix4f;
 import java.awt.*;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL31.*;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL31.*;
 
 public class TerminalRenderer implements IRenderer, Closeable {
     private Graphics graphics = CCEmuX.instance.graphics;
@@ -21,9 +19,12 @@ public class TerminalRenderer implements IRenderer, Closeable {
     private int width, height;
     private ByteBuffer mappedBuf;
 
-    public TerminalRenderer(int width, int height, float pixelWidth, float pixelHeight) {
+    private Texture font;
+
+    public TerminalRenderer(Texture font, int width, int height, float pixelWidth, float pixelHeight) {
         this.width = width;
         this.height = height;
+        this.font = font;
 
         orphan(width, height, pixelWidth, pixelHeight);
         vao = graphics.createVertexAttribs(graphics.rectBuffer, instBuffer);
@@ -74,6 +75,7 @@ public class TerminalRenderer implements IRenderer, Closeable {
     public void render() {
         graphics.setRenderUniforms(graphics.shaderDefault);
         glBindVertexArray(vao);
+        glBindTexture(GL_TEXTURE_2D, graphics.texWhite.getTextureHandle());
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
     }
 

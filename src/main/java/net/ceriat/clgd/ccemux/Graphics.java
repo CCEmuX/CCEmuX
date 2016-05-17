@@ -3,30 +3,39 @@ package net.ceriat.clgd.ccemux;
 import org.joml.Matrix4f;
 import org.joml.MatrixStackf;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.egl.KHRDebug;
-import org.lwjgl.opengl.*;
+import org.lwjgl.opengl.ARBDebugOutput;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GLDebugMessageARBCallback;
 import org.lwjgl.system.MemoryUtil;
 
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 
+import static org.lwjgl.opengl.ARBDebugOutput.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL33.*;
-import static org.lwjgl.opengl.ARBDebugOutput.*;
 
 public class Graphics {
     /** A static vertex buffer containing a unit rectangle. To be used with GL_TRIANGLE_STRIP. */
-    public int rectBuffer;
+    public final int rectBuffer;
 
-    public MatrixStackf projectionMat = new MatrixStackf(1);
-    public MatrixStackf modelviewMat = new MatrixStackf(3);
+    public final MatrixStackf projectionMat = new MatrixStackf(1);
+    public final MatrixStackf modelviewMat = new MatrixStackf(3);
 
-    public Shader shaderDefault = new Shader("default").compile().link();
+    public final Shader shaderDefault = new Shader("default").compile().link();
 
-    private int defaultInstBuffer;
+    private final int defaultInstBuffer;
+
+    public final Texture texWhite = new Texture(new byte[] {
+        (byte) 255, (byte) 255, (byte) 255, (byte) 255
+    }, 1, 1);;
+
+    public final Texture texBlack = new Texture(new byte[] {
+        0, 0, 0, 0
+    }, 1, 1);
 
     /**
      * Creates a new Graphics object. Must be created in the presence of an OpenGL context.
@@ -137,6 +146,9 @@ public class Graphics {
         int u_PMatrix = shaderDefault.getUniformLocation("u_PMatrix");
         projectionMat.get(fb);
         glUniformMatrix4fv(u_PMatrix, false, fb);
+
+        int u_Texture = shaderDefault.getUniformLocation("u_Texture");
+        glUniform1i(u_Texture, 0); // always use texture slot 0
     }
 
     /**

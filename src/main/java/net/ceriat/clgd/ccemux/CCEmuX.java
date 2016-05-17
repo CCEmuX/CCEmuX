@@ -1,7 +1,5 @@
 package net.ceriat.clgd.ccemux;
 
-import org.joml.Matrix4f;
-
 import java.awt.*;
 import java.util.Random;
 import java.util.logging.ConsoleHandler;
@@ -11,9 +9,6 @@ import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL31.*;
 
 public class CCEmuX {
     // Constants
@@ -59,7 +54,7 @@ public class CCEmuX {
         graphics = new Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
-        termRenderer = new TerminalRenderer(51, 19, 10.6f, 16.0f);
+        termRenderer = new TerminalRenderer(graphics.texWhite, 51, 19, 10.6f, 16.0f);
     }
 
     /**
