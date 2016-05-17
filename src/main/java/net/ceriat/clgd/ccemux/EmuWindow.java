@@ -2,6 +2,7 @@ package net.ceriat.clgd.ccemux;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 
 import java.io.Closeable;
@@ -9,6 +10,8 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.*;
+
+import static org.lwjgl.opengl.GL11.*;
 
 public class EmuWindow implements Closeable {
     private long handle;
@@ -38,6 +41,14 @@ public class EmuWindow implements Closeable {
         glfwSwapInterval(1); // vsync, set to 0 for immediate swap
 
         GL.createCapabilities();
+
+        glfwSetWindowSizeCallback(handle, new GLFWWindowSizeCallback() {
+            @Override
+            public void invoke(long window, int width, int height) {
+                glViewport(0, 0, width, height);
+                CCEmuX.instance.graphics.refresh(width, height);
+            }
+        });
     }
 
     /**

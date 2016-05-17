@@ -49,6 +49,10 @@ public class Graphics {
         projectionMat.ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
     }
 
+    public void refresh(int width, int height) {
+        makeOrthographic(width, height);
+    }
+
     /**
      * Sets uniforms required for rendering, as well as binding the shader.
      * @param shader
