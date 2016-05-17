@@ -27,6 +27,10 @@ public class EmuWindow implements Closeable {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         handle = glfwCreateWindow(width, height, title, NULL, NULL);
 
         if (handle == NULL) {
@@ -40,7 +44,7 @@ public class EmuWindow implements Closeable {
         glfwMakeContextCurrent(handle);
         glfwSwapInterval(1); // vsync, set to 0 for immediate swap
 
-        GL.createCapabilities();
+        GL.createCapabilities(true);
 
         glfwSetWindowSizeCallback(handle, new GLFWWindowSizeCallback() {
             @Override

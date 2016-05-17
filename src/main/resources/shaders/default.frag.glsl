@@ -4,6 +4,8 @@ precision mediump float;
 
 in vec4 sh_Colour;
 
+out vec4 out_Colour;
+
 void main() {
-    gl_FragColor = sh_Colour;
+    out_Colour = sh_Colour;
 }
