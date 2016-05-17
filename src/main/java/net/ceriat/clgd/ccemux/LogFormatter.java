@@ -8,8 +8,18 @@ import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
 public class LogFormatter extends Formatter {
+    /**
+     * Formats a log record like this:
+     * <code>[LEVEL][yyyy/MM/dd HH:mm:ss z] (message)</code>
+     *
+     * Example:
+     * <code>[INFO][2016/05/17 16:09:22 CEST] Hello World!</code>
+     *
+     * @param record The log record.
+     * @return The formatted log record.
+     */
     public String format(LogRecord record) {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(record.getMillis());

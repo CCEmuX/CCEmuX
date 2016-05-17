@@ -19,6 +19,11 @@ public class Shader {
 
     private HashMap<String, Integer> uniformCache = new HashMap<String, Integer>();
 
+    /**
+     * Loads a shader by its name. Shaders are loaded from "/shaders/[name].[frag/vert].glsl".
+     * To use the shader, it must first be compiled with {@link Shader#compile()} and then linked with {@link Shader#link()}.
+     * @param name The name of the shader.
+     */
     public Shader(String name) {
         this.name = name;
         pathPrefix = "/shaders/" + name;
@@ -45,13 +50,8 @@ public class Shader {
             e.printStackTrace();
         } finally {
             try {
-                if (reader != null) {
-                    reader.close();
-                }
-
-                if (is != null) {
-                    is.close();
-                }
+                reader.close();
+                is.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -68,6 +68,11 @@ public class Shader {
         }
     }
 
+    /**
+     * A cached version of glGetUniformLocation, since glGet* calls are expensive.
+     * @param name The name of the uniform.
+     * @return The location of the uniform.
+     */
     public int getUniformLocation(String name) {
         if (uniformCache.containsKey(name)) {
             return uniformCache.get(name);
@@ -78,6 +83,10 @@ public class Shader {
         }
     }
 
+    /**
+     * Compiles the fragment and vertex shaders.
+     * @return <code>this</code>. Used for call chaining.
+     */
     public Shader compile() {
         compile(pathPrefix + ".frag.glsl", fragShader);
         compile(pathPrefix + ".vert.glsl", vertShader);
@@ -85,6 +94,10 @@ public class Shader {
         return this;
     }
 
+    /**
+     * Links the shader. This basically connects ("links") the different shader files.
+     * @return <code>this</code>. Used for call chaining.
+     */
     public Shader link() {
         glAttachShader(program, fragShader);
         glAttachShader(program, vertShader);
