@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.*;
 
 public class CCEmuX {
     // Constants
@@ -23,6 +24,8 @@ public class CCEmuX {
     public Graphics graphics;
 
     public Logger logger = Logger.getLogger("CCEmuX");
+
+    private int testVAO;
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
@@ -49,6 +52,8 @@ public class CCEmuX {
 
         graphics = new Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
+
+        testVAO = graphics.createVertexAttribs(graphics.rectBuffer, 0);
     }
 
     /**
@@ -57,7 +62,15 @@ public class CCEmuX {
     public void startLoop() {
         while (!window.shouldClose()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            graphics.modelviewMat.pushMatrix();
+            graphics.modelviewMat.scale(64.0f, 64.0f, 1.0f);
+
+            glBindVertexArray(testVAO);
+            graphics.setRenderUniforms(graphics.shaderDefault);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+            graphics.modelviewMat.popMatrix();
 
             window.swapBuffers();
             EmuWindow.pollEvents();

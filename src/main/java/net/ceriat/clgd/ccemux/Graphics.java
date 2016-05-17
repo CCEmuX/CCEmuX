@@ -1,6 +1,7 @@
 package net.ceriat.clgd.ccemux;
 
 import org.joml.Matrix4f;
+import org.joml.MatrixStackf;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -8,14 +9,15 @@ import java.nio.FloatBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL33.*;
 
 public class Graphics {
     /** A static vertex buffer containing a unit rectangle. To be used with GL_TRIANGLE_STRIP. */
     public int rectBuffer;
 
-    public Matrix4f projectionMat = new Matrix4f();
-    public Matrix4f viewMat = new Matrix4f();
-    public Matrix4f modelMat = new Matrix4f();
+    public MatrixStackf projectionMat = new MatrixStackf(1);
+    public MatrixStackf modelviewMat = new MatrixStackf(3);
 
     public Shader shaderDefault = new Shader("default").compile().link();
 
@@ -33,8 +35,8 @@ public class Graphics {
             new Vertex(1.0f, 1.0f, 0.0f, 1.0f, 1.0f)
         }, GL_STATIC_DRAW);
 
-        viewMat.identity();
-        modelMat.identity();
+        projectionMat.identity();
+        modelviewMat.identity();
     }
 
     /**
@@ -44,16 +46,29 @@ public class Graphics {
      */
     public void makeOrthographic(int width, int height) {
         projectionMat.identity();
-        projectionMat.ortho2D(0.0f, (float)width, (float)height, 0.0f);
-    }
-
-    public Matrix4f getMVP() {
-        Matrix4f mvp = projectionMat.mul(viewMat.mul(modelMat));
-        return mvp;
+        projectionMat.ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
     }
 
     /**
-     * Creates an array of vertices on the GPU.
+     * Sets uniforms required for rendering, as well as binding the shader.
+     * @param shader
+     */
+    public void setRenderUniforms(Shader shader) {
+        glUseProgram(shader.getProgramHandle());
+
+        FloatBuffer fb = BufferUtils.createFloatBuffer(16);
+
+        int u_MVMatrix = shaderDefault.getUniformLocation("u_MVMatrix");
+        modelviewMat.get(fb);
+        glUniformMatrix4fv(u_MVMatrix, false, fb);
+
+        int u_PMatrix = shaderDefault.getUniformLocation("u_PMatrix");
+        projectionMat.get(fb);
+        glUniformMatrix4fv(u_PMatrix, false, fb);
+    }
+
+    /**
+     * Creates an array of vertices on the GPU. Will bind the buffer as a side effect.
      * @param vertices The vertices.
      * @param usage How this buffer will be used.
      *              GL_STATIC_DRAW: This buffer will not change.
@@ -82,7 +97,7 @@ public class Graphics {
     }
 
     /**
-     * Creates an array of instances on the GPU.
+     * Creates an array of instances on the GPU. Will bind the buffer as a side effect.
      * @param instances The instances.
      * @param usage How this buffer will be used.
      *              GL_STATIC_DRAW: This buffer will not change.
@@ -110,5 +125,50 @@ public class Graphics {
         glBufferData(GL_ARRAY_BUFFER, fbuf, usage);
 
         return buffer;
+    }
+
+    /**
+     * Creates an OpenGL VAO for buffers created with {@link Graphics#createVBO(Vertex[], int)}.
+     * Will bind the buffer as a side effect.
+     *
+     * @param buffer The buffer to use for the VAO.
+     * @param instanceBuffer The instance buffer to use for the VAO. Pass 0 if none is used.
+     * @return The VAO.
+     */
+    public int createVertexAttribs(int buffer, int instanceBuffer) {
+        int vao = glGenVertexArrays();
+
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
+
+        // position
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, false, Vertex.SIZE, 0L);
+
+        // tex coords
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, Vertex.SIZE, 3L * 4L); // 3 floats in
+
+        if (instanceBuffer > 0) {
+            glBindBuffer(GL_ARRAY_BUFFER, instanceBuffer);
+
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 4, GL_FLOAT, false, Instance.SIZE, (4L * 0L) * 4L);
+            glVertexAttribDivisor(2, 1);
+
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 4, GL_FLOAT, false, Instance.SIZE, (4L * 1L) * 4L);
+            glVertexAttribDivisor(3, 1);
+
+            glEnableVertexAttribArray(4);
+            glVertexAttribPointer(4, 4, GL_FLOAT, false, Instance.SIZE, (4L * 2L) * 4L);
+            glVertexAttribDivisor(4, 1);
+
+            glEnableVertexAttribArray(5);
+            glVertexAttribPointer(5, 4, GL_FLOAT, false, Instance.SIZE, (4L * 3L) * 4L);
+            glVertexAttribDivisor(5, 1);
+        }
+
+        return vao;
     }
 }

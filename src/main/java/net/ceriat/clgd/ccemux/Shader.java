@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -15,6 +16,8 @@ public class Shader {
     private int fragShader, vertShader;
     private int program;
     private String pathPrefix, name;
+
+    private HashMap<String, Integer> uniformCache = new HashMap<String, Integer>();
 
     public Shader(String name) {
         this.name = name;
@@ -65,6 +68,16 @@ public class Shader {
         }
     }
 
+    public int getUniformLocation(String name) {
+        if (uniformCache.containsKey(name)) {
+            return uniformCache.get(name);
+        } else {
+            int l = glGetUniformLocation(program, name);
+            uniformCache.put(name, l);
+            return l;
+        }
+    }
+
     public Shader compile() {
         compile(pathPrefix + ".frag.glsl", fragShader);
         compile(pathPrefix + ".vert.glsl", vertShader);
@@ -83,6 +96,16 @@ public class Shader {
 
         if (status.get() != GL_TRUE) {
             CCEmuX.instance.logger.severe("Link error: " + glGetProgramInfoLog(program));
+
+            glDetachShader(program, fragShader);
+            glDetachShader(program, vertShader);
+
+            glDeleteShader(fragShader);
+            glDeleteShader(vertShader);
+
+            glDeleteProgram(program);
+
+            return this;
         }
 
         CCEmuX.instance.logger.fine("Compiled and linked shader \"" + name + "\"");
@@ -94,5 +117,12 @@ public class Shader {
         glDeleteShader(vertShader);
 
         return this;
+    }
+
+    /**
+     * @return Returns the OpenGL handle to the program.
+     */
+    public int getProgramHandle() {
+        return program;
     }
 }
