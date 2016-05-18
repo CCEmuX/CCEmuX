@@ -15,8 +15,8 @@ import static org.lwjgl.opengl.GL11.*;
 public class CCEmuX {
     // Constants
     private static final String EMU_TITLE = "CCEmuX";
-    private static final int EMU_WIDTH = 1280;
-    private static final int EMU_HEIGHT = 720;
+    private static final int EMU_WIDTH = 816;
+    private static final int EMU_HEIGHT = 456;
 
     // Emulator components
 
@@ -87,7 +87,7 @@ public class CCEmuX {
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
         ccAssets = new CCAssets(ccJarFile);
-        termRenderer = new TerminalRenderer(ccAssets.font, 51, 19, 10.6f, 16.0f);
+        termRenderer = new TerminalRenderer(ccAssets.font, 51, 19, 16.0f, 24.0f);
     }
 
     /**
@@ -100,12 +100,6 @@ public class CCEmuX {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             termRenderer.startUpdate();
-
-            for (int y = 5; y < 10; ++y) {
-                for (int x = 5; x < 40; ++x) {
-                    termRenderer.updatePixel(new Point(x, y), new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), 255));
-                }
-            }
 
             termRenderer.stopUpdate();
             termRenderer.render();
