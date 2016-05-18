@@ -76,25 +76,10 @@ public class TerminalRenderer implements IRenderer, Closeable {
     }
 
     public void render() {
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
         graphics.setRenderUniforms(graphics.shaderDefault);
         glBindVertexArray(vao);
         glBindTexture(GL_TEXTURE_2D, graphics.texWhite.getTextureHandle());
-        //glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
-
-        graphics.modelviewMat.pushMatrix();
-        graphics.modelviewMat.translate(640.0f, 0.0f, 0.0f);
-        graphics.modelviewMat.scale(64.0f, 64.0f, 1.0f);
-
-        graphics.setRenderUniforms(graphics.shaderDefault);
-
-        glBindVertexArray(rectVAO);
-        glBindTexture(GL_TEXTURE_2D, font.getTextureHandle());
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, 1);
-
-        graphics.modelviewMat.popMatrix();
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
     }
 
     public void close() {
