@@ -18,6 +18,8 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class EmuWindow implements Closeable {
     private long handle;
+    private boolean dragging;
+    private int dragButton;
 
     private static final HashMap<Integer, Integer> keycodeTranslationMap = new HashMap<Integer, Integer>();
 
@@ -73,28 +75,50 @@ public class EmuWindow implements Closeable {
     private GLFWMouseButtonCallback callbackMouseBtn = new GLFWMouseButtonCallback() {
         @Override
         public void invoke(long window, int button, int action, int mods) {
-            if (action == GLFW_PRESS) {
-                int ccbutton = 0;
+            int ccbutton = 0;
+            boolean release = false;
 
-                switch (button) {
-                    case GLFW_MOUSE_BUTTON_LEFT:
-                        ccbutton = 1;
-                        break;
+            switch (button) {
+                case GLFW_MOUSE_BUTTON_LEFT:
+                    ccbutton = 1;
+                    break;
 
-                    case GLFW_MOUSE_BUTTON_RIGHT:
-                        ccbutton = 2;
-                        break;
+                case GLFW_MOUSE_BUTTON_RIGHT:
+                    ccbutton = 2;
+                    break;
 
-                    case GLFW_MOUSE_BUTTON_MIDDLE:
-                        ccbutton = 3;
-                        break;
-                }
+                case GLFW_MOUSE_BUTTON_MIDDLE:
+                    ccbutton = 3;
+                    break;
 
-                DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
-                DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
-                glfwGetCursorPos(window, x, y);
+                default:
+                    return;
+            }
 
-                CCEmuX.instance.computer.mousePress(ccbutton, x.get(0), y.get(0));
+            if (action == GLFW_RELEASE) {
+                release = true;
+                dragging = false;
+            } else if (action == GLFW_PRESS) {
+                release = false;
+                dragging = true;
+                dragButton = ccbutton;
+            } else {
+                return;
+            }
+
+            DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
+            DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+            glfwGetCursorPos(window, x, y);
+
+            CCEmuX.instance.computer.mousePress(ccbutton, x.get(0), y.get(0), release);
+        }
+    };
+
+    private GLFWCursorPosCallback callbackCursorMove = new GLFWCursorPosCallback() {
+        @Override
+        public void invoke(long window, double xpos, double ypos) {
+            if (dragging) {
+                CCEmuX.instance.computer.mouseDrag(dragButton, xpos, ypos);
             }
         }
     };
@@ -148,6 +172,7 @@ public class EmuWindow implements Closeable {
         glfwSetCharModsCallback(handle, callbackChar);
         glfwSetKeyCallback(handle, callbackKey);
         glfwSetMouseButtonCallback(handle, callbackMouseBtn);
+        glfwSetCursorPosCallback(handle, callbackCursorMove);
     }
 
     /**

@@ -17,6 +17,8 @@ public class EmuComputer implements Closeable {
     public int termWidth, termHeight;
     public int pixelWidth, pixelHeight;
 
+    private int lastDragX = 0, lastDragY = 0;
+
     public EmuComputer(int termWidth, int termHeight, int pixelWidth, int pixelHeight) {
         this.termWidth = termWidth;
         this.termHeight = termHeight;
@@ -100,8 +102,27 @@ public class EmuComputer implements Closeable {
         }
     }
 
-    public void mousePress(int button, double x, double y) {
-        computer.queueEvent("mouse_click", new Object[] {
+    public void mouseDrag(int button, double x, double y) {
+        int realX = (int)x / pixelWidth + 1;
+        int realY = (int)y / pixelHeight + 1;
+
+        // prevents drag event spam
+        if (realX == lastDragX && realY == lastDragY) {
+            return;
+        }
+
+        computer.queueEvent("mouse_drag", new Object[] {
+            button,
+            realX,
+            realY
+        });
+
+        lastDragX = realX;
+        lastDragY = realY;
+    }
+
+    public void mousePress(int button, double x, double y, boolean release) {
+        computer.queueEvent(release ? "mouse_up" : "mouse_click", new Object[] {
             button,
             (int)x / pixelWidth + 1,
             (int)y / pixelHeight + 1
