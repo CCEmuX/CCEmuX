@@ -41,6 +41,8 @@ public class CCEmuX {
     public int ticksSinceStart;
     public float timeSinceStart;
 
+    public float deltaTime;
+
     private EmuComputer computer;
 
     public CCEmuX() throws Exception {
@@ -98,6 +100,11 @@ public class CCEmuX {
         computer = new EmuComputer(51, 19, EMU_WIDTH / 51, EMU_HEIGHT / 19);
     }
 
+    public void tick() {
+        computer.computer.advance(deltaTime);
+        computer.syncWithRenderer();
+    }
+
     /**
      * Starts the emulator loop.
      */
@@ -112,18 +119,19 @@ public class CCEmuX {
             long dtMs = now - lastTime;
             float dt = dtMs / 1000.0f;
             timeSinceStart += dt;
+            deltaTime = dt;
 
             tickTimer += dtMs;
 
             if (tickTimer >= 50) {
                 ticksSinceStart++;
                 tickTimer = 0;
+
+                tick();
             }
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            computer.computer.advance(dt);
-            computer.syncWithRenderer();
             computer.renderer.render();
 
             lastTime = System.currentTimeMillis();
