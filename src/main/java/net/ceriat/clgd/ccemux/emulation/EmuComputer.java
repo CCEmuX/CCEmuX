@@ -7,6 +7,8 @@ import net.ceriat.clgd.ccemux.graphics.Colour;
 import net.ceriat.clgd.ccemux.graphics.Point;
 import net.ceriat.clgd.ccemux.graphics.TerminalRenderer;
 
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
 import java.io.Closeable;
 
 public class EmuComputer implements Closeable {
@@ -99,6 +101,20 @@ public class EmuComputer implements Closeable {
             case TERMINATE:
                 computer.queueEvent("terminate", new Object[] {});
                 break;
+
+            case PASTE: {
+                Toolkit tk = Toolkit.getDefaultToolkit();
+                String data = null;
+
+                try {
+                    data = (String)tk.getSystemClipboard().getData(DataFlavor.stringFlavor);
+                    computer.queueEvent("paste", new Object[] { data });
+                } catch (Exception e) {
+                    // don't care
+                }
+
+                break;
+            }
         }
     }
 
