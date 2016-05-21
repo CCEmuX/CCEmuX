@@ -99,9 +99,25 @@ public class CCEmuX {
         while (!window.shouldClose()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            termRenderer.startUpdate();
+            termRenderer.startPixelUpdate();
 
-            termRenderer.stopUpdate();
+            for (int y = 0; y < 19; ++y) {
+                for (int x = 0; x < 51; ++x) {
+                    termRenderer.updatePixel(new Point(x, y), new Color(rand.nextInt(255), rand.nextInt(255), 127));
+                }
+            }
+
+            termRenderer.stopPixelUpdate();
+
+            termRenderer.startTextUpdate();
+
+            for (int y = 0; y < 19; ++y) {
+                for (int x = 0; x < 51; ++x) {
+                    termRenderer.updateText(new Point(x, y), new Color(rand.nextInt(255), rand.nextInt(255), 127), (char)rand.nextInt(127));
+                }
+            }
+
+            termRenderer.stopTextUpdate();
             termRenderer.render();
 
             window.swapBuffers();
