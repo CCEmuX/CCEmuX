@@ -2,6 +2,8 @@ group 'net.ceriat.clgd'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
 apply plugin: 'application'
 
 sourceCompatibility = 1.7
