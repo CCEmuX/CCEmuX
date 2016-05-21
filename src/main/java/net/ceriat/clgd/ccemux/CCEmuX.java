@@ -146,8 +146,8 @@ public class CCEmuX {
         computer.computer.queueEvent("char", new Object[] { String.valueOf(c) });
     }
 
-    public void pressKey(int scancode) {
-        computer.computer.queueEvent("key", new Object[] { scancode });
+    public void pressKey(int scancode, boolean up) {
+        computer.computer.queueEvent(up ? "key_up" : "key", new Object[] { scancode });
     }
 
     /** A CCEmuX instance */

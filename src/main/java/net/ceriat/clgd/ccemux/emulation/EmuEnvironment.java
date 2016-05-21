@@ -1,5 +1,6 @@
 package net.ceriat.clgd.ccemux.emulation;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.IComputerEnvironment;
@@ -40,7 +41,7 @@ public class EmuEnvironment implements IComputerEnvironment {
 
     @Override
     public String getHostString() {
-        return "CCEmuX v" + CCEmuX.VERSION;
+        return "ComputerCraft " + ComputerCraft.getVersion() + " (CCEmuX v" + CCEmuX.VERSION + ")";
     }
 
     @Override

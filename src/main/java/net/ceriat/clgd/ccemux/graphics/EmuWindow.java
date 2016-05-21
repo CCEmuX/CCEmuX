@@ -37,7 +37,7 @@ public class EmuWindow implements Closeable {
     private GLFWKeyCallback callbackKey = new GLFWKeyCallback() {
         @Override
         public void invoke(long window, int key, int scancode, int action, int mods) {
-            CCEmuX.instance.pressKey(scancode);
+            CCEmuX.instance.pressKey(scancode, action == GLFW_RELEASE);
         }
     };
 

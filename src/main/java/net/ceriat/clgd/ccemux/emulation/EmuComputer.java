@@ -15,7 +15,7 @@ public class EmuComputer implements Closeable {
 
     public EmuComputer(int termWidth, int termHeight, int pixelWidth, int pixelHeight) {
         terminal = new Terminal(termWidth, termHeight);
-        computer = new Computer(new EmuEnvironment(true), terminal, 0);
+        computer = new Computer(new EmuEnvironment(false), terminal, 0);
 
         renderer = new TerminalRenderer(
             CCEmuX.instance.ccAssets.font,
