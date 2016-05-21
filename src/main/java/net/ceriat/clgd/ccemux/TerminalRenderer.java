@@ -15,7 +15,8 @@ import static org.lwjgl.opengl.GL31.*;
 
 public class TerminalRenderer implements IRenderer, Closeable {
     private Graphics graphics = CCEmuX.instance.graphics;
-    private int instBuffer, vao;
+    private int pixelInstBuffer, pixelVAO;
+    private int textInstBuffer, textVAO;
     private int width, height;
     private ByteBuffer mappedBuf;
 
@@ -29,12 +30,13 @@ public class TerminalRenderer implements IRenderer, Closeable {
         this.font = font;
 
         orphan(width, height, pixelWidth, pixelHeight);
-        vao = graphics.createVertexAttribs(graphics.rectBuffer, instBuffer);
-        rectVAO = graphics.createVertexAttribs(graphics.rectBuffer, 0);
+        pixelVAO = graphics.createVertexAttribs(graphics.rectBuffer, pixelInstBuffer);
+        textVAO = graphics.createVertexAttribs(graphics.rectBuffer, textInstBuffer);
     }
 
     public void orphan(int width, int height, float pixelWidth, float pixelHeight) {
         Instance[] pixelInstances = new Instance[width * height];
+        Instance[] textInstances = new Instance[width * height];
 
         Random rand = new Random();
 
@@ -47,14 +49,22 @@ public class TerminalRenderer implements IRenderer, Closeable {
                 );
 
                 pixelInstances[y * width + x] = new Instance(posMat, rand.nextFloat(), rand.nextFloat(), rand.nextFloat(), 1.0f);
+
+                Instance textInst = new Instance(posMat, rand.nextFloat(), rand.nextFloat(), rand.nextFloat(), 1.0f);
+                textInst.uScale = 6.0f / font.getWidth();
+                textInst.vScale = 9.0f / font.getHeight();
+                textInst.uOffset = 0.0f / font.getWidth();
+                textInst.vOffset = 8.0f / font.getHeight();
+                textInstances[y * width + x] = textInst;
             }
         }
 
-        instBuffer = graphics.createInstanceBuffer(pixelInstances, GL_DYNAMIC_DRAW);
+        pixelInstBuffer = graphics.createInstanceBuffer(pixelInstances, GL_DYNAMIC_DRAW);
+        textInstBuffer = graphics.createInstanceBuffer(textInstances, GL_DYNAMIC_DRAW);
     }
 
     public void startUpdate() {
-        glBindBuffer(GL_ARRAY_BUFFER, instBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, pixelInstBuffer);
         mappedBuf = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     }
 
@@ -71,18 +81,23 @@ public class TerminalRenderer implements IRenderer, Closeable {
 
     public void stopUpdate() {
         mappedBuf.flip();
-        glBindBuffer(GL_ARRAY_BUFFER, instBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, pixelInstBuffer);
         glUnmapBuffer(GL_ARRAY_BUFFER);
     }
 
     public void render() {
         graphics.setRenderUniforms(graphics.shaderDefault);
-        glBindVertexArray(vao);
+        glBindVertexArray(pixelVAO);
         glBindTexture(GL_TEXTURE_2D, graphics.texWhite.getTextureHandle());
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
+
+        glBindVertexArray(textVAO);
+        glBindTexture(GL_TEXTURE_2D, font.getTextureHandle());
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
     }
 
     public void close() {
-        glDeleteBuffers(instBuffer);
+        glDeleteBuffers(pixelInstBuffer);
+        glDeleteBuffers(textInstBuffer);
     }
 }

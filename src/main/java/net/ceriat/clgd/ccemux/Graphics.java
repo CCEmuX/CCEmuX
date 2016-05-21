@@ -207,7 +207,9 @@ public class Graphics {
             inst.transform.get(mat);
 
             fbuf.put(mat).put(new float[] {
-                    inst.r, inst.g, inst.b, inst.a
+                inst.r, inst.g, inst.b, inst.a,
+                inst.uOffset, inst.vOffset,
+                inst.uScale, inst.vScale
             });
         }
 
@@ -281,6 +283,16 @@ public class Graphics {
         glEnableVertexAttribArray(6);
         glVertexAttribPointer(6, 4, GL_FLOAT, false, Instance.SIZE, (4L * 4L) * 4L);
         glVertexAttribDivisor(6, 1);
+
+        // instance uv offset
+        glEnableVertexAttribArray(7);
+        glVertexAttribPointer(7, 2, GL_FLOAT, false, Instance.SIZE, (4L * 4L) * 4L + 4L * 4L);
+        glVertexAttribDivisor(7, 1);
+
+        // instance uv scale
+        glEnableVertexAttribArray(8);
+        glVertexAttribPointer(8, 2, GL_FLOAT, false, Instance.SIZE, (4L * 4L) * 4L + 4L * 4L + 2L * 4L);
+        glVertexAttribDivisor(8, 1);
 
         return vao;
     }
