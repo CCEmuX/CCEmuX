@@ -1,1 +1,3 @@
 language: java
+before_install:
+  - wget -O assets/ComputerCraft.jar http://minecraft.curseforge.com/projects/computercraft/files/2291384/download
