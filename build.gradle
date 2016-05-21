@@ -10,13 +10,14 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 mainClassName = "net.ceriat.clgd.ccemux.CCEmuX"
 
-task preBuild << {
+task fetchCC << {
 	File ccjar = new File("assets/ComputerCraft.jar")
-	if (!ccjar.exists()) {
-		throw new GradleException("Place the CC jar in 'assets/ComputerCraft.jar' before building.")
-	}
+	println "Downloading CC jar..."
+	OutputStream stream = ccjar.newOutputStream()
+	stream << new URL("http://minecraft.curseforge.com/projects/computercraft/files/2291384/download").openStream()
+	stream.close()
 }
-compileJava.dependsOn preBuild
+compileJava.dependsOn fetchCC
 
 repositories {
     mavenCentral()
