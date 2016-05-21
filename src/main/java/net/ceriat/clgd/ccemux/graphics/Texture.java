@@ -1,4 +1,4 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
 import de.matthiasmann.twl.utils.PNGDecoder;
 import org.lwjgl.BufferUtils;

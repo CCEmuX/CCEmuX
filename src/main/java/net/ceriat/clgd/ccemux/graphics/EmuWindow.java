@@ -1,8 +1,8 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
+import net.ceriat.clgd.ccemux.CCEmuX;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 
 import javax.swing.*;
@@ -16,6 +16,30 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class EmuWindow implements Closeable {
     private long handle;
+    private GLFWWindowSizeCallback callbackSize = new GLFWWindowSizeCallback() {
+        @Override
+        public void invoke(long window, int width, int height) {
+            glViewport(0, 0, width, height);
+
+            if (CCEmuX.instance.graphics != null) {
+                CCEmuX.instance.graphics.refresh(width, height);
+            }
+        }
+    };
+
+    private GLFWCharModsCallback callbackChar = new GLFWCharModsCallback() {
+        @Override
+        public void invoke(long window, int codepoint, int mods) {
+            CCEmuX.instance.pressChar((char)codepoint);
+        }
+    };
+
+    private GLFWKeyCallback callbackKey = new GLFWKeyCallback() {
+        @Override
+        public void invoke(long window, int key, int scancode, int action, int mods) {
+            CCEmuX.instance.pressKey(scancode);
+        }
+    };
 
     /**
      * Creates a new window and OpenGL context. It will not show until {@link EmuWindow#show()} is called.
@@ -62,16 +86,9 @@ public class EmuWindow implements Closeable {
             return;
         }
 
-        glfwSetWindowSizeCallback(handle, new GLFWWindowSizeCallback() {
-            @Override
-            public void invoke(long window, int width, int height) {
-                glViewport(0, 0, width, height);
-
-                if (CCEmuX.instance.graphics != null) {
-                    CCEmuX.instance.graphics.refresh(width, height);
-                }
-            }
-        });
+        glfwSetWindowSizeCallback(handle, callbackSize);
+        glfwSetCharModsCallback(handle, callbackChar);
+        glfwSetKeyCallback(handle, callbackKey);
     }
 
     /**

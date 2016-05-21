@@ -35,6 +35,8 @@ dependencies {
 
     compile "org.joml:joml:1.7.1"
     compile "im.bci:pngdecoder:0.13"
+
+    compile files("assets/ComputerCraft.jar")
 }
 
 jar {

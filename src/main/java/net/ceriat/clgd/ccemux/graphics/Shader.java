@@ -1,5 +1,6 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
+import net.ceriat.clgd.ccemux.CCEmuX;
 import org.lwjgl.BufferUtils;
 
 import java.io.*;

@@ -1,4 +1,4 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
 import org.joml.Matrix4f;
 

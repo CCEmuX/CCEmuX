@@ -1,7 +1,10 @@
 package net.ceriat.clgd.ccemux;
 
+import dan200.computercraft.core.computer.ComputerThread;
+import net.ceriat.clgd.ccemux.emulation.EmuComputer;
+import net.ceriat.clgd.ccemux.graphics.EmuWindow;
+
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.util.Random;
 import java.util.logging.ConsoleHandler;
@@ -14,7 +17,9 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class CCEmuX {
     // Constants
-    private static final String EMU_TITLE = "CCEmuX";
+    public static final String VERSION = "1.0.0";
+
+    private static final String EMU_TITLE = "CCEmuX v" + VERSION;
     private static final int EMU_WIDTH = 816;
     private static final int EMU_HEIGHT = 456;
 
@@ -24,7 +29,7 @@ public class CCEmuX {
     public EmuWindow window;
 
     /** A helper object that aids with graphical stuff */
-    public Graphics graphics;
+    public net.ceriat.clgd.ccemux.graphics.Graphics graphics;
 
     public Logger logger = Logger.getLogger("CCEmuX");
 
@@ -33,7 +38,10 @@ public class CCEmuX {
 
     public CCAssets ccAssets;
 
-    private TerminalRenderer termRenderer;
+    public int ticksSinceStart;
+    public float timeSinceStart;
+
+    private EmuComputer computer;
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
@@ -83,11 +91,11 @@ public class CCEmuX {
         window.makeContextActive();
         glClearColor(0.0f, 0.2f, 0.4f, 1.0f);
 
-        graphics = new Graphics(); // must be created after context
+        graphics = new net.ceriat.clgd.ccemux.graphics.Graphics(); // must be created after context
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
         ccAssets = new CCAssets(ccJarFile);
-        termRenderer = new TerminalRenderer(ccAssets.font, 51, 19, 16.0f, 24.0f);
+        computer = new EmuComputer(51, 19, EMU_WIDTH / 51, EMU_HEIGHT / 19);
     }
 
     /**
@@ -95,34 +103,51 @@ public class CCEmuX {
      */
     public void startLoop() {
         Random rand = new Random();
+        int tickTimer = 0;
+
+        long lastTime = System.currentTimeMillis();
 
         while (!window.shouldClose()) {
+            long now = System.currentTimeMillis();
+            long dtMs = now - lastTime;
+            float dt = dtMs / 1000.0f;
+            timeSinceStart += dt;
+
+            tickTimer += dtMs;
+
+            if (tickTimer >= 50) {
+                ticksSinceStart++;
+                tickTimer = 0;
+            }
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            termRenderer.startPixelUpdate();
+            computer.computer.advance(dt);
+            computer.syncWithRenderer();
+            computer.renderer.render();
 
-            for (int y = 0; y < 19; ++y) {
-                for (int x = 0; x < 51; ++x) {
-                    termRenderer.updatePixel(new Point(x, y), new Color(rand.nextInt(255), rand.nextInt(255), 127));
-                }
-            }
-
-            termRenderer.stopPixelUpdate();
-
-            termRenderer.startTextUpdate();
-
-            for (int y = 0; y < 19; ++y) {
-                for (int x = 0; x < 51; ++x) {
-                    termRenderer.updateText(new Point(x, y), new Color(rand.nextInt(255), rand.nextInt(255), 127), (char)rand.nextInt(127));
-                }
-            }
-
-            termRenderer.stopTextUpdate();
-            termRenderer.render();
+            lastTime = System.currentTimeMillis();
 
             window.swapBuffers();
             EmuWindow.pollEvents();
         }
+
+        cleanup();
+    }
+
+    public void cleanup() {
+        ccAssets.close();
+        computer.close();
+
+        ComputerThread.stop();
+    }
+
+    public void pressChar(char c) {
+        computer.computer.queueEvent("char", new Object[] { String.valueOf(c) });
+    }
+
+    public void pressKey(int scancode) {
+        computer.computer.queueEvent("key", new Object[] { scancode });
     }
 
     /** A CCEmuX instance */
@@ -133,6 +158,11 @@ public class CCEmuX {
 
         CCEmuX emux = new CCEmuX();
         emux.startLoop();
+
+        glfwTerminate();
+
+        // TODO: Find a way to terminate CC's million threads
+        System.exit(0);
     }
 
     private static void initLibs() throws Exception {

@@ -1,5 +1,6 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
+import net.ceriat.clgd.ccemux.CCEmuX;
 import org.joml.Matrix4f;
 
 import java.awt.*;
@@ -14,7 +15,7 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.*;
 
 public class TerminalRenderer implements IRenderer, Closeable {
-    private Graphics graphics = CCEmuX.instance.graphics;
+    private net.ceriat.clgd.ccemux.graphics.Graphics graphics = CCEmuX.instance.graphics;
     private int pixelInstBuffer, pixelVAO;
     private int textInstBuffer, textVAO;
     private int width, height;
@@ -48,11 +49,11 @@ public class TerminalRenderer implements IRenderer, Closeable {
                     pixelWidth, pixelHeight, 1.0f
                 );
 
-                pixelInstances[y * width + x] = new Instance(posMat, rand.nextFloat(), rand.nextFloat(), rand.nextFloat(), 1.0f);
+                pixelInstances[y * width + x] = new Instance(posMat, 0.0f, 0.0f, 0.0f, 1.0f);
 
-                Instance textInst = new Instance(posMat, rand.nextFloat(), rand.nextFloat(), rand.nextFloat(), 1.0f);
+                Instance textInst = new Instance(posMat, 1.0f, 1.0f, 1.0f, 1.0f);
 
-                int[] point = asciiToPoint((char)rand.nextInt(127), 6, 9, 96, 142);
+                int[] point = asciiToPoint(' ', 6, 9, 96, 144);
                 float[] relPoint = new float[] {
                     (float)point[0] / (float)font.getWidth(),
                     (float)point[1] / (float)font.getHeight()
@@ -117,7 +118,7 @@ public class TerminalRenderer implements IRenderer, Closeable {
      * @param c The new character.
      */
     public void updateText(Point p, Color colour, char c) {
-        int[] point = asciiToPoint(c, 6, 9, 150, 150);
+        int[] point = asciiToPoint(c, 6, 9, 96, 144);
         float[] relPoint = new float[] {
             (float)point[0] / (float)font.getWidth(),
             (float)point[1] / (float)font.getHeight()

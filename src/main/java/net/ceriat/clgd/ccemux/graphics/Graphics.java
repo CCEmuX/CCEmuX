@@ -1,5 +1,6 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
+import net.ceriat.clgd.ccemux.CCEmuX;
 import org.joml.Matrix4f;
 import org.joml.MatrixStackf;
 import org.lwjgl.BufferUtils;

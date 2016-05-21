@@ -1,4 +1,4 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.graphics;
 
 public class Vertex {
     /** The position of the vertex */
