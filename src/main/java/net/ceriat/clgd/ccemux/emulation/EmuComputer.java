@@ -2,10 +2,12 @@ package net.ceriat.clgd.ccemux.emulation;
 
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
+
 import net.ceriat.clgd.ccemux.CCEmuX;
+import net.ceriat.clgd.ccemux.graphics.Colour;
+import net.ceriat.clgd.ccemux.graphics.Point;
 import net.ceriat.clgd.ccemux.graphics.TerminalRenderer;
 
-import java.awt.*;
 import java.io.Closeable;
 
 public class EmuComputer implements Closeable {
@@ -32,7 +34,7 @@ public class EmuComputer implements Closeable {
         for (int y = 0; y < terminal.getHeight(); ++y) {
             for (int x = 0; x < terminal.getWidth(); ++x) {
                 char text = terminal.getLine(y).charAt(x);
-                renderer.updateText(new Point(x, y), Color.WHITE, text);
+                renderer.updateText(new Point(x, y), Colour.WHITE, text);
             }
         }
 

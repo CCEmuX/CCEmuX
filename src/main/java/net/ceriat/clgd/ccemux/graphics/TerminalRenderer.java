@@ -3,7 +3,6 @@ package net.ceriat.clgd.ccemux.graphics;
 import net.ceriat.clgd.ccemux.CCEmuX;
 import org.joml.Matrix4f;
 
-import java.awt.*;
 import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -84,15 +83,12 @@ public class TerminalRenderer implements IRenderer, Closeable {
      * @param p The coords of the pixel to change.
      * @param colour The new colour of the pixel.
      */
-    public void updatePixel(Point p, Color colour) {
+    public void updatePixel(Point p, Colour colour) {
         int idx = Instance.SIZE_FLOATS * (p.y * width + p.x);
 
         FloatBuffer fbuf = pixelMappedBuf.asFloatBuffer();
         fbuf.position(idx + 4 * 4);
-        fbuf.put(colour.getRed() / 255.0f);
-        fbuf.put(colour.getGreen() / 255.0f);
-        fbuf.put(colour.getBlue() / 255.0f);
-        fbuf.put(colour.getAlpha() / 255.0f);
+        fbuf.put(colour.r).put(colour.g).put(colour.b).put(colour.a);
     }
 
     /**
@@ -117,7 +113,7 @@ public class TerminalRenderer implements IRenderer, Closeable {
      * @param colour The new colour of the character.
      * @param c The new character.
      */
-    public void updateText(Point p, Color colour, char c) {
+    public void updateText(Point p, Colour colour, char c) {
         int[] point = asciiToPoint(c, 6, 9, 96, 144);
         float[] relPoint = new float[] {
             (float)point[0] / (float)font.getWidth(),
@@ -128,10 +124,7 @@ public class TerminalRenderer implements IRenderer, Closeable {
 
         FloatBuffer fbuf = textMappedBuf.asFloatBuffer();
         fbuf.position(idx + 4 * 4);
-        fbuf.put(colour.getRed() / 255.0f);
-        fbuf.put(colour.getGreen() / 255.0f);
-        fbuf.put(colour.getBlue() / 255.0f);
-        fbuf.put(colour.getAlpha() / 255.0f);
+        fbuf.put(colour.r).put(colour.g).put(colour.b).put(colour.a);
         fbuf.put(relPoint); // offset
         fbuf.put(6.0f / font.getWidth()).put(9.0f / font.getHeight());
     }
