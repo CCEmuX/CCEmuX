@@ -9,6 +9,7 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLDebugMessageARBCallback;
 import org.lwjgl.system.MemoryUtil;
 
+import java.io.Closeable;
 import java.nio.FloatBuffer;
 import java.util.logging.Level;
 
@@ -19,7 +20,7 @@ import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL33.*;
 
-public class Graphics {
+public class Graphics implements Closeable {
     /** A static vertex buffer containing a unit rectangle. To be used with GL_TRIANGLE_STRIP. */
     public final int rectBuffer;
 
@@ -296,5 +297,12 @@ public class Graphics {
         glVertexAttribDivisor(8, 1);
 
         return vao;
+    }
+
+    @Override
+    public void close() {
+        shaderDefault.close();
+        texWhite.close();
+        texBlack.close();
     }
 }

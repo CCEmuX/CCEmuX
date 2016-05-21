@@ -130,11 +130,13 @@ public class Shader implements Closeable {
     }
 
     public void close() {
-        glDetachShader(program, fragShader);
-        glDetachShader(program, vertShader);
+        if (glIsShader(fragShader)) {
+            glDeleteShader(fragShader);
+        }
 
-        glDeleteShader(fragShader);
-        glDeleteShader(vertShader);
+        if (glIsShader(vertShader)) {
+            glDeleteShader(vertShader);
+        }
 
         glDeleteProgram(program);
     }

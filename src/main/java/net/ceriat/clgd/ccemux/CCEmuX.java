@@ -149,6 +149,7 @@ public class CCEmuX {
     public void cleanup() {
         ccAssets.close();
         computer.close();
+        graphics.close();
 
         ComputerThread.stop();
     }
