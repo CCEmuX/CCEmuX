@@ -1,21 +1,35 @@
 package net.ceriat.clgd.ccemux.graphics;
 
 import net.ceriat.clgd.ccemux.CCEmuX;
+import net.ceriat.clgd.ccemux.emulation.CCCtrlCommand;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 
 import javax.swing.*;
 import java.io.Closeable;
+import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.system.MemoryUtil.*;
-
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryUtil.*;
 
 public class EmuWindow implements Closeable {
     private long handle;
+
+    private static final HashMap<Integer, Integer> keycodeTranslationMap = new HashMap<Integer, Integer>();
+
+    static {
+        keycodeTranslationMap.put(328, 200);
+        keycodeTranslationMap.put(336, 208);
+        keycodeTranslationMap.put(331, 203);
+        keycodeTranslationMap.put(333, 205);
+        keycodeTranslationMap.put(335, 207);
+        keycodeTranslationMap.put(327, 199);
+    }
+
     private GLFWWindowSizeCallback callbackSize = new GLFWWindowSizeCallback() {
         @Override
         public void invoke(long window, int width, int height) {
@@ -30,14 +44,58 @@ public class EmuWindow implements Closeable {
     private GLFWCharModsCallback callbackChar = new GLFWCharModsCallback() {
         @Override
         public void invoke(long window, int codepoint, int mods) {
-            CCEmuX.instance.pressChar((char)codepoint);
+            CCEmuX.instance.computer.pressChar((char) codepoint);
         }
     };
 
     private GLFWKeyCallback callbackKey = new GLFWKeyCallback() {
         @Override
         public void invoke(long window, int key, int scancode, int action, int mods) {
-            CCEmuX.instance.pressKey(scancode, action == GLFW_RELEASE);
+            int code = scancode;
+
+            if (keycodeTranslationMap.containsKey(scancode)) {
+                code = keycodeTranslationMap.get(scancode);
+            }
+
+            if (action == GLFW_RELEASE && (mods & GLFW_MOD_CONTROL) == GLFW_MOD_CONTROL) {
+                for (CCCtrlCommand cmd : CCCtrlCommand.values()) {
+                    if (cmd.triggerKey == key) {
+                        CCEmuX.instance.computer.sendCtrlCombo(cmd);
+                        return;
+                    }
+                }
+            }
+
+            CCEmuX.instance.computer.pressKey(code, action == GLFW_RELEASE);
+        }
+    };
+
+    private GLFWMouseButtonCallback callbackMouseBtn = new GLFWMouseButtonCallback() {
+        @Override
+        public void invoke(long window, int button, int action, int mods) {
+            if (action == GLFW_PRESS) {
+                int ccbutton = 0;
+
+                switch (button) {
+                    case GLFW_MOUSE_BUTTON_LEFT:
+                        ccbutton = 1;
+                        break;
+
+                    case GLFW_MOUSE_BUTTON_RIGHT:
+                        ccbutton = 2;
+                        break;
+
+                    case GLFW_MOUSE_BUTTON_MIDDLE:
+                        ccbutton = 3;
+                        break;
+                }
+
+                DoubleBuffer x = BufferUtils.createDoubleBuffer(1);
+                DoubleBuffer y = BufferUtils.createDoubleBuffer(1);
+                glfwGetCursorPos(window, x, y);
+
+                CCEmuX.instance.computer.mousePress(ccbutton, x.get(0), y.get(0));
+            }
         }
     };
 
@@ -89,6 +147,7 @@ public class EmuWindow implements Closeable {
         glfwSetWindowSizeCallback(handle, callbackSize);
         glfwSetCharModsCallback(handle, callbackChar);
         glfwSetKeyCallback(handle, callbackKey);
+        glfwSetMouseButtonCallback(handle, callbackMouseBtn);
     }
 
     /**

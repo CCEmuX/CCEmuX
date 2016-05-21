@@ -14,7 +14,15 @@ public class EmuComputer implements Closeable {
     public Terminal terminal;
     public TerminalRenderer renderer;
 
+    public int termWidth, termHeight;
+    public int pixelWidth, pixelHeight;
+
     public EmuComputer(int termWidth, int termHeight, int pixelWidth, int pixelHeight) {
+        this.termWidth = termWidth;
+        this.termHeight = termHeight;
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
+
         terminal = new Terminal(termWidth, termHeight);
         computer = new Computer(new EmuEnvironment(true), terminal, 0);
 
@@ -66,6 +74,38 @@ public class EmuComputer implements Closeable {
 
         renderer.setCursorPos(terminal.getCursorX(), terminal.getCursorY());
         renderer.setDrawCursor(terminal.getCursorBlink() && CCEmuX.instance.globalCursorBlink);
+    }
+
+    public void pressChar(char c) {
+        computer.queueEvent("char", new Object[] { String.valueOf(c) });
+    }
+
+    public void pressKey(int scancode, boolean up) {
+        computer.queueEvent(up ? "key_up" : "key", new Object[] { scancode });
+    }
+
+    public void sendCtrlCombo(CCCtrlCommand cmd) {
+        switch (cmd) {
+            case SHUTDOWN:
+                computer.shutdown();
+                break;
+
+            case REBOOT:
+                computer.reboot();
+                break;
+
+            case TERMINATE:
+                computer.queueEvent("terminate", new Object[] {});
+                break;
+        }
+    }
+
+    public void mousePress(int button, double x, double y) {
+        computer.queueEvent("mouse_click", new Object[] {
+            button,
+            (int)x / pixelWidth + 1,
+            (int)y / pixelHeight + 1
+        });
     }
 
     @Override

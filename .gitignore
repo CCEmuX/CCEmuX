@@ -145,3 +145,6 @@ gradle-app.setting
 
 # We're not allowed to distribute this
 assets/ComputerCraft.jar
+
+# User-specific stuff
+assets/computer

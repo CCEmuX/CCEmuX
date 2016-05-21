@@ -20,8 +20,8 @@ public class CCEmuX {
     public static final String VERSION = "1.0.0";
 
     private static final String EMU_TITLE = "CCEmuX v" + VERSION;
-    private static final int EMU_WIDTH = 816;
-    private static final int EMU_HEIGHT = 456;
+    private static final int EMU_WIDTH = 918;
+    private static final int EMU_HEIGHT = 513;
 
     // Emulator components
 
@@ -44,7 +44,7 @@ public class CCEmuX {
 
     public float deltaTime;
 
-    private EmuComputer computer;
+    public EmuComputer computer;
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
@@ -98,7 +98,7 @@ public class CCEmuX {
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
         ccAssets = new CCAssets(ccJarFile);
-        computer = new EmuComputer(51, 19, EMU_WIDTH / 51, EMU_HEIGHT / 19);
+        computer = new EmuComputer(51, 19, 18, 27);
     }
 
     public void tick() {
@@ -151,14 +151,6 @@ public class CCEmuX {
         computer.close();
 
         ComputerThread.stop();
-    }
-
-    public void pressChar(char c) {
-        computer.computer.queueEvent("char", new Object[] { String.valueOf(c) });
-    }
-
-    public void pressKey(int scancode, boolean up) {
-        computer.computer.queueEvent(up ? "key_up" : "key", new Object[] { scancode });
     }
 
     /** A CCEmuX instance */
