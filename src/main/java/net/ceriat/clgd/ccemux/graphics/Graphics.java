@@ -143,15 +143,15 @@ public class Graphics {
 
         FloatBuffer fb = BufferUtils.createFloatBuffer(16);
 
-        int u_MVMatrix = shaderDefault.getUniformLocation("u_MVMatrix");
+        int u_MVMatrix = shader.getUniformLocation("u_MVMatrix");
         modelviewMat.get(fb);
         glUniformMatrix4fv(u_MVMatrix, false, fb);
 
-        int u_PMatrix = shaderDefault.getUniformLocation("u_PMatrix");
+        int u_PMatrix = shader.getUniformLocation("u_PMatrix");
         projectionMat.get(fb);
         glUniformMatrix4fv(u_PMatrix, false, fb);
 
-        int u_Texture = shaderDefault.getUniformLocation("u_Texture");
+        int u_Texture = shader.getUniformLocation("u_Texture");
         glUniform1i(u_Texture, 0); // always use texture slot 0
     }
 

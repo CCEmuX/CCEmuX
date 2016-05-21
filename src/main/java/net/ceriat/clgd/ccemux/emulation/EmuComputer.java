@@ -2,7 +2,6 @@ package net.ceriat.clgd.ccemux.emulation;
 
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
-
 import net.ceriat.clgd.ccemux.CCEmuX;
 import net.ceriat.clgd.ccemux.graphics.Colour;
 import net.ceriat.clgd.ccemux.graphics.Point;
@@ -64,6 +63,9 @@ public class EmuComputer implements Closeable {
         }
 
         renderer.stopPixelUpdate();
+
+        renderer.setCursorPos(terminal.getCursorX(), terminal.getCursorY());
+        renderer.setDrawCursor(terminal.getCursorBlink() && CCEmuX.instance.globalCursorBlink);
     }
 
     @Override

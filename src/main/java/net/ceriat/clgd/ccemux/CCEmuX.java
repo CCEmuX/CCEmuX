@@ -40,6 +40,7 @@ public class CCEmuX {
 
     public int ticksSinceStart;
     public float timeSinceStart;
+    public boolean globalCursorBlink;
 
     public float deltaTime;
 
@@ -103,6 +104,8 @@ public class CCEmuX {
     public void tick() {
         computer.computer.advance(deltaTime);
         computer.syncWithRenderer();
+
+        globalCursorBlink = ticksSinceStart / 8 % 2 == 0;
     }
 
     /**

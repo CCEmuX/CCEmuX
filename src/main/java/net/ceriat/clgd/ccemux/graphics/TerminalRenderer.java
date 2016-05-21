@@ -17,10 +17,12 @@ public class TerminalRenderer implements IRenderer, Closeable {
     private net.ceriat.clgd.ccemux.graphics.Graphics graphics = CCEmuX.instance.graphics;
     private int pixelInstBuffer, pixelVAO;
     private int textInstBuffer, textVAO;
+    private int cursorInstBuffer, cursorVAO;
     private int width, height;
+    private float pixelWidth, pixelHeight;
     private ByteBuffer pixelMappedBuf, textMappedBuf;
-
-    private int rectVAO;
+    private boolean drawCursor;
+    private int cursorX, cursorY;
 
     private Texture font;
 
@@ -28,13 +30,18 @@ public class TerminalRenderer implements IRenderer, Closeable {
         this.width = width;
         this.height = height;
         this.font = font;
+        this.drawCursor = true;
+        this.pixelWidth = pixelWidth;
+        this.pixelHeight = pixelHeight;
 
         orphan(width, height, pixelWidth, pixelHeight);
+
         pixelVAO = graphics.createVertexAttribs(graphics.rectBuffer, pixelInstBuffer);
         textVAO = graphics.createVertexAttribs(graphics.rectBuffer, textInstBuffer);
+        cursorVAO = graphics.createVertexAttribs(graphics.rectBuffer, cursorInstBuffer);
     }
 
-    public void orphan(int width, int height, float pixelWidth, float pixelHeight) {
+    private void orphan(int width, int height, float pixelWidth, float pixelHeight) {
         Instance[] pixelInstances = new Instance[width * height];
         Instance[] textInstances = new Instance[width * height];
 
@@ -68,6 +75,22 @@ public class TerminalRenderer implements IRenderer, Closeable {
 
         pixelInstBuffer = graphics.createInstanceBuffer(pixelInstances, GL_DYNAMIC_DRAW);
         textInstBuffer = graphics.createInstanceBuffer(textInstances, GL_DYNAMIC_DRAW);
+
+        Instance cursorInst = new Instance(
+            new Matrix4f().identity().scale(pixelWidth, pixelHeight, 1.0f), 1.0f, 1.0f, 1.0f, 1.0f
+        );
+
+        int[] point = asciiToPoint('_', 6, 9, 96, 144);
+        float[] relPoint = new float[] {
+            (float)point[0] / (float)font.getWidth(),
+            (float)point[1] / (float)font.getHeight()
+        };
+
+        cursorInst.uScale = 6.0f / font.getWidth();
+        cursorInst.vScale = 9.0f / font.getHeight();
+        cursorInst.uOffset = relPoint[0];
+        cursorInst.vOffset = relPoint[1];
+        cursorInstBuffer = graphics.createInstanceBuffer(new Instance[] { cursorInst }, GL_STATIC_DRAW);
     }
 
     /**
@@ -130,6 +153,24 @@ public class TerminalRenderer implements IRenderer, Closeable {
     }
 
     /**
+     * Sets whether the cursor should be drawn.
+     * @param drawCursor Yes/no.
+     */
+    public void setDrawCursor(boolean drawCursor) {
+        this.drawCursor = drawCursor;
+    }
+
+    /**
+     * Sets the position of the cursor.
+     * @param x The x coord of the cursor.
+     * @param y The y coord of the cursor.
+     */
+    public void setCursorPos(int x, int y) {
+        this.cursorX = x;
+        this.cursorY = y;
+    }
+
+    /**
      * Stops updating chars and submits changes to the GPU.
      */
     public void stopTextUpdate() {
@@ -167,9 +208,21 @@ public class TerminalRenderer implements IRenderer, Closeable {
         glBindTexture(GL_TEXTURE_2D, graphics.texWhite.getTextureHandle());
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
 
-        glBindVertexArray(textVAO);
         glBindTexture(GL_TEXTURE_2D, font.getTextureHandle());
+
+        glBindVertexArray(textVAO);
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, width * height);
+
+        if (drawCursor) {
+            graphics.modelviewMat.pushMatrix();
+            graphics.modelviewMat.translate(cursorX * pixelWidth, cursorY * pixelHeight, 0.0f);
+
+            graphics.setRenderUniforms(graphics.shaderDefault);
+            glBindVertexArray(cursorVAO);
+            glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, 1);
+
+            graphics.modelviewMat.popMatrix();
+        }
     }
 
     public void close() {
