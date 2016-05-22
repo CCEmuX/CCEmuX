@@ -39,5 +39,8 @@ dependencies {
     compile "org.joml:joml:1.7.1"
     compile "im.bci:pngdecoder:0.13"
 
+    // required by CC
+    compile "com.google.collections:google-collections:1.0"
+
     compile files("assets/ComputerCraft.jar")
 }

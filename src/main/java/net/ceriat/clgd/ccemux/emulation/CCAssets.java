@@ -1,5 +1,6 @@
-package net.ceriat.clgd.ccemux;
+package net.ceriat.clgd.ccemux.emulation;
 
+import net.ceriat.clgd.ccemux.CCEmuX;
 import net.ceriat.clgd.ccemux.graphics.Texture;
 
 import java.io.Closeable;
