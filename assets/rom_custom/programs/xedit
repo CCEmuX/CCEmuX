@@ -1,0 +1,10 @@
+if not ccemux then
+	return printError("This program only works in CCEmuX!")
+end
+
+local file = ...
+if not file then
+	return printError("Usage: " .. shell.getRunningProgram() .. " <file>")
+end
+
+return ccemux.editFile(file)

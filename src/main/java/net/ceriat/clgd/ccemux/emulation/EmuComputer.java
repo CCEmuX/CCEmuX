@@ -1,6 +1,9 @@
 package net.ceriat.clgd.ccemux.emulation;
 
+import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.JarMount;
 import dan200.computercraft.core.terminal.Terminal;
 import net.ceriat.clgd.ccemux.CCEmuX;
 import net.ceriat.clgd.ccemux.graphics.Colour;
@@ -10,11 +13,13 @@ import net.ceriat.clgd.ccemux.graphics.TerminalRenderer;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.io.Closeable;
+import java.io.IOException;
 
 public class EmuComputer implements Closeable {
     public Computer computer;
     public Terminal terminal;
     public TerminalRenderer renderer;
+    public IMount rom;
 
     public int termWidth, termHeight;
     public int pixelWidth, pixelHeight;
@@ -36,6 +41,15 @@ public class EmuComputer implements Closeable {
             pixelWidth, pixelHeight
         );
 
+        try {
+            rom = new HybridMount(
+                new FileMount(CCEmuX.instance.romCustomDir, Long.MAX_VALUE),
+                new JarMount(CCEmuX.instance.ccJarFile, "assets/computercraft/lua/rom")
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         computer.turnOn();
     }
 
@@ -50,6 +64,17 @@ public class EmuComputer implements Closeable {
         }
 
         return new Colour(col.getR(), col.getG(), col.getB());
+    }
+
+    private boolean romPatched = false;
+
+    public void advance(double dt) {
+        computer.advance(dt);
+
+        if (!romPatched && ROMPatcher.patchROM(computer, rom)) {
+            romPatched = true;
+            CCEmuX.instance.logger.fine("Patched ROM.");
+        }
     }
 
     public void syncWithRenderer() {

@@ -36,6 +36,7 @@ public class CCEmuX {
 
     public File assetsDir = new File("assets");
     public File ccJarFile = new File(assetsDir, "ComputerCraft.jar");
+    public File romCustomDir = new File(assetsDir, "rom_custom");
 
     public CCAssets ccAssets;
 
@@ -50,16 +51,8 @@ public class CCEmuX {
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
 
-        if (!assetsDir.exists()) {
-            JOptionPane.showMessageDialog(
-                null,
-                "The assets directory is missing!\nPlease put it in the same directory as CCEmuX.jar.",
-                "Error",
-                JOptionPane.ERROR_MESSAGE
-            );
-
-            System.exit(1);
-            return;
+        if (!romCustomDir.exists()) {
+            romCustomDir.mkdirs();
         }
 
         if (!ccJarFile.exists()) {
@@ -103,7 +96,7 @@ public class CCEmuX {
     }
 
     public void tick() {
-        computer.computer.advance(deltaTime);
+        computer.advance(deltaTime);
         computer.syncWithRenderer();
 
         globalCursorBlink = ticksSinceStart / 8 % 2 == 0;
