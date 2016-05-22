@@ -1,6 +1,7 @@
 package net.ceriat.clgd.ccemux;
 
 import dan200.computercraft.core.computer.ComputerThread;
+import net.ceriat.clgd.ccemux.emulation.CCAssets;
 import net.ceriat.clgd.ccemux.emulation.EmuComputer;
 import net.ceriat.clgd.ccemux.graphics.EmuWindow;
 
