@@ -60,15 +60,24 @@ public class CCEmuXAPI implements ILuaAPI {
                 String file = (String)objects[0];
 
                 try {
-                    String path = "\"" + new File(CCEmuX.instance.assetsDir, "computer/" + computer.getID() + "/" + file).getAbsolutePath() + "\"";
+                    File f = new File(CCEmuX.instance.assetsDir, "computer/" + computer.getID() + "/" + file);
+                    String path = "\"" + f.getAbsolutePath() + "\"";
+                    String editorPath = CCEmuX.instance.config.getEditorPath();
+
+                    if (editorPath == null) {
+                        return new Object[] { false };
+                    }
+
                     Runtime.getRuntime().exec(
-                        CCEmuX.instance.config.getEditorPath() + " " + path
+                         editorPath + " " + path
                     );
+
+                    return new Object[] { true };
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                return new Object[]{};
+                return new Object[] { false };
             }
         }
 

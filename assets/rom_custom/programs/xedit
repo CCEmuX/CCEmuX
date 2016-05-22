@@ -4,7 +4,9 @@ end
 
 local file = ...
 if not file then
-	return printError("Usage: " .. shell.getRunningProgram() .. " <file>")
+	return printError("Usage: " .. fs.getName(shell.getRunningProgram()) .. " <file>")
 end
 
-return ccemux.editFile(file)
+if not ccemux.editFile(file) then
+    return printError("Couldn't open file. Is 'editor-executable' set correctly?")
+end

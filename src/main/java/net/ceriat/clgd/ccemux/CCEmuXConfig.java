@@ -37,7 +37,6 @@ public class CCEmuXConfig {
 
         File f = new File(path);
         if (!f.exists()) {
-            CCEmuX.instance.logger.warning("editor-executable is invalid!");
             return null;
         }
 
