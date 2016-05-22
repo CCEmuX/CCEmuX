@@ -50,6 +50,7 @@ public class EmuComputer implements Closeable {
             e.printStackTrace();
         }
 
+        computer.addAPI(new CCEmuXAPI(computer));
         computer.turnOn();
     }
 

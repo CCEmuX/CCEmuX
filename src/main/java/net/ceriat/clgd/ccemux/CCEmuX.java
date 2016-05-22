@@ -37,6 +37,9 @@ public class CCEmuX {
     public File assetsDir = new File("assets");
     public File ccJarFile = new File(assetsDir, "ComputerCraft.jar");
     public File romCustomDir = new File(assetsDir, "rom_custom");
+    public File configFile = new File(assetsDir, "config.properties");
+
+    public CCEmuXConfig config = new CCEmuXConfig(configFile);
 
     public CCAssets ccAssets;
 
@@ -50,6 +53,10 @@ public class CCEmuX {
 
     public CCEmuX() throws Exception {
         CCEmuX.instance = this;
+
+        if (!assetsDir.exists()) {
+            assetsDir.mkdir();
+        }
 
         if (!romCustomDir.exists()) {
             romCustomDir.mkdirs();
