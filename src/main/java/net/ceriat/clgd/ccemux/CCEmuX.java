@@ -99,7 +99,7 @@ public class CCEmuX {
         graphics.makeOrthographic(window.getWidth(), window.getHeight());
 
         ccAssets = new CCAssets(ccJarFile);
-        computer = new EmuComputer(51, 19, 18, 27);
+        computer = new EmuComputer(0, 51, 19, 18, 27);
     }
 
     public void tick() {

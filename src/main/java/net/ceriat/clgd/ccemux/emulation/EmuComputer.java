@@ -20,20 +20,22 @@ public class EmuComputer implements Closeable {
     public Terminal terminal;
     public TerminalRenderer renderer;
     public IMount rom;
+    public int computerID;
 
     public int termWidth, termHeight;
     public int pixelWidth, pixelHeight;
 
     private int lastDragX = 0, lastDragY = 0;
 
-    public EmuComputer(int termWidth, int termHeight, int pixelWidth, int pixelHeight) {
+    public EmuComputer(int computerID, int termWidth, int termHeight, int pixelWidth, int pixelHeight) {
         this.termWidth = termWidth;
         this.termHeight = termHeight;
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
+        this.computerID = computerID;
 
         terminal = new Terminal(termWidth, termHeight);
-        computer = new Computer(new EmuEnvironment(true), terminal, 0);
+        computer = new Computer(new EmuEnvironment(true), terminal, computerID);
 
         renderer = new TerminalRenderer(
             CCEmuX.instance.ccAssets.font,
