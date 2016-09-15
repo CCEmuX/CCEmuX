@@ -1,0 +1,16 @@
+plugins {
+ 	id "org.xtext.xtend" version "1.0.12"
+ 	id "application"
+ 	id "eclipse"
+ 	id "idea"
+}
+
+mainClassName = "net.clgd.ccemux.Launcher"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+ 	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.9.0'
+}
