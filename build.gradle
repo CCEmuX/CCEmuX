@@ -6,13 +6,13 @@ plugins {
  	id "idea"
 }
 
-mainClassName = "net.clgd.ccemux.Launcher"
+mainClassName = "net.clgd.ccemux.CCEmuX"
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
+	jcenter()
 	
 	ivy {
 		name = "computercraft"
@@ -26,12 +26,17 @@ dependencies {
  	compileOnly ":ComputerCraft:${ccVersion}"
  	
  	compile "org.slf4j:slf4j-simple:1.7.21"
- 	compile 'commons-io:commons-io:2.5'
 }
 
 processResources {
 	// contains CC metadata - eg version and URL
 	from("gradle.properties")
+}
+
+jar {
+	manifest {
+		attributes 'SplashScreen-Image':'splash1.png'
+	}
 }
 
 build.dependsOn shadowJar
