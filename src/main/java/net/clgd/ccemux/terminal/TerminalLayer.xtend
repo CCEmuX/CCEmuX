@@ -1,12 +1,13 @@
 package net.clgd.ccemux.terminal
 
 import java.util.Random
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class TerminalLayer {
 	TerminalPixel[] pixels
 	
-	int width
-	int height
+	@Accessors(PUBLIC_GETTER) int width
+	@Accessors(PUBLIC_GETTER) int height
 	
 	new(int width, int height) {
 		this.width = width
@@ -40,13 +41,5 @@ class TerminalLayer {
 	
 	def setPixel(int x, int y, TerminalPixel pixel) {
 		pixels.set(y * width + x, pixel)
-	}
-	
-	def getWidth() {
-		return width
-	}
-	
-	def getHeight() {
-		return height
 	}
 }

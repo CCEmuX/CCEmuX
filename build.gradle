@@ -1,12 +1,12 @@
 plugins {
-	id "org.xtext.xtend" version "1.0.12"
-	id "application"
-	id "com.github.johnrengelman.shadow" version "1.2.3"
-	id "eclipse"
-	id "idea"
+	id 'org.xtext.xtend' version '1.0.12'
+	id 'application'
+	id 'com.github.johnrengelman.shadow' version '1.2.3'
+	id 'eclipse'
+	id 'idea'
 }
 
-mainClassName = "net.clgd.ccemux.CCEmuX"
+mainClassName = 'net.clgd.ccemux.CCEmuX'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -15,24 +15,28 @@ repositories {
 	mavenCentral()
 	
 	ivy {
-		name = "computercraft"
+		name = 'computercraft'
 		artifactPattern ccPattern
 	}
 }
 
-project.ext.swtVersion = "4.6"
+project.ext.swtVersion = '4.6'
 
 dependencies {
-	compile "org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0"
+	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0'
 	
 	compileOnly ":ComputerCraft:${ccVersion}"
 	
-	compile "org.slf4j:slf4j-simple:1.7.21"
+	compile 'org.slf4j:slf4j-simple:1.7.21'
+	
+	compile 'commons-io:commons-io:2.5'
+	
+	compile 'commons-cli:commons-cli:1.3.1'
 }
 
 processResources {
 	// contains CC metadata - eg version and URL
-	from("gradle.properties")
+	from('gradle.properties')
 }
 
 jar {

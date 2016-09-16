@@ -5,12 +5,12 @@ import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.swing.JComponent
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class TerminalComponent extends JComponent {
-	TerminalLayer terminal
-	
-	int pixelWidth
-	int pixelHeight
+	@Accessors(PUBLIC_GETTER)TerminalLayer terminal
+	@Accessors(PUBLIC_GETTER) int pixelWidth
+	@Accessors(PUBLIC_GETTER) int pixelHeight
 	
 	new(int width, int height, int pixelWidth, int pixelHeight) {	
 		this.pixelWidth = pixelWidth
@@ -24,18 +24,6 @@ class TerminalComponent extends JComponent {
 		preferredSize = termDimensions
 	}
 	
-	def getPixelWidth() {
-		return pixelWidth
-	}
-	
-	def getPixelHeight() {
-		return pixelHeight
-	}
-	
-	def getLayer() {
-		return terminal
-	}
-	
 	private def Color getColourFromInt(int i) {
 		val col = Colour.fromInt(15 - i)
 		
@@ -46,12 +34,13 @@ class TerminalComponent extends JComponent {
 		return new Color(col.r, col.g, col.b)
 	}
 	
-	protected override paintComponent(Graphics g) {
+	protected override paintComponent(Graphics it) {
 		for (var y = 0; y < terminal.height; y++) {
 			for (var x = 0; x < terminal.width; x++) {
 				val pixel = terminal.getPixel(x, y)
-				g.color = getColourFromInt(pixel.backgroundColour)
-				g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
+				
+				color = getColourFromInt(pixel.backgroundColour)
+				fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
 			}
 		}
 	}
