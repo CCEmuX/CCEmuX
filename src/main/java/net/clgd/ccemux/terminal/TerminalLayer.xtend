@@ -25,7 +25,7 @@ class TerminalLayer {
 	}
 	
 	def randomise() {
-		val random = new Random()
+		val random = new Random
 		
 		for (var y = 0; y < height; y++) {
 			for (var x = 0; x < width; x++) {

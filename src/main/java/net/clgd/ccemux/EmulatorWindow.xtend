@@ -6,12 +6,12 @@ import javax.swing.JFrame
 import net.clgd.ccemux.terminal.TerminalComponent
 
 class EmulatorWindow extends JFrame {
-	static final String EMU_WINDOW_TITLE = "CCEmuX" 
+	static val EMU_WINDOW_TITLE = "CCEmuX" 
 	
 	new() {
-		super(EMU_WINDOW_TITLE);
+		super(EMU_WINDOW_TITLE)
 		
-		layout = new BorderLayout()
+		layout = new BorderLayout
 		minimumSize = new Dimension(300, 200)
 		
 		// Make sure the process ends when we close the window.
