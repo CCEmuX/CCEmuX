@@ -1,44 +1,26 @@
 package net.clgd.ccemux
 
-import org.eclipse.swt.widgets.Shell
-import org.eclipse.swt.widgets.Display
+import java.awt.BorderLayout
+import java.awt.Dimension
+import javax.swing.JFrame
 
-class EmulatorWindow implements Runnable {
-	private static final String EMU_WINDOW_TITLE = "CCEmuX" 
+class EmulatorWindow extends JFrame {
+	static final String EMU_WINDOW_TITLE = "CCEmuX" 
 	
-	private Shell shell
-	private Display display
-
-	new(Display display) {
-		this.display = display
+	new() {
+		super(EMU_WINDOW_TITLE);
 		
-		shell = new Shell(display)
-		shell.text = EMU_WINDOW_TITLE
+		layout = new BorderLayout()
 		
-		// TODO: Temporary magic numbers. A 51x19 terminal at 18x27 pixel size fits into this window.
-		// Find a better way.
-		shell.setSize(918, 513)
+		// TODO: Temporary magic numbers. Change this.
+		size = new Dimension(918, 513)
+		preferredSize = new Dimension(918, 513)
+		minimumSize = new Dimension(300, 200)
+		
+		// Make sure the process ends when we close the window.
+		defaultCloseOperation = EXIT_ON_CLOSE
 		
 		// Centre the window.
-		val bounds = shell.display.bounds
-		val size = shell.size
-		
-		shell.setBounds(
-			(bounds.width - size.x) / 2,
-			(bounds.height - size.y) / 2,
-			size.x,
-			size.y
-		)
-	}
-	
-	override void run() {
-		shell.open()
-		
-		// Keeps the window alive and receiving events.
-		while (!shell.disposed) {
-			if (!display.readAndDispatch) {
-				display.sleep
-			}
-		}
+		locationRelativeTo = null
 	}
 }
