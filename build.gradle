@@ -23,6 +23,8 @@ repositories {
 dependencies {
  	compile "org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0"
  	
+ 	compile "org.eclipse.xtext:org.eclipse.xtext.xbase.lib:2.10.0"
+ 	
  	compileOnly ":ComputerCraft:${ccVersion}"
  	
  	compile "org.slf4j:slf4j-simple:1.7.21"
