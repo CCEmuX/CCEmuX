@@ -3,10 +3,13 @@ package net.clgd.ccemux
 import java.awt.BorderLayout
 import java.awt.Dimension
 import javax.swing.JFrame
+import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.terminal.TerminalComponent
 
 class EmulatorWindow extends JFrame {
 	static val EMU_WINDOW_TITLE = "CCEmuX" 
+	
+	EmulatedComputer computer
 	
 	new() {
 		super(EMU_WINDOW_TITLE)
@@ -24,8 +27,10 @@ class EmulatorWindow extends JFrame {
 		val termPixelWidth = 18
 		val termPixelHeight = 27
 		
+		computer = new EmulatedComputer(termWidth, termHeight)
+		
 		add(new TerminalComponent(
-			termWidth, termHeight,
+			computer.terminal,
 			termPixelWidth, termPixelHeight
 		), BorderLayout.CENTER)
 		

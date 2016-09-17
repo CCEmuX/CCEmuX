@@ -1,6 +1,7 @@
 package net.clgd.ccemux.terminal
 
 import dan200.computercraft.ComputerCraft
+import dan200.computercraft.core.terminal.Terminal
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Point
@@ -13,15 +14,17 @@ import org.eclipse.xtend.lib.annotations.Accessors
 class TerminalComponent extends JComponent {
 	static val CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png"
 	
-	@Accessors(PUBLIC_GETTER) TerminalLayer terminal
+	@Accessors(PUBLIC_GETTER) Terminal terminal
 	@Accessors(PUBLIC_GETTER) int pixelWidth
 	@Accessors(PUBLIC_GETTER) int pixelHeight
 	
 	BufferedImage[] fontImages
 	
-	new(int width, int height, int pixelWidth, int pixelHeight) {	
+	new(Terminal terminal, int pixelWidth, int pixelHeight) {	
 		this.pixelWidth = pixelWidth
 		this.pixelHeight = pixelHeight
+		
+		this.terminal = terminal
 		
 		fontImages = newArrayOfSize(16)
 		
@@ -30,11 +33,8 @@ class TerminalComponent extends JComponent {
 		for (var i = 0; i < fontImages.length; i++) {
 			fontImages.set(i, Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i)))
 		}
-		
-		terminal = new TerminalLayer(width, height)
-		terminal.randomise
 	
-		val termDimensions = new Dimension(width * pixelWidth, height * pixelHeight) 
+		val termDimensions = new Dimension(terminal.width * pixelWidth, terminal.height * pixelHeight) 
 		size = termDimensions
 		preferredSize = termDimensions
 	}
@@ -54,16 +54,20 @@ class TerminalComponent extends JComponent {
 	
 	protected override paintComponent(Graphics it) {
 		for (var y = 0; y < terminal.height; y++) {
+			val textLine = terminal.getLine(y)
+			val bgLine = terminal.getBackgroundColourLine(y)
+			val fgLine = terminal.getTextColourLine(y)
+			
 			for (var x = 0; x < terminal.width; x++) {
-				val pixel = terminal.getPixel(x, y)
-				
-				color = Utils.getCCColourFromInt(pixel.backgroundColour)
+				color = Utils.getCCColourFromChar(bgLine.charAt(x))
 				fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
 				
 				// Retrieve the location of the character in the font bitmap and
 				// render the appropriate subrect.
 				
-				if ((pixel.character as int) != 0) {
+				val character = textLine.charAt(x)
+				
+				if (character as int > 0) {
 					// TODO: These are width & height of a character in the font bitmap.
 					// Replace these with something non-magical.
 					val charWidth = 6
@@ -76,13 +80,13 @@ class TerminalComponent extends JComponent {
 					val fontHeight = 144
 					
 					val charLocation = getCharLocation(
-						pixel.character,
+						character,
 						charWidth, charHeight,
 						fontWidth, fontHeight
 					)
 					
 					drawImage(
-						fontImages.get(pixel.foregroundColour),
+						fontImages.get(Utils.base16ToInt(fgLine.charAt(x))),
 						
 						// Destination
 						x * pixelWidth, y * pixelHeight,

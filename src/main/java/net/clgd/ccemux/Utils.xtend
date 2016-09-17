@@ -40,6 +40,10 @@ class Utils {
 				else new Color(col.r, col.g, col.b)
 	}
 	
+	def static Color getCCColourFromChar(char c) {
+		return getCCColourFromInt(base16ToInt(c))
+	}
+	
 	def static BufferedImage makeTintedCopy(BufferedImage it, Color tint) {
 		val gc = GraphicsEnvironment.localGraphicsEnvironment
 									.defaultScreenDevice
@@ -58,5 +62,11 @@ class Utils {
 		}
 		
 		return tintedImg
+	}
+	
+	static val BASE_16 = "0123456789abcdef"
+	
+	def static base16ToInt(char c) {
+		return BASE_16.indexOf(c.toString.toLowerCase)
 	}
 }
