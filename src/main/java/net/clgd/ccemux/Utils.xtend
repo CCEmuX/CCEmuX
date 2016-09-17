@@ -2,6 +2,9 @@ package net.clgd.ccemux
 
 import dan200.computercraft.shared.util.Colour
 import java.awt.Color
+import java.awt.GraphicsEnvironment
+import java.awt.Transparency
+import java.awt.image.BufferedImage
 import java.util.function.Consumer
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
@@ -28,12 +31,32 @@ class Utils {
 	
 	/**
 	 * Takes a colour id (see http://www.computercraft.info/wiki/Colors_(API)#Colors "Paint" column),
-	 * and returns a {@link java.awt.Color}.
+	 * and returns a {@link Color}.
 	 */
 	@Pure
 	def static Color getCCColourFromInt(int i) {
 		val col = Colour.fromInt(15 - i)
 		return 	if (col == null) Color.WHITE 
 				else new Color(col.r, col.g, col.b)
+	}
+	
+	def static BufferedImage makeTintedCopy(BufferedImage it, Color tint) {
+		val gc = GraphicsEnvironment.localGraphicsEnvironment
+									.defaultScreenDevice
+									.defaultConfiguration
+		
+		var tintedImg = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT)
+		
+		for (var y = 0; y < height; y++) {
+			for (var x = 0; x < width; x++) {
+				val rgb = getRGB(x, y)
+				
+				if (rgb != 0) {
+					tintedImg.setRGB(x, y, tint.getRGB())
+				} 
+			}
+		}
+		
+		return tintedImg
 	}
 }

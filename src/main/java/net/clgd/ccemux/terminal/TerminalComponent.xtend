@@ -17,27 +17,30 @@ class TerminalComponent extends JComponent {
 	@Accessors(PUBLIC_GETTER) int pixelWidth
 	@Accessors(PUBLIC_GETTER) int pixelHeight
 	
-	BufferedImage fontImage
+	BufferedImage[] fontImages
 	
 	new(int width, int height, int pixelWidth, int pixelHeight) {	
 		this.pixelWidth = pixelWidth
 		this.pixelHeight = pixelHeight
 		
+		fontImages = newArrayOfSize(16)
+		
+		val BufferedImage baseImage = ImageIO.read(typeof(ComputerCraft).getResource(CC_FONT_PATH))
+		
+		for (var i = 0; i < fontImages.length; i++) {
+			fontImages.set(i, Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i)))
+		}
+		
 		terminal = new TerminalLayer(width, height)
 		terminal.randomise
 	
-		fontImage = try {
-			ImageIO.read(typeof(ComputerCraft).getResource(CC_FONT_PATH))
-		} catch (Exception e) {
-			throw new IllegalStateException("Failed to load termFont.png")
-		}
-		
 		val termDimensions = new Dimension(width * pixelWidth, height * pixelHeight) 
 		size = termDimensions
 		preferredSize = termDimensions
 	}
 
-	private def getCharLocation(char c, int charWidth, int charHeight, int fontWidth, int fontHeight) {
+	@Pure
+	private static def getCharLocation(char c, int charWidth, int charHeight, int fontWidth, int fontHeight) {
 		val columns = fontWidth / charWidth
 		val rows = fontHeight / charHeight
 		
@@ -79,7 +82,7 @@ class TerminalComponent extends JComponent {
 					)
 					
 					drawImage(
-						fontImage,
+						fontImages.get(pixel.foregroundColour),
 						
 						// Destination
 						x * pixelWidth, y * pixelHeight,
