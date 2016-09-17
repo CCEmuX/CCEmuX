@@ -8,7 +8,7 @@ import javax.swing.JComponent
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class TerminalComponent extends JComponent {
-	@Accessors(PUBLIC_GETTER)TerminalLayer terminal
+	@Accessors(PUBLIC_GETTER) TerminalLayer terminal
 	@Accessors(PUBLIC_GETTER) int pixelWidth
 	@Accessors(PUBLIC_GETTER) int pixelHeight
 	
@@ -24,6 +24,7 @@ class TerminalComponent extends JComponent {
 		preferredSize = termDimensions
 	}
 	
+	@Pure
 	private def Color getColourFromInt(int i) {
 		val col = Colour.fromInt(15 - i)
 		

@@ -17,6 +17,7 @@ class Utils {
 	/**
 	 * Method to make initialization of objects easier
 	 */
+ 	@Pure
 	def static <T> T using(T t, Consumer<T> f) {
 		f.accept(t)
 		

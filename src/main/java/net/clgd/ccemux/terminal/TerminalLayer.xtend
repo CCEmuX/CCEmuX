@@ -35,6 +35,7 @@ class TerminalLayer {
 		}
 	}
 	
+	@Pure
 	def getPixel(int x, int y) {
 		return pixels.get(y * width + x)
 	}
