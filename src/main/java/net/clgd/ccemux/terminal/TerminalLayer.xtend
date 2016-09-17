@@ -30,7 +30,9 @@ class TerminalLayer {
 		
 		for (var y = 0; y < height; y++) {
 			for (var x = 0; x < width; x++) {
-				setPixel(x, y, new TerminalPixel(random.nextInt(0xF), random.nextInt(0xF), ' '))
+				setPixel(x, y, new TerminalPixel(
+					random.nextInt(0xF), random.nextInt(0xF), random.nextInt(0xFF) as char
+				))
 			}
 		}
 	}
@@ -40,7 +42,7 @@ class TerminalLayer {
 		return pixels.get(y * width + x)
 	}
 	
-	def setPixel(int x, int y, TerminalPixel pixel) {
+	def void setPixel(int x, int y, TerminalPixel pixel) {
 		pixels.set(y * width + x, pixel)
 	}
 }
