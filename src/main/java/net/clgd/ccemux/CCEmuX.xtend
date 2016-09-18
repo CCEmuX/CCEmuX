@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory
 
 import static extension net.clgd.ccemux.Utils.*
 import java.nio.file.Files
+import org.apache.commons.cli.HelpFormatter
 
 class CCEmuX {
 	@Accessors(PUBLIC_GETTER) static Logger logger
@@ -47,6 +48,12 @@ class CCEmuX {
 		]
 
 		val cmd = new DefaultParser().parse(opts, args)
+
+		if (cmd.hasOption('h')) {
+			val hf = new HelpFormatter
+			hf.printHelp("java -jar CCEmuX.jar <args>", opts)
+			System.exit(1)
+		}
 
 		portable = cmd.hasOption('p')
 

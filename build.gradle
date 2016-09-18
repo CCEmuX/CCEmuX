@@ -50,6 +50,9 @@ jar {
 	}
 }
 
+shadowJar {
+	classifier = null
+}
 
 // enable debug logging when running via gradle
 run {
