@@ -20,12 +20,11 @@ class EmulatorWindow extends JFrame {
 		// Make sure the process ends when we close the window.
 		defaultCloseOperation = EXIT_ON_CLOSE
 		
-		// TODO: Make these configurable
-		val termWidth = 51
-		val termHeight = 19
+		val termWidth = CCEmuX.conf.termWidth
+		val termHeight = CCEmuX.conf.termHeight
 		
-		val termPixelWidth = 18
-		val termPixelHeight = 27
+		val termPixelWidth = 6 * CCEmuX.conf.termScale
+		val termPixelHeight = 9 * CCEmuX.conf.termScale
 		
 		computer = new EmulatedComputer(termWidth, termHeight)
 		
