@@ -39,7 +39,9 @@ class EmulatorWindow extends JFrame {
 		// Centre the window.
 		locationRelativeTo = null
 		
+		CCEmuX.logger.trace("emuwindow - calling computer.update...")
 		computer.update(0.1f)
 		repaint()
+		CCEmuX.logger.trace("emuwindow - called computer.update.")
 	}
 }

@@ -56,11 +56,11 @@ shadowJar {
 
 // enable debug logging when running via gradle
 run {
-	args "--debug"
+	args "-l trace"
 }
 
 runShadow {
-	args "--debug"
+	args "-l trace"
 }
 
 build.dependsOn shadowJar

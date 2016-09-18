@@ -14,6 +14,7 @@ import java.nio.file.Files
 import org.apache.commons.cli.HelpFormatter
 import java.io.File
 import java.nio.file.Path
+import dan200.computercraft.core.computer.ComputerThread
 
 class CCEmuX {
 	@Accessors(PUBLIC_GETTER) static Logger logger
@@ -39,15 +40,17 @@ class CCEmuX {
 			buildOpt("d") [
 				longOpt("data-dir")
 				
-				desc("Manually sets the data directory. Overrides -p/--portable.")
+				desc("Manually sets the data directory. Overrides portable flag.")
 				hasArg()
 				argName("path")
 			]
 			
-			buildOpt(null) [
-				longOpt("debug")
+			buildOpt("l") [
+				longOpt("log-level")
 				
-				desc("Enables more verbose debug-level logging")
+				desc("Manually specify the logging level. Valid options are 'trace', 'debug', 'info', 'warning', and 'error', in that order from most verbose to least.")
+				hasArg()
+				argName("level")
 			]
 		]
 
@@ -61,7 +64,12 @@ class CCEmuX {
 
 		portable = cmd.hasOption('p')
 
-		if (cmd.hasOption("debug")) System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug")
+		cmd.getOptionValue("l")?.trim.using [
+			if (#{"trace", "debug", "info", "warning", "error"}.contains(it))
+				System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", it)
+			else
+				System.err.println("Invalid logging level: " + it)
+		]
 
 		logger = LoggerFactory.getLogger("CCEmuX")
 		
@@ -78,7 +86,10 @@ class CCEmuX {
 		CCBootstrapper.loadCC
 		logger.info("Loaded CC (v{})", ComputerCraft.version)
 		
-		if (ComputerCraft.version != conf.CCRevision) logger.warn("Potential compatibility issues detected - expected CC version (v{}) does not match loaded CC version (v{})", conf.CCRevision, ComputerCraft.version)
+		if (ComputerCraft.version != conf.CCRevision)
+			logger.warn("Potential compatibility issues detected - expected CC version (v{}) does not match loaded CC version (v{})", conf.CCRevision, ComputerCraft.version)
+		
+		ComputerThread.start
 		
 		window = new EmulatorWindow().using [
 			// close splash screen before making frame visible
