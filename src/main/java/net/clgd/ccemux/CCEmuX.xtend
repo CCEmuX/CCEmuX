@@ -13,19 +13,14 @@ import static extension net.clgd.ccemux.Utils.*
 import java.nio.file.Files
 import org.apache.commons.cli.HelpFormatter
 import java.io.File
+import java.nio.file.Path
 
 class CCEmuX {
 	@Accessors(PUBLIC_GETTER) static Logger logger
 	@Accessors(PUBLIC_GETTER) static EmulatorWindow window
 	@Accessors(PUBLIC_GETTER) static Config conf
 	@Accessors(PUBLIC_GETTER) static var portable = false
-	
-	def static getDataDir() {
-		if (portable)
-			Paths.get("")
-		else
-			OperatingSystem.get.appDataDir.resolve(if (System.getProperty("user.name") == "hydraz") "ccemux" else "CCEmuX")
-	}
+	@Accessors(PUBLIC_GETTER) static Path dataDir
 	
 	def static void main(String[] args) {
 		val opts = new Options().using [
@@ -39,6 +34,14 @@ class CCEmuX {
 
 				desc("Forces portable mode, in which all files (configs, saves, libraries) are kept in the same folder as CCEmuX." +
 					"Will automatically be enabled if the config file is in the same folder as CCEmuX.")
+			]
+			
+			buildOpt("d") [
+				longOpt("data-dir")
+				
+				desc("Manually sets the data directory. Overrides -p/--portable.")
+				hasArg()
+				argName("path")
 			]
 			
 			buildOpt(null) [
@@ -64,6 +67,7 @@ class CCEmuX {
 		
 		logger.info("Starting CCEmuX...")
 		
+		dataDir = if(cmd.hasOption('d')) Paths.get(cmd.getOptionValue('d')) else if(portable) Paths.get("") else OperatingSystem.get.appDataDir.resolve("ccemux")
 		logger.debug("Data directory is {}", dataDir.toAbsolutePath.toString)
 		Files.createDirectories(dataDir)
 		
