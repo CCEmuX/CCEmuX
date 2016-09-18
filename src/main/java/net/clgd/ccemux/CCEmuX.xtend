@@ -10,6 +10,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import static extension net.clgd.ccemux.Utils.*
+import java.nio.file.Files
 
 class CCEmuX {
 	@Accessors(PUBLIC_GETTER) static Logger logger
@@ -21,8 +22,7 @@ class CCEmuX {
 		if (portable)
 			Paths.get("")
 		else
-			// TODO: Use appdata/local share/whatever when not in portable mode
-			Paths.get("")
+			OperatingSystem.get.appDataDir.resolve("CCEmuX")
 	}
 	
 	def static void main(String[] args) {
@@ -57,6 +57,7 @@ class CCEmuX {
 		logger.info("Starting CCEmuX...")
 		
 		logger.debug("Data directory is {}", dataDir.toAbsolutePath.toString)
+		Files.createDirectories(dataDir)
 		
 		logger.debug("Loading configuration data...", dataDir.resolve(Config.CONFIG_FILE_NAME).toString)
 		conf = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile)
