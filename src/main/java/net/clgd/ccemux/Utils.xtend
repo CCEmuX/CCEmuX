@@ -29,6 +29,16 @@ class Utils {
 		return t
 	}
 	
+	/** 
+	 * Safely runs a lambda expression on a value, catching and ignoring any thrown exception.
+	 */
+	@Pure
+	def static <T> void tryWith(T t, Consumer<T> f) {
+		try {
+			f.accept(t)
+		} catch (Exception e) {}
+	}
+	
 	/**
 	 * Takes a colour id (see http://www.computercraft.info/wiki/Colors_(API)#Colors "Paint" column),
 	 * and returns a {@link Color}.

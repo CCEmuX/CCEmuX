@@ -7,9 +7,9 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import static net.clgd.ccemux.Utils.using
-
-import static extension net.clgd.ccemux.Utils.buildOpt
+import static net.clgd.ccemux.Utils.*
+import static extension net.clgd.ccemux.Utils.*
+import java.awt.SplashScreen
 
 class CCEmuX {
 	@Accessors(PUBLIC_GETTER) static Logger logger
@@ -43,9 +43,11 @@ class CCEmuX {
 		CCBootstrapper.loadCC
 		logger.info("Using CC Version {}", ComputerCraft.version)
 
-		window = using(new EmulatorWindow) [
-			visible = true
-		]
+		window = new EmulatorWindow
+		
+		SplashScreen.splashScreen?.close
+		
+		window.visible = true
 	}
 }
 		
