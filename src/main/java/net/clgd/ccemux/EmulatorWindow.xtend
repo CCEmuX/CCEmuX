@@ -38,5 +38,8 @@ class EmulatorWindow extends JFrame {
 		
 		// Centre the window.
 		locationRelativeTo = null
+		
+		computer.update(0.1f)
+		repaint()
 	}
 }

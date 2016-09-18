@@ -4,6 +4,8 @@ import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.computer.IComputerEnvironment
 import dan200.computercraft.core.filesystem.FileMount
 import java.io.File
+import java.nio.file.Paths
+import net.clgd.ccemux.CCEmuX
 
 class EmulatedEnvironment implements IComputerEnvironment {
 	int nextID = 0
@@ -13,7 +15,10 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override createResourceMount(String domain, String subPath) {
-		return new ClasspathMount("/assets/" + domain + "/" + subPath)
+		CCEmuX.logger.info("Creating resource mount @ domain " + domain + " in " + subPath)
+		val path = Paths.get("/assets", domain, subPath).toString
+		CCEmuX.logger.info("-> " + path)
+		return new ClasspathMount((ComputerCraft), path)
 	}
 	
 	override createSaveDirMount(String path, long capacity) {
