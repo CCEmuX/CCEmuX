@@ -28,7 +28,7 @@ class TerminalComponent extends JComponent {
 		
 		fontImages = newArrayOfSize(16)
 		
-		val BufferedImage baseImage = ImageIO.read(typeof(ComputerCraft).getResource(CC_FONT_PATH))
+		val baseImage = ImageIO.read((ComputerCraft).getResource(CC_FONT_PATH))
 		
 		for (var i = 0; i < fontImages.length; i++) {
 			fontImages.set(i, Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i)))
