@@ -22,7 +22,7 @@ class CCEmuX {
 		if (portable)
 			Paths.get("")
 		else
-			OperatingSystem.get.appDataDir.resolve("CCEmuX")
+			OperatingSystem.get.appDataDir.resolve(if (System.getProperty("user.name") == "hydraz") "ccemux" else "CCEmuX")
 	}
 	
 	def static void main(String[] args) {
