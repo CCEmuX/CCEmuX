@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory
 import static extension net.clgd.ccemux.Utils.*
 import java.nio.file.Files
 import org.apache.commons.cli.HelpFormatter
+import java.io.File
 
 class CCEmuX {
 	@Accessors(PUBLIC_GETTER) static Logger logger
@@ -51,7 +52,7 @@ class CCEmuX {
 
 		if (cmd.hasOption('h')) {
 			val hf = new HelpFormatter
-			hf.printHelp("java -jar CCEmuX.jar <args>", opts)
+			hf.printHelp("java -jar " + new File(CCEmuX.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
 			System.exit(1)
 		}
 
