@@ -49,6 +49,7 @@ class EmulatorWindow extends JFrame {
 		
 		if (computer.terminal.changed) {
 			termComponent.repaint()
+			computer.terminal.clearChanged
 		}
 	}
 }
