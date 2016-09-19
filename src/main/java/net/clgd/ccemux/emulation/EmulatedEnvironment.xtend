@@ -15,9 +15,9 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override createResourceMount(String domain, String subPath) {
-		CCEmuX.logger.info("Creating resource mount @ domain " + domain + " in " + subPath)
+		CCEmuX.get.logger.info("Creating resource mount @ domain " + domain + " in " + subPath)
 		val path = Paths.get("/assets", domain, subPath).toString
-		CCEmuX.logger.info("-> " + path)
+		CCEmuX.get.logger.info("-> " + path)
 		return new ClasspathMount((ComputerCraft), path)
 	}
 	
@@ -30,7 +30,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override getDay() {
-		return 0
+		return System.currentTimeMillis as int * 86400000
 	}
 	
 	override getHostString() {
@@ -38,7 +38,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override getTimeOfDay() {
-		return 0
+		return System.currentTimeMillis as int
 	}
 	
 	override isColour() {

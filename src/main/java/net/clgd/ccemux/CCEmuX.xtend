@@ -2,28 +2,39 @@ package net.clgd.ccemux
 
 import dan200.computercraft.ComputerCraft
 import java.awt.SplashScreen
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.Arrays
 import org.apache.commons.cli.DefaultParser
+import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
 import org.eclipse.xtend.lib.annotations.Accessors
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import static extension net.clgd.ccemux.Utils.*
-import java.nio.file.Files
-import org.apache.commons.cli.HelpFormatter
-import java.io.File
-import java.nio.file.Path
-import dan200.computercraft.core.computer.ComputerThread
 
-class CCEmuX {
-	@Accessors(PUBLIC_GETTER) static Logger logger
-	@Accessors(PUBLIC_GETTER) static EmulatorWindow window
-	@Accessors(PUBLIC_GETTER) static Config conf
-	@Accessors(PUBLIC_GETTER) static var portable = false
-	@Accessors(PUBLIC_GETTER) static Path dataDir
+class CCEmuX implements Runnable {
+	@Accessors(PUBLIC_GETTER) Logger logger
+	@Accessors(PUBLIC_GETTER) EmulatorWindow window
+	@Accessors(PUBLIC_GETTER) Config conf
+	@Accessors(PUBLIC_GETTER) var portable = false
+	@Accessors(PUBLIC_GETTER) Path dataDir
+
+	static CCEmuX instance
+
+	static def get() {
+		return instance
+	}
+
+	new() {
+		logger = LoggerFactory.getLogger("CCEmuX")
+		logger.info("Starting CCEmuX...")
+	}
 	
-	def static void main(String[] args) {
+	def void parseArgs(String[] args) {
 		val opts = new Options().using [
 			buildOpt("h") [
 				longOpt("help")
@@ -40,7 +51,7 @@ class CCEmuX {
 			buildOpt("d") [
 				longOpt("data-dir")
 				
-				desc("Manually sets the data directory. Overrides portable flag.")
+				desc("Manually sets the data directory. Overrides -p/--portable.")
 				hasArg()
 				argName("path")
 			]
@@ -63,22 +74,26 @@ class CCEmuX {
 		}
 
 		portable = cmd.hasOption('p')
-
+		
 		cmd.getOptionValue("l")?.trim.using [
 			if (#{"trace", "debug", "info", "warning", "error"}.contains(it))
 				System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", it)
 			else
 				System.err.println("Invalid logging level: " + it)
 		]
-
-		logger = LoggerFactory.getLogger("CCEmuX")
-		
-		logger.info("Starting CCEmuX...")
 		
 		dataDir = if(cmd.hasOption('d')) Paths.get(cmd.getOptionValue('d')) else if(portable) Paths.get("") else OperatingSystem.get.appDataDir.resolve("ccemux")
 		logger.debug("Data directory is {}", dataDir.toAbsolutePath.toString)
 		Files.createDirectories(dataDir)
-		
+	}
+	
+	def static void main(String[] args) {
+		instance = new CCEmuX
+		instance.parseArgs(args)
+		instance.run()
+	}
+	
+	override run() {
 		logger.debug("Loading configuration data...", dataDir.resolve(Config.CONFIG_FILE_NAME).toString)
 		conf = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile)
 		logger.debug("Configuration data loaded.")
@@ -86,10 +101,13 @@ class CCEmuX {
 		CCBootstrapper.loadCC
 		logger.info("Loaded CC (v{})", ComputerCraft.version)
 		
-		if (ComputerCraft.version != conf.CCRevision)
-			logger.warn("Potential compatibility issues detected - expected CC version (v{}) does not match loaded CC version (v{})", conf.CCRevision, ComputerCraft.version)
-		
-		ComputerThread.start
+		if (ComputerCraft.version != conf.CCRevision) {
+			logger.warn(
+				"Potential compatibility issues detected - expected CC version (v{}) does not match loaded CC version (v{})",
+				conf.CCRevision,
+				ComputerCraft.version
+			)
+		}
 		
 		window = new EmulatorWindow().using [
 			// close splash screen before making frame visible

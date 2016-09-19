@@ -16,16 +16,16 @@ class CCBootstrapper {
 	}
 
 	def static getCCJar() {
-		CCEmuX.dataDir.resolve(CCEmuX.conf.CCLocal).toFile
+		CCEmuX.get.dataDir.resolve(CCEmuX.get.conf.CCLocal).toFile
 	}
 
 	def static void loadCC() {
 		if (!CCPresent) {
-			CCEmuX.logger.debug("CC not on classpath, bootstrapping...")
+			CCEmuX.get.logger.debug("CC not on classpath, bootstrapping...")
 			
 			if (!CCJar.exists) {
-				CCEmuX.logger.info("CC jar not found in expected location, attempting download to {}", CCJar.absolutePath)
-				FileUtils.copyURLToFile(CCEmuX.conf.CCRemote, CCJar, 10000, 10000)
+				CCEmuX.get.logger.info("CC jar not found in expected location, attempting download to {}", CCJar.absolutePath)
+				FileUtils.copyURLToFile(CCEmuX.get.conf.CCRemote, CCJar, 10000, 10000)
 			}
 			
 			val classloader = ClassLoader.systemClassLoader as URLClassLoader

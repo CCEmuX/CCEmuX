@@ -20,11 +20,11 @@ class EmulatorWindow extends JFrame {
 		// Make sure the process ends when we close the window.
 		defaultCloseOperation = EXIT_ON_CLOSE
 		
-		val termWidth = CCEmuX.conf.termWidth
-		val termHeight = CCEmuX.conf.termHeight
+		val termWidth = CCEmuX.get.conf.termWidth
+		val termHeight = CCEmuX.get.conf.termHeight
 		
-		val termPixelWidth = 6 * CCEmuX.conf.termScale
-		val termPixelHeight = 9 * CCEmuX.conf.termScale
+		val termPixelWidth = 6 * CCEmuX.get.conf.termScale
+		val termPixelHeight = 9 * CCEmuX.get.conf.termScale
 		
 		computer = new EmulatedComputer(termWidth, termHeight)
 		
@@ -39,9 +39,7 @@ class EmulatorWindow extends JFrame {
 		// Centre the window.
 		locationRelativeTo = null
 		
-		CCEmuX.logger.trace("emuwindow - calling computer.update...")
 		computer.update(0.1f)
 		repaint()
-		CCEmuX.logger.trace("emuwindow - called computer.update.")
 	}
 }
