@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory
 import static extension net.clgd.ccemux.Utils.*
 
 class CCEmuX implements Runnable {
-	static long started
-	
 	static val opts = new Options().using [
 		buildOpt("h") [
 			longOpt("help")
@@ -67,8 +65,6 @@ class CCEmuX implements Runnable {
 	}
 	
 	def static void main(String[] args) {
-		started = System.currentTimeMillis
-		
 		instance = new CCEmuX(args)
 		instance.bootstrap
 		
@@ -126,7 +122,8 @@ class CCEmuX implements Runnable {
 	private def startLoop() {
 		running = true
 		
-		var lastTime = System.currentTimeMillis
+		val started = System.currentTimeMillis
+		var lastTime = started
 		
 		while (running) {
 			val now = System.currentTimeMillis
