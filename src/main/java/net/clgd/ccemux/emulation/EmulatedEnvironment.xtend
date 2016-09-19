@@ -3,8 +3,10 @@ package net.clgd.ccemux.emulation
 import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.computer.IComputerEnvironment
 import dan200.computercraft.core.filesystem.FileMount
+import dan200.computercraft.core.filesystem.JarMount
 import java.io.File
 import java.nio.file.Paths
+import net.clgd.ccemux.CCBootstrapper
 import net.clgd.ccemux.CCEmuX
 
 class EmulatedEnvironment implements IComputerEnvironment {
@@ -18,7 +20,8 @@ class EmulatedEnvironment implements IComputerEnvironment {
 		CCEmuX.get.logger.info("Creating resource mount @ domain " + domain + " in " + subPath)
 		val path = Paths.get("/assets", domain, subPath).toString
 		CCEmuX.get.logger.info("-> " + path)
-		return new ClasspathMount((ComputerCraft), path)
+		//return new ClasspathMount((ComputerCraft), path)
+		return new JarMount(CCBootstrapper.CCJar, "assets/computercraft/lua/rom")
 	}
 	
 	override createSaveDirMount(String path, long capacity) {
