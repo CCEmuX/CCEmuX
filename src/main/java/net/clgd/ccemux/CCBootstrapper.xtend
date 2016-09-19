@@ -3,6 +3,7 @@ package net.clgd.ccemux
 import java.net.URL
 import java.net.URLClassLoader
 import org.apache.commons.io.FileUtils
+import org.slf4j.Logger
 
 class CCBootstrapper {
 
@@ -19,12 +20,12 @@ class CCBootstrapper {
 		CCEmuX.get.dataDir.resolve(CCEmuX.get.conf.CCLocal).toFile
 	}
 
-	def static void loadCC() {
+	def static void loadCC(Logger logger) {
 		if (!CCPresent) {
-			CCEmuX.get.logger.debug("CC not on classpath, bootstrapping...")
+			logger.debug("CC not on classpath, bootstrapping...")
 			
 			if (!CCJar.exists) {
-				CCEmuX.get.logger.info("CC jar not found in expected location, attempting download to {}", CCJar.absolutePath)
+				logger.info("CC jar not found in expected location, attempting download to {}", CCJar.absolutePath)
 				FileUtils.copyURLToFile(CCEmuX.get.conf.CCRemote, CCJar, 10000, 10000)
 			}
 			

@@ -16,6 +16,38 @@ import org.slf4j.LoggerFactory
 import static extension net.clgd.ccemux.Utils.*
 
 class CCEmuX implements Runnable {
+	static long started
+	
+	static val opts = new Options().using [
+		buildOpt("h") [
+			longOpt("help")
+			desc("Shows the help information")
+		]
+
+		buildOpt("p") [
+			longOpt("portable")
+
+			desc("Forces portable mode, in which all files (configs, saves, libraries) are kept in the same folder as CCEmuX." +
+				"Will automatically be enabled if the config file is in the same folder as CCEmuX.")
+		]
+		
+		buildOpt("d") [
+			longOpt("data-dir")
+			
+			desc("Manually sets the data directory. Overrides -p/--portable.")
+			hasArg()
+			argName("path")
+		]
+		
+		buildOpt("l") [
+			longOpt("log-level")
+			
+			desc("Manually specify the logging level. Valid options are 'trace', 'debug', 'info', 'warning', and 'error', in that order from most verbose to least.")
+			hasArg()
+			argName("level")
+		]
+	]
+	
 	@Accessors(PUBLIC_GETTER) Logger logger
 	@Accessors(PUBLIC_GETTER) EmulatorWindow window
 	@Accessors(PUBLIC_GETTER) Config conf
@@ -28,48 +60,28 @@ class CCEmuX implements Runnable {
 	static def get() {
 		return instance
 	}
-
-	new() {
-		logger = LoggerFactory.getLogger("CCEmuX")
-		logger.info("Starting CCEmuX...")
+	
+	def static void printHelp() {
+		val hf = new HelpFormatter
+		hf.printHelp("java -jar " + new File(CCEmuX.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
 	}
 	
-	def void parseArgs(String[] args) {
-		val opts = new Options().using [
-			buildOpt("h") [
-				longOpt("help")
-				desc("Shows the help information")
-			]
+	def static void main(String[] args) {
+		started = System.currentTimeMillis
+		
+		instance = new CCEmuX(args)
+		instance.bootstrap
+		
+		SplashScreen.splashScreen?.close
+		
+		instance.run()
+	}
 
-			buildOpt("p") [
-				longOpt("portable")
-
-				desc("Forces portable mode, in which all files (configs, saves, libraries) are kept in the same folder as CCEmuX." +
-					"Will automatically be enabled if the config file is in the same folder as CCEmuX.")
-			]
-			
-			buildOpt("d") [
-				longOpt("data-dir")
-				
-				desc("Manually sets the data directory. Overrides -p/--portable.")
-				hasArg()
-				argName("path")
-			]
-			
-			buildOpt("l") [
-				longOpt("log-level")
-				
-				desc("Manually specify the logging level. Valid options are 'trace', 'debug', 'info', 'warning', and 'error', in that order from most verbose to least.")
-				hasArg()
-				argName("level")
-			]
-		]
-
+	new(String... args) {
 		val cmd = new DefaultParser().parse(opts, args)
 
 		if (cmd.hasOption('h')) {
-			val hf = new HelpFormatter
-			hf.printHelp("java -jar " + new File(CCEmuX.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
+			printHelp()
 			System.exit(1)
 		}
 
@@ -82,15 +94,29 @@ class CCEmuX implements Runnable {
 				System.err.println("Invalid logging level: " + it)
 		]
 		
+		logger = LoggerFactory.getLogger("CCEmuX")
+		logger.info("Starting CCEmuX...")
+		
 		dataDir = if(cmd.hasOption('d')) Paths.get(cmd.getOptionValue('d')) else if(portable) Paths.get("") else OperatingSystem.get.appDataDir.resolve("ccemux")
 		logger.debug("Data directory is {}", dataDir.toAbsolutePath.toString)
 		Files.createDirectories(dataDir)
+		
+		logger.debug("Loading configuration data...", dataDir.resolve(Config.CONFIG_FILE_NAME).toString)
+		conf = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile)
+		logger.debug("Configuration data loaded.")
 	}
 	
-	def static void main(String[] args) {
-		instance = new CCEmuX
-		instance.parseArgs(args)
-		instance.run()
+	def bootstrap() {
+		CCBootstrapper.loadCC(logger)
+		logger.info("Loaded CC (v{})", ComputerCraft.version)
+		
+		if (ComputerCraft.version != conf.CCRevision) {
+			logger.warn(
+				"Potential compatibility issues detected - expected CC version (v{}) does not match loaded CC version (v{})",
+				conf.CCRevision,
+				ComputerCraft.version
+			)
+		}
 	}
 	
 	private def update(float dt) {
@@ -107,7 +133,7 @@ class CCEmuX implements Runnable {
 			val dt = now - lastTime
 			val dtSecs = dt / 1000.0f
 			
-			logger.info("Δt = " + dtSecs)
+			logger.trace("\u0394t = " + dtSecs)
 			update(dtSecs)
 			
 			lastTime = System.currentTimeMillis	
@@ -118,27 +144,10 @@ class CCEmuX implements Runnable {
 	}
 	
 	override run() {
-		logger.debug("Loading configuration data...", dataDir.resolve(Config.CONFIG_FILE_NAME).toString)
-		conf = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile)
-		logger.debug("Configuration data loaded.")
-
-		CCBootstrapper.loadCC
-		logger.info("Loaded CC (v{})", ComputerCraft.version)
-		
-		if (ComputerCraft.version != conf.CCRevision) {
-			logger.warn(
-				"Potential compatibility issues detected - expected CC version (v{}) does not match loaded CC version (v{})",
-				conf.CCRevision,
-				ComputerCraft.version
-			)
-		}
-		
 		window = new EmulatorWindow().using [
-			// close splash screen before making frame visible
-			// prevents occasional window focus changes
-			SplashScreen.splashScreen?.close
-			
 			visible = true
+			toFront
+			requestFocus
 		]
 		
 		startLoop()
