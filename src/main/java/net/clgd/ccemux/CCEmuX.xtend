@@ -6,7 +6,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.Arrays
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
@@ -22,6 +21,7 @@ class CCEmuX implements Runnable {
 	@Accessors(PUBLIC_GETTER) Config conf
 	@Accessors(PUBLIC_GETTER) var portable = false
 	@Accessors(PUBLIC_GETTER) Path dataDir
+	@Accessors boolean running
 
 	static CCEmuX instance
 
@@ -93,6 +93,30 @@ class CCEmuX implements Runnable {
 		instance.run()
 	}
 	
+	private def update(float dt) {
+		window.update(dt)
+	}
+	
+	private def startLoop() {
+		running = true
+		
+		var lastTime = System.currentTimeMillis
+		
+		while (running) {
+			val now = System.currentTimeMillis
+			val dt = now - lastTime
+			val dtSecs = dt / 1000.0f
+			
+			logger.info("Δt = " + dtSecs)
+			update(dtSecs)
+			
+			lastTime = System.currentTimeMillis	
+			
+			// ComputerCraft only needs to update 20 times a second.
+			Thread.sleep(1000 / 20)
+		}
+	}
+	
 	override run() {
 		logger.debug("Loading configuration data...", dataDir.resolve(Config.CONFIG_FILE_NAME).toString)
 		conf = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile)
@@ -116,6 +140,8 @@ class CCEmuX implements Runnable {
 			
 			visible = true
 		]
+		
+		startLoop()
 	}
 }
 		

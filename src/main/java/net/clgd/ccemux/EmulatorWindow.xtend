@@ -5,11 +5,13 @@ import java.awt.Dimension
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.terminal.TerminalComponent
+import org.eclipse.xtend.lib.annotations.Accessors
 
 class EmulatorWindow extends JFrame {
 	static val EMU_WINDOW_TITLE = "CCEmuX" 
 	
-	EmulatedComputer computer
+	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
+	TerminalComponent termComponent
 	
 	new() {
 		super(EMU_WINDOW_TITLE)
@@ -28,18 +30,25 @@ class EmulatorWindow extends JFrame {
 		
 		computer = new EmulatedComputer(termWidth, termHeight)
 		
-		add(new TerminalComponent(
+		termComponent = new TerminalComponent(
 			computer.terminal,
 			termPixelWidth, termPixelHeight
-		), BorderLayout.CENTER)
+		)
+		
+		add(termComponent, BorderLayout.CENTER)
 		
 		// Make sure the window's contents fit.
 		pack
 		
 		// Centre the window.
 		locationRelativeTo = null
+	}
+	
+	def void update(float dt) {
+		computer.update(dt)
 		
-		computer.update(0.1f)
-		repaint()
+		if (computer.terminal.changed) {
+			termComponent.repaint()
+		}
 	}
 }

@@ -52,7 +52,7 @@ class TerminalComponent extends JComponent {
 		)
 	}
 	
-	protected override paintComponent(Graphics it) {
+	override paint(Graphics it) {
 		for (var y = 0; y < terminal.height; y++) {
 			val textLine = terminal.getLine(y)
 			val bgLine = terminal.getBackgroundColourLine(y)
