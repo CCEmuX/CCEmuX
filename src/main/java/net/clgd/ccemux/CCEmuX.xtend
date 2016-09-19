@@ -52,11 +52,32 @@ class CCEmuX implements Runnable {
 	@Accessors(PUBLIC_GETTER) var portable = false
 	@Accessors(PUBLIC_GETTER) Path dataDir
 	@Accessors boolean running
+	@Accessors long timeStarted
 
 	static CCEmuX instance
 
 	static def get() {
 		return instance
+	}
+	
+	def getTimeStartedInSeconds() {
+		return timeStarted / 1000.0f
+	}
+	
+	def getTimeStartedInTicks() {
+		return timeStartedInSeconds * 20.0f
+	}
+	
+	def getTimeSinceStart() {
+		return System.currentTimeMillis - timeStarted
+	}
+	
+	def getSecondsSinceStart() {
+		return timeSinceStart / 1000.0f
+	}
+	
+	def getTicksSinceStart() {
+		return secondsSinceStart * 20.0f
 	}
 	
 	def static void printHelp() {
@@ -122,8 +143,8 @@ class CCEmuX implements Runnable {
 	private def startLoop() {
 		running = true
 		
-		val started = System.currentTimeMillis
-		var lastTime = started
+		timeStarted = System.currentTimeMillis
+		var lastTime = System.currentTimeMillis
 		
 		while (running) {
 			val now = System.currentTimeMillis

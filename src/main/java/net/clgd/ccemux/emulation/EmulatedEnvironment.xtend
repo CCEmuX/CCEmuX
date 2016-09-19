@@ -30,7 +30,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override getDay() {
-		return System.currentTimeMillis as int * 86400000
+		return ((CCEmuX.get.ticksSinceStart + 6000L) / 24000L + 1) as int
 	}
 	
 	override getHostString() {
@@ -38,7 +38,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override getTimeOfDay() {
-		return System.currentTimeMillis as int
+		return ((CCEmuX.get.ticksSinceStart + 6000) % 24000) / 1000.0
 	}
 	
 	override isColour() {
