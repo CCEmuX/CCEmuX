@@ -41,6 +41,10 @@ class EmulatorWindow extends JFrame implements KeyListener {
 		)
 		
 		add(termComponent, BorderLayout.CENTER)
+		
+		// Required for tab to work
+		focusTraversalKeysEnabled = false
+		
 		addKeyListener(this)
 		
 		// Make sure the window's contents fit.
