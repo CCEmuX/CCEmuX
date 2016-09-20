@@ -10,6 +10,9 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 
 class Utils {
+
+	static val BASE_16 = "0123456789abcdef"
+
 	/**
 	 * Extension method to make option generation a bit prettier
 	 */
@@ -18,27 +21,28 @@ class Utils {
 		f.accept(b)
 		addOption(b.build)
 	}
-	
+
 	/**
 	 * Method to make initialization of objects easier
 	 */
- 	@Pure
+	// lambda may not be pure, so this should not be annotated with @Pure
 	def static <T> T using(T t, Consumer<T> f) {
 		f.accept(t)
-		
+
 		return t
 	}
-	
+
 	/** 
 	 * Safely runs a lambda expression on a value, catching and ignoring any thrown exception.
 	 */
-	@Pure
+	// lambda may not be pure, so this should not be annotated with @Pure
 	def static <T> void tryWith(T t, Consumer<T> f) {
 		try {
 			f.accept(t)
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 	}
-	
+
 	/**
 	 * Takes a colour id (see http://www.computercraft.info/wiki/Colors_(API)#Colors "Paint" column),
 	 * and returns a {@link Color}.
@@ -46,27 +50,35 @@ class Utils {
 	@Pure
 	def static Color getCCColourFromInt(int i) {
 		val col = Colour.fromInt(15 - i)
-		return 	if (col == null) Color.WHITE 
-				else new Color(col.r, col.g, col.b)
+		return if(col == null) Color.WHITE else new Color(col.r, col.g, col.b)
 	}
-	
+
+	@Pure
+	def static Color getCCColourFromChar(char c) {
+		return getCCColourFromInt(base16ToInt(c))
+	}
+
+	@Pure
 	def static BufferedImage makeTintedCopy(BufferedImage it, Color tint) {
-		val gc = GraphicsEnvironment.localGraphicsEnvironment
-									.defaultScreenDevice
-									.defaultConfiguration
-		
+		val gc = GraphicsEnvironment.localGraphicsEnvironment.defaultScreenDevice.defaultConfiguration
+
 		var tintedImg = gc.createCompatibleImage(width, height, Transparency.TRANSLUCENT)
-		
+
 		for (var y = 0; y < height; y++) {
 			for (var x = 0; x < width; x++) {
 				val rgb = getRGB(x, y)
-				
+
 				if (rgb != 0) {
 					tintedImg.setRGB(x, y, tint.getRGB())
-				} 
+				}
 			}
 		}
-		
+
 		return tintedImg
+	}
+
+	@Pure
+	def static base16ToInt(char c) {
+		return BASE_16.indexOf(c.toString.toLowerCase)
 	}
 }

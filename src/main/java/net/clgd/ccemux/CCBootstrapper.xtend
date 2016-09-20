@@ -2,24 +2,10 @@ package net.clgd.ccemux
 
 import java.net.URL
 import java.net.URLClassLoader
-import java.util.Properties
+import org.apache.commons.io.FileUtils
+import org.slf4j.Logger
 
 class CCBootstrapper {
-
-	def static URL ccURL() {
-		val propres = CCBootstrapper.getResourceAsStream("/gradle.properties")
-
-		if (propres == null)
-			throw new Exception("CC classes not present and no properties available for automatic loading")
-
-		val props = new Properties()
-
-		props.load(propres)
-		return new URL(
-			"jar:" +
-				props.getProperty("ccPattern").replace("[module]", "ComputerCraft").replace("[revision]",
-					props.getProperty("ccVersion")).replace("[ext]", "jar") + "!/")
-	}
 
 	def static boolean isCCPresent() {
 		try {
@@ -30,12 +16,23 @@ class CCBootstrapper {
 		}
 	}
 
-	def static void loadCC() {
+	def static getCCJar() {
+		CCEmuX.get.dataDir.resolve(CCEmuX.get.conf.CCLocal).toFile
+	}
+
+	def static void loadCC(Logger logger) {
 		if (!CCPresent) {
+			logger.debug("CC not on classpath, bootstrapping...")
+			
+			if (!CCJar.exists) {
+				logger.info("CC jar not found in expected location, attempting download to {}", CCJar.absolutePath)
+				FileUtils.copyURLToFile(CCEmuX.get.conf.CCRemote, CCJar, 10000, 10000)
+			}
+			
 			val classloader = ClassLoader.systemClassLoader as URLClassLoader
 			val method = URLClassLoader.getDeclaredMethod("addURL", (URL))
 			method.accessible = true
-			method.invoke(classloader, ccURL)
+			method.invoke(classloader, CCJar.toURI.toURL)
 		}
 	}
 }
