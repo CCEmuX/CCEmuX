@@ -7,14 +7,16 @@ import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
+import java.awt.event.MouseMotionListener
+import java.awt.event.MouseWheelListener
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.emulation.KeyTranslator
 import net.clgd.ccemux.terminal.TerminalComponent
 import org.eclipse.xtend.lib.annotations.Accessors
-import java.awt.event.MouseMotionListener
+import java.awt.event.MouseWheelEvent
 
-class EmulatorWindow extends JFrame implements KeyListener, MouseListener, MouseMotionListener {
+class EmulatorWindow extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	static val EMU_WINDOW_TITLE = "CCEmuX" 
 	
 	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
@@ -53,6 +55,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		addKeyListener(this)
 		termComponent.addMouseListener(this)
 		termComponent.addMouseMotionListener(this)
+		termComponent.addMouseWheelListener(this)
 		
 		// Make sure the window's contents fit.
 		pack
@@ -154,6 +157,17 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		fireMouseEvent(e, false)
 	}
 	
+	override mouseWheelMoved(MouseWheelEvent e) {
+		val amt = e.unitsToScroll
+		val dir = if (amt > 0) 1 else -1
+		val point = mapPointToCC(new Point(e.x, e.y))
+		
+		computer.computer.queueEvent(
+			"mouse_scroll",
+			newArrayList(dir, point.x + 1, point.y + 1)
+		)	
+	}
+	
 	override keyTyped(KeyEvent e) {}
 	
 	override mouseClicked(MouseEvent e) {}
@@ -162,5 +176,5 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	override mouseExited(MouseEvent e) {}
 	
-	override mouseMoved(MouseEvent e) {}
+	override mouseMoved(MouseEvent e) {}	
 }
