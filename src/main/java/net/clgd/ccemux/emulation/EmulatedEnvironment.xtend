@@ -22,7 +22,6 @@ class EmulatedEnvironment implements IComputerEnvironment {
 		if (path.startsWith('\\'))
 			path = path.substring(1)
 		
-		println(path)
 		return new JarMount(CCBootstrapper.CCJar, path)
 	}
 	
