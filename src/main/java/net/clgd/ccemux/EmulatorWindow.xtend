@@ -95,8 +95,8 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	private def mapPointToCC(Point p) {
 		return new Point(
-			(p.x / pixelWidth) as int,
-			(p.y / pixelHeight) as int
+			p.x / pixelWidth,
+			p.y / pixelHeight
 		)
 	}
 	
@@ -131,6 +131,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	override keyPressed(KeyEvent e) {
 		computer.computer.queueEvent("key", newArrayList(KeyTranslator.translateToCC(e.keyCode)))
+		blinkLockedTime = 0.25f
 	}
 	
 	override keyReleased(KeyEvent e) {

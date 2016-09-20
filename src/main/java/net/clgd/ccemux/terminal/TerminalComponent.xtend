@@ -111,8 +111,15 @@ class TerminalComponent extends JComponent {
 		}
 		
 		val blink =
-			if (!blinkLocked) CCEmuX.get.globalCursorBlink && terminal.cursorBlink
-			else true
+			if (!terminal.cursorBlink) {
+				false
+			} else {
+				if (blinkLocked) {
+				 	true
+				} else {
+			 		CCEmuX.get.globalCursorBlink
+			 	} 	
+		 	}
 		
 		if (blink) {
 			drawChar(
