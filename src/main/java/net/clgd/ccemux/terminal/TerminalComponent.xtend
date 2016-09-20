@@ -21,6 +21,8 @@ class TerminalComponent extends JComponent {
 	
 	@Accessors char cursorChar = '_'
 	
+	@Accessors boolean blinkLocked = false
+	
 	BufferedImage[] fontImages
 	
 	new(Terminal terminal, int pixelWidth, int pixelHeight) {	
@@ -108,7 +110,11 @@ class TerminalComponent extends JComponent {
 			}
 		}
 		
-		if (CCEmuX.get.globalCursorBlink && terminal.cursorBlink) {
+		val blink =
+			if (!blinkLocked) CCEmuX.get.globalCursorBlink && terminal.cursorBlink
+			else true
+		
+		if (blink) {
 			drawChar(
 				it, cursorChar,
 				terminal.cursorX * pixelWidth, terminal.cursorY * pixelHeight,

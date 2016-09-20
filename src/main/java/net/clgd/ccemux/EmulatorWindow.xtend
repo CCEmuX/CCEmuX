@@ -28,6 +28,8 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	var lastBlink = false
 	var dragButton = 4
 	
+	var blinkLockedTime = 0.0f
+	
 	new() {
 		super(EMU_WINDOW_TITLE)
 		
@@ -67,6 +69,9 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	}
 	
 	def void update(float dt) {
+		blinkLockedTime = Math.max(0.0f, blinkLockedTime - dt)
+		termComponent.blinkLocked = blinkLockedTime > 0.0f
+		
 		computer.update(dt)
 		
 		var doRepaint = false
@@ -120,6 +125,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	override keyTyped(KeyEvent e) {
 		if (isPrintableChar(e.keyChar)) {
 			computer.computer.queueEvent("char", newArrayList(e.keyChar.toString))
+			blinkLockedTime = 0.25f
 		}
 	}
 	
