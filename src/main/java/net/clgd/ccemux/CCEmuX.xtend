@@ -77,7 +77,11 @@ class CCEmuX implements Runnable {
 	}
 	
 	def getTicksSinceStart() {
-		return secondsSinceStart * 20.0f
+		return (secondsSinceStart * 20) as int
+	}
+	
+	def getGlobalCursorBlink() {
+		return ticksSinceStart / 8 % 2 == 0
 	}
 	
 	def static void printHelp() {

@@ -8,6 +8,7 @@ import java.awt.Point
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.JComponent
+import net.clgd.ccemux.CCEmuX
 import net.clgd.ccemux.Utils
 import org.eclipse.xtend.lib.annotations.Accessors
 
@@ -52,7 +53,45 @@ class TerminalComponent extends JComponent {
 		)
 	}
 	
-	override paint(Graphics it) {
+	private def drawChar(Graphics it, char c, int x, int y, int colour) {
+		if (c as int == 0) {
+			// Nothing to do here.
+			return
+		}
+		
+		// TODO: These are width & height of a character in the font bitmap.
+		// Replace these with something non-magical.
+		val charWidth = 6
+		val charHeight = 9
+		
+		// TODO: Newer CC versions pad the font texture with empty space to make it POT.
+		// Therefore, we need the actual space occupied by the texture.
+		// Replace these with something non-magical.
+		val fontWidth = 96
+		val fontHeight = 144
+		
+		val charLocation = getCharLocation(
+			c,
+			charWidth, charHeight,
+			fontWidth, fontHeight
+		)
+		
+		drawImage(
+			fontImages.get(colour),
+			
+			// Destination
+			x, y,
+			x + pixelWidth, y + pixelHeight,
+			
+			// Source
+			charLocation.x, charLocation.y,
+			charLocation.x + charWidth, charLocation.y + charHeight,
+			
+			null
+		)
+	}
+	
+	override paintComponent(Graphics it) {
 		for (var y = 0; y < terminal.height; y++) {
 			val textLine = terminal.getLine(y)
 			val bgLine = terminal.getBackgroundColourLine(y)
@@ -62,44 +101,17 @@ class TerminalComponent extends JComponent {
 				color = Utils.getCCColourFromChar(bgLine.charAt(x))
 				fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
 				
-				// Retrieve the location of the character in the font bitmap and
-				// render the appropriate subrect.
-				
 				val character = textLine.charAt(x)
-				
-				if (character as int > 0) {
-					// TODO: These are width & height of a character in the font bitmap.
-					// Replace these with something non-magical.
-					val charWidth = 6
-					val charHeight = 9
-					
-					// TODO: Newer CC versions pad the font texture with empty space to make it POT.
-					// Therefore, we need the actual space occupied by the texture.
-					// Replace these with something non-magical.
-					val fontWidth = 96
-					val fontHeight = 144
-					
-					val charLocation = getCharLocation(
-						character,
-						charWidth, charHeight,
-						fontWidth, fontHeight
-					)
-					
-					drawImage(
-						fontImages.get(Utils.base16ToInt(fgLine.charAt(x))),
-						
-						// Destination
-						x * pixelWidth, y * pixelHeight,
-						x * pixelWidth + pixelWidth, y * pixelHeight + pixelHeight,
-						
-						// Source
-						charLocation.x, charLocation.y,
-						charLocation.x + charWidth, charLocation.y + charHeight,
-						
-						null
-					)
-				}
+				drawChar(it, character, x * pixelWidth, y * pixelHeight, Utils.base16ToInt(fgLine.charAt(x)))
 			}
+		}
+		
+		if (CCEmuX.get.globalCursorBlink && terminal.cursorBlink) {
+			drawChar(
+				it, "_",
+				terminal.cursorX * pixelWidth, terminal.cursorY * pixelHeight,
+				terminal.textColour
+			)
 		}
 	}
 }

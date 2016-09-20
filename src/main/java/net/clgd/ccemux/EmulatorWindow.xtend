@@ -13,6 +13,8 @@ class EmulatorWindow extends JFrame {
 	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
 	TerminalComponent termComponent
 	
+	var lastBlink = false
+	
 	new() {
 		super(EMU_WINDOW_TITLE)
 		
@@ -42,14 +44,28 @@ class EmulatorWindow extends JFrame {
 		
 		// Centre the window.
 		locationRelativeTo = null
+		
+		lastBlink = CCEmuX.get.globalCursorBlink
 	}
 	
 	def void update(float dt) {
 		computer.update(dt)
 		
+		var doRepaint = false
+		
 		if (computer.terminal.changed) {
-			termComponent.repaint()
+			doRepaint = true
 			computer.terminal.clearChanged
+		}
+		
+		if (CCEmuX.get.globalCursorBlink != lastBlink) {
+			doRepaint = true
+		}
+		
+		lastBlink = CCEmuX.get.globalCursorBlink
+		
+		if (doRepaint) {
+			termComponent.repaint()
 		}
 	}
 }
