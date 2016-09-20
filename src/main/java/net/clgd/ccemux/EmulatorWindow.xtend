@@ -73,6 +73,7 @@ class EmulatorWindow extends JFrame implements KeyListener {
 		lastBlink = CCEmuX.get.globalCursorBlink
 		
 		if (doRepaint) {
+			termComponent.cursorChar = computer.cursorChar
 			termComponent.repaint()
 		}
 	}
