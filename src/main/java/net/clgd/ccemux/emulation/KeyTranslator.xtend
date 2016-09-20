@@ -1,9 +1,10 @@
 package net.clgd.ccemux.emulation
 
+import com.google.common.collect.ImmutableBiMap
 import java.awt.event.KeyEvent
 
 class KeyTranslator {
-	static val swingToCCMap = #{
+	static val swingToCCMap = ImmutableBiMap.copyOf(#{
 		KeyEvent.VK_1 -> 2,
 		KeyEvent.VK_2 -> 3,
 		KeyEvent.VK_3 -> 4,
@@ -96,26 +97,16 @@ class KeyTranslator {
 		KeyEvent.VK_LEFT -> 203,
 		KeyEvent.VK_RIGHT -> 205,
 		KeyEvent.VK_END -> 207,
-		KeyEvent.VK_DOWN -> 208,
+		KeyEvent.VK_DOWN -> 209,
 		KeyEvent.VK_INSERT -> 210,
 		KeyEvent.VK_DELETE -> 211
-	}
-	
+	})
+
 	static def translateToCC(int keycode) {
-		return if (swingToCCMap.containsKey(keycode)) {
-			swingToCCMap.get(keycode)	
-		} else {
-			0
-		}
+		return swingToCCMap.getOrDefault(keycode, 0)
 	}
-	
-    static def translateToSwing(int keycode) {
-        for (k : swingToCCMap.keySet) {
-            if (swingToCCMap.get(k) == keycode) {
-                return k
-            }
-        }
-        
-        return 0
-    }
+
+	static def translateToSwing(int keycode) {
+		return swingToCCMap.inverse.getOrDefault(keycode, 0)
+	}
 }
