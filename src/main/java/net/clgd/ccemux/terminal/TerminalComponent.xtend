@@ -5,14 +5,12 @@ import dan200.computercraft.core.terminal.Terminal
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Point
-import java.awt.event.MouseListener
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
 import javax.swing.JComponent
 import net.clgd.ccemux.CCEmuX
 import net.clgd.ccemux.Utils
 import org.eclipse.xtend.lib.annotations.Accessors
-import java.awt.event.MouseEvent
 
 class TerminalComponent extends JComponent {
 	static val CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png"

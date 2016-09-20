@@ -117,12 +117,14 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 				block != null && block != Character.UnicodeBlock.SPECIALS
 	}
 	
-	override keyPressed(KeyEvent e) {
-		computer.computer.queueEvent("key", newArrayList(KeyTranslator.translateToCC(e.keyCode)))
-		
+	override keyTyped(KeyEvent e) {
 		if (isPrintableChar(e.keyChar)) {
 			computer.computer.queueEvent("char", newArrayList(e.keyChar.toString))
 		}
+	}
+	
+	override keyPressed(KeyEvent e) {
+		computer.computer.queueEvent("key", newArrayList(KeyTranslator.translateToCC(e.keyCode)))
 	}
 	
 	override keyReleased(KeyEvent e) {
@@ -167,8 +169,6 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 			newArrayList(dir, point.x + 1, point.y + 1)
 		)	
 	}
-	
-	override keyTyped(KeyEvent e) {}
 	
 	override mouseClicked(MouseEvent e) {}
 	
