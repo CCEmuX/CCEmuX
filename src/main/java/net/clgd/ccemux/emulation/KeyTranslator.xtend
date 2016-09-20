@@ -97,7 +97,8 @@ class KeyTranslator {
 		KeyEvent.VK_LEFT -> 203,
 		KeyEvent.VK_RIGHT -> 205,
 		KeyEvent.VK_END -> 207,
-		KeyEvent.VK_DOWN -> 209,
+		KeyEvent.VK_DOWN -> 208,
+		KeyEvent.VK_PAGE_DOWN -> 209,
 		KeyEvent.VK_INSERT -> 210,
 		KeyEvent.VK_DELETE -> 211
 	})
