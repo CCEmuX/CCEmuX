@@ -19,6 +19,8 @@ class TerminalComponent extends JComponent {
 	@Accessors(PUBLIC_GETTER) int pixelWidth
 	@Accessors(PUBLIC_GETTER) int pixelHeight
 	
+	@Accessors char cursorChar = '_'
+	
 	BufferedImage[] fontImages
 	
 	new(Terminal terminal, int pixelWidth, int pixelHeight) {	
@@ -108,7 +110,7 @@ class TerminalComponent extends JComponent {
 		
 		if (CCEmuX.get.globalCursorBlink && terminal.cursorBlink) {
 			drawChar(
-				it, "_",
+				it, cursorChar,
 				terminal.cursorX * pixelWidth, terminal.cursorY * pixelHeight,
 				terminal.textColour
 			)

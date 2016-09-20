@@ -2,12 +2,15 @@ package net.clgd.ccemux
 
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.event.KeyEvent
+import java.awt.event.KeyListener
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.EmulatedComputer
+import net.clgd.ccemux.emulation.KeyTranslator
 import net.clgd.ccemux.terminal.TerminalComponent
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class EmulatorWindow extends JFrame {
+class EmulatorWindow extends JFrame implements KeyListener {
 	static val EMU_WINDOW_TITLE = "CCEmuX" 
 	
 	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
@@ -38,6 +41,7 @@ class EmulatorWindow extends JFrame {
 		)
 		
 		add(termComponent, BorderLayout.CENTER)
+		addKeyListener(this)
 		
 		// Make sure the window's contents fit.
 		pack
@@ -68,4 +72,31 @@ class EmulatorWindow extends JFrame {
 			termComponent.repaint()
 		}
 	}
+
+	
+	private static def isPrintableChar(char c) {
+		val block = Character.UnicodeBlock.of(c)
+		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED &&
+				block != null && block != Character.UnicodeBlock.SPECIALS
+	}
+	
+	override keyPressed(KeyEvent e) {
+		val Object[] params = newArrayOfSize(1)
+		
+		params.set(0, KeyTranslator.translateToCC(e.keyCode))
+		computer.computer.queueEvent("key", params)
+		
+		if (isPrintableChar(e.keyChar)) {
+			params.set(0, e.keyChar.toString)
+			computer.computer.queueEvent("char", params)
+		}
+	}
+	
+	override keyReleased(KeyEvent e) {
+		val Object[] params = newArrayOfSize(1)
+		params.set(0, KeyTranslator.translateToCC(e.keyCode))
+		computer.computer.queueEvent("key_up", params)
+	}
+	
+	override keyTyped(KeyEvent e) {}	
 }
