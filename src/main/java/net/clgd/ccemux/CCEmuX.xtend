@@ -151,7 +151,7 @@ class CCEmuX implements Runnable {
 			val dt = now - lastTime
 			val dtSecs = dt / 1000.0f
 			
-			logger.trace("\u0394t = " + dtSecs)
+			//logger.trace("\u0394t = " + dtSecs)
 			update(dtSecs)
 			
 			lastTime = System.currentTimeMillis	
