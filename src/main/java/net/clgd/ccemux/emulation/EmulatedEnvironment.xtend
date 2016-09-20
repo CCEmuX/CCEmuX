@@ -17,11 +17,13 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override createResourceMount(String domain, String subPath) {
-		CCEmuX.get.logger.info("Creating resource mount @ domain " + domain + " in " + subPath)
-		val path = Paths.get("/assets", domain, subPath).toString
-		CCEmuX.get.logger.info("-> " + path)
-		//return new ClasspathMount((ComputerCraft), path)
-		return new JarMount(CCBootstrapper.CCJar, "assets/computercraft/lua/rom")
+		var path = Paths.get("assets", domain, subPath).toString
+
+		if (path.startsWith("/")) {
+			path = path.substring(1)
+		}
+		
+		return new JarMount(CCBootstrapper.CCJar, path)
 	}
 	
 	override createSaveDirMount(String path, long capacity) {
