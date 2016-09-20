@@ -17,12 +17,12 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override createResourceMount(String domain, String subPath) {
-		var path = Paths.get("assets", domain, subPath).toString
-
-		if (path.startsWith("/")) {
-			path = path.substring(1)
-		}
+		var path = Paths.get("assets", domain, subPath).toString.replace('\\', '/')
 		
+		if (path.startsWith('\\'))
+			path = path.substring(1)
+		
+		println(path)
 		return new JarMount(CCBootstrapper.CCJar, path)
 	}
 	
