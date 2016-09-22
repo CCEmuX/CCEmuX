@@ -3,18 +3,19 @@ package net.clgd.ccemux
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Point
+import java.awt.Toolkit
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.awt.event.MouseEvent
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
+import java.awt.event.MouseWheelEvent
 import java.awt.event.MouseWheelListener
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.emulation.KeyTranslator
 import net.clgd.ccemux.terminal.TerminalComponent
 import org.eclipse.xtend.lib.annotations.Accessors
-import java.awt.event.MouseWheelEvent
 
 class EmulatorWindow extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 	static val EMU_WINDOW_TITLE = "CCEmuX" 
@@ -122,6 +123,24 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 				block != null && block != Character.UnicodeBlock.SPECIALS
 	}
 	
+	private def handleCtrlPress(char control) {
+		if (control == 't'.charAt(0)) {
+			computer.computer.queueEvent("terminate", newArrayList())
+		} else if (control == 'r'.charAt(0)) {
+			if (!computer.computer.on) {
+				computer.computer.turnOn
+			} else {
+				computer.computer.reboot
+			}
+		} else if (control == 's'.charAt(0)) {
+			computer.computer.shutdown
+		} else {
+			return false
+		}
+			
+		return true
+	}
+	
 	override keyTyped(KeyEvent e) {
 		if (isPrintableChar(e.keyChar)) {
 			computer.computer.queueEvent("char", newArrayList(e.keyChar.toString))
@@ -135,6 +154,14 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	}
 	
 	override keyReleased(KeyEvent e) {
+		if (e.modifiers.bitwiseAnd(Toolkit.defaultToolkit.menuShortcutKeyMask) != 0) {
+			// For whatever stupid reason, Swing subtracts 96 from all chars when ctrl is held.
+			val realChar = (e.keyChar + 96) as char
+			if (handleCtrlPress(realChar)) {
+				return
+			}
+		}
+		
 		computer.computer.queueEvent("key_up", newArrayList(KeyTranslator.translateToCC(e.keyCode)))
 	}
 	
