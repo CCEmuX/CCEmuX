@@ -53,9 +53,9 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		add(termComponent, BorderLayout.CENTER)
 		
 		// Required for tab to work
-		focusTraversalKeysEnabled = false
+		termComponent.focusTraversalKeysEnabled = false
 		
-		addKeyListener(this)
+		termComponent.addKeyListener(this)
 		termComponent.addMouseListener(this)
 		termComponent.addMouseMotionListener(this)
 		termComponent.addMouseWheelListener(this)
@@ -90,7 +90,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		
 		if (doRepaint) {
 			termComponent.cursorChar = computer.cursorChar
-			termComponent.repaint()
+			termComponent.render(dt)
 		}
 	}
 	

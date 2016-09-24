@@ -2,17 +2,17 @@ package net.clgd.ccemux.terminal
 
 import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.terminal.Terminal
+import java.awt.Canvas
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Point
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
-import javax.swing.JComponent
 import net.clgd.ccemux.CCEmuX
 import net.clgd.ccemux.Utils
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class TerminalComponent extends JComponent {
+class TerminalComponent extends Canvas {
 	static val CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png"
 	
 	@Accessors(PUBLIC_GETTER) Terminal terminal
@@ -95,18 +95,20 @@ class TerminalComponent extends JComponent {
 		)
 	}
 	
-	override paintComponent(Graphics it) {
+	private def renderTerminal(float dt) {
+		val g = bufferStrategy.drawGraphics
+		
 		for (var y = 0; y < terminal.height; y++) {
 			val textLine = terminal.getLine(y)
 			val bgLine = terminal.getBackgroundColourLine(y)
 			val fgLine = terminal.getTextColourLine(y)
 			
 			for (var x = 0; x < terminal.width; x++) {
-				color = Utils.getCCColourFromChar(bgLine.charAt(x))
-				fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
+				g.color = Utils.getCCColourFromChar(bgLine.charAt(x))
+				g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
 				
 				val character = textLine.charAt(x)
-				drawChar(it, character, x * pixelWidth, y * pixelHeight, Utils.base16ToInt(fgLine.charAt(x)))
+				drawChar(g, character, x * pixelWidth, y * pixelHeight, Utils.base16ToInt(fgLine.charAt(x)))
 			}
 		}
 		
@@ -114,10 +116,26 @@ class TerminalComponent extends JComponent {
 		
 		if (blink) {
 			drawChar(
-				it, cursorChar,
+				g, cursorChar,
 				terminal.cursorX * pixelWidth, terminal.cursorY * pixelHeight,
 				terminal.textColour
 			)
 		}
+		
+		g.dispose
+	}
+	
+	def render(float dt) {
+		if (bufferStrategy == null) {
+			createBufferStrategy(2)
+		}
+		
+		do {
+			do {
+				renderTerminal(dt)
+			} while (bufferStrategy.contentsRestored)
+		
+			bufferStrategy.show
+		} while (bufferStrategy.contentsLost)
 	}
 }
