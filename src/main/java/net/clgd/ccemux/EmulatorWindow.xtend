@@ -15,6 +15,7 @@ import java.awt.event.MouseWheelListener
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.emulation.KeyTranslator
+import net.clgd.ccemux.emulation.MouseTranslator
 import net.clgd.ccemux.terminal.TerminalComponent
 import org.eclipse.xtend.lib.annotations.Accessors
 
@@ -97,25 +98,9 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	private def mapPointToCC(Point p) {
 		return new Point(
-			p.x / pixelWidth,
-			p.y / pixelHeight
+			p.x / pixelWidth + 1,
+			p.y / pixelHeight + 1
 		)
-	}
-	
-	private static def mouseButtonToCC(int button) {
-		switch (button) {
-			case MouseEvent.BUTTON1: // Left button
-				return 1
-				
-			case MouseEvent.BUTTON2: // Middle button
-				return 3
-				
-			case MouseEvent.BUTTON3: // Right button
-				return 2
-		}
-		
-		CCEmuX.get.logger.info("Got gay button: " + button)
-		return 4
 	}
 	
 	private static def isPrintableChar(char c) {
@@ -126,19 +111,19 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	private def handleCtrlPress(char control) {
 		if (control == 't'.charAt(0)) {
-			computer.computer.queueEvent("terminate", newArrayList())
+			computer.terminateProgram
 		} else if (control == 'r'.charAt(0)) {
-			if (!computer.computer.on) {
-				computer.computer.turnOn
+			if (!computer.on) {
+				computer.turnOn
 			} else {
-				computer.computer.reboot
+				computer.reboot
 			}
 		} else if (control == 's'.charAt(0)) {
-			computer.computer.shutdown
+			computer.shutdown
 		} else if (control == 'v'.charAt(0)) {
 			val clipboard = Toolkit.defaultToolkit.systemClipboard
-			val data = clipboard.getData(DataFlavor.stringFlavor)
-			computer.computer.queueEvent("paste", newArrayList(data))
+			val data = clipboard.getData(DataFlavor.stringFlavor) as String
+			computer.pasteText(data)
 		} else {
 			return false
 		}
@@ -148,13 +133,13 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	override keyTyped(KeyEvent e) {
 		if (isPrintableChar(e.keyChar)) {
-			computer.computer.queueEvent("char", newArrayList(e.keyChar.toString))
+			computer.pressChar(e.keyChar)
 			blinkLockedTime = 0.25f
 		}
 	}
 	
 	override keyPressed(KeyEvent e) {
-		computer.computer.queueEvent("key", newArrayList(KeyTranslator.translateToCC(e.keyCode)))
+		computer.pressKey(KeyTranslator.translateToCC(e.keyCode), false)
 		blinkLockedTime = 0.25f
 	}
 	
@@ -167,31 +152,22 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 			}
 		}
 		
-		computer.computer.queueEvent("key_up", newArrayList(KeyTranslator.translateToCC(e.keyCode)))
+		computer.pressKey(KeyTranslator.translateToCC(e.keyCode), true)
 	}
 	
 	private def fireMouseEvent(MouseEvent e, boolean press) {
 		val point = mapPointToCC(new Point(e.x, e.y))
-		
-		computer.computer.queueEvent(
-			if (press) "mouse_click" else "mouse_up",
-			newArrayList(
-				mouseButtonToCC(e.button), point.x + 1, point.y + 1
-			)
-		)
+		computer.click(MouseTranslator.mouseButtonToCC(e.button), point.x, point.y, !press)
 	}
 	
 	override mouseDragged(MouseEvent e) {
 		val point = mapPointToCC(new Point(e.x, e.y))
-		computer.computer.queueEvent(
-			"mouse_drag",
-			newArrayList(dragButton, point.x + 1, point.y + 1)
-		)
+		computer.drag(dragButton, point.x, point.y)
 	}
 	
 	override mousePressed(MouseEvent e) {
 		fireMouseEvent(e, true)
-		dragButton = mouseButtonToCC(e.button)
+		dragButton = MouseTranslator.mouseButtonToCC(e.button)
 	}
 	
 	override mouseReleased(MouseEvent e) {
@@ -202,11 +178,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		val amt = e.unitsToScroll
 		val dir = if (amt > 0) 1 else -1
 		val point = mapPointToCC(new Point(e.x, e.y))
-		
-		computer.computer.queueEvent(
-			"mouse_scroll",
-			newArrayList(dir, point.x + 1, point.y + 1)
-		)	
+		computer.scroll(dir, point.x, point.y)
 	}
 	
 	override mouseClicked(MouseEvent e) {}
