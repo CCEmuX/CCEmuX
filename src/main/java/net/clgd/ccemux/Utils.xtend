@@ -23,27 +23,6 @@ class Utils {
 	}
 
 	/**
-	 * Method to make initialization of objects easier
-	 */
-	// lambda may not be pure, so this should not be annotated with @Pure
-	def static <T> T using(T t, Consumer<T> f) {
-		f.accept(t)
-
-		return t
-	}
-
-	/** 
-	 * Safely runs a lambda expression on a value, catching and ignoring any thrown exception.
-	 */
-	// lambda may not be pure, so this should not be annotated with @Pure
-	def static <T> void tryWith(T t, Consumer<T> f) {
-		try {
-			f.accept(t)
-		} catch (Exception e) {
-		}
-	}
-
-	/**
 	 * Takes a colour id (see http://www.computercraft.info/wiki/Colors_(API)#Colors "Paint" column),
 	 * and returns a {@link Color}.
 	 */

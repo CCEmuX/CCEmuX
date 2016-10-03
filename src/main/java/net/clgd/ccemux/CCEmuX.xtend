@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory
 import static extension net.clgd.ccemux.Utils.*
 
 class CCEmuX implements Runnable {
-	static val opts = new Options().using [
+	static val opts = new Options => [
 		buildOpt("h") [
 			longOpt("help")
 			desc("Shows the help information")
@@ -108,7 +108,7 @@ class CCEmuX implements Runnable {
 
 		portable = cmd.hasOption('p')
 		
-		cmd.getOptionValue("l")?.trim.using [
+		cmd.getOptionValue("l")?.trim => [
 			if (#{"trace", "debug", "info", "warning", "error"}.contains(it))
 				System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", it)
 			else
@@ -166,7 +166,7 @@ class CCEmuX implements Runnable {
 	}
 	
 	override run() {
-		window = new EmulatorWindow().using [
+		window = new EmulatorWindow => [
 			visible = true
 			toFront
 			requestFocus

@@ -4,7 +4,6 @@ import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.computer.IComputerEnvironment
 import dan200.computercraft.core.filesystem.FileMount
 import dan200.computercraft.core.filesystem.JarMount
-import java.io.File
 import java.nio.file.Paths
 import net.clgd.ccemux.CCBootstrapper
 import net.clgd.ccemux.CCEmuX
@@ -26,7 +25,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override createSaveDirMount(String path, long capacity) {
-		return new FileMount(new File(new File("saves"), path), capacity)
+		return new FileMount(CCEmuX.get.dataDir.resolve(path).toFile, capacity)
 	}
 	
 	override getComputerSpaceLimit() {

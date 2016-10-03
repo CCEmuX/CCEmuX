@@ -6,7 +6,6 @@ import java.io.FileOutputStream
 import java.net.URL
 import java.util.Properties
 
-import static extension net.clgd.ccemux.Utils.*
 import static extension org.apache.commons.io.IOUtils.copy
 
 class Config extends Properties {
@@ -19,13 +18,21 @@ class Config extends Properties {
 	
 	new(File configFile) {
 		// load default properties from embedded resources
-		super(new Properties().using [
+		super(new Properties => [
 			load(Config.getResourceAsStream("/default.properties"))
 			load(Config.getResourceAsStream("/cc.properties"))
 		])
 		
 		if (configFile.exists) {
 			load(new FileInputStream(configFile))
+		} else {
+			new FileOutputStream(configFile) => [
+				Config.getResourceAsStream("/default.properties").copy(it)
+				//Config.getResourceAsStream("/cc.properties").copy(it)
+				
+				flush
+				close
+			]
 		}
 	}
 	
