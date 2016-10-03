@@ -26,14 +26,6 @@ class Config extends Properties {
 		
 		if (configFile.exists) {
 			load(new FileInputStream(configFile))
-		} else {
-			new FileOutputStream(configFile).using [
-				Config.getResourceAsStream("/default.properties").copy(it)
-				Config.getResourceAsStream("/cc.properties").copy(it)
-				
-				flush
-				close
-			]
 		}
 	}
 	
