@@ -4,6 +4,7 @@ import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Point
 import java.awt.Toolkit
+import java.awt.datatransfer.DataFlavor
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
 import java.awt.event.MouseEvent
@@ -134,6 +135,10 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 			}
 		} else if (control == 's'.charAt(0)) {
 			computer.computer.shutdown
+		} else if (control == 'v'.charAt(0)) {
+			val clipboard = Toolkit.defaultToolkit.systemClipboard
+			val data = clipboard.getData(DataFlavor.stringFlavor)
+			computer.computer.queueEvent("paste", newArrayList(data))
 		} else {
 			return false
 		}
