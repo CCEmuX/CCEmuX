@@ -157,7 +157,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	private def fireMouseEvent(MouseEvent e, boolean press) {
 		val point = mapPointToCC(new Point(e.x, e.y))
-		computer.click(MouseTranslator.mouseButtonToCC(e.button), point.x, point.y, !press)
+		computer.click(MouseTranslator.swingToCC(e.button), point.x, point.y, !press)
 	}
 	
 	override mouseDragged(MouseEvent e) {
@@ -167,7 +167,7 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 	
 	override mousePressed(MouseEvent e) {
 		fireMouseEvent(e, true)
-		dragButton = MouseTranslator.mouseButtonToCC(e.button)
+		dragButton = MouseTranslator.swingToCC(e.button)
 	}
 	
 	override mouseReleased(MouseEvent e) {
