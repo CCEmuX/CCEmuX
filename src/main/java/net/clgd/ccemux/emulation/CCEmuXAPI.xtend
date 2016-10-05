@@ -3,7 +3,6 @@ package net.clgd.ccemux.emulation
 import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.core.apis.ILuaAPI
-import org.luaj.vm2.LuaError
 
 class CCEmuXAPI implements ILuaAPI {
 	String name
@@ -38,10 +37,17 @@ class CCEmuXAPI implements ILuaAPI {
 			
 			case 1: { // setCursorChar
 				if (arguments.length < 1 || !(arguments.get(0) instanceof String)) {
-					throw new LuaError("expected string for argument #1")
+					throw new LuaException("expected string for argument #1")
 				}
 				
-				computer.cursorChar = (arguments.get(0) as String).charAt(0)
+				val cursorChar = arguments.get(0) as String
+				
+				if (cursorChar.length > 0) {
+					computer.cursorChar = cursorChar.charAt(0)
+				} else {
+					throw new LuaException("cursor char can't be empty")
+				}
+				
 				return newArrayOfSize(0)
 			}
 		}
@@ -53,5 +59,4 @@ class CCEmuXAPI implements ILuaAPI {
 			"setCursorChar"
 		)
 	}
-	
 }
