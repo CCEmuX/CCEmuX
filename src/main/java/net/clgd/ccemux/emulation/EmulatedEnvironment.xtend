@@ -37,7 +37,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override getHostString() {
-		return "ComputerCraft " + ComputerCraft.version + " (CCEmuX v1.0)"
+		return "ComputerCraft " + ComputerCraft.version + " (CCEmuX v" + (CCEmuX.package.implementationVersion ?: "?") + ")"
 	}
 	
 	override getTimeOfDay() {

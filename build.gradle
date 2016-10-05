@@ -6,6 +6,9 @@ plugins {
 	id 'idea'
 }
 
+group = 'net.clgd'
+version = '1.0-SNAPSHOT'
+
 mainClassName = 'net.clgd.ccemux.CCEmuX'
 
 sourceCompatibility = 1.8
@@ -47,7 +50,7 @@ processResources {
 
 jar {
 	manifest {
-		attributes 'SplashScreen-Image':'splash1.png'
+		attributes 'SplashScreen-Image':'splash1.png', 'Implementation-Version': version
 	}
 }
 

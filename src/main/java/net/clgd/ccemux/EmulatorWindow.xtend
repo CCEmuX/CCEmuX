@@ -62,6 +62,11 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		termComponent.addMouseMotionListener(this)
 		termComponent.addMouseWheelListener(this)
 		
+		addKeyListener(this)
+		addMouseListener(this)
+		addMouseMotionListener(this)
+		addMouseWheelListener(this)
+		
 		// Make sure the window's contents fit.
 		pack
 		
