@@ -4,6 +4,7 @@ import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.core.apis.ILuaAPI
 import org.luaj.vm2.LuaError
+import net.clgd.ccemux.CCEmuX
 
 class CCEmuXAPI implements ILuaAPI {
 	String name
@@ -33,7 +34,7 @@ class CCEmuXAPI implements ILuaAPI {
 	override callMethod(ILuaContext context, int method, Object[] arguments) throws LuaException, InterruptedException {
 		switch (method) {
 			case 0: { // getVersion
-				return newArrayList("1.0")
+				return newArrayList(CCEmuX.package.implementationVersion ?: "?")
 			}	
 			
 			case 1: { // setCursorChar
