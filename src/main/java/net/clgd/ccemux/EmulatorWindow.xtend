@@ -18,23 +18,27 @@ import net.clgd.ccemux.emulation.KeyTranslator
 import net.clgd.ccemux.emulation.MouseTranslator
 import net.clgd.ccemux.terminal.TerminalComponent
 import org.eclipse.xtend.lib.annotations.Accessors
+import net.clgd.ccemux.emulation.CCEmuX
 
-class EmulatorWindow extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+class EmulatorWindow extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, EmulatedComputer.Listener {
 	static val EMU_WINDOW_TITLE = "CCEmuX" 
 	
 	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
 	TerminalComponent termComponent
 	
-	val pixelWidth = 6 * CCEmuX.get.conf.termScale
-	val pixelHeight = 9 * CCEmuX.get.conf.termScale
+	final int pixelWidth
+	final int pixelHeight
 	
 	var lastBlink = false
 	var dragButton = 4
 	
 	var blinkLockedTime = 0.0f
 	
-	new() {
+	new(CCEmuX emu, EmulatedComputer computer) {
 		super(EMU_WINDOW_TITLE)
+		
+		pixelWidth = 6 * emu.conf.termScale
+		pixelHeight = 9 * emu.conf.termScale
 		
 		layout = new BorderLayout
 		minimumSize = new Dimension(300, 200)
@@ -42,10 +46,8 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		// Make sure the process ends when we close the window.
 		defaultCloseOperation = EXIT_ON_CLOSE
 		
-		val termWidth = CCEmuX.get.conf.termWidth
-		val termHeight = CCEmuX.get.conf.termHeight
-		
-		computer = new EmulatedComputer(termWidth, termHeight)
+		this.computer = computer
+		computer.addListener(this)
 		
 		termComponent = new TerminalComponent(
 			computer.terminal,
@@ -73,14 +75,14 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 		// Centre the window.
 		locationRelativeTo = null
 		
-		lastBlink = CCEmuX.get.globalCursorBlink
+		lastBlink = CCEmuX.globalCursorBlink
 	}
 	
-	def void update(float dt) {
+	override void update(float dt) {
 		blinkLockedTime = Math.max(0.0f, blinkLockedTime - dt)
 		termComponent.blinkLocked = blinkLockedTime > 0.0f
 		
-		computer.update(dt)
+		//computer.update(dt)
 		
 		var doRepaint = false
 		
@@ -89,11 +91,11 @@ class EmulatorWindow extends JFrame implements KeyListener, MouseListener, Mouse
 			computer.terminal.clearChanged
 		}
 		
-		if (CCEmuX.get.globalCursorBlink != lastBlink) {
+		if (CCEmuX.globalCursorBlink != lastBlink) {
 			doRepaint = true
 		}
 		
-		lastBlink = CCEmuX.get.globalCursorBlink
+		lastBlink = CCEmuX.globalCursorBlink
 		
 		if (doRepaint) {
 			termComponent.cursorChar = computer.cursorChar

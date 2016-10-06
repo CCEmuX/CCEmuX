@@ -8,8 +8,8 @@ import java.awt.Graphics
 import java.awt.Point
 import java.awt.image.BufferedImage
 import javax.imageio.ImageIO
-import net.clgd.ccemux.CCEmuX
 import net.clgd.ccemux.Utils
+import net.clgd.ccemux.emulation.CCEmuX
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class TerminalComponent extends Canvas {
@@ -33,7 +33,7 @@ class TerminalComponent extends Canvas {
 		
 		fontImages = newArrayOfSize(16)
 		
-		val baseImage = ImageIO.read((ComputerCraft).getResource(CC_FONT_PATH))
+		val baseImage = ImageIO.read(ComputerCraft.getResource(CC_FONT_PATH))
 		
 		for (var i = 0; i < fontImages.length; i++) {
 			fontImages.set(i, Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i)))
@@ -112,7 +112,7 @@ class TerminalComponent extends Canvas {
 			}
 		}
 		
-		val blink = terminal.cursorBlink && (blinkLocked || CCEmuX.get.globalCursorBlink)
+		val blink = terminal.cursorBlink && (blinkLocked || CCEmuX.globalCursorBlink)
 		
 		if (blink) {
 			drawChar(
@@ -138,4 +138,5 @@ class TerminalComponent extends Canvas {
 			bufferStrategy.show
 		} while (bufferStrategy.contentsLost)
 	}
+	
 }

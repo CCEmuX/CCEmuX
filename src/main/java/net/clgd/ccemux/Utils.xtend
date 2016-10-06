@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage
 import java.util.function.Consumer
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
+import java.util.function.Function
 
 class Utils {
 
@@ -20,6 +21,12 @@ class Utils {
 		val b = Option.builder(shortName)
 		f.accept(b)
 		addOption(b.build)
+	}
+
+	def static <T extends AutoCloseable, U> U with(T c, Function<T, U> f) {
+		val r = f.apply(c)
+		c.close()
+		return r
 	}
 
 	/**

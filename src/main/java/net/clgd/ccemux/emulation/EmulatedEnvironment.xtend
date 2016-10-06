@@ -5,11 +5,14 @@ import dan200.computercraft.core.computer.IComputerEnvironment
 import dan200.computercraft.core.filesystem.FileMount
 import dan200.computercraft.core.filesystem.JarMount
 import java.nio.file.Paths
-import net.clgd.ccemux.CCBootstrapper
-import net.clgd.ccemux.CCEmuX
 
 class EmulatedEnvironment implements IComputerEnvironment {
 	int nextID = 0
+	final CCEmuX emu
+	
+	package new(CCEmuX emu) {
+		this.emu = emu
+	}
 	
 	override assignNewID() {
 		return nextID++
@@ -21,11 +24,11 @@ class EmulatedEnvironment implements IComputerEnvironment {
 		if (path.startsWith('\\'))
 			path = path.substring(1)
 		
-		return new JarMount(CCBootstrapper.CCJar, path)
+		return new JarMount(emu.ccJar, path)
 	}
 	
 	override createSaveDirMount(String path, long capacity) {
-		return new FileMount(CCEmuX.get.dataDir.resolve(path).toFile, capacity)
+		return new FileMount(emu.dataDir.resolve(path).toFile, capacity)
 	}
 	
 	override getComputerSpaceLimit() {
@@ -33,15 +36,15 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	}
 	
 	override getDay() {
-		return ((CCEmuX.get.ticksSinceStart + 6000L) / 24000L + 1) as int
+		return ((emu.ticksSinceStart + 6000L) / 24000L + 1) as int
 	}
 	
 	override getHostString() {
-		return "ComputerCraft " + ComputerCraft.version + " (CCEmuX v" + (CCEmuX.package.implementationVersion ?: "?") + ")"
+		return "ComputerCraft " + ComputerCraft.version + " (CCEmuX v" + CCEmuX.version + ")"
 	}
 	
 	override getTimeOfDay() {
-		return ((CCEmuX.get.ticksSinceStart + 6000) % 24000) / 1000.0
+		return ((emu.ticksSinceStart + 6000) % 24000) / 1000.0
 	}
 	
 	override isColour() {

@@ -3,7 +3,6 @@ package net.clgd.ccemux
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.net.URL
 import java.util.Properties
 
 import static extension org.apache.commons.io.IOUtils.copy
@@ -67,6 +66,11 @@ class Config extends Properties {
 	}
 	
 	@Pure
+	def getCCChecksum() {
+		getProperty("ccChecksum")
+	}
+	
+	@Pure
 	def getCCPatternRemote() {
 		getProperty("ccPatternRemote")
 	}
@@ -78,7 +82,7 @@ class Config extends Properties {
 	
 	@Pure
 	def getCCRemote() {
-		new URL(CCPatternRemote.replace("[module]", CCModule).replace("[revision]", CCRevision).replace("[ext]", CCExt))
+		CCPatternRemote.replace("[module]", CCModule).replace("[revision]", CCRevision).replace("[ext]", CCExt)
 	}
 	
 	@Pure

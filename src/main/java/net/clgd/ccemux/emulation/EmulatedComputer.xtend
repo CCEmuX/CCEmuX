@@ -2,19 +2,34 @@ package net.clgd.ccemux.emulation
 
 import dan200.computercraft.core.computer.Computer
 import dan200.computercraft.core.terminal.Terminal
+import java.util.ArrayList
 import org.eclipse.xtend.lib.annotations.Accessors
 
 class EmulatedComputer {	
+	static interface Listener {
+		def void update(float dt);
+	}
+	
 	@Accessors(PUBLIC_GETTER) Terminal terminal
 	Computer ccComputer
 	
 	@Accessors char cursorChar = '_'
 	
-	new(int termWidth, int termHeight) {
+	val listeners = new ArrayList<Listener>()
+	
+	package new(CCEmuX emu, int termWidth, int termHeight) {
 		terminal = new Terminal(termWidth, termHeight)
-		ccComputer = new Computer(new EmulatedEnvironment(), terminal, 0)
+		ccComputer = new Computer(emu.env, terminal, 0)
 		ccComputer.addAPI(new CCEmuXAPI(this, "ccemux"))
 		ccComputer.turnOn()
+	}
+	
+	def addListener(Listener l) {
+		return listeners.add(l)
+	}
+	
+	def removeListener(Listener l) {
+		return listeners.remove(l)
 	}
 	
 	def isOn() {
@@ -35,6 +50,10 @@ class EmulatedComputer {
 	
 	def void update(float dt) {
 		ccComputer.advance(dt)
+		
+		listeners.forEach [
+			update(dt)
+		]
 	}
 	
 	def void pressKey(int keyCode, boolean release) {

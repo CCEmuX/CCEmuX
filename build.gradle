@@ -9,7 +9,7 @@ plugins {
 group = 'net.clgd'
 version = '1.0-SNAPSHOT'
 
-mainClassName = 'net.clgd.ccemux.CCEmuX'
+mainClassName = 'net.clgd.ccemux.Launcher'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -40,6 +40,8 @@ dependencies {
 	
 	compile 'commons-io:commons-io:2.5'
 	compile 'commons-cli:commons-cli:1.3.1'
+	compile 'commons-codec:commons-codec:1.10'
+	
 	compile 'com.google.guava:guava:11.0.2'
 }
 
