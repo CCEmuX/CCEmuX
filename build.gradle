@@ -56,6 +56,9 @@ jar {
 
 shadowJar {
 	classifier = null
+	
+	exclude '*.html'
+	exclude 'META-INF/maven/*/*/*.*'
 }
 
 // enable debug logging when running via gradle
