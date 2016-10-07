@@ -138,7 +138,7 @@ class Launcher {
 		dataDir = if (cmd.hasOption('d'))
 			Paths.get(cmd.getOptionValue('d') ?: "")
 		else
-			OperatingSystem.get.appDataDir
+			OperatingSystem.get.appDataDir.resolve("ccemux")
 
 		dataDir.toFile.mkdirs
 		logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
