@@ -140,6 +140,7 @@ class Launcher {
 		else
 			OperatingSystem.get.appDataDir
 
+		dataDir.toFile.mkdirs
 		logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
 
 		logger.debug("Loading config")
