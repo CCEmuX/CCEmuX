@@ -72,7 +72,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		addMouseWheelListener(this)
 
 		resizable = false
-		type = Window.Type.UTILITY
+		type = Window.Type.NORMAL
 
 		// Make sure the window's contents fit.
 		pack
