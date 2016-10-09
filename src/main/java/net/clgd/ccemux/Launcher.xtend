@@ -10,6 +10,7 @@ import java.net.URLClassLoader
 import java.nio.file.Path
 import java.nio.file.Paths
 import net.clgd.ccemux.emulation.CCEmuX
+import net.clgd.ccemux.rendering.RenderingMethod
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
 import org.apache.commons.cli.Options
@@ -45,10 +46,13 @@ class Launcher {
 			argName("level")
 		]
 
-		buildOpt("C") [
-			longOpt("skip-checksum")
+		buildOpt("r") [
+			longOpt("renderer")
 
-			desc("If present, the CC jar checksum will not be validated.")
+			desc("Sets the renderer to use, run without an argument to show available renderers")
+			hasArg
+			optionalArg(true)
+			argName("type")
 		]
 	]
 
@@ -58,11 +62,11 @@ class Launcher {
 	private static CCEmuX emu
 
 	// TODO: Split this up into smaller functions?
-	def static void loadCC(boolean skipChecksum) {
+	def static void loadCC() {
 		logger.debug("Bootstrapping CC")
 		val jar = dataDir.resolve(config.CCLocal).toFile
 
-		if (jar.exists && !skipChecksum) {
+		if (jar.exists) {
 			logger.trace("CC Checksum is '{}'", new FileInputStream(jar).with[md5Hex])
 
 			if (config.CCChecksum.nullOrEmpty) {
@@ -91,19 +95,17 @@ class Launcher {
 				new URL(config.CCRemote).copyURLToFile(jar, 5000, 5000)
 				logger.debug("Download complete")
 
-				if (!skipChecksum) {
-					logger.trace("CC Checksum is '{}'", new FileInputStream(jar).with[md5Hex])
+				logger.trace("CC Checksum is '{}'", new FileInputStream(jar).with[md5Hex])
 
-					if (config.CCChecksum.nullOrEmpty) {
-						logger.warn("Skipping jar validation - checksum not specified")
-					} else {
-						val checksum = new FileInputStream(jar).with[md5Hex]
-						logger.debug("Expected checksum is '{}'", config.CCChecksum)
+				if (config.CCChecksum.nullOrEmpty) {
+					logger.warn("Skipping jar validation - checksum not specified")
+				} else {
+					val checksum = new FileInputStream(jar).with[md5Hex]
+					logger.debug("Expected checksum is '{}'", config.CCChecksum)
 
-						if (checksum != config.CCChecksum) {
-							logger.error("CC jar validation failed!")
-							throw new IllegalStateException("CC jar validation failed")
-						}
+					if (checksum != config.CCChecksum) {
+						logger.error("CC jar validation failed!")
+						throw new IllegalStateException("CC jar validation failed")
 					}
 				}
 			}
@@ -122,6 +124,13 @@ class Launcher {
 		if (cmd.hasOption('h')) {
 			new HelpFormatter().printHelp(
 				"java -jar " + new File(Launcher.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
+			System.exit(1)
+		}
+
+		if (cmd.hasOption('r') && cmd.getOptionValue('r').nullOrEmpty) {
+			System.out.format("Available rendering methods: %s\n", RenderingMethod.methods.map[name].reduce [p1, p2|
+				p1 + ", " + p2
+			])
 			System.exit(1)
 		}
 
@@ -151,7 +160,7 @@ class Launcher {
 		logger.info("Loaded configuration data")
 
 		logger.trace("Loading CC")
-		loadCC(cmd.hasOption("C"))
+		loadCC()
 		try {
 			logger.trace("Loaded CC version {}", ComputerCraft.version)
 		} catch (Exception e) {
@@ -163,11 +172,11 @@ class Launcher {
 		emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
 
 		val comp = emu.createEmulatedComputer
-		val w = new EmulatorWindow(emu, comp)
+		val r = RenderingMethod.create((cmd.getOptionValue('r') ?: emu.conf.renderer).trim, emu, comp)
 
 		SplashScreen.splashScreen?.close
 
-		w.visible = true
+		r.visible = true
 		emu.run
 	}
 }

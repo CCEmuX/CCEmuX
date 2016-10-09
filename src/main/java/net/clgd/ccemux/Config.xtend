@@ -51,6 +51,11 @@ class Config extends Properties {
 	}
 	
 	@Pure
+	def getRenderer() {
+		getProperty("renderer")
+	}
+	
+	@Pure
 	def getCCModule() {
 		getProperty("ccModule")
 	}

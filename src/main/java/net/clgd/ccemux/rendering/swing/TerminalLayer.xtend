@@ -1,9 +1,9 @@
-package net.clgd.ccemux.terminal
+package net.clgd.ccemux.rendering.swing
 
 import java.util.Random
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class TerminalLayer {
+package class TerminalLayer {
 	TerminalPixel[] pixels
 	
 	@Accessors(PUBLIC_GETTER) int width

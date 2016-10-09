@@ -1,4 +1,4 @@
-package net.clgd.ccemux.terminal
+package net.clgd.ccemux.rendering.swing
 
 import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.terminal.Terminal
@@ -12,7 +12,7 @@ import net.clgd.ccemux.Utils
 import net.clgd.ccemux.emulation.CCEmuX
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class TerminalComponent extends Canvas {
+package class TerminalComponent extends Canvas {
 	static val CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png"
 	
 	@Accessors(PUBLIC_GETTER) Terminal terminal
