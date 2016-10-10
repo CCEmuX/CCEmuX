@@ -51,6 +51,11 @@ class Config extends Properties {
 	}
 	
 	@Pure
+	def isApiEnabled() {
+		getProperty("apiEnabled") == "true"
+	}
+	
+	@Pure
 	def getRenderer() {
 		getProperty("renderer")
 	}

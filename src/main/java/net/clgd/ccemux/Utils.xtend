@@ -28,6 +28,21 @@ class Utils {
 		c.close()
 		return r
 	}
+	
+	def static <T> boolean any(Iterable<T> i, Function<T, Boolean> f) {
+		for (T t : i)
+			if (f.apply(t))
+				return true
+		return false
+	}
+	
+	def static <T> T first(Iterable<T> i, Function<T, Boolean> f) {
+		for (T t : i)
+			if (f.apply(t))
+				return t
+		
+		return null
+	}
 
 	/**
 	 * Takes a colour id (see http://www.computercraft.info/wiki/Colors_(API)#Colors "Paint" column),

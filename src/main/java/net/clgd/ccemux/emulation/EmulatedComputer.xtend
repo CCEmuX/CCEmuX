@@ -20,7 +20,10 @@ class EmulatedComputer {
 	package new(CCEmuX emu, int termWidth, int termHeight) {
 		terminal = new Terminal(termWidth, termHeight)
 		ccComputer = new Computer(emu.env, terminal, 0)
-		ccComputer.addAPI(new CCEmuXAPI(this, "ccemux"))
+		
+		if (emu.conf.apiEnabled)
+			ccComputer.addAPI(new CCEmuXAPI(this, "ccemux"))
+		
 		ccComputer.turnOn()
 	}
 	
