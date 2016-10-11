@@ -50,13 +50,20 @@ class CCEmuXAPI implements ILuaAPI {
 				
 				return newArrayOfSize(0)
 			}
+			
+			case 2: { // close
+				computer.dispose
+				
+				return null
+			}
 		}
 	}
 	
 	override getMethodNames() {
 		return newArrayList(
 			"getVersion",
-			"setCursorChar"
+			"setCursorChar",
+			"close"
 		)
 	}
 }

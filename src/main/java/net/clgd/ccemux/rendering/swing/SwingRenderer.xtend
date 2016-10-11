@@ -13,15 +13,17 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelEvent
 import java.awt.event.MouseWheelListener
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.emulation.KeyTranslator
 import net.clgd.ccemux.emulation.MouseTranslator
-import org.eclipse.xtend.lib.annotations.Accessors
 import net.clgd.ccemux.rendering.Renderer
+import org.eclipse.xtend.lib.annotations.Accessors
 
-class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, EmulatedComputer.Listener, Renderer {
+class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
 	static val EMU_WINDOW_TITLE = "CCEmuX"
 
 	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
@@ -36,7 +38,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 	var blinkLockedTime = 0.0f
 
 	new(CCEmuX emu, EmulatedComputer computer) {
-		super(EMU_WINDOW_TITLE)
+		super(EMU_WINDOW_TITLE + " - Computer #" + computer.ID)
 
 		pixelWidth = 6 * emu.conf.termScale
 		pixelHeight = 9 * emu.conf.termScale
@@ -44,16 +46,15 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		layout = new BorderLayout
 		minimumSize = new Dimension(300, 200)
 
-		// Make sure the process ends when we close the window.
-		defaultCloseOperation = EXIT_ON_CLOSE
+		defaultCloseOperation = DISPOSE_ON_CLOSE
 
 		this.computer = computer
 		computer.addListener(this)
 
 		termComponent = new TerminalComponent(
 			computer.terminal,
-			pixelWidth,
-			pixelHeight
+			6 * emu.conf.termScale,
+			9 * emu.conf.termScale
 		)
 
 		add(termComponent, BorderLayout.CENTER)
@@ -71,6 +72,13 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		addMouseMotionListener(this)
 		addMouseWheelListener(this)
 
+		// properly stop emulator when window is closed
+		addWindowListener(new WindowAdapter() {
+			override void windowClosing(WindowEvent e) {
+				computer.dispose
+			}
+		})
+
 		resizable = false
 		type = Window.Type.NORMAL
 
@@ -83,7 +91,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		lastBlink = CCEmuX.globalCursorBlink
 	}
 
-	override void update(float dt) {
+	override void onUpdate(float dt) {
 		blinkLockedTime = Math.max(0.0f, blinkLockedTime - dt)
 		termComponent.blinkLocked = blinkLockedTime > 0.0f
 
@@ -105,6 +113,10 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 			termComponent.cursorChar = computer.cursorChar
 			termComponent.render(dt)
 		}
+	}
+	
+	override void onDispose() {
+		dispose
 	}
 
 	private def mapPointToCC(Point p) {

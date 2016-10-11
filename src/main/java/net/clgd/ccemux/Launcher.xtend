@@ -9,7 +9,10 @@ import java.net.URL
 import java.net.URLClassLoader
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.HashMap
 import net.clgd.ccemux.emulation.CCEmuX
+import net.clgd.ccemux.emulation.EmulatedComputer
+import net.clgd.ccemux.rendering.Renderer
 import net.clgd.ccemux.rendering.RenderingMethod
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
@@ -53,6 +56,14 @@ class Launcher {
 			hasArg
 			optionalArg(true)
 			argName("type")
+		]
+		
+		buildOpt("c") [
+			longOpt("count")
+			
+			desc("How many emulated computers to create")
+			hasArg
+			argName("amount")
 		]
 	]
 
@@ -171,12 +182,36 @@ class Launcher {
 
 		emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
 
-		val comp = emu.createEmulatedComputer
-		val r = RenderingMethod.create((cmd.getOptionValue('r') ?: emu.conf.renderer).trim, emu, comp)
+		val computers = new HashMap<EmulatedComputer, Renderer>()
 
+		val count = try {
+			Integer.parseInt(cmd.getOptionValue("c", "1"))
+		} catch (NumberFormatException e) {
+			logger.error("Invalid computer count", e)
+			System.exit(3)
+			0 // satisfy variable
+		}
+		
+		if (count < 1) {
+			logger.error("Cannot create fewer than 1 computer")
+			System.exit(3)
+		}
+
+		for (i : 0 ..< count) {
+			emu.createEmulatedComputer => [
+				computers.put(it, RenderingMethod.create((cmd.getOptionValue('r') ?: emu.conf.renderer).trim, emu, it))
+			]
+		}
+		
 		SplashScreen.splashScreen?.close
 
-		r.visible = true
+		computers.forEach [ ec, r |
+			r.visible = true
+		]
+		
 		emu.run
+		
+		logger.info("Exiting CCEmuX")
+		System.exit(0)
 	}
 }

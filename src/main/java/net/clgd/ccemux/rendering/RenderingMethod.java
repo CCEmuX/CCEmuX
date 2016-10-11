@@ -14,20 +14,32 @@ public enum RenderingMethod {
 
 		@Override
 		public void setVisible(boolean visible) {
-		}}),
-	
+			
+		}
+
+		@Override
+		public void onUpdate(float dt) {
+			
+		}
+
+		@Override
+		public void onDispose() {
+
+		}
+	}),
+
 	Swing((CCEmuX emu, EmulatedComputer comp) -> new SwingRenderer(emu, comp));
-	
+
 	private final BiFunction<CCEmuX, EmulatedComputer, Renderer> creator;
-	
+
 	private RenderingMethod(BiFunction<CCEmuX, EmulatedComputer, Renderer> creator) {
 		this.creator = creator;
 	}
-	
+
 	public Renderer create(CCEmuX emu, EmulatedComputer computer) {
 		return creator.apply(emu, computer);
 	}
-	
+
 	public static Renderer create(String type, CCEmuX emu, EmulatedComputer computer) {
 		for (RenderingMethod r : values()) {
 			if (r.name().equals(type)) {
@@ -35,11 +47,11 @@ public enum RenderingMethod {
 				return r.create(emu, computer);
 			}
 		}
-		
+
 		emu.getLogger().error("Could not create renderer of type {}", type);
 		throw new IllegalArgumentException("Invalid renderer type " + type);
 	}
-	
+
 	public static RenderingMethod[] getMethods() {
 		return values();
 	}

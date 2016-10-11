@@ -8,7 +8,6 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import org.slf4j.Logger
 
 class CCEmuX implements Runnable {
-	
 	def static getVersion() {
 		return CCEmuX.package.implementationVersion ?: "[Unknown]"
 	}
@@ -39,15 +38,26 @@ class CCEmuX implements Runnable {
 		synchronized (computers) {
 			return new EmulatedComputer(this, conf.termWidth, conf.termHeight) => [
 				computers.add(it)
-				logger.info("Created emulated computer")
+				logger.info("Created emulated computer ID {}", ID)
 			]
 		}
 	}
 	
-	def removeEmulatedComputer(EmulatedComputer ec) {
+	package def removeEmulatedComputer(EmulatedComputer ec) {
 		synchronized(computers) {
-			logger.trace("Removing emulated computer")
-			return computers.remove(ec)	
+			if (computers.contains(ec)) {
+				logger.trace("Removing emulated computer ID {}", ec.ID)
+				val success = computers.remove(ec)
+				
+				if (computers.empty) {
+					running = false
+					logger.info("All emulated computers removed, stopping event loop")
+				}
+				
+				return success
+			} else {
+				return false
+			}
 		}
 	}
 	
@@ -76,7 +86,6 @@ class CCEmuX implements Runnable {
 	}
 	
 	private def update(float dt) {
-//		window.update(dt)
 		synchronized(computers) {
 			computers.forEach [
 				it.update(dt)
@@ -102,6 +111,8 @@ class CCEmuX implements Runnable {
 			// ComputerCraft only needs to update 20 times a second.
 			Thread.sleep(1000 / 20)
 		}
+		
+		logger.debug("Emulation stopped")
 	}
 }
 		
