@@ -13,7 +13,7 @@ class EmulatedComputer {
 	
 	@Accessors(PUBLIC_GETTER) val CCEmuX emu
 	@Accessors(PUBLIC_GETTER) val Terminal terminal
-	Computer ccComputer
+	@Accessors(PACKAGE_GETTER) val Computer ccComputer
 	
 	@Accessors char cursorChar = '_'
 	

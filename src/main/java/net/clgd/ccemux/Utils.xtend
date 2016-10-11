@@ -6,9 +6,9 @@ import java.awt.GraphicsEnvironment
 import java.awt.Transparency
 import java.awt.image.BufferedImage
 import java.util.function.Consumer
+import java.util.function.Function
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
-import java.util.function.Function
 
 class Utils {
 

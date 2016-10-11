@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory
 import static extension net.clgd.ccemux.Utils.*
 import static extension org.apache.commons.codec.digest.DigestUtils.md5Hex
 import static extension org.apache.commons.io.FileUtils.copyURLToFile
+import java.util.ArrayList
 
 class Launcher {
 	static val opts = new Options => [
@@ -34,7 +35,7 @@ class Launcher {
 		buildOpt("d") [
 			longOpt("data-dir")
 
-			desc("Overrides the data directory.")
+			desc("Overrides the data directory, where the CC jar, config, and default save directory are stored")
 			hasArg
 			optionalArg(true)
 			argName("path")
@@ -64,6 +65,14 @@ class Launcher {
 			desc("How many emulated computers to create")
 			hasArg
 			argName("amount")
+		]
+		
+		buildOpt("s") [
+			longOpt("save-dir")
+			
+			desc("Overrides the save directory where CC computers save their files, separated by commas. The first value is used for the first computer (ID 0), the second for the second (ID 1), etc.")
+			hasArg
+			argName("paths")
 		]
 	]
 
@@ -192,15 +201,25 @@ class Launcher {
 			0 // satisfy variable
 		}
 		
+		val saveDirs = if (cmd.hasOption("s")) {
+			new ArrayList(cmd.getOptionValue("s", "").split(',').map[Paths.get(it).toAbsolutePath])
+		} else {
+			new ArrayList()
+		}
+		
+		
 		if (count < 1) {
 			logger.error("Cannot create fewer than 1 computer")
 			System.exit(3)
 		}
 
 		for (i : 0 ..< count) {
-			emu.createEmulatedComputer => [
-				computers.put(it, RenderingMethod.create((cmd.getOptionValue('r') ?: emu.conf.renderer).trim, emu, it))
-			]
+			val it = if (saveDirs.size > 0) {
+				emu.createEmulatedComputer(saveDirs.remove(0))
+			} else {
+				emu.createEmulatedComputer
+			}
+			computers.put(it, RenderingMethod.create((cmd.getOptionValue('r') ?: emu.conf.renderer).trim, emu, it))
 		}
 		
 		SplashScreen.splashScreen?.close

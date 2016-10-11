@@ -1,5 +1,7 @@
 package net.clgd.ccemux.emulation
 
+import dan200.computercraft.core.computer.Computer
+import dan200.computercraft.core.filesystem.FileMount
 import java.io.File
 import java.nio.file.Path
 import java.util.ArrayList
@@ -31,6 +33,15 @@ class CCEmuX implements Runnable {
 		this.ccJar = ccJar
 		
 		env = new EmulatedEnvironment(this)
+	}
+	
+	def createEmulatedComputer(Path saveDir) {
+		createEmulatedComputer => [
+			logger.debug("Overriding save dir for computer {} to '{}'", ID, saveDir.toString)
+			val field = Computer.getDeclaredField("m_rootMount")
+			field.accessible = true
+			field.set(ccComputer, new FileMount(saveDir.toFile, env.computerSpaceLimit))
+		]
 	}
 	
 	def createEmulatedComputer() {
