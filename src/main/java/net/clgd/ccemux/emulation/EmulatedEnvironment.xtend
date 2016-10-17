@@ -2,11 +2,14 @@ package net.clgd.ccemux.emulation
 
 import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.computer.IComputerEnvironment
+import dan200.computercraft.core.filesystem.ComboMount
+import dan200.computercraft.core.filesystem.FileMount
 import dan200.computercraft.core.filesystem.JarMount
 import java.nio.file.Paths
-import dan200.computercraft.core.filesystem.FileMount
 
 class EmulatedEnvironment implements IComputerEnvironment {
+	static val emuProgram = new CustomRomProgram("/programs/emu.lua", "emu")
+	
 	int nextID = 0
 	final CCEmuX emu
 	
@@ -24,7 +27,7 @@ class EmulatedEnvironment implements IComputerEnvironment {
 		if (path.startsWith('\\'))
 			path = path.substring(1)
 		
-		return new JarMount(emu.ccJar, path)
+		return new ComboMount(#{new JarMount(emu.ccJar, path), emuProgram})
 	}
 	
 	override createSaveDirMount(String path, long capacity) {

@@ -62,7 +62,7 @@ class CCEmuXAPI implements ILuaAPI {
 			case 3: { // openEmu
 				var id = -1
 				
-				if (arguments.size > 0)
+				if (arguments.size > 0 && arguments.get(0) != null)
 					if (arguments.get(0) instanceof Number)
 						id = (arguments.get(0) as Number).intValue
 					else {
