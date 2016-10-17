@@ -9,7 +9,9 @@ import java.net.URL
 import java.net.URLClassLoader
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.ArrayList
 import java.util.HashMap
+import javax.swing.JOptionPane
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.rendering.Renderer
@@ -23,7 +25,6 @@ import org.slf4j.LoggerFactory
 import static extension net.clgd.ccemux.Utils.*
 import static extension org.apache.commons.codec.digest.DigestUtils.md5Hex
 import static extension org.apache.commons.io.FileUtils.copyURLToFile
-import java.util.ArrayList
 
 class Launcher {
 	static val opts = new Options => [
@@ -139,102 +140,113 @@ class Launcher {
 	}
 
 	def static void main(String[] args) {
-		val cmd = new DefaultParser().parse(opts, args)
-
-		if (cmd.hasOption('h')) {
-			new HelpFormatter().printHelp(
-				"java -jar " + new File(Launcher.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
-			System.exit(1)
-		}
-
-		if (cmd.hasOption('r') && cmd.getOptionValue('r').nullOrEmpty) {
-			System.out.format("Available rendering methods: %s\n", RenderingMethod.methods.map[name].reduce [p1, p2|
-				p1 + ", " + p2
-			])
-			System.exit(1)
-		}
-
-		(cmd.getOptionValue('l') ?: "info").trim => [
-			if (#{"trace", "debug", "info", "warning", "error"}.contains(it))
-				System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", it)
-			else
-				System.err.format("Invalid logging level '%s'\n", it)
-		]
-
-		logger = LoggerFactory.getLogger("CCEmuX")
-		logger.info("Starting CCEmuX")
-
-		dataDir = if (cmd.hasOption('d'))
-			Paths.get(cmd.getOptionValue('d') ?: "")
-		else
-			OperatingSystem.get.appDataDir.resolve("ccemux")
-
-		dataDir.toFile.mkdirs
-		logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
-
-		logger.debug("Loading config")
-		config = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile);
-		config.forEach [ name, value |
-			logger.trace("-> {} = {}", name, value)
-		]
-		logger.info("Loaded configuration data")
-
-		logger.trace("Loading CC")
-		loadCC()
-		try {
-			logger.trace("Loaded CC version {}", ComputerCraft.version)
-		} catch (Exception e) {
-			logger.error("Failed to load CC!")
-			logger.error(e.toString)
-			System.exit(2)
-		}
-
-		if (cmd.hasOption("r")) {
-			config.setProperty("renderer", cmd.getOptionValue("r").trim)
-		}
-
-		emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
-
-		val computers = new HashMap<EmulatedComputer, Renderer>()
-
-		val count = try {
-			Integer.parseInt(cmd.getOptionValue("c", "1"))
-		} catch (NumberFormatException e) {
-			logger.error("Invalid computer count", e)
-			System.exit(3)
-			0 // satisfy variable
-		}
-		
-		val saveDirs = if (cmd.hasOption("s")) {
-			new ArrayList(cmd.getOptionValue("s", "").split(',').map[Paths.get(it).toAbsolutePath])
-		} else {
-			new ArrayList()
-		}
-		
-		
-		if (count < 1) {
-			logger.error("Cannot create fewer than 1 computer")
-			System.exit(3)
-		}
-
-		for (i : 0 ..< count) {
-			val it = if (saveDirs.size > 0) {
-				emu.createEmulatedComputer(saveDirs.remove(0))
-			} else {
-				emu.createEmulatedComputer
+			try {
+			val cmd = new DefaultParser().parse(opts, args)
+	
+			if (cmd.hasOption('h')) {
+				new HelpFormatter().printHelp(
+					"java -jar " + new File(Launcher.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
+				System.exit(1)
 			}
-			computers.put(it, RenderingMethod.create(emu.conf.renderer, emu, it))
+	
+			if (cmd.hasOption('r') && cmd.getOptionValue('r').nullOrEmpty) {
+				System.out.format("Available rendering methods: %s\n", RenderingMethod.methods.map[name].reduce [p1, p2|
+					p1 + ", " + p2
+				])
+				System.exit(1)
+			}
+	
+			(cmd.getOptionValue('l') ?: "info").trim => [
+				if (#{"trace", "debug", "info", "warning", "error"}.contains(it))
+					System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", it)
+				else
+					System.err.format("Invalid logging level '%s'\n", it)
+			]
+	
+			logger = LoggerFactory.getLogger("CCEmuX")
+			logger.info("Starting CCEmuX")
+	
+			dataDir = if (cmd.hasOption('d'))
+				Paths.get(cmd.getOptionValue('d') ?: "")
+			else
+				OperatingSystem.get.appDataDir.resolve("ccemux")
+	
+			dataDir.toFile.mkdirs
+			logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
+	
+			logger.debug("Loading config")
+			config = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile);
+			config.forEach [ name, value |
+				logger.trace("-> {} = {}", name, value)
+			]
+			logger.info("Loaded configuration data")
+	
+			logger.trace("Loading CC")
+			loadCC()
+			try {
+				logger.trace("Loaded CC version {}", ComputerCraft.version)
+			} catch (Exception e) {
+				logger.error("Failed to load CC!")
+				logger.error(e.toString)
+				System.exit(2)
+			}
+	
+			if (cmd.hasOption("r")) {
+				config.setProperty("renderer", cmd.getOptionValue("r").trim)
+			}
+	
+			emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
+	
+			val computers = new HashMap<EmulatedComputer, Renderer>()
+	
+			val count = try {
+				Integer.parseInt(cmd.getOptionValue("c", "1"))
+			} catch (NumberFormatException e) {
+				logger.error("Invalid computer count", e)
+				System.exit(3)
+				0 // satisfy variable
+			}
+			
+			val saveDirs = if (cmd.hasOption("s")) {
+				new ArrayList(cmd.getOptionValue("s", "").split(',').map[Paths.get(it).toAbsolutePath])
+			} else {
+				new ArrayList()
+			}
+			
+			
+			if (count < 1) {
+				logger.error("Cannot create fewer than 1 computer")
+				System.exit(3)
+			}
+	
+			for (i : 0 ..< count) {
+				val it = if (saveDirs.size > 0) {
+					emu.createEmulatedComputer(saveDirs.remove(0))
+				} else {
+					emu.createEmulatedComputer
+				}
+				computers.put(it, RenderingMethod.create(emu.conf.renderer, emu, it))
+			}
+			
+			SplashScreen.splashScreen?.close
+	
+			computers.forEach [ ec, r |
+				r.visible = true
+			]
+			
+			emu.run
+			
+			logger.info("Exiting CCEmuX")
+			System.exit(0)
+		} catch (Exception e) {
+			try {
+				e.printStackTrace
+				System.err.println("Uncaught exception!")
+				SplashScreen.splashScreen?.close
+				JOptionPane.showMessageDialog(null, e.toString, "Fatal Error", JOptionPane.ERROR_MESSAGE)
+			} catch (Exception e2) {} finally {
+				System.exit(-1)
+			}
 		}
-		
-		SplashScreen.splashScreen?.close
-
-		computers.forEach [ ec, r |
-			r.visible = true
-		]
-		
-		emu.run
-		
-		logger.info("Exiting CCEmuX")
-		System.exit(0)
 	}
 }
