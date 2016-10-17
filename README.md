@@ -17,15 +17,15 @@ If you want to use a custom version of CC, follow the steps below. Note that usi
 1. Download the new CC jar into the CCEmuX data folder. Make sure it is named similarly to `ComputerCraft___.jar`.
 
 2. Add the following two lines to the bottom of the CCEmuX configuration file to prevent CCEmuX from attempting to verify and update CC.
-```
-ccChecksum=
-ccRemote=
-```
+  ```
+  ccChecksum=
+  ccRemote=
+  ```
 
 3. Modify and add the following line to the bottom of the CCEmuX configuration file to specify the version of CC in use. MAKE SURE that this matches the end of the filename of the CC jar you downloaded.
-```
-ccRevision=1.79
-```
+  ```
+  ccRevision=1.79
+  ```
 
 4. Save the modified configuration file and restart CCEmuX, preferably from a terminal to see log messages. 
 
