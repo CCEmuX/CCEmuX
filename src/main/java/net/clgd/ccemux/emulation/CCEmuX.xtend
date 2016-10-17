@@ -44,14 +44,18 @@ class CCEmuX implements Runnable {
 		]
 	}
 	
-	def createEmulatedComputer() {
+	def createEmulatedComputer(int id) {
 		logger.trace("Creating emulated computer")
 		synchronized (computers) {
-			return new EmulatedComputer(this, conf.termWidth, conf.termHeight) => [
+			return new EmulatedComputer(this, conf.termWidth, conf.termHeight, id) => [
 				computers.add(it)
 				logger.info("Created emulated computer ID {}", ID)
 			]
 		}
+	}
+	
+	def createEmulatedComputer() {
+		createEmulatedComputer(-1)
 	}
 	
 	package def removeEmulatedComputer(EmulatedComputer ec) {
@@ -99,7 +103,8 @@ class CCEmuX implements Runnable {
 	private def update(float dt) {
 		synchronized(computers) {
 			computers.forEach [
-				it.update(dt)
+				synchronized (it)
+					it.update(dt)
 			]
 		}
 	}

@@ -3,6 +3,8 @@ package net.clgd.ccemux.emulation
 import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.core.apis.ILuaAPI
+import java.awt.Desktop
+import net.clgd.ccemux.rendering.RenderingMethod
 
 class CCEmuXAPI implements ILuaAPI {
 	String name
@@ -51,10 +53,38 @@ class CCEmuXAPI implements ILuaAPI {
 				return newArrayOfSize(0)
 			}
 			
-			case 2: { // close
+			case 2: { // closeEmu
 				computer.dispose
 				
 				return null
+			}
+			
+			case 3: { // openEmu
+				var id = -1
+				
+				if (arguments.size > 0)
+					if (arguments.get(0) instanceof Number)
+						id = (arguments.get(0) as Number).intValue
+					else {
+						throw new LuaException("expected number or nil for argument #1")
+					}
+				
+				val ec = computer.emu.createEmulatedComputer(id)
+				val r = RenderingMethod.create(computer.emu.conf.renderer, computer.emu, ec)
+				
+				r.visible = true
+				
+				return #{ec.ID}
+			}
+			
+			case 4: { // openDataDir
+				try {
+					Desktop.desktop.browse(computer.emu.dataDir.toUri)
+					
+					return #{true}
+				} catch (Exception e) {
+					return #{false}
+				}
 			}
 		}
 	}
@@ -63,7 +93,9 @@ class CCEmuXAPI implements ILuaAPI {
 		return newArrayList(
 			"getVersion",
 			"setCursorChar",
-			"close"
+			"closeEmu",
+			"openEmu",
+			"openDataDir"
 		)
 	}
 }

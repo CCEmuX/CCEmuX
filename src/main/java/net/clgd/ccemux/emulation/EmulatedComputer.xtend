@@ -19,11 +19,13 @@ class EmulatedComputer {
 	
 	val listeners = new ArrayList<Listener>()
 	
-	package new(CCEmuX emu, int termWidth, int termHeight) {
+	package new(CCEmuX emu, int termWidth, int termHeight, int id) {
 		this.emu = emu
 		terminal = new Terminal(termWidth, termHeight)
 		
 		ccComputer = new Computer(emu.env, terminal, -1)
+		
+		ccComputer.ID = id
 		ccComputer.assignID
 		
 		if (emu.conf.apiEnabled)

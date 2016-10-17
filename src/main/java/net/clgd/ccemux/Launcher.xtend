@@ -189,6 +189,10 @@ class Launcher {
 			System.exit(2)
 		}
 
+		if (cmd.hasOption("r")) {
+			config.setProperty("renderer", cmd.getOptionValue("r").trim)
+		}
+
 		emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
 
 		val computers = new HashMap<EmulatedComputer, Renderer>()
@@ -219,7 +223,7 @@ class Launcher {
 			} else {
 				emu.createEmulatedComputer
 			}
-			computers.put(it, RenderingMethod.create((cmd.getOptionValue('r') ?: emu.conf.renderer).trim, emu, it))
+			computers.put(it, RenderingMethod.create(emu.conf.renderer, emu, it))
 		}
 		
 		SplashScreen.splashScreen?.close
