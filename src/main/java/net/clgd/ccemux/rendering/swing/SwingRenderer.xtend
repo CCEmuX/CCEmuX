@@ -38,7 +38,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 	var blinkLockedTime = 0.0f
 
 	new(CCEmuX emu, EmulatedComputer computer) {
-		super(EMU_WINDOW_TITLE + " - Computer #" + computer.ID)
+		super(EMU_WINDOW_TITLE)
 
 		pixelWidth = 6 * emu.conf.termScale
 		pixelHeight = 9 * emu.conf.termScale
@@ -92,6 +92,8 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 	}
 
 	override void onUpdate(float dt) {
+		title = windowTitle
+
 		blinkLockedTime = Math.max(0.0f, blinkLockedTime - dt)
 		termComponent.blinkLocked = blinkLockedTime > 0.0f
 
@@ -114,7 +116,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 			termComponent.render(dt)
 		}
 	}
-	
+
 	override void onDispose() {
 		dispose
 	}
@@ -152,6 +154,20 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		}
 
 		return true
+	}
+
+	private def getWindowTitle() {
+		if (computer.label != null) {
+			return EMU_WINDOW_TITLE + " - " + computer.label + " (Computer #" + computer.ID + ")"
+		} else {
+			return EMU_WINDOW_TITLE + " - Computer #" + computer.ID
+		}
+	}
+
+	override onTerminalResized(int width, int height) {
+		termComponent.resizeTerminal(width, height)
+
+		pack
 	}
 
 	override keyTyped(KeyEvent e) {
@@ -199,7 +215,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 
 	override mouseWheelMoved(MouseWheelEvent e) {
 		val amt = e.unitsToScroll
-		val dir = if(amt > 0) 1 else -1
+		val dir = if (amt > 0) 1 else -1
 		val point = mapPointToCC(new Point(e.x, e.y))
 		computer.scroll(dir, point.x, point.y)
 	}

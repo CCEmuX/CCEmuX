@@ -29,20 +29,7 @@ if ccemux then
                 help()
             else
                 if args[2] == "resolution" then
-                    if #args == 4 then
-                        ccemux.setResolution(tonumber(args[3]), tonumber(args[4]))
-                        print("Set resolution to " .. args[3] .. "x" .. args[4])
-                    elseif #args == 3 then
-                        if args[3] == "computer" then
-                            ccemux.setResolution(51, 19)
-                            print("Set resolution to computer (51x19)")
-                        elseif args[3] == "pocket" then
-                            ccemux.setResolution(26, 20)
-                            print("Set resolution to pocket (26x20)")
-                        end
-                    else
-                        printError("Usage: emu set resolution <width> <height>")
-                    end
+
                 elseif args[2] == "scale" then
 
                 elseif args[2] == "cursor" then

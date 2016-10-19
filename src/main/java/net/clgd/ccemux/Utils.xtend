@@ -11,7 +11,6 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 
 class Utils {
-
 	static val BASE_16 = "0123456789abcdef"
 
 	/**
@@ -28,19 +27,19 @@ class Utils {
 		c.close()
 		return r
 	}
-	
+
 	def static <T> boolean any(Iterable<T> i, Function<T, Boolean> f) {
 		for (T t : i)
 			if (f.apply(t))
 				return true
 		return false
 	}
-	
+
 	def static <T> T first(Iterable<T> i, Function<T, Boolean> f) {
 		for (T t : i)
 			if (f.apply(t))
 				return t
-		
+
 		return null
 	}
 
@@ -51,7 +50,7 @@ class Utils {
 	@Pure
 	def static Color getCCColourFromInt(int i) {
 		val col = Colour.fromInt(15 - i)
-		return if(col == null) Color.WHITE else new Color(col.r, col.g, col.b)
+		return if (col == null) Color.WHITE else new Color(col.r, col.g, col.b)
 	}
 
 	@Pure

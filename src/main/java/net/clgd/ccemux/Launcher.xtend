@@ -46,7 +46,7 @@ class Launcher {
 			longOpt("log-level")
 
 			desc(
-				"Manually specify the logging level. Valid options are 'trace', 'debug', 'info', 'warning', and 'error'.")
+					"Manually specify the logging level. Valid options are 'trace', 'debug', 'info', 'warning', and 'error'.")
 			hasArg
 			argName("level")
 		]
@@ -59,18 +59,18 @@ class Launcher {
 			optionalArg(true)
 			argName("type")
 		]
-		
+
 		buildOpt("c") [
 			longOpt("count")
-			
+
 			desc("How many emulated computers to create")
 			hasArg
 			argName("amount")
 		]
-		
+
 		buildOpt("s") [
 			longOpt("save-dir")
-			
+
 			desc("Overrides the save directory where CC computers save their files, separated by commas. The first value is used for the first computer (ID 0), the second for the second (ID 1), etc.")
 			hasArg
 			argName("paths")
@@ -140,47 +140,47 @@ class Launcher {
 	}
 
 	def static void main(String[] args) {
-			try {
+		try {
 			val cmd = new DefaultParser().parse(opts, args)
-	
+
 			if (cmd.hasOption('h')) {
 				new HelpFormatter().printHelp(
-					"java -jar " + new File(Launcher.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
+						"java -jar " + new File(Launcher.getProtectionDomain.codeSource.location.toURI).name + " <args>", opts)
 				System.exit(1)
 			}
-	
+
 			if (cmd.hasOption('r') && cmd.getOptionValue('r').nullOrEmpty) {
 				System.out.format("Available rendering methods: %s\n", RenderingMethod.methods.map[name].reduce [p1, p2|
 					p1 + ", " + p2
 				])
 				System.exit(1)
 			}
-	
+
 			(cmd.getOptionValue('l') ?: "info").trim => [
-				if (#{"trace", "debug", "info", "warning", "error"}.contains(it))
+				if (# {"trace", "debug", "info", "warning", "error"}.contains(it))
 					System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", it)
 				else
 					System.err.format("Invalid logging level '%s'\n", it)
 			]
-	
+
 			logger = LoggerFactory.getLogger("CCEmuX")
 			logger.info("Starting CCEmuX")
-	
+
 			dataDir = if (cmd.hasOption('d'))
 				Paths.get(cmd.getOptionValue('d') ?: "")
 			else
 				OperatingSystem.get.appDataDir.resolve("ccemux")
-	
+
 			dataDir.toFile.mkdirs
 			logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
-	
+
 			logger.debug("Loading config")
 			config = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile);
 			config.forEach [ name, value |
 				logger.trace("-> {} = {}", name, value)
 			]
 			logger.info("Loaded configuration data")
-	
+
 			logger.trace("Loading CC")
 			loadCC()
 			try {
@@ -190,15 +190,15 @@ class Launcher {
 				logger.error(e.toString)
 				System.exit(2)
 			}
-	
+
 			if (cmd.hasOption("r")) {
 				config.setProperty("renderer", cmd.getOptionValue("r").trim)
 			}
-	
+
 			emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
-	
+
 			val computers = new HashMap<EmulatedComputer, Renderer>()
-	
+
 			val count = try {
 				Integer.parseInt(cmd.getOptionValue("c", "1"))
 			} catch (NumberFormatException e) {
@@ -206,19 +206,19 @@ class Launcher {
 				System.exit(3)
 				0 // satisfy variable
 			}
-			
+
 			val saveDirs = if (cmd.hasOption("s")) {
 				new ArrayList(cmd.getOptionValue("s", "").split(',').map[Paths.get(it).toAbsolutePath])
 			} else {
 				new ArrayList()
 			}
-			
-			
+
+
 			if (count < 1) {
 				logger.error("Cannot create fewer than 1 computer")
 				System.exit(3)
 			}
-	
+
 			for (i : 0 ..< count) {
 				val it = if (saveDirs.size > 0) {
 					emu.createEmulatedComputer(saveDirs.remove(0))
@@ -227,15 +227,15 @@ class Launcher {
 				}
 				computers.put(it, RenderingMethod.create(emu.conf.renderer, emu, it))
 			}
-			
+
 			SplashScreen.splashScreen?.close
-	
+
 			computers.forEach [ ec, r |
 				r.visible = true
 			]
-			
+
 			emu.run
-			
+
 			logger.info("Exiting CCEmuX")
 			System.exit(0)
 		} catch (Exception e) {
@@ -244,7 +244,8 @@ class Launcher {
 				System.err.println("Uncaught exception!")
 				SplashScreen.splashScreen?.close
 				JOptionPane.showMessageDialog(null, e.toString, "Fatal Error", JOptionPane.ERROR_MESSAGE)
-			} catch (Exception e2) {} finally {
+			} catch (Exception e2) {
+			} finally {
 				System.exit(-1)
 			}
 		}

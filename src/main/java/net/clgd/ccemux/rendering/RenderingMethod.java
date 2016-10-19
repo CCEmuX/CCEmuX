@@ -1,6 +1,7 @@
 package net.clgd.ccemux.rendering;
 
 import java.util.function.BiFunction;
+
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.swing.SwingRenderer;
@@ -13,19 +14,19 @@ public enum RenderingMethod {
 		}
 
 		@Override
-		public void setVisible(boolean visible) {
-
-		}
+		public void setVisible(boolean visible) { }
 
 		@Override
-		public void onUpdate(float dt) {
-
-		}
+		public void resize(int width, int height) { }
 
 		@Override
-		public void onDispose() {
+		public void onUpdate(float dt) { }
 
-		}
+		@Override
+		public void onDispose() { }
+
+		@Override
+		public void onTerminalResized(int width, int height) { }
 	}),
 
 	Swing((CCEmuX emu, EmulatedComputer comp) -> new SwingRenderer(emu, comp));
