@@ -39,6 +39,9 @@ if ccemux then
                         elseif args[3] == "pocket" then
                             ccemux.setResolution(26, 20)
                             print("Set resolution to pocket (26x20)")
+                        elseif args[3] == "turtle" then
+                            ccemux.setResolution(39, 13)
+                            print("Set resolution to turtle (39x13)")
                         end
                     else
                         printError("Usage: emu set resolution <width> <height>")

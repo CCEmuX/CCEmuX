@@ -29,7 +29,7 @@ public enum RenderingMethod {
 		public void onTerminalResized(int width, int height) { }
 	}),
 
-	Swing((CCEmuX emu, EmulatedComputer comp) -> new SwingRenderer(emu, comp));
+	Swing(SwingRenderer::new);
 
 	private final BiFunction<CCEmuX, EmulatedComputer, Renderer> creator;
 
