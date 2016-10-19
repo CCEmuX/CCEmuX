@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/eclipse,intellij,java,gradle,xtext
 
 ### Eclipse ###
@@ -138,3 +137,5 @@ gradle-app.setting
 
 /ccemux.properties
 /saves/
+
+/classes/
