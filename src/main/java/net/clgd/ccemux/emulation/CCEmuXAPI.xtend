@@ -109,18 +109,24 @@ class CCEmuXAPI implements ILuaAPI {
 					return # {false}
 				}
 			}
+
+			case (method == getMethodNames().indexOf("getUnixTime") ||
+				  method == getMethodNames().indexOf("getMilliseconds")): {
+				return # { System.currentTimeMillis }
+			}
 		}
 	}
 
 	override getMethodNames() {
-		return newArrayList(
-				"getVersion",
-				"setCursorChar",
-				"setResolution",
-				"saveSettings",
-				"closeEmu",
-				"openEmu",
-				"openDataDir"
-		)
+		return # {
+			"getVersion",
+			"setCursorChar",
+			"setResolution",
+			"closeEmu",
+			"openEmu",
+			"openDataDir",
+			"getUnixTime",
+			"getMilliseconds"
+		}
 	}
 }
