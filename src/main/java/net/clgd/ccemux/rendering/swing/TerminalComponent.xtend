@@ -23,6 +23,8 @@ package class TerminalComponent extends Canvas {
 
 	@Accessors boolean blinkLocked = false
 
+	val int margin = 4
+
 	BufferedImage[] fontImages
 
 	new(Terminal terminal, int pixelWidth, int pixelHeight) {
@@ -39,7 +41,7 @@ package class TerminalComponent extends Canvas {
 			fontImages.set(i, Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i)))
 		}
 
-		val termDimensions = new Dimension(terminal.width * pixelWidth, terminal.height * pixelHeight)
+		val termDimensions = new Dimension(terminal.width * pixelWidth + margin * 2, terminal.height * pixelHeight + margin * 2)
 		size = termDimensions
 		preferredSize = termDimensions
 	}
@@ -81,45 +83,57 @@ package class TerminalComponent extends Canvas {
 		)
 
 		drawImage(
-				fontImages.get(colour),
+			fontImages.get(colour),
 
-				// Destination
-				x, y,
-				x + pixelWidth, y + pixelHeight,
+			// Destination
+			x, y,
+			x + pixelWidth, y + pixelHeight,
 
-				// Source
-				charLocation.x, charLocation.y,
-				charLocation.x + charWidth, charLocation.y + charHeight,
+			// Source
+			charLocation.x, charLocation.y,
+			charLocation.x + charWidth, charLocation.y + charHeight,
 
-				null
+			null
 		)
 	}
 
 	private def renderTerminal(float dt) {
 		val g = bufferStrategy.drawGraphics
 
+		var int dx = 0
+		var int dy = 0
+
 		for (var y = 0; y < terminal.height; y++) {
 			val textLine = terminal.getLine(y)
 			val bgLine = terminal.getBackgroundColourLine(y)
 			val fgLine = terminal.getTextColourLine(y)
 
+			var height = if (y == 0 || y == terminal.height - 1) pixelHeight + margin else pixelHeight
+
 			for (var x = 0; x < terminal.width; x++) {
+				var width = if (x == 0 || x == terminal.width - 1) pixelWidth + margin else pixelWidth
+
 				g.color = Utils.getCCColourFromChar(if (bgLine == null) 'f' else bgLine.charAt(x))
-				g.fillRect(x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight)
+				g.fillRect(dx, dy, width, height)
 
 				val char character = if (textLine == null) ' ' else textLine.charAt(x)
 				val char fgChar = if (fgLine == null) 'f' else fgLine.charAt(x)
-				drawChar(g, character, x * pixelWidth, y * pixelHeight, Utils.base16ToInt(fgChar))
+				drawChar(g, character, x * pixelWidth + margin, y * pixelHeight + margin, Utils.base16ToInt(fgChar))
+
+				dx += width
 			}
+
+			dx = 0
+			dy += height
 		}
 
 		val blink = terminal.cursorBlink && (blinkLocked || CCEmuX.globalCursorBlink)
 
 		if (blink) {
 			drawChar(
-					g, cursorChar,
-					terminal.cursorX * pixelWidth, terminal.cursorY * pixelHeight,
-					terminal.textColour
+				g, cursorChar,
+				terminal.cursorX * pixelWidth + margin, terminal.cursorY * pixelHeight + margin,
+				terminal.textColour
 			)
 		}
 
@@ -134,10 +148,10 @@ package class TerminalComponent extends Canvas {
 		do {
 			do {
 				renderTerminal(dt)
-			} while(bufferStrategy.contentsRestored)
+			} while (bufferStrategy.contentsRestored)
 
 			bufferStrategy.show
-		} while(bufferStrategy.contentsLost)
+		} while (bufferStrategy.contentsLost)
 	}
 
 	def resizeTerminal(int width, int height) {
