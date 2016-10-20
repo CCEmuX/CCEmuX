@@ -11,7 +11,7 @@ import org.slf4j.Logger
 
 class CCEmuX implements Runnable {
 	def static getVersion() {
-		return CCEmuX.package.implementationVersion ?: "[Unknown]"
+		return CCEmuX.package?.implementationVersion ?: "[Unknown]"
 	}
 
 	@Accessors(PUBLIC_GETTER) final Logger logger
