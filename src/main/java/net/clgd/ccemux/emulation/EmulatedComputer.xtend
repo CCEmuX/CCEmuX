@@ -87,6 +87,9 @@ class EmulatedComputer {
 	}
 
 	def void resize(int width, int height) {
+		emu.conf.termWidth = width
+		emu.conf.termHeight = height
+
 		terminal.resize(width, height)
 
 		listeners.forEach [

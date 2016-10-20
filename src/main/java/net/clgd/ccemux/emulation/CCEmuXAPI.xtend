@@ -70,6 +70,12 @@ class CCEmuXAPI implements ILuaAPI {
 				return newArrayOfSize(0)
 			}
 
+			case getMethodNames().indexOf("saveSettings"): {
+				computer.emu.conf.saveProperties
+
+				return newArrayOfSize(0)
+			}
+
 			case getMethodNames().indexOf("closeEmu"): {
 				computer.dispose
 
@@ -111,6 +117,7 @@ class CCEmuXAPI implements ILuaAPI {
 				"getVersion",
 				"setCursorChar",
 				"setResolution",
+				"saveSettings",
 				"closeEmu",
 				"openEmu",
 				"openDataDir"

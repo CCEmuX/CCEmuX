@@ -115,7 +115,7 @@ class CCEmuX implements Runnable {
 		timeStarted = System.currentTimeMillis
 		var lastTime = System.currentTimeMillis
 
-		while(running) {
+		while (running) {
 			val now = System.currentTimeMillis
 			val dt = now - lastTime
 			val dtSecs = dt / 1000.0f

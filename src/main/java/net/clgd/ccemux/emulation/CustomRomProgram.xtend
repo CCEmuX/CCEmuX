@@ -38,5 +38,4 @@ class CustomRomProgram implements IMount {
 	override openForRead(String path) throws IOException {
 		if (path == "programs/" + name) stream
 	}
-
 }

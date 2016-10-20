@@ -15,12 +15,16 @@ class Config extends Properties {
 
 	public static val CONFIG_FILE_NAME = "ccemux.properties"
 
+	val File configFile
+
 	new(File configFile) {
 		// load default properties from embedded resources
 		super(new Properties => [
 			load(Config.getResourceAsStream("/default.properties"))
 			load(Config.getResourceAsStream("/cc.properties"))
 		])
+
+		this.configFile = configFile
 
 		if (configFile.exists) {
 			load(new FileInputStream(configFile))
@@ -40,9 +44,17 @@ class Config extends Properties {
 		getProperty("termWidth").parseInt
 	}
 
+	def setTermWidth(int width) {
+		setProperty("termWidth", width.toString)
+	}
+
 	@Pure
 	def getTermHeight() {
 		getProperty("termHeight").parseInt
+	}
+
+	def setTermHeight(int height) {
+		setProperty("termHeight", height.toString)
 	}
 
 	@Pure
@@ -98,5 +110,14 @@ class Config extends Properties {
 	@Pure
 	def getCCLocal() {
 		CCPatternLocal.replace("[module]", CCModule).replace("[revision]", CCRevision).replace("[ext]", CCExt)
+	}
+
+	def saveProperties() {
+		new FileOutputStream(configFile) => [
+			store(it, null)
+
+			flush
+			close
+		]
 	}
 }

@@ -9,6 +9,7 @@ if ccemux then
         print("emu data - opens the data folder")
         print("emu set <setting> <values> - edits a setting")
         print("emu list settings - list editable settings")
+        print("emu save - saves current settings")
     end
 
     if #args == 0 then
@@ -64,6 +65,9 @@ if ccemux then
             else
                 printError("Unrecognized subcommand: " .. args[2])
             end
+        elseif args[1] == "save" then
+            ccemux.saveSettings()
+            print("Saved settings")
         else
             printError("Unrecognized subcommand: " .. args[1])
             help()

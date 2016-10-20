@@ -53,5 +53,4 @@ class EmulatedEnvironment implements IComputerEnvironment {
 	override isColour() {
 		return true
 	}
-
 }
