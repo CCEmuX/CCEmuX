@@ -110,10 +110,9 @@ class CCEmuXAPI implements ILuaAPI {
 				}
 			}
 
-			case (method == getMethodNames().indexOf("getUnixTime") ||
-				  method == getMethodNames().indexOf("getMilliseconds")): {
-				return # { System.currentTimeMillis }
-			}
+			case getMethodNames().indexOf("milliTime"): return # { System.currentTimeMillis }
+
+			case getMethodNames().indexOf("nanoTime"): return # { System.nanoTime }
 		}
 	}
 
@@ -125,8 +124,8 @@ class CCEmuXAPI implements ILuaAPI {
 			"closeEmu",
 			"openEmu",
 			"openDataDir",
-			"getUnixTime",
-			"getMilliseconds"
+			"milliTime",
+			"nanoTime"
 		}
 	}
 }
