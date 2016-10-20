@@ -41,9 +41,7 @@ package class TerminalComponent extends Canvas {
 			fontImages.set(i, Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i)))
 		}
 
-		val termDimensions = new Dimension(terminal.width * pixelWidth + margin * 2, terminal.height * pixelHeight + margin * 2)
-		size = termDimensions
-		preferredSize = termDimensions
+		resizeTerminal(terminal.width, terminal.height)
 	}
 
 	@Pure
@@ -54,8 +52,8 @@ package class TerminalComponent extends Canvas {
 		val charCode = c as int
 
 		return new Point(
-				(charCode % columns) * charWidth,
-				(charCode / rows) * charHeight
+			(charCode % columns) * charWidth,
+			(charCode / rows) * charHeight
 		)
 	}
 
@@ -77,9 +75,9 @@ package class TerminalComponent extends Canvas {
 		val fontHeight = 144
 
 		val charLocation = getCharLocation(
-				c,
-				charWidth, charHeight,
-				fontWidth, fontHeight
+			c,
+			charWidth, charHeight,
+			fontWidth, fontHeight
 		)
 
 		drawImage(
@@ -155,7 +153,11 @@ package class TerminalComponent extends Canvas {
 	}
 
 	def resizeTerminal(int width, int height) {
-		val termDimensions = new Dimension(terminal.width * pixelWidth, terminal.height * pixelHeight)
+		val termDimensions = new Dimension(
+			width * pixelWidth + margin * 2,
+			height * pixelHeight + margin * 2
+		)
+
 		size = termDimensions
 		preferredSize = termDimensions
 	}
