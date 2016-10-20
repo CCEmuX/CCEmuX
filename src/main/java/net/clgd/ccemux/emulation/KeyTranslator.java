@@ -106,7 +106,7 @@ public class KeyTranslator {
 		put(KeyEvent.VK_INSERT, 210);
 		put(KeyEvent.VK_DELETE, 211);
 	}});
-	
+
 	public static int translateToCC(int keycode) {
 		return swingToCCMap.getOrDefault(keycode, 0);
 	}

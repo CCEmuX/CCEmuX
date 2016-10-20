@@ -11,13 +11,13 @@ class MouseTranslator {
 			default: -1
 		}
 	}
-	
+
 	static def ccToSwing(int button) {
 		return switch (button) {
 			case 1: MouseEvent.BUTTON1
 			case 2: MouseEvent.BUTTON3
 			case 3: MouseEvent.BUTTON2
-			default: -1	
+			default: -1
 		}
 	}
 }
