@@ -23,7 +23,7 @@ package class TerminalComponent extends Canvas {
 
 	@Accessors boolean blinkLocked = false
 
-	val int margin = 4
+	@Accessors static val int margin = 4
 
 	BufferedImage[] fontImages
 

@@ -122,10 +122,13 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 	}
 
 	private def mapPointToCC(Point p) {
-		return new Point(
-			p.x / pixelWidth + 1,
-			p.y / pixelHeight + 1
-		)
+        val px = p.x - TerminalComponent.margin
+        val py = p.y - TerminalComponent.margin
+
+        val x = px / pixelWidth
+        val y = py / pixelHeight
+
+		return new Point(x + 1, y + 1)
 	}
 
 	private static def isPrintableChar(char c) {
