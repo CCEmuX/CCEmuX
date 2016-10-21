@@ -33,11 +33,11 @@ class CCEmuXAPI implements ILuaAPI {
 
 	override callMethod(ILuaContext context, int method, Object[] arguments) throws LuaException, InterruptedException {
 		switch (method) {
-			case getMethodNames().indexOf("getVersion"): {
+			case methodNames.indexOf("getVersion"): {
 				return newArrayList(CCEmuX.version)
 			}
 
-			case getMethodNames().indexOf("setCursorChar"): {
+			case methodNames.indexOf("setCursorChar"): {
 				if (arguments.length < 1 || !(arguments.get(0) instanceof String)) {
 					throw new LuaException("expected string for argument #1")
 				}
@@ -53,7 +53,7 @@ class CCEmuXAPI implements ILuaAPI {
 				return newArrayOfSize(0)
 			}
 
-			case getMethodNames().indexOf("setResolution"): {
+			case methodNames.indexOf("setResolution"): {
 				if (arguments.length < 2 || !(arguments.get(0) instanceof Number) || !(arguments.get(1) instanceof Number)) {
 					throw new LuaException("expected number for arguments #1 and #2")
 				}
@@ -70,19 +70,19 @@ class CCEmuXAPI implements ILuaAPI {
 				return newArrayOfSize(0)
 			}
 
-			case getMethodNames().indexOf("saveSettings"): {
+			case methodNames.indexOf("saveSettings"): {
 				computer.emu.conf.saveProperties
 
 				return newArrayOfSize(0)
 			}
 
-			case getMethodNames().indexOf("closeEmu"): {
+			case methodNames.indexOf("closeEmu"): {
 				computer.dispose
 
-				return null
+				return newArrayOfSize(0)
 			}
 
-			case getMethodNames().indexOf("openEmu"): {
+			case methodNames.indexOf("openEmu"): {
 				var id = -1
 
 				if (arguments.size > 0 && arguments.get(0) != null)
@@ -100,7 +100,7 @@ class CCEmuXAPI implements ILuaAPI {
 				return # {ec.ID}
 			}
 
-			case getMethodNames().indexOf("openDataDir"): {
+			case methodNames.indexOf("openDataDir"): {
 				try {
 					Desktop.desktop.browse(computer.emu.dataDir.toUri)
 
@@ -110,9 +110,17 @@ class CCEmuXAPI implements ILuaAPI {
 				}
 			}
 
-			case getMethodNames().indexOf("milliTime"): return # { System.currentTimeMillis }
+			case methodNames.indexOf("milliTime"): return # { System.currentTimeMillis }
 
-			case getMethodNames().indexOf("nanoTime"): return # { System.nanoTime }
+			case methodNames.indexOf("nanoTime"): return # { System.nanoTime }
+			
+			case methodNames.indexOf("echo"): {
+				if (arguments.size > 0 && arguments.get(0) != null && arguments.get(0) instanceof String)
+					computer.emu.logger.info("[Computer {}] {}", computer.ID, arguments.get(0) as String)
+				else
+					throw new LuaException("expected string for argument #1")
+				return newArrayOfSize(0)
+			}
 		}
 	}
 
@@ -125,7 +133,8 @@ class CCEmuXAPI implements ILuaAPI {
 			"openEmu",
 			"openDataDir",
 			"milliTime",
-			"nanoTime"
+			"nanoTime",
+			"echo"
 		}
 	}
 }
