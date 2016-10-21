@@ -16,20 +16,20 @@ package class TerminalComponent extends Canvas {
 	static val CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png"
 
 	@Accessors(PUBLIC_GETTER) Terminal terminal
-	@Accessors(PUBLIC_GETTER) int pixelWidth
-	@Accessors(PUBLIC_GETTER) int pixelHeight
+	@Accessors(PUBLIC_GETTER) val int pixelWidth
+	@Accessors(PUBLIC_GETTER) val int pixelHeight
+	@Accessors(PUBLIC_GETTER) val int margin
 
 	@Accessors char cursorChar = '_'
 
 	@Accessors boolean blinkLocked = false
 
-	@Accessors static val int margin = 4
-
 	BufferedImage[] fontImages
 
-	new(Terminal terminal, int pixelWidth, int pixelHeight) {
-		this.pixelWidth = pixelWidth
-		this.pixelHeight = pixelHeight
+	new(Terminal terminal, int termScale) {
+		this.pixelWidth = 6 * termScale
+		this.pixelHeight = 9 * termScale
+		this.margin = 2 * termScale
 
 		this.terminal = terminal
 

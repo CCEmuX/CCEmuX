@@ -53,8 +53,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 
 		termComponent = new TerminalComponent(
 			computer.terminal,
-			6 * emu.conf.termScale,
-			9 * emu.conf.termScale
+			emu.conf.termScale
 		)
 
 		add(termComponent, BorderLayout.CENTER)
@@ -122,8 +121,8 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 	}
 
 	private def mapPointToCC(Point p) {
-        val px = p.x - TerminalComponent.margin
-        val py = p.y - TerminalComponent.margin
+        val px = p.x - termComponent.margin
+        val py = p.y - termComponent.margin
 
         val x = px / pixelWidth
         val y = py / pixelHeight
