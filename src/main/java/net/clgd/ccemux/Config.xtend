@@ -3,6 +3,10 @@ package net.clgd.ccemux
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.IOException
+import java.util.ArrayList
+import java.util.List
 import java.util.Properties
 
 import static extension org.apache.commons.io.IOUtils.copy
@@ -16,6 +20,8 @@ class Config extends Properties {
 	public static val CONFIG_FILE_NAME = "ccemux.properties"
 
 	val File configFile
+
+	private val List<Runnable> listeners = new ArrayList();
 
 	new(File configFile) {
 		// load default properties from embedded resources
@@ -37,6 +43,23 @@ class Config extends Properties {
 				close
 			]
 		}
+	}
+
+	def synchronized void addListener(Runnable listener) {
+		listeners.add(listener)
+		listener.run
+	}
+
+	override synchronized Object setProperty(String key, String value) {
+		val previous = super.setProperty(key, value)
+		for(Runnable listener : listeners) listener.run
+
+		return previous
+	}
+
+	override synchronized void load(InputStream inStream) throws IOException {
+		super.load(inStream)
+		for(Runnable listener : listeners) listener.run
 	}
 
 	@Pure

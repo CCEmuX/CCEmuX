@@ -2,6 +2,7 @@ package net.clgd.ccemux
 
 import java.awt.SplashScreen
 import java.nio.file.Path
+import java.util.Map
 import java.util.HashMap
 import java.util.List
 import net.clgd.ccemux.emulation.CCEmuX
@@ -10,9 +11,27 @@ import net.clgd.ccemux.rendering.Renderer
 import net.clgd.ccemux.rendering.RenderingMethod
 import org.slf4j.Logger
 import org.squiddev.cctweaks.lua.lib.ApiRegister
+import org.squiddev.cctweaks.lua.ConfigPropertyLoader
 
 class Runner {
     def static void launch(Logger logger, Config config, Path dataDir, List<Path> saveDirs, int count) {
+		// Add config listener to sync CCTweaks config.
+		// This allows changing it at runtime, should you ever wish to do that.
+		// This needs to be done in this class as the config class should be loaded within the
+		// wrapped class loader.
+		config.addListener(new Runnable() {
+			override void run() {
+				for(Map.Entry<Object, Object> entry : config.entrySet()) {
+					val key = entry.getKey() as String
+					if(key.startsWith("cctweaks")) {
+						System.setProperty(key, entry.getValue() as String)
+					}
+				}
+				ConfigPropertyLoader.init
+			}
+		})
+
+		// Redirect CCTweaks' logger
 		org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
 			override void doDebug(String message) {
 				logger.debug(message);
@@ -27,8 +46,10 @@ class Runner {
 			}
 		}
 
+		// Various setup tasks for CCTweaks
 		ApiRegister.init()
 
+		// And launch!
         val emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
 
         val computers = new HashMap<EmulatedComputer, Renderer>()
