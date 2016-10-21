@@ -220,10 +220,6 @@ class Launcher {
 
 			loader.chain.finalise
 
-			loader.loadClass("org.squiddev.cctweaks.lua.lib.ApiRegister")
-				.getMethod("init")
-				.invoke(null);
-
 			loader.loadClass("net.clgd.ccemux.Runner")
 				.getMethod("launch", typeof(Logger), typeof(Config), typeof(Path), typeof(List), typeof(int))
 				.invoke(null, logger, config, dataDir, saveDirs, count)
