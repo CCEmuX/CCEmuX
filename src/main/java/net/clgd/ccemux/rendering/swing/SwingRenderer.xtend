@@ -18,8 +18,6 @@ import java.awt.event.WindowEvent
 import javax.swing.JFrame
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
-import net.clgd.ccemux.emulation.KeyTranslator
-import net.clgd.ccemux.emulation.MouseTranslator
 import net.clgd.ccemux.rendering.Renderer
 import org.eclipse.xtend.lib.annotations.Accessors
 

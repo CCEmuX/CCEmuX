@@ -1,4 +1,4 @@
-package net.clgd.ccemux.emulation;
+package net.clgd.ccemux.rendering.swing;
 
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
