@@ -211,17 +211,29 @@ class Launcher {
 				System.exit(3)
 			}
 
-			val loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
-			loader.addClassLoaderExclusion("net.clgd.ccemux.Config")
-			loader.addClassLoaderExclusion("net.clgd.ccemux.Launcher")
-			loader.addClassLoaderExclusion("org.slf4j.")
-			loader.addClassLoaderExclusion("javax.")
-			loader.addClassLoaderExclusion("org.apache.")
+			var ClassLoader mainLoader
+			var String mainMethod
+			if(config.CCTweaks) {
+				logger.info("Injecting CCTweaks classloader")
 
-			loader.chain.finalise
+				val loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
+				loader.addClassLoaderExclusion("net.clgd.ccemux.Config")
+				loader.addClassLoaderExclusion("net.clgd.ccemux.Launcher")
+				loader.addClassLoaderExclusion("org.slf4j.")
+				loader.addClassLoaderExclusion("javax.")
+				loader.addClassLoaderExclusion("org.apache.")
 
-			loader.loadClass("net.clgd.ccemux.Runner")
-				.getMethod("launch", typeof(Logger), typeof(Config), typeof(Path), typeof(List), typeof(int))
+				loader.chain.finalise
+
+				mainMethod = "launchCCTweaks"
+				mainLoader = loader
+			} else {
+				mainMethod = "launch"
+				mainLoader = ClassLoader.systemClassLoader
+			}
+
+			mainLoader.loadClass("net.clgd.ccemux.Runner")
+				.getMethod(mainMethod, typeof(Logger), typeof(Config), typeof(Path), typeof(List), typeof(int))
 				.invoke(null, logger, config, dataDir, saveDirs, count)
 
 			logger.info("Exiting CCEmuX")

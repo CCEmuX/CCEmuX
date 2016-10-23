@@ -135,6 +135,11 @@ class Config extends Properties {
 		CCPatternLocal.replace("[module]", CCModule).replace("[revision]", CCRevision).replace("[ext]", CCExt)
 	}
 
+	@Pure
+	def getCCTweaks() {
+		Boolean.parseBoolean(getProperty("cctweaks.enabled"))
+	}
+
 	def saveProperties() {
 		new FileOutputStream(configFile) => [
 			store(it, null)
