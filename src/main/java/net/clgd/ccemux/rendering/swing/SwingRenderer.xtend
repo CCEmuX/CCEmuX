@@ -94,23 +94,24 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		blinkLockedTime = Math.max(0.0f, blinkLockedTime - dt)
 		termComponent.blinkLocked = blinkLockedTime > 0.0f
 
-		// computer.update(dt)
-		var doRepaint = false
+		if (visible) {
+			var doRepaint = false
 
-		if (computer.terminal.changed) {
-			doRepaint = true
-			computer.terminal.clearChanged
-		}
+			if(computer.terminal.changed) {
+				doRepaint = true
+				computer.terminal.clearChanged
+			}
 
-		if (CCEmuX.globalCursorBlink != lastBlink) {
-			doRepaint = true
-		}
+			if(CCEmuX.globalCursorBlink != lastBlink) {
+				doRepaint = true
+			}
 
-		lastBlink = CCEmuX.globalCursorBlink
+			lastBlink = CCEmuX.globalCursorBlink
 
-		if (doRepaint) {
-			termComponent.cursorChar = computer.cursorChar
-			termComponent.render(dt)
+			if(doRepaint) {
+				termComponent.cursorChar = computer.cursorChar
+				termComponent.render(dt)
+			}
 		}
 	}
 
