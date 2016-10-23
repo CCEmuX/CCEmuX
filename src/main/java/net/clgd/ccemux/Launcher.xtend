@@ -10,11 +10,8 @@ import java.net.URLClassLoader
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.ArrayList
-import java.util.HashMap
+import java.util.List
 import javax.swing.JOptionPane
-import net.clgd.ccemux.emulation.CCEmuX
-import net.clgd.ccemux.emulation.EmulatedComputer
-import net.clgd.ccemux.rendering.Renderer
 import net.clgd.ccemux.rendering.RenderingMethod
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
@@ -80,7 +77,6 @@ class Launcher {
 	private static Path dataDir
 	private static Logger logger
 	private static Config config
-	private static CCEmuX emu
 
 	// TODO: Split this up into smaller functions?
 	def static void loadCC() {
@@ -195,10 +191,6 @@ class Launcher {
 				config.setProperty("renderer", cmd.getOptionValue("r").trim)
 			}
 
-			emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
-
-			val computers = new HashMap<EmulatedComputer, Renderer>()
-
 			val count = try {
 				Integer.parseInt(cmd.getOptionValue("c", "1"))
 			} catch (NumberFormatException e) {
@@ -219,22 +211,30 @@ class Launcher {
 				System.exit(3)
 			}
 
-			for (i : 0 ..< count) {
-				val it = if (saveDirs.size > 0) {
-					emu.createEmulatedComputer(saveDirs.remove(0))
-				} else {
-					emu.createEmulatedComputer
-				}
-				computers.put(it, RenderingMethod.create(emu.conf.renderer, emu, it))
+			var ClassLoader mainLoader
+			var String mainMethod
+			if(config.CCTweaks) {
+				logger.info("Injecting CCTweaks classloader")
+
+				val loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
+				loader.addClassLoaderExclusion("net.clgd.ccemux.Config")
+				loader.addClassLoaderExclusion("net.clgd.ccemux.Launcher")
+				loader.addClassLoaderExclusion("org.slf4j.")
+				loader.addClassLoaderExclusion("javax.")
+				loader.addClassLoaderExclusion("org.apache.")
+
+				loader.chain.finalise
+
+				mainMethod = "launchCCTweaks"
+				mainLoader = loader
+			} else {
+				mainMethod = "launch"
+				mainLoader = ClassLoader.systemClassLoader
 			}
 
-			SplashScreen.splashScreen?.close
-
-			computers.forEach [ ec, r |
-				r.visible = true
-			]
-
-			emu.run
+			mainLoader.loadClass("net.clgd.ccemux.Runner")
+				.getMethod(mainMethod, typeof(Logger), typeof(Config), typeof(Path), typeof(List), typeof(int))
+				.invoke(null, logger, config, dataDir, saveDirs, count)
 
 			logger.info("Exiting CCEmuX")
 			System.exit(0)
