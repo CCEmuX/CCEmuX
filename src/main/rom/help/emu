@@ -1,0 +1,22 @@
+Complete usage of emu command:
+
+* emu close
+Closes the current emulated computer, without affecting the others. Can be called from within programs via ccemux.closeEmu().
+
+* emu open [id]
+Opens a new emulated computer, with the given ID (if specified) or with the next ID. Can be called from within programs via ccemux.openEmu() or ccemux.openEmu(id)
+
+* emu data
+This will open the CCEmuX data dir (where config files and computer save folders are stored) in your default file browser. Can be called from within programs via ccemux.openDataDir(). Note that it may fail on some Linux systems (i.e. if you don't have a DE installed)
+
+* emu list settings
+This will list the settings that can be modified from within CCEmuX.
+
+* emu set <setting> <value>
+Modify a setting
+
+Credits
+* Lignumm - developer
+* apemanzilla - developer
+* Lemmmy - contributions to ccemux API and program
+* SquidDev - CCTweaks support and general help during development

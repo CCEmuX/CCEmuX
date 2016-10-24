@@ -139,3 +139,4 @@ gradle-app.setting
 /saves/
 
 /classes/
+*.rom

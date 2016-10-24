@@ -2,14 +2,14 @@ local args = { ... }
 
 if ccemux then
     local function help()
-        print("Example usages:")
-        print("emu close - close this emulator")
-        print("emu open - open an emulator with the next ID")
-        print("emu open 2 - open an emulator with ID 2")
+        print("Usages:")
+        print("emu close - close this computer")
+        print("emu open [id] - open another computer")
         print("emu data - opens the data folder")
         print("emu set <setting> <values> - edits a setting")
         print("emu list settings - list editable settings")
         print("emu save - saves current settings")
+        print("Run 'help emu' for additional information")
     end
 
     if #args == 0 then
@@ -47,7 +47,7 @@ if ccemux then
                     else
                         printError("Usage: emu set resolution <width> <height>")
                     end
-                elseif args[2] == "scale" then
+                --elseif args[2] == "scale" then
 
                 elseif args[2] == "cursor" then
                     ccemux.setCursorChar(args[3])
@@ -60,7 +60,8 @@ if ccemux then
             if args[2] == "settings" then
                 print("Editable settings:")
                 print("resolution <width> <height>")
-                print("scale <pixels>")
+                -- not yet implemented
+                --print("scale <pixels>")
                 print("cursor <char>")
             else
                 printError("Unrecognized subcommand: " .. args[2])

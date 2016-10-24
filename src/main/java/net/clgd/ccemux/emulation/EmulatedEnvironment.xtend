@@ -6,9 +6,10 @@ import dan200.computercraft.core.filesystem.ComboMount
 import dan200.computercraft.core.filesystem.FileMount
 import dan200.computercraft.core.filesystem.JarMount
 import java.nio.file.Paths
+import java.util.zip.ZipInputStream
 
 class EmulatedEnvironment implements IComputerEnvironment {
-	static val emuProgram = new CustomRomProgram("/programs/emu.lua", "emu")
+	//static val emuProgram = new CustomRomProgram("/programs/emu.lua", "emu")
 
 	int nextID = 0
 	final CCEmuX emu
@@ -27,7 +28,8 @@ class EmulatedEnvironment implements IComputerEnvironment {
 		if (path.startsWith('\\'))
 			path = path.substring(1)
 
-		return new ComboMount(# {new JarMount(emu.ccJar, path), emuProgram})
+		//return new ComboMount(# {new JarMount(emu.ccJar, path), emuProgram})
+		return new ComboMount(#[new JarMount(emu.ccJar, path), new CustomRomMount(new ZipInputStream(EmulatedEnvironment.getResourceAsStream("/custom.rom")))])
 	}
 
 	override createSaveDirMount(String path, long capacity) {

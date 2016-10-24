@@ -34,8 +34,6 @@ repositories {
 	}
 }
 
-project.ext.swtVersion = '4.6'
-
 dependencies {
 	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0'
 
@@ -53,10 +51,20 @@ dependencies {
 	compile 'com.google.guava:guava:11.0.2'
 }
 
+task('customRom', type: Zip) {
+	from 'src/main/rom'
+	
+	include '*'
+	include '*/*'
+
+	archiveName 'custom.rom'
+	destinationDir = file('src/main/resources')
+}
+
 processResources {
 	// contains CC metadata - eg version and URL
 	from('cc.properties')
-}
+}.dependsOn customRom
 
 jar {
 	manifest {
