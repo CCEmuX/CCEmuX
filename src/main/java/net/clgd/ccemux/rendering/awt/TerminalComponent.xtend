@@ -1,4 +1,4 @@
-package net.clgd.ccemux.rendering.swing
+package net.clgd.ccemux.rendering.awt
 
 import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.terminal.Terminal

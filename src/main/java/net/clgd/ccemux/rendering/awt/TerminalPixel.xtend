@@ -1,4 +1,4 @@
-package net.clgd.ccemux.rendering.swing
+package net.clgd.ccemux.rendering.awt
 
 import org.eclipse.xtend.lib.annotations.Data
 

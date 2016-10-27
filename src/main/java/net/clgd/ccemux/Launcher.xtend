@@ -240,10 +240,17 @@ class Launcher {
 			System.exit(0)
 		} catch (Exception e) {
 			try {
+				var message = "CCEmuX has crashed! \n\n" + e.toString
+				var Throwable e2 = e
+				while ((e2 = e2.cause) != null) {
+					message += '\n' + e2.toString
+				}
+				message += "\n\nCheck console for more details. If this continues, please create a bug report."
+				
 				e.printStackTrace
 				System.err.println("Uncaught exception!")
 				SplashScreen.splashScreen?.close
-				JOptionPane.showMessageDialog(null, e.toString, "Fatal Error", JOptionPane.ERROR_MESSAGE)
+				JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE)
 			} catch (Exception e2) {
 			} finally {
 				System.exit(-1)

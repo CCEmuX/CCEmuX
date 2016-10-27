@@ -1,4 +1,4 @@
-package net.clgd.ccemux.rendering.swing
+package net.clgd.ccemux.rendering.awt
 
 import java.util.Random
 import org.eclipse.xtend.lib.annotations.Accessors

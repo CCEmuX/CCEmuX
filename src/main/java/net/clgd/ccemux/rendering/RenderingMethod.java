@@ -4,7 +4,7 @@ import java.util.function.BiFunction;
 
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.rendering.swing.SwingRenderer;
+import net.clgd.ccemux.rendering.awt.AWTRenderer;
 
 public enum RenderingMethod {
 	Headless((CCEmuX emu, EmulatedComputer comp) -> new Renderer() {
@@ -29,7 +29,7 @@ public enum RenderingMethod {
 		public void onTerminalResized(int width, int height) { }
 	}),
 
-	Swing(SwingRenderer::new);
+	AWT(AWTRenderer::new);
 
 	private final BiFunction<CCEmuX, EmulatedComputer, Renderer> creator;
 

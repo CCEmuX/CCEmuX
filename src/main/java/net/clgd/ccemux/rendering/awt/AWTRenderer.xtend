@@ -1,7 +1,8 @@
-package net.clgd.ccemux.rendering.swing
+package net.clgd.ccemux.rendering.awt
 
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.Frame
 import java.awt.Point
 import java.awt.Toolkit
 import java.awt.Window
@@ -15,13 +16,12 @@ import java.awt.event.MouseWheelEvent
 import java.awt.event.MouseWheelListener
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
-import javax.swing.JFrame
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.rendering.Renderer
 import org.eclipse.xtend.lib.annotations.Accessors
 
-class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
+class AWTRenderer extends Frame implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
 	static val EMU_WINDOW_TITLE = "CCEmuX"
 
 	@Accessors(PUBLIC_GETTER) EmulatedComputer computer
@@ -44,7 +44,7 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 		layout = new BorderLayout
 		minimumSize = new Dimension(300, 200)
 
-		defaultCloseOperation = DISPOSE_ON_CLOSE
+		//defaultCloseOperation = DISPOSE_ON_CLOSE
 
 		this.computer = computer
 		computer.addListener(this)
@@ -159,9 +159,9 @@ class SwingRenderer extends JFrame implements KeyListener, MouseListener, MouseM
 
 	private def getWindowTitle() {
 		if (computer.label != null) {
-			return EMU_WINDOW_TITLE + " - " + computer.label + " (Computer #" + computer.ID + ")"
+			return EMU_WINDOW_TITLE + " - " + computer.label + " (Computer #" + computer.getID + ")"
 		} else {
-			return EMU_WINDOW_TITLE + " - Computer #" + computer.ID
+			return EMU_WINDOW_TITLE + " - Computer #" + computer.getID
 		}
 	}
 
