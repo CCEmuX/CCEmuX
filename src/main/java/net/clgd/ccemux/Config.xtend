@@ -3,11 +3,13 @@ package net.clgd.ccemux
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.io.IOException
+import java.io.InputStream
+import java.nio.file.Path
 import java.util.ArrayList
 import java.util.List
 import java.util.Properties
+import org.eclipse.xtend.lib.annotations.Accessors
 
 import static extension org.apache.commons.io.IOUtils.copy
 
@@ -19,30 +21,30 @@ class Config extends Properties {
 
 	public static val CONFIG_FILE_NAME = "ccemux.properties"
 
-	val File configFile
+	@Accessors(PUBLIC_GETTER) val Path dataDir
+	@Accessors(PUBLIC_GETTER) val File configFile
 
 	private val List<Runnable> listeners = new ArrayList();
 
-	new(File configFile) {
+	new(Path dataDir) {
 		// load default properties from embedded resources
 		super(new Properties => [
 			load(Config.getResourceAsStream("/default.properties"))
 			load(Config.getResourceAsStream("/cc.properties"))
 		])
+		
+		this.dataDir = dataDir
+		this.configFile = dataDir.resolve(CONFIG_FILE_NAME).toFile
 
-		this.configFile = configFile
-
-		if (configFile.exists) {
-			load(new FileInputStream(configFile))
-		} else {
+		if (!configFile.exists) {
 			new FileOutputStream(configFile) => [
 				Config.getResourceAsStream("/default.properties").copy(it)
-				//Config.getResourceAsStream("/cc.properties").copy(it)
-
 				flush
 				close
 			]
 		}
+
+		load(new FileInputStream(configFile))
 	}
 
 	def synchronized void addListener(Runnable listener) {

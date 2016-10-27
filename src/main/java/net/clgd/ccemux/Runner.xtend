@@ -14,7 +14,7 @@ import org.squiddev.cctweaks.lua.lib.ApiRegister
 import org.squiddev.cctweaks.lua.ConfigPropertyLoader
 
 class Runner {
-	def static void launchCCTweaks(Logger logger, Config config, Path dataDir, List<Path> saveDirs, int count) {
+	def static void launchCCTweaks(Logger logger, Config config, List<Path> saveDirs, int count) {
 		// Add config listener to sync CCTweaks config.
 		// This allows changing it at runtime, should you ever wish to do that.
 		// This needs to be done in this class as the config class should be loaded within the
@@ -50,11 +50,11 @@ class Runner {
 		ApiRegister.init()
 
 		// And launch!
-		launch(logger, config, dataDir, saveDirs, count);
+		launch(logger, config, saveDirs, count);
 	}
 
-    def static void launch(Logger logger, Config config, Path dataDir, List<Path> saveDirs, int count) {
-        val emu = new CCEmuX(logger, config, dataDir, dataDir.resolve(config.CCLocal).toFile)
+    def static void launch(Logger logger, Config config, List<Path> saveDirs, int count) {
+        val emu = new CCEmuX(logger, config)
 
         val computers = new HashMap<EmulatedComputer, Renderer>()
 

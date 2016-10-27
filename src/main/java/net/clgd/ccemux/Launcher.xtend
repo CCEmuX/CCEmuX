@@ -171,7 +171,7 @@ class Launcher {
 			logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
 
 			logger.debug("Loading config")
-			config = new Config(dataDir.resolve(Config.CONFIG_FILE_NAME).toFile);
+			config = new Config(dataDir);
 			config.forEach [ name, value |
 				logger.trace("-> {} = {}", name, value)
 			]
@@ -233,8 +233,8 @@ class Launcher {
 			}
 
 			mainLoader.loadClass("net.clgd.ccemux.Runner")
-				.getMethod(mainMethod, typeof(Logger), typeof(Config), typeof(Path), typeof(List), typeof(int))
-				.invoke(null, logger, config, dataDir, saveDirs, count)
+				.getMethod(mainMethod, typeof(Logger), typeof(Config), typeof(List), typeof(int))
+				.invoke(null, logger, config, saveDirs, count)
 
 			logger.info("Exiting CCEmuX")
 			System.exit(0)

@@ -26,11 +26,11 @@ class CCEmuX implements Runnable {
 
 	@Accessors(PUBLIC_GETTER) val computers = new ArrayList<EmulatedComputer>()
 
-	new(Logger logger, Config conf, Path dataDir, File ccJar) {
+	new(Logger logger, Config conf) {
 		this.logger = logger
 		this.conf = conf
-		this.dataDir = dataDir
-		this.ccJar = ccJar
+		this.dataDir = conf.dataDir
+		this.ccJar = dataDir.resolve(conf.CCLocal).toFile
 
 		env = new EmulatedEnvironment(this)
 	}
