@@ -28,9 +28,9 @@ class CustomRomMount implements IMount {
 		var ZipEntry entry
 		while ((entry = is.nextEntry) != null) {
 			if (entry.directory) {
-				folders.put(println(trimSlash(entry.name)), newHashMap())
+				folders.put(trimSlash(entry.name), newHashMap())
 			} else {
-				val n = println(trimSlash(entry.name))
+				val n = trimSlash(entry.name)
 				var data = newByteArrayOfSize(entry.size as int)
 				IOUtils.read(is, data)
 				folders.get(FileSystem.getDirectory(n)).put(FileSystem.getName(n), data)
