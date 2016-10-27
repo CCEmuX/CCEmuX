@@ -96,46 +96,48 @@ package class TerminalComponent extends Canvas {
 	}
 
 	private def renderTerminal(float dt) {
-		val g = bufferStrategy.drawGraphics
-
-		var int dx = 0
-		var int dy = 0
-
-		for (var y = 0; y < terminal.height; y++) {
-			val textLine = terminal.getLine(y)
-			val bgLine = terminal.getBackgroundColourLine(y)
-			val fgLine = terminal.getTextColourLine(y)
-
-			var height = if (y == 0 || y == terminal.height - 1) pixelHeight + margin else pixelHeight
-
-			for (var x = 0; x < terminal.width; x++) {
-				var width = if (x == 0 || x == terminal.width - 1) pixelWidth + margin else pixelWidth
-
-				g.color = Utils.getCCColourFromChar(if (bgLine == null) 'f' else bgLine.charAt(x))
-				g.fillRect(dx, dy, width, height)
-
-				val char character = if (textLine == null) ' ' else textLine.charAt(x)
-				val char fgChar = if (fgLine == null) 'f' else fgLine.charAt(x)
-				drawChar(g, character, x * pixelWidth + margin, y * pixelHeight + margin, Utils.base16ToInt(fgChar))
-
-				dx += width
+		synchronized(terminal) {
+			val g = bufferStrategy.drawGraphics
+	
+			var int dx = 0
+			var int dy = 0
+	
+			for (var y = 0; y < terminal.height; y++) {
+				val textLine = terminal.getLine(y)
+				val bgLine = terminal.getBackgroundColourLine(y)
+				val fgLine = terminal.getTextColourLine(y)
+	
+				var height = if (y == 0 || y == terminal.height - 1) pixelHeight + margin else pixelHeight
+	
+				for (var x = 0; x < terminal.width; x++) {
+					var width = if (x == 0 || x == terminal.width - 1) pixelWidth + margin else pixelWidth
+	
+					g.color = Utils.getCCColourFromChar(if (bgLine == null) 'f' else bgLine.charAt(x))
+					g.fillRect(dx, dy, width, height)
+	
+					val char character = if (textLine == null) ' ' else textLine.charAt(x)
+					val char fgChar = if (fgLine == null) 'f' else fgLine.charAt(x)
+					drawChar(g, character, x * pixelWidth + margin, y * pixelHeight + margin, Utils.base16ToInt(fgChar))
+	
+					dx += width
+				}
+	
+				dx = 0
+				dy += height
 			}
-
-			dx = 0
-			dy += height
+	
+			val blink = terminal.cursorBlink && (blinkLocked || CCEmuX.globalCursorBlink)
+	
+			if (blink) {
+				drawChar(
+					g, cursorChar,
+					terminal.cursorX * pixelWidth + margin, terminal.cursorY * pixelHeight + margin,
+					terminal.textColour
+				)
+			}
+	
+			g.dispose
 		}
-
-		val blink = terminal.cursorBlink && (blinkLocked || CCEmuX.globalCursorBlink)
-
-		if (blink) {
-			drawChar(
-				g, cursorChar,
-				terminal.cursorX * pixelWidth + margin, terminal.cursorY * pixelHeight + margin,
-				terminal.textColour
-			)
-		}
-
-		g.dispose
 	}
 
 	def render(float dt) {

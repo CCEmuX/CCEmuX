@@ -87,16 +87,18 @@ class EmulatedComputer {
 	}
 
 	def void resize(int width, int height) {
-		emu.conf.termWidth = width
-		emu.conf.termHeight = height
-
-		terminal.resize(width, height)
-
-		listeners.forEach [
-			onTerminalResized(width, height)
-		]
-
-		ccComputer.queueEvent("term_resize", newArrayOfSize(0))
+		synchronized (terminal) {
+			emu.conf.termWidth = width
+			emu.conf.termHeight = height
+	
+			terminal.resize(width, height)
+	
+			listeners.forEach [
+				onTerminalResized(width, height)
+			]
+	
+			ccComputer.queueEvent("term_resize", newArrayOfSize(0))
+		}
 	}
 
 	def void pressKey(int keyCode, boolean release) {
