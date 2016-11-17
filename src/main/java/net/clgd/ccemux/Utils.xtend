@@ -11,7 +11,7 @@ import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
 
 class Utils {
-	static val BASE_16 = "0123456789abcdef"
+	public static val BASE_16 = "0123456789abcdef"
 
 	/**
 	 * Extension method to make option generation a bit prettier
