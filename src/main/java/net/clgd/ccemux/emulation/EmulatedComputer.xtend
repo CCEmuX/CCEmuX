@@ -4,6 +4,7 @@ import dan200.computercraft.core.computer.Computer
 import dan200.computercraft.core.terminal.Terminal
 import java.util.ArrayList
 import org.eclipse.xtend.lib.annotations.Accessors
+import net.clgd.ccemux.emulation.tror.TRoRTerminal
 
 class EmulatedComputer {
 	static interface Listener {
@@ -23,7 +24,8 @@ class EmulatedComputer {
 
 	package new(CCEmuX emu, int termWidth, int termHeight, int id) {
 		this.emu = emu
-		terminal = new Terminal(termWidth, termHeight)
+		//terminal = new Terminal(termWidth, termHeight)
+		terminal = new TRoRTerminal(emu, termWidth, termHeight)
 
 		ccComputer = new Computer(emu.env, terminal, -1)
 

@@ -53,6 +53,8 @@ dependencies {
 	}
 
 	compile 'com.google.guava:guava:11.0.2'
+	
+	testCompile 'junit:junit:4.12'
 }
 
 task('customRom', type: Zip) {
