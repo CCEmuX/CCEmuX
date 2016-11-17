@@ -7,11 +7,11 @@ abstract class TRoRPacket<T> {
 	
 	abstract def String getPacketCode()
 	
-	override toString() {
-		packetCode + ":;" + (data ?: "").toString
+	def String toString(String metadata) {
+		packetCode + ':' + metadata + ';' + (data ?: "").toString + '\n'
 	}
 	
-	def String toString(String metadata) {
-		packetCode + ':' + metadata + ';' + (data ?: "").toString
+	override toString() {
+		toString('')
 	}
 }

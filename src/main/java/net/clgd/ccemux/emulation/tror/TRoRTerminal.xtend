@@ -17,16 +17,18 @@ class TRoRTerminal extends Terminal {
 		this.emu = emu
 	}
 
-	private def queue(TRoRPacket<? extends Object> packet) {
+	protected def queue(TRoRPacket<? extends Object> packet) {
 		synchronized (trorQueue) {
 			trorQueue.add(packet)
 		}
 	}
 
 	def popQueue() {
-		val out = trorQueue.clone
-		trorQueue.clear
-		return out
+		synchronized (trorQueue) {
+			val out = trorQueue.clone as LinkedList<TRoRPacket<? extends Object>>
+			trorQueue.clear
+			return out
+		}
 	}
 
 	override resize(int w, int h) {
