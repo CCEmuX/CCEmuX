@@ -85,13 +85,15 @@ shadowJar {
 	exclude 'META-INF/maven/*/*/*.*'
 }
 
-// enable debug logging when running via gradle
+// enable trace logging when running via gradle
 run {
 	args "-l trace"
+	standardInput = System.in
 }
 
 runShadow {
 	args "-l trace"
+	standardInput = System.in
 }
 
 build.dependsOn shadowJar

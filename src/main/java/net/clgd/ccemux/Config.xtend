@@ -94,7 +94,7 @@ class Config extends Properties {
 
 	@Pure
 	def getRenderer() {
-		getProperty("renderer").split(',')
+		getProperty("renderer").split(',').map[trim]
 	}
 
 	@Pure
