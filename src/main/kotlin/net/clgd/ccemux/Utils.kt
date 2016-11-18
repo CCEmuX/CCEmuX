@@ -6,6 +6,7 @@ import org.apache.commons.cli.Options
 import java.awt.Color
 import java.awt.GraphicsEnvironment
 import java.awt.Transparency
+import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
 
 object Utils {
@@ -74,4 +75,11 @@ object Utils {
 	fun String.trimSlashes() = this.replace(Regex("/$"), "")
 
 	fun String.parseInt() = Integer.parseInt(this)
+
+	fun Char.isPrintableChar(): Boolean {
+		val block = Character.UnicodeBlock.of(this)
+		return !Character.isISOControl(this) && this != KeyEvent.CHAR_UNDEFINED && block != null &&
+				block != Character.UnicodeBlock.SPECIALS
+	}
+
 }
