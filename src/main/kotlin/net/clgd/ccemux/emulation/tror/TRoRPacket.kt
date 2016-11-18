@@ -3,7 +3,7 @@ package net.clgd.ccemux.emulation.tror
 abstract class TRoRPacket<T>(val contents: T) {
 	abstract val packetCode: String
 
-	fun toString(metadata: String) = packetCode + ':' + metadata + ';' + contents.toString() + '\n'
+	open fun toString(metadata: String) = packetCode + ':' + metadata + ';' + contents.toString() + '\n'
 
 	override fun toString() = toString("")
 
