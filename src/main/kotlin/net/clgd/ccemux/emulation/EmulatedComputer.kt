@@ -2,9 +2,7 @@ package net.clgd.ccemux.emulation
 
 import dan200.computercraft.core.computer.Computer
 import dan200.computercraft.core.terminal.Terminal
-import java.util.ArrayList
-import org.eclipse.xtend.lib.annotations.Accessors
-import net.clgd.ccemux.emulation.tror.TRoRTerminal
+import java.util.*
 
 class EmulatedComputer(val emu: CCEmuX, termWidth: Int, termHeight: Int, id: Int) {
 	interface Listener {
@@ -14,7 +12,7 @@ class EmulatedComputer(val emu: CCEmuX, termWidth: Int, termHeight: Int, id: Int
 		fun onTerminalResized(width: Int, height: Int)
 	}
 
-	val terminal: Terminal = TRoRTerminal(emu, termWidth, termHeight)
+	val terminal: Terminal = Terminal(termWidth, termHeight)
 	val ccComputer = Computer(emu.env, terminal, -1)
 
 	var cursorChar = '_'

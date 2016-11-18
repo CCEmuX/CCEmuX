@@ -36,12 +36,12 @@ class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILuaAPI {
 
 		methods.put("setResolution") {
 			arr -> run {
-				if (arr.size < 2 || !(arr.get(0) is java.lang.Number) || !(arr.get(1) is java.lang.Number)) {
+				if (arr.size < 2 || !(arr.get(0) is Number) || !(arr.get(1) is Number)) {
 					throw LuaException("expected number for arguments #1 and #2")
 				}
 
-				val width = (arr.get(0) as java.lang.Number).intValue()
-				val height = (arr.get(1) as java.lang.Number).intValue()
+				val width = (arr.get(0) as Number).toInt()
+				val height = (arr.get(1) as Number).toInt()
 
 				if (width <= 0 || height <= 0) {
 					throw LuaException ("width and height must be above 0")
@@ -70,8 +70,8 @@ class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILuaAPI {
 				if (arr.isNotEmpty()) {
 					val nid = arr[0]
 
-					if (nid is java.lang.Number) {
-						id = nid.intValue()
+					if (nid is Number) {
+						id = nid.toInt()
 					} else {
 						throw LuaException("expected number or nil for argument #1")
 					}

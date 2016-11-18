@@ -128,132 +128,140 @@ object Launcher {
 			m.invoke(loader, jar?.toURI()?.toURL())
 		}
 	}
-}
 
-fun main(args: Array<String>) {
-	try {
-		val cmd = DefaultParser().parse(Launcher.opts, args)
-
-		if (cmd.hasOption('h')) {
-			HelpFormatter().printHelp(
-				"java -jar " + File(Launcher::class.java.getProtectionDomain().codeSource.location.toURI()).name + " <args>",
-				Launcher.opts
-			)
-			System.exit(1)
-		}
-
-		if (cmd.hasOption('r') && cmd.getOptionValue('r').isNullOrEmpty()) {
-			System.out.format("Available rendering methods: %s\n",
-					RenderingMethod.getMethods().map { m -> m.name }.reduce { p1, p2 -> p1 + ", " + p2 })
-			System.exit(1)
-		}
-
-		val logLevel = (cmd.getOptionValue('l') ?: "info").trim()
-
-		if (listOf("trace", "debug", "info", "warning", "error").contains(logLevel)) {
-			System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", logLevel)
-		} else {
-			System.err.format("Invalid logging level '%s'\n", logLevel)
-		}
-
-		Launcher.logger = LoggerFactory.getLogger("CCEmuX")
-		Launcher.logger?.info("Starting CCEmuX")
-
-		Launcher.dataDir = if (cmd.hasOption('d')) {
-			Paths.get(cmd.getOptionValue('d') ?: "")
-		} else {
-			OperatingSystem.get().appDataDir.resolve("ccemux")
-		}
-
-		Launcher.dataDir?.toFile()?.mkdirs()
-		Launcher.logger?.info("Data directory is {}", Launcher.dataDir?.toAbsolutePath()?.toString())
-
-		Launcher.logger?.debug("Loading config")
-		Launcher.config = Config(Launcher.dataDir ?: Paths.get("./crap"));
-		Launcher.config?.forEach { name, value -> Launcher.logger?.trace("-> {} = {}", name, value) }
-		Launcher.logger?.info("Loaded configuration data")
-
-		Launcher.logger?.trace("Loading CC")
-		Launcher.loadCC()
+	@JvmStatic fun main(args: Array<String>): Unit {
 		try {
-			Launcher.logger?.trace("Loaded CC version {}", ComputerCraft.getVersion())
-		} catch (e: Exception) {
-			Launcher.logger?.error("Failed to load CC!")
-			Launcher.logger?.error(e.toString())
-			System.exit(2)
-		}
+			val cmd = DefaultParser().parse(Launcher.opts, args)
 
-		if (cmd.hasOption("r")) {
-			Launcher.config?.setProperty("renderer", cmd.getOptionValue("r").trim())
-		}
-
-		val count = try {
-			Integer.parseInt(cmd.getOptionValue("c", "1"))
-		} catch (e: NumberFormatException) {
-			Launcher.logger?.error("Invalid computer count", e)
-			System.exit(3)
-			0 // satisfy variable
-		}
-
-		val saveDirs = if (cmd.hasOption("s")) {
-			listOf(cmd.getOptionValue("s", "").split(',').map { s -> Paths.get(s).toAbsolutePath() })
-		} else {
-			listOf()
-		}
-
-
-		if (count < 1) {
-			Launcher.logger?.error("Cannot create fewer than 1 computer")
-			System.exit(3)
-		}
-
-		val mainLoader: ClassLoader
-		val mainMethod: String
-
-		if (Launcher.config?.getCCTweaks() ?: false) {
-			Launcher.logger?.info("Injecting CCTweaks classloader")
-
-			val loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
-			loader.addClassLoaderExclusion("net.clgd.ccemux.Config")
-			loader.addClassLoaderExclusion("net.clgd.ccemux.Launcher")
-			loader.addClassLoaderExclusion("org.slf4j.")
-			loader.addClassLoaderExclusion("javax.")
-			loader.addClassLoaderExclusion("org.apache.")
-
-			loader.chain?.finalise()
-
-			mainMethod = "launchCCTweaks"
-			mainLoader = loader
-		} else {
-			mainMethod = "launch"
-			mainLoader = ClassLoader.getSystemClassLoader()
-		}
-
-		mainLoader.loadClass("net.clgd.ccemux.Runner")
-				.getMethod(mainMethod, Logger::class.java, Config::class.java, MutableList::class.java, Int::class.java)
-		.invoke(null, Launcher.logger, Launcher.config, saveDirs, count)
-
-		Launcher.logger?.info("Exiting CCEmuX")
-		System.exit(0)
-	} catch (e: Exception) {
-		try {
-			var message = "CCEmuX has crashed! \n\n" + e.toString()
-			var e2 = e.cause
-
-			while (true) {
-				e2 = e2?.cause ?: break
-				message += '\n' + e2.toString()
+			if (cmd.hasOption('h')) {
+				HelpFormatter().printHelp(
+						"java -jar " + File(Launcher::class.java.getProtectionDomain().codeSource.location.toURI()).name + " <args>",
+						Launcher.opts
+				)
+				System.exit(1)
 			}
 
-			message += "\n\nCheck console for more details. If this continues, please create a bug report."
+			if (cmd.hasOption('r') && cmd.getOptionValue('r').isNullOrEmpty()) {
+				System.out.format("Available rendering methods: %s\n",
+						RenderingMethod.getMethods().map { m -> m.name }.reduce { p1, p2 -> p1 + ", " + p2 })
+				System.exit(1)
+			}
 
-			e.printStackTrace()
-			System.err.println("Uncaught exception!")
-			SplashScreen.getSplashScreen()?.close()
-			JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE)
-		} catch (e2: Exception) {
-		} finally {
-			System.exit(-1)
+			val logLevel = (cmd.getOptionValue('l') ?: "info").trim()
+
+			if (listOf("trace", "debug", "info", "warning", "error").contains(logLevel)) {
+				System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", logLevel)
+			} else {
+				System.err.format("Invalid logging level '%s'\n", logLevel)
+			}
+
+			Launcher.logger = LoggerFactory.getLogger("CCEmuX")
+			Launcher.logger?.info("Starting CCEmuX")
+
+			Launcher.dataDir = if (cmd.hasOption('d')) {
+				Paths.get(cmd.getOptionValue('d') ?: "")
+			} else {
+				OperatingSystem.get().appDataDir.resolve("ccemux")
+			}
+
+			Launcher.dataDir?.toFile()?.mkdirs()
+			Launcher.logger?.info("Data directory is {}", Launcher.dataDir?.toAbsolutePath()?.toString())
+
+			Launcher.logger?.debug("Loading config")
+			Launcher.config = Config(Launcher.dataDir ?: Paths.get("./crap"));
+			Launcher.config?.forEach { name, value -> Launcher.logger?.trace("-> {} = {}", name, value) }
+			Launcher.logger?.info("Loaded configuration data")
+
+			Launcher.logger?.trace("Loading CC")
+			Launcher.loadCC()
+			try {
+				Launcher.logger?.trace("Loaded CC version {}", ComputerCraft.getVersion())
+			} catch (e: Exception) {
+				Launcher.logger?.error("Failed to load CC!")
+				Launcher.logger?.error(e.toString())
+				System.exit(2)
+			}
+
+			if (cmd.hasOption("r")) {
+				Launcher.config?.setProperty("renderer", cmd.getOptionValue("r").trim())
+			}
+
+			val count = try {
+				Integer.parseInt(cmd.getOptionValue("c", "1"))
+			} catch (e: NumberFormatException) {
+				Launcher.logger?.error("Invalid computer count", e)
+				System.exit(3)
+				0 // satisfy variable
+			}
+
+			val saveDirs = if (cmd.hasOption("s")) {
+				listOf(cmd.getOptionValue("s", "").split(',').map { s -> Paths.get(s).toAbsolutePath() })
+			} else {
+				listOf()
+			}
+
+
+			if (count < 1) {
+				Launcher.logger?.error("Cannot create fewer than 1 computer")
+				System.exit(3)
+			}
+
+			val mainLoader: ClassLoader
+			val mainMethod: String
+
+			if (Launcher.config?.getCCTweaks() ?: false) {
+				Launcher.logger?.info("Injecting CCTweaks classloader")
+
+				val loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
+				loader.addClassLoaderExclusion("net.clgd.ccemux.Config")
+				loader.addClassLoaderExclusion("net.clgd.ccemux.Launcher")
+				loader.addClassLoaderExclusion("org.slf4j.")
+				loader.addClassLoaderExclusion("javax.")
+				loader.addClassLoaderExclusion("org.apache.")
+
+				loader.chain?.finalise()
+
+				mainMethod = "launchCCTweaks"
+				mainLoader = loader
+			} else {
+				mainMethod = "launch"
+				mainLoader = ClassLoader.getSystemClassLoader()
+			}
+
+			val method = mainLoader.loadClass("net.clgd.ccemux.Runner")
+				.getMethod(mainMethod, Logger::class.java, Config::class.java, MutableList::class.java, Int::class.java)
+
+			val logger = Launcher.logger
+			val config = Launcher.config
+
+			if (method != null && logger != null && config != null) {
+				method.invoke(null, logger, config, saveDirs, count)
+			} else {
+				Launcher.logger?.error("Main method was null")
+			}
+
+			Launcher.logger?.info("Exiting CCEmuX")
+			System.exit(0)
+		} catch (e: Exception) {
+			try {
+				var message = "CCEmuX has crashed! \n\n" + e.toString()
+				var e2 = e.cause
+
+				while (true) {
+					e2 = e2?.cause ?: break
+					message += '\n' + e2.toString()
+				}
+
+				message += "\n\nCheck console for more details. If this continues, please create a bug report."
+
+				e.printStackTrace()
+				System.err.println("Uncaught exception!")
+				SplashScreen.getSplashScreen()?.close()
+				JOptionPane.showMessageDialog(null, message, "Fatal Error", JOptionPane.ERROR_MESSAGE)
+			} catch (e2: Exception) {
+			} finally {
+				System.exit(-1)
+			}
 		}
 	}
 }
