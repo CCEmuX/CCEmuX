@@ -14,4 +14,19 @@ abstract class TRoRPacket<T> {
 	override toString() {
 		toString('')
 	}
+	
+	override equals(Object o) {
+		if (o == this) return true
+		if (o == null) return false
+		
+		if (o instanceof TRoRPacket<?>) {
+			val p = o as TRoRPacket<?>
+			return packetCode == p.packetCode && data?.equals(p.data)
+		}
+		return false
+	}
+	
+	override hashCode() {
+		(packetCode.hashCode + 3) * data?.hashCode
+	}
 }
