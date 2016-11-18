@@ -2,12 +2,13 @@ package net.clgd.ccemux
 
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
-import java.awt.SplashScreen
+import net.clgd.ccemux.rendering.BlankRenderer
+import net.clgd.ccemux.rendering.Renderer
 import net.clgd.ccemux.rendering.RenderingMethod
+import org.slf4j.Logger
 import org.squiddev.cctweaks.lua.ConfigPropertyLoader
 import org.squiddev.cctweaks.lua.lib.ApiRegister
-import org.slf4j.Logger
-
+import java.awt.SplashScreen
 import java.nio.file.Path
 import java.util.*
 
@@ -62,11 +63,12 @@ object Runner {
 			} else {
 				emu.createEmulatedComputer()
 			}
-			computers.put(it, emu.conf.renderer.map { r -> RenderingMethod.create(r, emu, it) })
+
+			computers.put(it, emu.conf.getRenderer().map { r -> RenderingMethod.create(r, emu, it) ?: BlankRenderer() })
 		}
 
 		SplashScreen.getSplashScreen()?.close()
-		computers.forEach { ec, r -> r.forEach { f -> f.visible = true } }
+		computers.forEach { ec, r -> r.forEach { f -> f.setVisible(true) } }
 		emu.run()
 	}
 }
