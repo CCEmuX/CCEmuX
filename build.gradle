@@ -112,6 +112,3 @@ runShadow {
 }
 
 build.dependsOn shadowJar
-sourceSets {
-	main.java.srcDirs += 'src/main/kotlin'
-}
