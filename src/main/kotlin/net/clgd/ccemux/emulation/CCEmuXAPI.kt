@@ -120,7 +120,13 @@ class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILuaAPI {
 
 	override fun callMethod(lua: ILuaContext?, method: Int, arguments: Array<out Any>?): Array<out Any> {
 		if (arguments != null) {
-			return methods.getOrDefault(null, { i -> throw LuaException("this shouldn't happen!") })(arguments)
+			val name = methodNames.getOrNull(method)
+
+			if (methodNames.getOrNull(method) != null) {
+				return methods.getOrDefault(name, { i -> throw LuaException("this shouldn't happen!") })(arguments)
+			} else {
+				throw LuaException("no such method")
+			}
 		} else {
 			return arrayOf()
 		}
