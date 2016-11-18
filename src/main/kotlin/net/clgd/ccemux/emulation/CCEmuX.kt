@@ -2,16 +2,15 @@ package net.clgd.ccemux.emulation
 
 import dan200.computercraft.core.computer.Computer
 import dan200.computercraft.core.filesystem.FileMount
+import net.clgd.ccemux.Config
+import org.slf4j.Logger
 import java.io.File
 import java.nio.file.Path
-import java.util.ArrayList
-import net.clgd.ccemux.Config
-import org.eclipse.xtend.lib.annotations.Accessors
-import org.slf4j.Logger
+import java.util.*
 
 class CCEmuX(val logger: Logger, val conf: Config) : Runnable {
 	val dataDir: Path = conf.dataDir
-	val ccJar: File = dataDir.resolve(conf.CCLocal).toFile
+	val ccJar: File = dataDir.resolve(conf.getCCLocal()).toFile()
 
 	var env = EmulatedEnvironment(this)
 
@@ -26,26 +25,25 @@ class CCEmuX(val logger: Logger, val conf: Config) : Runnable {
 		val field = Computer::class.java.getDeclaredField("m_rootMount")
 		field.isAccessible = true
 		field.set(comp.ccComputer, FileMount(saveDir.toFile(), env.computerSpaceLimit))
+		return comp
 	}
 
 	fun createEmulatedComputer(id: Int): EmulatedComputer {
 		logger.trace("Creating emulated computer")
 		synchronized(computers) {
-			val comp = EmulatedComputer(this, conf.termWidth, conf.termHeight, id)
+			val comp = EmulatedComputer(this, conf.getTermWidth(), conf.getTermHeight(), id)
 			computers.add(comp)
 			logger.info("Created emulated computer ID {}", comp.getID())
 			return comp
 		}
 	}
 
-	fun createEmulatedComputer(): EmulatedComputer {
-		createEmulatedComputer(-1)
-	}
+	fun createEmulatedComputer(): EmulatedComputer = createEmulatedComputer(-1)
 
-	fun removeEmulatedComputer(ec: EmulatedComputer) {
+	fun removeEmulatedComputer(ec: EmulatedComputer): Boolean {
 		synchronized(computers) {
 			if (computers.contains(ec)) {
-				logger.trace("Removing emulated computer ID {}", ec.ID)
+				logger.trace("Removing emulated computer ID {}", ec.getID())
 				val success = computers.remove(ec)
 
 				if (computers.isEmpty()) {

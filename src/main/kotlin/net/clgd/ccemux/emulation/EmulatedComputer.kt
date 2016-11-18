@@ -17,7 +17,7 @@ class EmulatedComputer(val emu: CCEmuX, termWidth: Int, termHeight: Int, id: Int
 	val terminal: Terminal = TRoRTerminal(emu, termWidth, termHeight)
 	val ccComputer = Computer(emu.env, terminal, -1)
 
-	val cursorChar = '_'
+	var cursorChar = '_'
 
 	val listeners = ArrayList<Listener>()
 
@@ -25,8 +25,9 @@ class EmulatedComputer(val emu: CCEmuX, termWidth: Int, termHeight: Int, id: Int
 		ccComputer.id = id
 		ccComputer.assignID()
 
-		if (emu.conf.apiEnabled)
+		if (emu.conf.isApiEnabled()) {
 			ccComputer.addAPI(CCEmuXAPI(this, "ccemux"))
+		}
 
 		ccComputer.turnOn()
 	}
@@ -60,8 +61,8 @@ class EmulatedComputer(val emu: CCEmuX, termWidth: Int, termHeight: Int, id: Int
 
 	fun resize(width: Int, height: Int) {
 		synchronized (terminal) {
-			emu.conf.termWidth = width
-			emu.conf.termHeight = height
+			emu.conf.setTermWidth(width)
+			emu.conf.setTermHeight(height)
 
 			terminal.resize(width, height)
 			listeners.forEach { l -> l.onTerminalResized(width, height) }

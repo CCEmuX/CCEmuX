@@ -3,11 +3,11 @@ package net.clgd.ccemux.emulation
 import dan200.computercraft.api.lua.ILuaContext
 import dan200.computercraft.api.lua.LuaException
 import dan200.computercraft.core.apis.ILuaAPI
-import java.awt.Desktop
 import net.clgd.ccemux.rendering.RenderingMethod
+import java.awt.Desktop
 import java.util.*
 
-abstract class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILuaAPI {
+class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILuaAPI {
 	// somewhat hacky but type inference doesn't cut it here
 	val methods = LinkedHashMap<String, (Array<out Any>) -> Array<out Any>>()
 
@@ -78,19 +78,16 @@ abstract class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILu
 				}
 
 				val ec = computer.emu.createEmulatedComputer(id)
-				val r = ec.emu.conf.renderer.map[RenderingMethod.create(arr, ec.emu, ec)]
+				val r = ec.emu.conf.getRenderer().map { r -> RenderingMethod.create(r, ec.emu, ec) }
+				r.forEach({ b -> b?.setVisible(true) })
 
-				r.forEach({
-					b -> b.visible = true
-				})
-
-				arrayOf(ec.id)
+				arrayOf(ec.getID())
 			}
 		}
 
 		methods.put("openDataDir") {
 			try {
-				Desktop.getDesktop().browse(computer.emu.dataDir.toUri)
+				Desktop.getDesktop().browse(computer.emu.dataDir.toUri())
 				arrayOf(true)
 			} catch (e: Exception) {
 				arrayOf(false)
@@ -103,7 +100,7 @@ abstract class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILu
 		methods.put("echo") {
 			arr -> run {
 				if (arr.isNotEmpty() && arr[0] is String) {
-					computer.emu.logger.info("[Computer {}] {}", computer.ID, arr[0] as String)
+					computer.emu.logger.info("[Computer {}] {}", computer.getID(), arr[0] as String)
 				} else {
 					throw LuaException("expected string for argument #1")
 				}
@@ -123,7 +120,9 @@ abstract class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILu
 
 	override fun callMethod(lua: ILuaContext?, method: Int, arguments: Array<out Any>?): Array<out Any> {
 		if (arguments != null) {
-			methods.getOrDefault(null, { i -> throw LuaException("this shouldn't happen!") })(arguments)
+			return methods.getOrDefault(null, { i -> throw LuaException("this shouldn't happen!") })(arguments)
+		} else {
+			return arrayOf()
 		}
 	}
 

@@ -7,7 +7,7 @@ class BlankRenderer : Renderer {
 
 	override fun onTerminalResized(width: Int, height: Int) { }
 
-	override fun isVisible(): Boolean { }
+	override fun isVisible(): Boolean = false
 
 	override fun setVisible(visible: Boolean) { }
 

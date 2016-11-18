@@ -3,11 +3,14 @@ package net.clgd.ccemux
 import dan200.computercraft.shared.util.Colour
 import org.apache.commons.cli.Option
 import org.apache.commons.cli.Options
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FileUtils
 import java.awt.Color
 import java.awt.GraphicsEnvironment
 import java.awt.Transparency
 import java.awt.event.KeyEvent
 import java.awt.image.BufferedImage
+import java.io.File
 
 object Utils {
 	val BASE_16 = "0123456789abcdef"
@@ -82,4 +85,5 @@ object Utils {
 				block != Character.UnicodeBlock.SPECIALS
 	}
 
+	fun File.getMD5Checksum(): String = DigestUtils.md5Hex(FileUtils.readFileToByteArray(this))
 }
