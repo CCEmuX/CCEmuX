@@ -2,16 +2,19 @@ package net.clgd.ccemux
 
 import java.awt.SplashScreen
 import java.nio.file.Path
-import java.util.Map
+import java.util.ArrayList
 import java.util.HashMap
 import java.util.List
+import java.util.Map
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.rendering.Renderer
 import net.clgd.ccemux.rendering.RenderingMethod
 import org.slf4j.Logger
-import org.squiddev.cctweaks.lua.lib.ApiRegister
 import org.squiddev.cctweaks.lua.ConfigPropertyLoader
+import org.squiddev.cctweaks.lua.lib.ApiRegister
+
+import static org.squiddev.patcher.Logger.*
 
 class Runner {
 	def static void launchCCTweaks(Logger logger, Config config, List<Path> saveDirs, int count) {
@@ -21,9 +24,9 @@ class Runner {
 		// wrapped class loader.
 		config.addListener(new Runnable() {
 			override void run() {
-				for(Map.Entry<Object, Object> entry : config.entrySet()) {
+				for (Map.Entry<Object, Object> entry : config.entrySet()) {
 					val key = entry.getKey() as String
-					if(key.startsWith("cctweaks")) {
+					if (key.startsWith("cctweaks")) {
 						System.setProperty(key, entry.getValue() as String)
 					}
 				}
@@ -53,26 +56,28 @@ class Runner {
 		launch(logger, config, saveDirs, count);
 	}
 
-    def static void launch(Logger logger, Config config, List<Path> saveDirs, int count) {
-        val emu = new CCEmuX(logger, config)
+	def static void launch(Logger logger, Config config, List<Path> saveDirs, int count) {
+		val emu = new CCEmuX(logger, config)
 
-        val computers = new HashMap<EmulatedComputer, Renderer>()
+		val computers = new HashMap<EmulatedComputer, List<Renderer>>()
 
-        for (i : 0 ..< count) {
-            val it = if (saveDirs.size > 0) {
-                emu.createEmulatedComputer(saveDirs.remove(0))
-            } else {
-                emu.createEmulatedComputer
-            }
-            computers.put(it, RenderingMethod.create(emu.conf.renderer, emu, it))
-        }
+		for (i : 0 ..< count) {
+			val it = if (saveDirs.size > 0) {
+					emu.createEmulatedComputer(saveDirs.remove(0))
+				} else {
+					emu.createEmulatedComputer
+				}
+			computers.put(it, emu.conf.renderer.map [ r |
+				RenderingMethod.create(r, emu, it)
+			])
+		}
 
-        SplashScreen.splashScreen?.close
+		SplashScreen.splashScreen?.close
 
-        computers.forEach [ ec, r |
-            r.visible = true
-        ]
+		computers.forEach [ ec, r |
+			r.forEach[visible = true]
+		]
 
-        emu.run
-    }
+		emu.run
+	}
 }

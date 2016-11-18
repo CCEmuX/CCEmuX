@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
+import net.clgd.ccemux.rendering.tror.TRoRRenderer;;
 
 public enum RenderingMethod {
 	Headless((CCEmuX emu, EmulatedComputer comp) -> new Renderer() {
@@ -29,7 +30,8 @@ public enum RenderingMethod {
 		public void onTerminalResized(int width, int height) { }
 	}),
 
-	AWT(AWTRenderer::new);
+	AWT(AWTRenderer::new),
+	TRoR_STDIO(TRoRRenderer::new);
 
 	private final BiFunction<CCEmuX, EmulatedComputer, Renderer> creator;
 
@@ -43,10 +45,12 @@ public enum RenderingMethod {
 
 	public static Renderer create(String type, CCEmuX emu, EmulatedComputer computer) {
 		synchronized (computer) {
-			for (RenderingMethod r : values()) {
-				if (r.name().equals(type)) {
-					emu.getLogger().debug("Creating {} renderer", r.name());
-					return r.create(emu, computer);
+			for (RenderingMethod method : values()) {
+				if (method.name().equals(type)) {
+					emu.getLogger().debug("Creating {} renderer", method.name());
+					Renderer renderer = method.create(emu, computer);
+					computer.addListener(renderer);
+					return renderer;
 				}
 			}
 

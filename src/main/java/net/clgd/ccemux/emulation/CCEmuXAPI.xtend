@@ -74,9 +74,9 @@ class CCEmuXAPI implements ILuaAPI {
 				}
 
 			val ec = computer.emu.createEmulatedComputer(id)
-			val r = RenderingMethod.create(computer.emu.conf.renderer, computer.emu, ec)
+			val r = ec.emu.conf.renderer.map[RenderingMethod.create(it, ec.emu, ec)]
 
-			r.visible = true
+			r.forEach[visible=true]
 
 			return #[ec.ID]
 		]

@@ -47,7 +47,6 @@ class AWTRenderer extends Frame implements KeyListener, MouseListener, MouseMoti
 		//defaultCloseOperation = DISPOSE_ON_CLOSE
 
 		this.computer = computer
-		computer.addListener(this)
 
 		termComponent = new TerminalComponent(
 			computer.terminal,

@@ -5,6 +5,7 @@ import net.clgd.ccemux.emulation.tror.BlitLinePacket
 import net.clgd.ccemux.emulation.tror.CapabilitiesPacket
 import net.clgd.ccemux.emulation.tror.ClearLinePacket
 import net.clgd.ccemux.emulation.tror.ClearPacket
+import net.clgd.ccemux.emulation.tror.ConnectionClosedPacket
 import net.clgd.ccemux.emulation.tror.CursorBlinkPacket
 import net.clgd.ccemux.emulation.tror.CursorPosPacket
 import net.clgd.ccemux.emulation.tror.ResizePacket
@@ -70,5 +71,10 @@ class TestPackets {
 	@Test
 	def testCapabilitiesPacket() {
 		assertEquals("SP:;-ext1-ext2-ext3-\n", new CapabilitiesPacket(#{"ext1", "ext2", "ext3"}).toString)
+	}
+	
+	@Test
+	def testConnectionClosedPacket() {
+		assertEquals("SC:;\n", new ConnectionClosedPacket().toString)
 	}
 }
