@@ -2,6 +2,10 @@ package net.clgd.ccemux.rendering.tror
 
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.HashMap
+import java.util.function.BiConsumer
+import java.util.regex.MatchResult
+import java.util.regex.Pattern
 import net.clgd.ccemux.emulation.CCEmuX
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.emulation.tror.CapabilitiesPacket
@@ -10,7 +14,42 @@ import net.clgd.ccemux.emulation.tror.TRoRPacket
 import net.clgd.ccemux.emulation.tror.TRoRTerminal
 import net.clgd.ccemux.rendering.Renderer
 
+import static extension java.lang.Integer.parseInt
+
 class TRoRRenderer implements Renderer {
+	static val Pattern eventPattern = Pattern.compile("^EV:([^;]*);(.*)$")
+	
+	static val handlers = new HashMap<Pattern, BiConsumer<EmulatedComputer, MatchResult>> => [
+		// char
+		put(Pattern.compile("^\"char\",\"(.)\""), [ec, m|
+			ec.pressChar(m.group(1).charAt(0))
+		])
+		
+		// key
+		put(Pattern.compile("^\"key\",(\\d+)"), [ec, m|
+			ec.pressKey(m.group(1).parseInt, false)
+		])
+		
+		// key_up
+		put(Pattern.compile("^\"key_up\",(\\d+)"), [ec, m|
+			ec.pressKey(m.group(1).parseInt, true)
+		])
+		
+		// paste
+		put(Pattern.compile("^\"paste\",\"(.+)\""), [ec, m|
+			ec.pasteText(m.group(1))
+		])
+	]
+	
+	static def matches(String s, Pattern p) {
+		val m = p.matcher(s)
+		if (m.matches) {
+			return m.toMatchResult
+		} else {
+			null
+		}
+	}
+	
 	val CCEmuX emu
 	val EmulatedComputer ec
 	val String id
@@ -65,12 +104,23 @@ class TRoRRenderer implements Renderer {
 				firstsend = false
 				send(new CapabilitiesPacket(#{"ccemux"}))
 			}
+			
 			term.popQueue.forEach [
 				send(it)
 			]
 			
 			while (input.hasLines) {
-				input.lines.forEach[println(it)]
+				input.lines.forEach[
+					val m = it.matches(eventPattern)
+					if (m?.group(1) == id) {
+						handlers.forEach[p, f|
+							val m2 = m.group(2).matches(p)
+							if (m2 != null) {
+								f.accept(ec, m2)
+							}
+						]
+					}
+				]
 			}
 		}
 	}
