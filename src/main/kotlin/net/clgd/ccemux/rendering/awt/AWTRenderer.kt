@@ -1,26 +1,12 @@
 package net.clgd.ccemux.rendering.awt
 
-import java.awt.BorderLayout
-import java.awt.Dimension
-import java.awt.Frame
-import java.awt.Point
-import java.awt.Toolkit
-import java.awt.Window
-import java.awt.datatransfer.DataFlavor
-import java.awt.event.KeyEvent
-import java.awt.event.KeyListener
-import java.awt.event.MouseEvent
-import java.awt.event.MouseListener
-import java.awt.event.MouseMotionListener
-import java.awt.event.MouseWheelEvent
-import java.awt.event.MouseWheelListener
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
+import net.clgd.ccemux.Utils.isPrintableChar
 import net.clgd.ccemux.emulation.CCEmuX
-import net.clgd.ccemux.emulation.CCEmuXConsts
 import net.clgd.ccemux.emulation.EmulatedComputer
 import net.clgd.ccemux.rendering.Renderer
-import net.clgd.ccemux.Utils.isPrintableChar
+import java.awt.*
+import java.awt.datatransfer.DataFlavor
+import java.awt.event.*
 
 class AWTRenderer(val emu: CCEmuX, val computer: EmulatedComputer) : Frame(), KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
 	val EMU_WINDOW_TITLE = "CCEmuX"
@@ -68,7 +54,7 @@ class AWTRenderer(val emu: CCEmuX, val computer: EmulatedComputer) : Frame(), Ke
 		// Centre the window.
 		setLocationRelativeTo(null)
 
-		lastBlink = CCEmuXConsts.getGlobalCursorBlink()
+		lastBlink = CCEmuX.getGlobalCursorBlink()
 	}
 
 	override fun onUpdate(dt: Float) {
@@ -85,11 +71,11 @@ class AWTRenderer(val emu: CCEmuX, val computer: EmulatedComputer) : Frame(), Ke
 				computer.terminal.clearChanged()
 			}
 
-			if (CCEmuXConsts.getGlobalCursorBlink() != lastBlink) {
+			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
 				doRepaint = true
 			}
 
-			lastBlink = CCEmuXConsts.getGlobalCursorBlink()
+			lastBlink = CCEmuX.getGlobalCursorBlink()
 
 			if (doRepaint) {
 				termComponent.cursorChar = computer.cursorChar

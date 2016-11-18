@@ -9,6 +9,12 @@ import java.nio.file.Path
 import java.util.*
 
 class CCEmuX(val logger: Logger, val conf: Config) : Runnable {
+	companion object {
+		fun getVersion() = Config::class.java.`package`.implementationVersion ?: "[Unknown]"
+
+		fun getGlobalCursorBlink() = System.currentTimeMillis() / 400 % 2 == 0L
+	}
+
 	val dataDir: Path = conf.dataDir
 	val ccJar: File = dataDir.resolve(conf.getCCLocal()).toFile()
 

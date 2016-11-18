@@ -4,7 +4,7 @@ import dan200.computercraft.ComputerCraft
 import dan200.computercraft.core.terminal.Terminal
 import net.clgd.ccemux.Utils
 import net.clgd.ccemux.Utils.makeTintedCopy
-import net.clgd.ccemux.emulation.CCEmuXConsts
+import net.clgd.ccemux.emulation.CCEmuX
 import java.awt.Canvas
 import java.awt.Dimension
 import java.awt.Graphics
@@ -108,7 +108,7 @@ class TerminalComponent(val terminal: Terminal, termScale: Int) : Canvas() {
 				dy += height
 			}
 
-			val blink = terminal.cursorBlink && (blinkLocked || CCEmuXConsts.getGlobalCursorBlink())
+			val blink = terminal.cursorBlink && (blinkLocked || CCEmuX.getGlobalCursorBlink())
 
 			if (blink) {
 				drawChar(

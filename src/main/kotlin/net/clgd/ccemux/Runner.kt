@@ -57,7 +57,7 @@ object Runner {
 
 		val computers = HashMap<EmulatedComputer, List<Renderer>>()
 
-		for (i in 0..(count - 1)) {
+		for (i in 0..(count-1)) {
 			val it = if (saveDirs.isNotEmpty()) {
 				emu.createEmulatedComputer(saveDirs.removeAt(0))
 			} else {

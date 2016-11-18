@@ -12,8 +12,6 @@ object RenderingMethod {
 					val renderer = method.create(emu, computer);
 					computer.addListener(renderer);
 					return renderer
-				} else {
-					return null
 				}
 			}
 

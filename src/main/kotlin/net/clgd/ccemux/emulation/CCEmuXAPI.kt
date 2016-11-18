@@ -13,7 +13,7 @@ class CCEmuXAPI(val computer: EmulatedComputer, val name: String) : ILuaAPI {
 
 	init {
 		methods.put("getVersion") {
-			arrayOf(CCEmuXConsts.getVersion())
+			arrayOf(CCEmuX.getVersion())
 		}
 
 		methods.put("setCursorChar") {
