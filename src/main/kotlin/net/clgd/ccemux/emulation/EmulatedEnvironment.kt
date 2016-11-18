@@ -38,7 +38,7 @@ class EmulatedEnvironment(val emu: CCEmuX) : IComputerEnvironment {
 
 	override fun getDay() = ((emu.getTicksSinceStart() + 6000L) / 24000L + 1).toInt()
 
-	override fun getHostString() = "ComputerCraft %s (CCEmuX v%d)".format(ComputerCraft.getVersion(), CCEmuXConsts.getVersion())
+	override fun getHostString() = "ComputerCraft %s (CCEmuX v%s)".format(ComputerCraft.getVersion(), CCEmuXConsts.getVersion())
 
 	override fun getTimeOfDay() = ((emu.getTicksSinceStart() + 6000) % 24000) / 1000.0
 

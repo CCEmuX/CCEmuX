@@ -13,7 +13,7 @@ import java.nio.file.Path
 import java.util.*
 
 object Runner {
-	fun launchCCTweaks(logger: Logger, config: Config, saveDirs: MutableList<Path>, count: Int) {
+	@JvmStatic fun launchCCTweaks(logger: Logger, config: Config, saveDirs: MutableList<Path>, count: Int) {
 		// Add config listener to sync CCTweaks config.
 		// This allows changing it at runtime, should you ever wish to do that.
 		// This needs to be done in this class as the config class should be loaded within the
@@ -52,7 +52,7 @@ object Runner {
 		launch(logger, config, saveDirs, count)
 	}
 
-	fun launch(logger: Logger, config: Config, saveDirs: MutableList<Path>, count: Int) {
+	@JvmStatic fun launch(logger: Logger, config: Config, saveDirs: MutableList<Path>, count: Int) {
 		val emu = CCEmuX(logger, config)
 
 		val computers = HashMap<EmulatedComputer, List<Renderer>>()
