@@ -165,7 +165,7 @@ class Launcher {
 			dataDir = if (cmd.hasOption('d'))
 				Paths.get(cmd.getOptionValue('d') ?: "")
 			else
-				OperatingSystem.get.appDataDir.resolve("ccemux")
+				OperatingSystems.get.appDataDir.resolve("ccemux")
 
 			dataDir.toFile.mkdirs
 			logger.info("Data directory is {}", dataDir.toAbsolutePath.toString)
@@ -246,7 +246,7 @@ class Launcher {
 					message += '\n' + e2.toString
 				}
 				message += "\n\nCheck console for more details. If this continues, please create a bug report."
-				
+
 				e.printStackTrace
 				System.err.println("Uncaught exception!")
 				SplashScreen.splashScreen?.close
