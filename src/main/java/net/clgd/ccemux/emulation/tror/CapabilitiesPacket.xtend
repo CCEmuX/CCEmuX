@@ -12,7 +12,7 @@ class CapabilitiesPacket extends TRoRPacket<Set<String>> {
 	}
 	
 	override toString(String metadata) {
-		"SP:" + metadata + ";" + ('-' + data.reduce[$1 + '-' + $0] + '-') + '\n'
+		"SP:" + metadata + ";" + ('-' + data.reduce[$0 + '-' + $1] + '-') + '\n'
 	}
 	
 	override toString() {
