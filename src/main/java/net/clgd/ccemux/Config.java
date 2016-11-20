@@ -98,7 +98,7 @@ public class Config extends Properties {
 	}
 	
 	public boolean isApiEnabled() {
-		return Boolean.parseBoolean("apiEnabled");
+		return Boolean.parseBoolean(getProperty("apiEnabled"));
 	}
 	
 	public List<String> getRenderer() {
