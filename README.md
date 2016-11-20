@@ -1,5 +1,5 @@
 # CCEmuX
-A new open source CC emulator, written with [xtend](https://www.eclipse.org/xtend/).
+A new open source CC emulator, written in Java.
 
 ## Building
 As simple as running `./gradlew build`.
@@ -28,7 +28,3 @@ If you want to use a custom version of CC, follow the steps below. Note that usi
   ```
 
 4. Save the modified configuration file and restart CCEmuX, preferably from a terminal to see log messages. 
-
-
-## About Xtend
-Most of you reading this probably haven't heard of [xtend](https://www.eclipse.org/xtend/) before. It's a language that compiles to Java, that adds lots of useful features such as extension methods, operator overloading, getters/setters, better type inference, and some syntactic sugar. If you look through the source code, it's easy enough to read it just knowing Java, but if you want to learn more about it check out the [documentation](https://www.eclipse.org/xtend/documentation/index.html)

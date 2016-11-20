@@ -4,9 +4,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
-import org.eclipse.xtext.xbase.lib.Pure;
-
-// written in Java because xtend doesn't seem to support complex enums
 public enum OperatingSystem {
 	Windows(Paths.get(Objects.toString(System.getenv("appdata"), System.getProperty("user.home")))),
 	MacOSX(Paths.get(System.getProperty("user.home")).resolve("Library/Application Support")),
@@ -23,7 +20,6 @@ public enum OperatingSystem {
 		this.appDataDir = appDataDir;
 	}
 
-	@Pure
 	public static OperatingSystem get() {
 		String name = System.getProperty("os.name");
 		if (name.startsWith("Windows"))
