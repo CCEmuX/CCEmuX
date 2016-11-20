@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.slf4j.Logger;
+import org.squiddev.cctweaks.lua.ConfigPropertyLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
 import net.clgd.ccemux.emulation.CCEmuX;
@@ -43,6 +44,8 @@ public class Runner {
 							System.setProperty(e.getKey(), e.getValue());
 							logger.debug("Setting CCTweaks option {} -> {}", e.getKey(), e.getValue());
 						});
+				
+				ConfigPropertyLoader.init();
 			}
 		});
 
@@ -62,7 +65,7 @@ public class Runner {
 				logger.error(message, t);
 			}
 		};
-
+		
 		ApiRegister.init();
 
 		launch(logger, config, saveDirs, count);
