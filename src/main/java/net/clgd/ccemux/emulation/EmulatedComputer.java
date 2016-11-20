@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.squiddev.patcher.Logger;
-
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
 import net.clgd.ccemux.emulation.tror.TRoRTerminal;

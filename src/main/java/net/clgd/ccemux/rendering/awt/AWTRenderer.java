@@ -28,6 +28,8 @@ import static net.clgd.ccemux.rendering.awt.MouseTranslator.*;
 
 public class AWTRenderer extends Frame
 		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
+	private static final long serialVersionUID = 374030924274589331L;
+	
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
 	private static boolean isPrintableChar(char c) {
