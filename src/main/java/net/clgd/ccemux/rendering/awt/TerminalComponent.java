@@ -1,23 +1,19 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.Canvas;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = 669029640511347733L;
-	
+
 	public static final String CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png";
 
 	private static Point getCharLocation(char c, int charWidth, int charHeight, int fontWidth, int fontHeight) {
@@ -63,7 +59,7 @@ class TerminalComponent extends Canvas {
 
 	public void resizeTerminal(int width, int height) {
 		Dimension termDimensions = new Dimension(width * pixelWidth + margin * 2, height * pixelHeight + margin * 2);
-		
+
 		setSize(termDimensions);
 		setPreferredSize(termDimensions);
 	}

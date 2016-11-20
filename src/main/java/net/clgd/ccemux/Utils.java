@@ -1,12 +1,9 @@
 package net.clgd.ccemux;
 
-import java.awt.Color;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Transparency;
-import java.awt.image.BufferedImage;
-
 import dan200.computercraft.shared.util.Colour;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class Utils {
 
@@ -30,16 +27,16 @@ public class Utils {
 				.getDefaultConfiguration();
 
 		BufferedImage tinted = gc.createCompatibleImage(bi.getWidth(), bi.getHeight(), Transparency.TRANSLUCENT);
-		
+
 		for (int y = 0; y < bi.getHeight(); y++) {
 			for (int x = 0; x < bi.getWidth(); x++) {
 				int rgb = bi.getRGB(x, y);
-				
+
 				if (rgb != 0)
-					tinted.setRGB(x, y, rgb);
+					tinted.setRGB(x, y, tint.getRGB());
 			}
 		}
-		
+
 		return tinted;
 	}
 }
