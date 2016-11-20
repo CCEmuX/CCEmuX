@@ -78,6 +78,6 @@ public class TestPackets {
 	
 	@Test
 	public void testConnectionClosedPacket() {
-		assertEquals("SC:test;\n", new ConnectionClosedPacket("test").toString());
+		assertEquals("SC:;test\n", new ConnectionClosedPacket("test").toString());
 	}
 }

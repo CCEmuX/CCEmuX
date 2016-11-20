@@ -14,7 +14,7 @@ public class CapabilitiesPacket extends TRoRPacket<Set<String>> {
 	
 	@Override
 	public String toString(String metadata) {
-		return "SP:" + metadata + ";-" + (data.stream().reduce((s1, s2) -> s2 + s1)) + "-\n";
+		return "SP:" + metadata + ";-" + (data.stream().reduce((s1, s2) -> s1 + '-' + s2)).orElse("") + "-\n";
 	}
 	
 	@Override
