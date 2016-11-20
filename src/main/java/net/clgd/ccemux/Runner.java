@@ -22,7 +22,7 @@ public class Runner {
 
 		for (int i = 0; i < count; i++) {
 			EmulatedComputer ec = emu.createEmulatedComputer(-1, saveDirs.size() > 0 ? saveDirs.remove(0) : null);
-			computers.put(ec, emu.conf.getRenderer().stream().map(r -> RenderingMethod.create(r, emu, ec))
+			computers.put(ec, emu.conf.getRenderer().stream().map(r -> RenderingMethod.create(r, ec))
 					.collect(Collectors.toList()));
 		}
 		

@@ -1,5 +1,4 @@
 plugins {
-	id 'org.xtext.xtend' version '1.0.12'
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '1.2.3'
 	id 'eclipse'
@@ -39,8 +38,6 @@ repositories {
 }
 
 dependencies {
-	compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0'
-
 	compileOnly ":${cc.ccModule}:${cc.ccRevision}"
 
 	compile 'org.slf4j:slf4j-simple:1.7.21'

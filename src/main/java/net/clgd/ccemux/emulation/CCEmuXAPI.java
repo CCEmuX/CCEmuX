@@ -60,7 +60,7 @@ public class CCEmuXAPI implements ILuaAPI {
 			
 			EmulatedComputer ec = computer.emu.createEmulatedComputer(id, null);
 			List<Renderer> r = ec.emu.conf.getRenderer().stream()
-					.map(s -> RenderingMethod.create(s, ec.emu, ec))
+					.map(s -> RenderingMethod.create(s, ec))
 					.collect(Collectors.toList());
 			
 			r.forEach(_r -> _r.setVisible(true));

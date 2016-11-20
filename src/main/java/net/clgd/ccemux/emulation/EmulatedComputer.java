@@ -1,7 +1,10 @@
 package net.clgd.ccemux.emulation;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.squiddev.patcher.Logger;
 
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
@@ -13,7 +16,23 @@ public class EmulatedComputer extends Computer {
 		public void onTerminalResized(int width, int height);
 	}
 	
+	private static final Field termField;
+	
+	static {
+		Field f;
+		
+		try {
+			f = EmulatedComputer.class.getSuperclass().getDeclaredField("m_terminal");
+			f.setAccessible(true);
+		} catch (SecurityException | NoSuchFieldException e) {
+			f = null;
+		}
+		
+		termField = f;
+	}
+	
 	public final CCEmuX emu;
+	public final Terminal terminal;
 	public char cursorChar = '_';
 	
 	private final List<Listener> listeners = new ArrayList<>();
@@ -22,6 +41,14 @@ public class EmulatedComputer extends Computer {
 		super(emu.env, new Terminal(termWidth, termHeight), -1);
 		
 		this.emu = emu;
+		
+		Terminal term;
+		try {
+			term = (Terminal) termField.get(this);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			term = null;
+		}
+		this.terminal = term;
 		
 		if (emu.conf.isApiEnabled()) addAPI(new CCEmuXAPI(this, "ccemux"));
 	}
@@ -57,7 +84,7 @@ public class EmulatedComputer extends Computer {
 		queueEvent("char", new Object[] {"" + c});
 	}
 	
-	public void pasteTest(String text) {
+	public void paste(String text) {
 		queueEvent("paste", new Object[] {text});
 	}
 	
