@@ -4,10 +4,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.squiddev.patcher.Logger;
-
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.terminal.Terminal;
+import net.clgd.ccemux.emulation.tror.TRoRTerminal;
 
 public class EmulatedComputer extends Computer {
 	public static interface Listener {
@@ -38,7 +37,7 @@ public class EmulatedComputer extends Computer {
 	private final List<Listener> listeners = new ArrayList<>();
 	
 	EmulatedComputer(CCEmuX emu, int termWidth, int termHeight, int id) {
-		super(emu.env, new Terminal(termWidth, termHeight), -1);
+		super(emu.env, new TRoRTerminal(emu, termWidth, termHeight), -1);
 		
 		this.emu = emu;
 		

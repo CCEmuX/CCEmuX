@@ -45,7 +45,8 @@ public class Launcher {
 
 		opts.addOption(builder("r").longOpt("renderer")
 				.desc("Sets the renderer to use. Run without an argument to show available renderers.").hasArg()
-				.argName("type").build());
+				.optionalArg(true).argName("type").build());
+
 		opts.addOption(builder("c").longOpt("count").desc("How many emulated computers to create").hasArg()
 				.argName("count").build());
 
@@ -110,12 +111,6 @@ public class Launcher {
 			System.exit(1);
 		}
 
-		if (cmd.hasOption('r') && cmd.getOptionValue('r', "").isEmpty()) {
-			System.out.format("Available rendering methods: %s\n",
-					Arrays.stream(RenderingMethod.getMethods()).map(r -> r.name()).reduce((p1, p2) -> p1 + ", " + p2));
-			System.exit(2);
-		}
-
 		String logLevel = cmd.getOptionValue('l', "info").trim();
 		if (ImmutableSet.of("trace", "debug", "info", "warning", "error").contains(logLevel)) {
 			System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", logLevel);
@@ -163,6 +158,12 @@ public class Launcher {
 			}
 		}
 
+		if (cmd.hasOption('r') && cmd.getOptionValue('r', "").isEmpty()) {
+			System.out.format("Available rendering methods: %s\n",
+					Arrays.stream(RenderingMethod.getMethods()).map(r -> r.name()).reduce((p1, p2) -> p1 + ", " + p2).orElse(""));
+			System.exit(2);
+		}
+
 		if (cmd.hasOption('r')) {
 			config.setProperty("renderer", cmd.getOptionValue('r').trim());
 		}
@@ -182,30 +183,24 @@ public class Launcher {
 
 		List<Path> saveDirs = Arrays.stream(cmd.getOptionValue('s', "").split(","))
 				.map(s -> Paths.get(s).toAbsolutePath()).collect(Collectors.toList());
-		
+
 		if (config.getCCTweaks()) {
 			logger.info("Injecting CCTweaks classloader");
-			
+
 			RewritingLoader loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
-			
-			ImmutableSet.of(
-					"net.clgd.ccemux.Config",
-					"net.clgd.ccemux.Launcher",
-					"net.clgd.ccemux.CCBootstrapper",
-					"org.slf4j.",
-					"javax.",
-					"org.apache."
-			).forEach(s -> loader.addClassLoaderExclusion(s));
-			
+
+			ImmutableSet.of("net.clgd.ccemux.Config", "net.clgd.ccemux.Launcher", "net.clgd.ccemux.CCBootstrapper",
+					"org.slf4j.", "javax.", "org.apache.").forEach(s -> loader.addClassLoaderExclusion(s));
+
 			loader.chain.finalise();
-			
+
 			loader.loadClass("net.clgd.ccemux.Runner")
-				.getMethod("launchCCTweaks", Logger.class, Config.class, List.class, int.class)
-				.invoke(null, logger, config, saveDirs, count);
+					.getMethod("launchCCTweaks", Logger.class, Config.class, List.class, int.class)
+					.invoke(null, logger, config, saveDirs, count);
 		} else {
 			Runner.launch(logger, config, saveDirs, count);
 		}
-		
+
 		logger.info("Exiting CCEmuX");
 		System.exit(0);
 	}

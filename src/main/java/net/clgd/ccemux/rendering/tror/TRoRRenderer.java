@@ -25,7 +25,7 @@ public class TRoRRenderer implements Renderer {
 	
 	static {
 		// char
-		handlers.put(Pattern.compile("^\"char\",\"(.)\""), (ec, m) -> ec.pressChar(m.group(1).charAt(1)));
+		handlers.put(Pattern.compile("^\"char\",\"(.)\""), (ec, m) -> ec.pressChar(m.group(1).charAt(0)));
 		
 		// key
 		handlers.put(Pattern.compile("^\"key\",(\\d+)"), (ec, m) -> ec.pressKey(Integer.parseInt(m.group(1)), false));
