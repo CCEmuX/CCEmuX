@@ -39,7 +39,10 @@ public class Runner {
 			public void run() {
 				config.entrySet().stream().map(e -> new SimpleEntry<>((String) e.getKey(), (String) e.getValue()))
 						.filter(e -> e.getKey().startsWith("cctweaks"))
-						.forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+						.forEach(e -> {
+							System.setProperty(e.getKey(), e.getValue());
+							logger.debug("Setting CCTweaks option {} -> {}", e.getKey(), e.getValue());
+						});
 			}
 		});
 
