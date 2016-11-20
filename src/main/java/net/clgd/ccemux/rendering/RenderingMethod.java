@@ -21,7 +21,7 @@ public enum RenderingMethod {
 		public void resize(int width, int height) { }
 
 		@Override
-		public void onUpdate(float dt) { }
+		public void onAdvance(double dt) { }
 
 		@Override
 		public void onDispose() { }
@@ -47,14 +47,14 @@ public enum RenderingMethod {
 		synchronized (computer) {
 			for (RenderingMethod method : values()) {
 				if (method.name().equals(type)) {
-					emu.getLogger().debug("Creating {} renderer", method.name());
+					emu.logger.debug("Creating {} renderer", method.name());
 					Renderer renderer = method.create(emu, computer);
 					computer.addListener(renderer);
 					return renderer;
 				}
 			}
 
-			emu.getLogger().error("Could not create renderer of type {}", type);
+			emu.logger.error("Could not create renderer of type {}", type);
 			throw new IllegalArgumentException("Invalid renderer type " + type);
 		}
 	}
