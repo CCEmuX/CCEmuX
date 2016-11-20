@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import com.google.common.collect.ImmutableBiMap;
 
-// written in Java to improve performance
 public class KeyTranslator {
 	@SuppressWarnings("serial")
 	private static final ImmutableBiMap<Integer, Integer> swingToCCMap = ImmutableBiMap.copyOf(new HashMap<Integer, Integer>() {{
