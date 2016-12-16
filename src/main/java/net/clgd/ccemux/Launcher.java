@@ -135,6 +135,12 @@ public class Launcher {
 
 		CCBootstrapper b = new CCBootstrapper(dataDir.resolve(config.getCCLocal()).toFile());
 		b.logger = logger;
+		
+		if (!b.exists()) {
+			URL dl = new URL(config.getCCRemote());
+			logger.info("Downloading CC from {}", dl.toString());
+			b.download(dl);
+		}
 
 		if (b.exists()) {
 			if (!config.getCCChecksum().isEmpty()) {
@@ -157,8 +163,10 @@ public class Launcher {
 			} else {
 				System.exit(3);
 			}
+		} else {
+			logger.error("Failed to load CC jar: File not found");
 		}
-
+		
 		if (cmd.hasOption('r') && cmd.getOptionValue('r', "").isEmpty()) {
 			System.out.format("Available rendering methods: %s\n",
 					Arrays.stream(RenderingMethod.getMethods()).map(r -> r.name()).reduce((p1, p2) -> p1 + ", " + p2).orElse(""));
