@@ -110,11 +110,18 @@ public class CCEmuX implements Runnable {
 		timeStarted = System.currentTimeMillis();
 		long lastTime = System.currentTimeMillis();
 
+		double computerTickTimer = 0.0;
+
 		while (running) {
 			long now = System.currentTimeMillis();
 			double dt = (now - lastTime) / 1000d;
 
-			advance(dt);
+			computerTickTimer += dt;
+
+			if (computerTickTimer >= 0.05) {
+				advance(dt);
+				computerTickTimer = 0.0f;
+			}
 
 			lastTime = System.currentTimeMillis();
 
