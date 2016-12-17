@@ -120,7 +120,7 @@ public class CCEmuX implements Runnable {
 
 			if (computerTickTimer >= 0.05) {
 				advance(dt);
-				computerTickTimer = 0.0f;
+				computerTickTimer = 0.0;
 			}
 
 			lastTime = System.currentTimeMillis();
