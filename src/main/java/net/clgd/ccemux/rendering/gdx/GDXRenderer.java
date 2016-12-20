@@ -33,6 +33,8 @@ public class GDXRenderer extends ApplicationAdapter implements Renderer, InputPr
 	private static final int FONT_MAP_WIDTH = 96;
 	private static final int FONT_MAP_HEIGHT = 144;
 
+	private static final String EMU_WINDOW_TITLE = "CCEmuX";
+
 	private final EmulatedComputer computer;
 	private final Terminal terminal;
 
@@ -72,6 +74,19 @@ public class GDXRenderer extends ApplicationAdapter implements Renderer, InputPr
 		config.resizable = false;
 
 		new LwjglApplication(this, config);
+	}
+
+	private String getWindowTitle() {
+		int id = computer.getID();
+		String title = EMU_WINDOW_TITLE + " - ";
+
+		if (computer.getLabel() != null) {
+			title += computer.getLabel() + " (Computer #" + id + ")";
+		} else {
+			title += "Computer #" + id;
+		}
+
+		return title;
 	}
 
 	private Vector2 getWindowSize(int terminalWidth, int terminalHeight) {
@@ -254,7 +269,7 @@ public class GDXRenderer extends ApplicationAdapter implements Renderer, InputPr
 
 	@Override
 	public void onAdvance(double dt) {
-
+		Gdx.graphics.setTitle(getWindowTitle());
 	}
 
 	private boolean handleCtrlPress(char control) {
