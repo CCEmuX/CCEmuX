@@ -69,6 +69,7 @@ public class GDXRenderer extends ApplicationAdapter implements Renderer, InputPr
 		config.width = (int) windowSize.x;
 		config.height = (int) windowSize.y;
 		config.forceExit = true;
+		config.resizable = false;
 
 		new LwjglApplication(this, config);
 	}
