@@ -31,7 +31,7 @@ public enum RenderingMethod {
 	}),
 
 	AWT(AWTRenderer::new),
-	GDX(GDXRenderer::new),
+	GDX(GDXRenderer::newInstance),
 	TRoR_STDIO(TRoRRenderer::new);
 
 	private final Function<EmulatedComputer, Renderer> creator;

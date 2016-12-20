@@ -51,11 +51,11 @@ dependencies {
 
 	compile 'com.google.guava:guava:20.0'
 
-	compile 'com.badlogicgames.gdx:gdx:1.9.4'
-	compile 'com.badlogicgames.gdx:gdx-freetype:1.9.4'
-	compile 'com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.4'
-	compile 'com.badlogicgames.gdx:gdx-platform:1.9.4:natives-desktop'
-	compile 'com.badlogicgames.gdx:gdx-freetype-platform:1.9.4:natives-desktop'
+	compile 'com.badlogicgames.gdx:gdx:1.9.5'
+	compile 'com.badlogicgames.gdx:gdx-freetype:1.9.5'
+	compile 'com.badlogicgames.gdx:gdx-backend-lwjgl3:1.9.5'
+	compile 'com.badlogicgames.gdx:gdx-platform:1.9.5:natives-desktop'
+	compile 'com.badlogicgames.gdx:gdx-freetype-platform:1.9.5:natives-desktop'
 
 	testCompile 'junit:junit:4.12'
 }
