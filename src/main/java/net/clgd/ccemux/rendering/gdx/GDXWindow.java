@@ -1,9 +1,7 @@
 package net.clgd.ccemux.rendering.gdx;
 
 import com.badlogic.gdx.*;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowConfiguration;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -136,7 +134,18 @@ public class GDXWindow implements Renderer, InputProcessor, ApplicationListener 
 			e.printStackTrace();
 		}
 
-		Gdx.input.setInputProcessor(this);
+		Vector2 windowSize = getWindowSize();
+		resize((int) windowSize.x, (int) windowSize.y);
+
+		if (GDXRenderer.inputMultiplexer == null) {
+			GDXRenderer.inputMultiplexer = new InputMultiplexer();
+			GDXRenderer.inputMultiplexer.addProcessor(this);
+			Gdx.input.setInputProcessor(GDXRenderer.inputMultiplexer);
+
+			Gdx.graphics.setContinuousRendering(false);
+		} else {
+			GDXRenderer.inputMultiplexer.addProcessor(this);
+		}
 	}
 
 	@Override
