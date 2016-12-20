@@ -373,6 +373,6 @@ public class GDXRenderer extends ApplicationAdapter implements Renderer, InputPr
 
 	@Override
 	public void onDispose() {
-		Gdx.app.exit();
+
 	}
 }
