@@ -35,18 +35,11 @@ public class Runner {
 	}
 
 	public static void launchCCTweaks(Logger logger, Config config, List<Path> saveDirs, int count) {
-		config.addListener(new Runnable() {
-			@Override
-			public void run() {
-				config.entrySet().stream().map(e -> new SimpleEntry<>((String) e.getKey(), (String) e.getValue()))
-						.filter(e -> e.getKey().startsWith("cctweaks"))
-						.forEach(e -> {
-							System.setProperty(e.getKey(), e.getValue());
-							logger.debug("Setting CCTweaks option {} -> {}", e.getKey(), e.getValue());
-						});
-				
-				ConfigPropertyLoader.init();
-			}
+		config.addListener(() -> {
+			config.entrySet().stream().map(e -> new SimpleEntry<>((String) e.getKey(), (String) e.getValue()))
+				.forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+
+			ConfigPropertyLoader.init();
 		});
 
 		org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
@@ -67,6 +60,7 @@ public class Runner {
 		};
 		
 		ApiRegister.init();
+		ApiRegister.loadPlugins();
 
 		launch(logger, config, saveDirs, count);
 	}
