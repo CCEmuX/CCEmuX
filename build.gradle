@@ -52,7 +52,7 @@ dependencies {
 	testCompile 'junit:junit:4.12'
 }
 
-task('customRom', type: Zip) {
+task customRom (type: Zip) {
 	from 'src/main/rom'
 	
 	include '*'
@@ -60,6 +60,11 @@ task('customRom', type: Zip) {
 
 	archiveName 'custom.rom'
 	destinationDir = file('src/main/resources')
+}
+
+configure(customRom) {
+	group = "Build"
+	description = "Packs custom rom files into an embeddable archive."
 }
 
 processResources {
