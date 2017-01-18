@@ -21,15 +21,15 @@ public @interface ConfigOption {
 	/**
 	 * The key of the config option
 	 */
-	String key();
+	public String key();
 
 	/**
 	 * The parser to use to convert string values into more useful values
 	 */
-	Class<Parser> parser();
+	public Class<? extends Parser<?>> parser();
 
 	/**
-	 * The default value to use in case it is undefined or invalid
+	 * The default value to use in case it is left blank
 	 */
-	String defaultValue() default "";
+	public String defaultValue();
 }
