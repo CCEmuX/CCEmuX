@@ -2,7 +2,6 @@ package net.clgd.ccemux.config.tests;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
