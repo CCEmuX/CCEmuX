@@ -49,7 +49,7 @@ public @interface ConfigOption {
 	 * The description for this config option. Used when generating comments for
 	 * config files.<br/>
 	 * <br/>
-	 * Defaults to an empty string, which does not 
+	 * Defaults to an empty string, which does not
 	 */
 	public String description() default "";
 }
