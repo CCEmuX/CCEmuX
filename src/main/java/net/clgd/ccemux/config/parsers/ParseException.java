@@ -5,6 +5,7 @@ package net.clgd.ccemux.config.parsers;
  * 
  * @author apemanzilla
  * @see net.clgd.ccemux.config.parsers.Parser Parser
+ * @see net.clgd.ccemux.config.Config Config
  */
 public class ParseException extends Exception {
 	private static final long serialVersionUID = -2946287129442516098L;

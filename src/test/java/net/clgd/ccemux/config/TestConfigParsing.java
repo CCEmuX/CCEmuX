@@ -1,4 +1,4 @@
-package net.clgd.ccemux.config.tests;
+package net.clgd.ccemux.config;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,9 +10,6 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import net.clgd.ccemux.config.ConfigBindingException;
-import net.clgd.ccemux.config.ConfigOption;
-import net.clgd.ccemux.config.ParsedConfig;
 import net.clgd.ccemux.config.parsers.BooleanParser;
 import net.clgd.ccemux.config.parsers.FloatParser;
 import net.clgd.ccemux.config.parsers.IntegerParser;
@@ -75,7 +72,7 @@ public class TestConfigParsing {
 		new URLParser().parse("github.com/Lignumm/CCEmuX");
 	}
 	
-	public class TestParsedConfig implements ParsedConfig {
+	public class TestConfig implements Config {
 		@ConfigOption(key="str1", parser=StringParser.class, defaultValue="")
 		public String str1;
 		
@@ -90,12 +87,15 @@ public class TestConfigParsing {
 		
 		@ConfigOption(key="path1", parser=PathParser.class, defaultValue="")
 		public Path path1;
+		
+		@ConfigOption(key="private1", parser=StringParser.class, defaultValue="")
+		private String private1;
 	}
 	
 	@SuppressWarnings("serial")
 	@Test
 	public void testConfigBinding() throws ParseException, ConfigBindingException {
-		TestParsedConfig cfg = new TestParsedConfig();
+		TestConfig cfg = new TestConfig();
 		
 		cfg.bindConfigOptions(new HashMap<String,String>() {{
 			put("str1", "hello world");

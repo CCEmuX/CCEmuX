@@ -1,23 +1,10 @@
-package net.clgd.ccemux.emulation.tror.tests;
+package net.clgd.ccemux.emulation.tror;
 
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableSet;
-
-import net.clgd.ccemux.emulation.tror.BackgroundColorPacket;
-import net.clgd.ccemux.emulation.tror.BlitLinePacket;
-import net.clgd.ccemux.emulation.tror.CapabilitiesPacket;
-import net.clgd.ccemux.emulation.tror.ClearLinePacket;
-import net.clgd.ccemux.emulation.tror.ClearPacket;
-import net.clgd.ccemux.emulation.tror.ConnectionClosedPacket;
-import net.clgd.ccemux.emulation.tror.CursorBlinkPacket;
-import net.clgd.ccemux.emulation.tror.CursorPosPacket;
-import net.clgd.ccemux.emulation.tror.ResizePacket;
-import net.clgd.ccemux.emulation.tror.ScrollPacket;
-import net.clgd.ccemux.emulation.tror.TextColorPacket;
-import net.clgd.ccemux.emulation.tror.WritePacket;
 
 public class TestPackets {
 	@Test
