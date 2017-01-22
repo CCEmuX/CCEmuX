@@ -35,6 +35,10 @@ repositories {
 		name = "snapshots"
 		url = "https://oss.sonatype.org/content/repositories/snapshots/"
 	}
+
+	maven {
+		url "https://oss.sonatype.org/content/repositories/snapshots/"
+	}
 }
 
 project.ext.lwjglVersion = "3.0.0b"

@@ -10,6 +10,7 @@ import net.clgd.ccemux.rendering.awt.TerminalComponent;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.system.MemoryUtil;
 
 import java.awt.*;
 import java.util.Random;
@@ -38,6 +39,7 @@ public class LWJGLRenderer implements Renderer {
 		@Override
 		public void invoke(long window) {
 			glfwDestroyWindow(window);
+			computer.dispose();
 			LWJGLRenderer.this.window = NULL;
 		}
 	};
@@ -244,6 +246,7 @@ public class LWJGLRenderer implements Renderer {
 
 	@Override
 	public void onDispose() {
+		setVisible(false);
 		glDeleteLists(terminalDisplayList, 1);
 
 		if (window != NULL) {
