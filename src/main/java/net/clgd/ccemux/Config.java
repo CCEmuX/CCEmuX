@@ -93,8 +93,8 @@ public class Config extends Properties {
 		setProperty("termHeight", height.toString());
 	}
 
-	public int getTermScale() {
-		return Integer.parseInt(getProperty("termScale"));
+	public float getTermScale() {
+		return Float.parseFloat(getProperty("termScale"));
 	}
 
 	public int getFramerate() {

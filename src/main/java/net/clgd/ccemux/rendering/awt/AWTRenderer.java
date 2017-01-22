@@ -29,14 +29,14 @@ import static net.clgd.ccemux.rendering.awt.MouseTranslator.*;
 public class AWTRenderer extends Frame
 		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
 	private static final long serialVersionUID = 374030924274589331L;
-	
+
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
 	private static boolean isPrintableChar(char c) {
 		UnicodeBlock block = UnicodeBlock.of(c);
 		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null && block != UnicodeBlock.SPECIALS;
 	}
-	
+
 	public final EmulatedComputer computer;
 	public final TerminalComponent termComponent;
 
@@ -53,28 +53,28 @@ public class AWTRenderer extends Frame
 
 		this.computer = computer;
 
-		pixelWidth = 6 * computer.emu.conf.getTermScale();
-		pixelHeight = 9 * computer.emu.conf.getTermScale();
+		pixelWidth = (int)(6.0f * computer.emu.conf.getTermScale());
+		pixelHeight = (int)(9.0f * computer.emu.conf.getTermScale());
 
 		setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));
 
 		termComponent = new TerminalComponent(computer.terminal, computer.emu.conf.getTermScale());
 		add(termComponent, BorderLayout.CENTER);
-		
+
 		// required for tab to work
 		termComponent.setFocusTraversalKeysEnabled(false);
-		
+
 		termComponent.addKeyListener(this);
 		termComponent.addMouseListener(this);
 		termComponent.addMouseMotionListener(this);
 		termComponent.addMouseWheelListener(this);
-		
+
 		addKeyListener(this);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		addMouseWheelListener(this);
-		
+
 		// properly stop emulator when window is closed
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -82,51 +82,51 @@ public class AWTRenderer extends Frame
 				computer.dispose();
 			}
 		});
-		
+
 		setResizable(false);
-		
+
 		// fit to contents
 		pack();
-		
+
 		// center window in screen
 		setLocationRelativeTo(null);
-		
+
 		lastBlink = CCEmuX.getGlobalCursorBlink();
 	}
 
 	private String getWindowTitle() {
 		int id = computer.getID();
 		String title = EMU_WINDOW_TITLE + " - ";
-		
+
 		if (computer.getLabel() != null) {
 			title += computer.getLabel() + " (Computer #" + id + ")";
 		} else {
 			title += "Computer #" + id;
 		}
-		
+
 		return title;
 	}
-	
+
 	@Override
 	public void onAdvance(double dt) {
 		setTitle(getWindowTitle());
 		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
 		termComponent.blinkLocked = blinkLockedTime > 0;
-		
+
 		if (isVisible()) {
 			boolean doRepaint = false;
-			
+
 			if (computer.terminal.getChanged()) {
 				doRepaint = true;
 				computer.terminal.clearChanged();
 			}
-			
+
 			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
 				doRepaint = true;
 			}
-			
+
 			lastBlink = CCEmuX.getGlobalCursorBlink();
-			
+
 			if (doRepaint) {
 				termComponent.cursorChar = computer.cursorChar;
 				termComponent.render(dt);
@@ -142,13 +142,13 @@ public class AWTRenderer extends Frame
 	private Point mapPointToCC(Point p) {
 		int px = p.x - termComponent.margin;
 		int py = p.y - termComponent.margin;
-		
+
 		int x = px / pixelWidth;
 		int y = py / pixelHeight;
-		
+
 		return new Point(x + 1, y + 1);
 	}
-	
+
 	private boolean handleCtrlPress(char control) {
 		if (control == 't') {
 			computer.terminate();
@@ -169,14 +169,14 @@ public class AWTRenderer extends Frame
 		} else {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	@Override
 	public void onTerminalResized(int width, int height) {
 		termComponent.resizeTerminal(width, height);
-		
+
 		pack();
 	}
 
@@ -200,7 +200,7 @@ public class AWTRenderer extends Frame
 			char real = (char)(e.getKeyChar() + 96);
 			if (handleCtrlPress(real)) return;
 		}
-		
+
 		computer.pressKey(translateToCC(e.getKeyCode()), true);
 	}
 
@@ -225,7 +225,7 @@ public class AWTRenderer extends Frame
 	public void mouseReleased(MouseEvent e) {
 		fireMouseEvent(e, false);
 	}
-	
+
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		int amt = e.getUnitsToScroll();
