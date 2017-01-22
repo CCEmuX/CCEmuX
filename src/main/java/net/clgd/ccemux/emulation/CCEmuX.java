@@ -43,6 +43,7 @@ public class CCEmuX implements Runnable {
 	private boolean running;
 	private long timeStarted;
 	private final List<EmulatedComputer> computers = new ArrayList<>();
+	private final List<EmulatedComputer> computerRemovalQueue = new ArrayList<>();
 
 	public CCEmuX(Logger logger, Config conf) {
 		this.logger = logger;
@@ -78,27 +79,18 @@ public class CCEmuX implements Runnable {
 		return createEmulatedComputer(-1, null);
 	}
 
-	public boolean removeEmulatedComputer(EmulatedComputer ec) {
+	public void removeEmulatedComputer(EmulatedComputer ec) {
 		synchronized (computers) {
 			logger.trace("Removing emulated computer ID {}", ec.getID());
 
-			boolean success = computers.remove(ec);
-
-			if (computers.isEmpty()) {
-				running = false;
-				logger.info("All emulated computers removed, stopping event loop");
-			}
-
-			return success;
+			computerRemovalQueue.add(ec);
 		}
 	}
 
 	private void advance(double dt) {
 		synchronized (computers) {
 			computers.forEach(c -> {
-				synchronized (c) {
-					c.advance(dt);
-				}
+				c.advance(dt);
 			});
 		}
 	}
@@ -121,6 +113,15 @@ public class CCEmuX implements Runnable {
 			if (computerTickTimer >= 0.05) {
 				advance(dt);
 				computerTickTimer = 0.0;
+			}
+
+			for (EmulatedComputer comp : computerRemovalQueue) {
+				computers.remove(comp);
+			}
+
+			if (computers.isEmpty()) {
+				running = false;
+				logger.info("All emulated computers removed, stopping event loop");
 			}
 
 			lastTime = System.currentTimeMillis();

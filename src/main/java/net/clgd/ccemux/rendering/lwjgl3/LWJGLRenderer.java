@@ -248,11 +248,6 @@ public class LWJGLRenderer implements Renderer {
 	public void onDispose() {
 		setVisible(false);
 		glDeleteLists(terminalDisplayList, 1);
-
-		if (window != NULL) {
-			glfwDestroyWindow(window);
-		}
-
 		glfwTerminate();
 	}
 
