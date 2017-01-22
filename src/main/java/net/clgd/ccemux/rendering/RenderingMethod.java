@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
+import net.clgd.ccemux.rendering.lwjgl3.LWJGLRenderer;
 import net.clgd.ccemux.rendering.tror.TRoRRenderer;;
 
 public enum RenderingMethod {
@@ -30,6 +31,7 @@ public enum RenderingMethod {
 	}),
 
 	AWT(AWTRenderer::new),
+	LWJGL(LWJGLRenderer::new),
 	TRoR_STDIO(TRoRRenderer::new);
 
 	private final Function<EmulatedComputer, Renderer> creator;
