@@ -11,12 +11,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-class TerminalComponent extends Canvas {
+public class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = 669029640511347733L;
 
 	public static final String CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png";
 
-	private static Point getCharLocation(char c, int charWidth, int charHeight, int fontWidth, int fontHeight) {
+	public static Point getCharLocation(char c, int charWidth, int charHeight, int fontWidth, int fontHeight) {
 		int columns = fontWidth / charWidth;
 		int rows = fontHeight / charHeight;
 		int charCode = (int) c;
@@ -33,7 +33,7 @@ class TerminalComponent extends Canvas {
 
 	public boolean blinkLocked = false;
 
-	BufferedImage[] fontImages;
+	private BufferedImage[] fontImages;
 
 	public TerminalComponent(Terminal terminal, int termScale) {
 		this.pixelWidth = 6 * termScale;
