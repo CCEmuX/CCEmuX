@@ -54,8 +54,8 @@ public class LWJGLRenderer implements Renderer {
 
 		this.computer = computer;
 
-		pixelWidth = 6 * computer.emu.conf.getTermScale();
-		pixelHeight = 9 * computer.emu.conf.getTermScale();
+		pixelWidth = (int)(6.0f * computer.emu.conf.getTermScale());
+		pixelHeight = (int)(9.0f * computer.emu.conf.getTermScale());
 
 		glfwSetErrorCallback(errorCallback);
 
