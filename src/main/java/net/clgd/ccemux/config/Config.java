@@ -84,27 +84,27 @@ public interface Config {
 	public default Map<String, String> generateMap(boolean includeDefaults) {
 		List<Field> configFields = Arrays.stream(getClass().getDeclaredFields())
 				.filter(f -> f.getDeclaredAnnotation(ConfigOption.class) != null).collect(Collectors.toList());
-		
+
 		HashMap<String, String> map = new HashMap<>();
-		
+
 		for (Field f : configFields) {
 			ConfigOption opt = f.getDeclaredAnnotation(ConfigOption.class);
-			
+
 			try {
 				if (!f.isAccessible())
 					f.setAccessible(true);
-				
+
 				Object o = f.get(this);
-				
+
 				if (!(o == null || o.toString() == opt.defaultValue()) || includeDefaults) {
 					map.put(opt.key(), o.toString());
 				}
-				
+
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return map;
 	}
 }
