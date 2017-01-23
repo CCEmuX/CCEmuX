@@ -33,33 +33,4 @@ public @interface ConfigOption {
 	 * config file
 	 */
 	public String defaultValue();
-
-	/**
-	 * When writing to a config file, options with the same group attribute will
-	 * be grouped together within the file under a comment with the group
-	 * name.<br />
-	 * <br />
-	 * Defaults to an empty string, which does not perform any special grouping.
-	 * 
-	 * @return
-	 */
-	public String group() default "";
-
-	/**
-	 * The description for this config option. Used when generating comments for
-	 * config files.<br />
-	 * <br />
-	 * Defaults to an empty string, which does not
-	 */
-	public String description() default "";
-
-	/**
-	 * Whether this option should be generated in config files even if the value
-	 * is the default value.<br />
-	 * <br />
-	 * Defaults to true.
-	 * 
-	 * @return
-	 */
-	public boolean generate() default true;
 }

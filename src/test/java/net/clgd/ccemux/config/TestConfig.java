@@ -2,6 +2,7 @@ package net.clgd.ccemux.config;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -18,7 +19,7 @@ import net.clgd.ccemux.config.parsers.PathParser;
 import net.clgd.ccemux.config.parsers.StringParser;
 import net.clgd.ccemux.config.parsers.URLParser;
 
-public class TestConfigParsing {
+public class TestConfig {
 	@Test
 	public void testStringParsing() {
 		assertEquals("abc", new StringParser().parse("abc"));
@@ -72,7 +73,7 @@ public class TestConfigParsing {
 		new URLParser().parse("github.com/Lignumm/CCEmuX");
 	}
 	
-	public class TestConfig implements Config {
+	public class FakeConfig implements Config {
 		@ConfigOption(key="str1", parser=StringParser.class, defaultValue="")
 		public String str1;
 		
@@ -93,28 +94,39 @@ public class TestConfigParsing {
 	}
 	
 	@SuppressWarnings("serial")
+	public static HashMap<String, String> values = new HashMap<String,String>() {{
+		put("str1", "hello world");
+		
+		put("int1", "1");
+		put("int2", "-5");
+		
+		put("bool1", "true");
+		
+		put("path1", "a" + File.separator + "b");
+	}};
+	
 	@Test
 	public void testConfigBinding() throws ParseException, ConfigBindingException {
-		TestConfig cfg = new TestConfig();
+		FakeConfig cfg = new FakeConfig(); 
 		
-		cfg.bindConfigOptions(new HashMap<String,String>() {{
-			put("str1", "hello world");
-			
-			put("int1", "1");
-			put("int2", "-5");
-			
-			put("bool1", "true");
-			
-			put("path1", "a/b");
-		}});
+		cfg.bindConfigOptions(values);
 		
-		assertEquals(cfg.str1, "hello world");
+		assertEquals("hello world", cfg.str1);
 		
-		assertEquals(cfg.int1, 1);
-		assertEquals(cfg.int2, -5);
+		assertEquals(1, cfg.int1);
+		assertEquals(-5, cfg.int2);
 		
-		assertEquals(cfg.bool1, true);
+		assertEquals(true, cfg.bool1);
 		
-		assertEquals(cfg.path1, Paths.get("a/b"));
+		assertEquals(Paths.get("a" + File.separator + "b"), cfg.path1);
+	}
+	
+	@Test
+	public void testConfigOutput() throws ConfigBindingException, ParseException {
+		FakeConfig cfg = new FakeConfig();
+		
+		cfg.bindConfigOptions(values);
+		
+		assertEquals(values, cfg.generateMap(false));
 	}
 }

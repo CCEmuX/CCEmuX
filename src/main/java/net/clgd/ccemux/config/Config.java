@@ -2,6 +2,7 @@ package net.clgd.ccemux.config;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,5 +62,49 @@ public interface Config {
 						"Failed to set field " + f.getName() + " while binding class " + c.getSimpleName(), e);
 			}
 		}
+	}
+
+	/**
+	 * Generates and returns a <code>Map</code> of string-represented data from
+	 * fields annotated with {@link net.clgd.ccemux.config.ConfigOption
+	 * ConfigOption}. {@link java.lang.Object#toString() Object.toString} is
+	 * used to get the string representation of each field, so care should be
+	 * taken to make sure that the parsers and field types are compatible in
+	 * that respect.<br />
+	 * <br />
+	 * By default, fields which are <code>null</code> or equal to their default
+	 * values (as determined by <code>ConfigOption</code> annotations) will be
+	 * omitted, but this behavior can be disabled with the
+	 * <code>includeDefaults</code> parameter.
+	 * 
+	 * @param includeDefaults
+	 *            Whether the include default values in the generated map
+	 * @return
+	 */
+	public default Map<String, String> generateMap(boolean includeDefaults) {
+		List<Field> configFields = Arrays.stream(getClass().getDeclaredFields())
+				.filter(f -> f.getDeclaredAnnotation(ConfigOption.class) != null).collect(Collectors.toList());
+		
+		HashMap<String, String> map = new HashMap<>();
+		
+		for (Field f : configFields) {
+			ConfigOption opt = f.getDeclaredAnnotation(ConfigOption.class);
+			
+			try {
+				if (!f.isAccessible())
+					f.setAccessible(true);
+				
+				Object o = f.get(this);
+				
+				if (!(o == null || o.toString() == opt.defaultValue()) || includeDefaults) {
+					map.put(opt.key(), o.toString());
+				}
+				
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return map;
 	}
 }
