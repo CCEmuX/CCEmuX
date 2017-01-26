@@ -41,8 +41,8 @@ public interface CCEmuXPlugin {
 	public Optional<URL> getWebsite();
 
 	/**
-	 * Called when CCEmuX is starting, before any emulation occurs, used to
-	 * register hooks and perform other setup.
+	 * Called when CCEmuX is starting, before any emulation occurs, used to load
+	 * config files, register hooks, etc.
 	 */
-	public void init();
+	public void setup();
 }

@@ -6,12 +6,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Properties;
 
 import net.clgd.ccemux.config.Config;
+import net.clgd.ccemux.config.ConfigBindingException;
 import net.clgd.ccemux.config.ConfigOption;
 import net.clgd.ccemux.config.parsers.BooleanParser;
 import net.clgd.ccemux.config.parsers.IntegerParser;
+import net.clgd.ccemux.config.parsers.ParseException;
 import net.clgd.ccemux.config.parsers.StringParser;
 
 public class CCEmuXConfig implements Config {
@@ -38,33 +41,33 @@ public class CCEmuXConfig implements Config {
 	 * The width of the terminal for emulated computers
 	 */
 	@ConfigOption(key = "termWidth", parser = IntegerParser.class, defaultValue = "51")
-	public int termWidth;
+	private int termWidth;
 
 	/**
 	 * The height of the terminal for emulated computers
 	 */
 	@ConfigOption(key = "termHeight", parser = IntegerParser.class, defaultValue = "19")
-	public int termHeight;
+	private int termHeight;
 
 	/**
 	 * The scale of the terminal for renderers - may be ignored depending on
 	 * implementation
 	 */
 	@ConfigOption(key = "termScale", parser = IntegerParser.class, defaultValue = "3")
-	public int termScale;
+	private int termScale;
 
 	/**
 	 * The renderer to use
 	 */
 	@ConfigOption(key = "renderer", parser = StringParser.class, defaultValue = "AWT")
-	public String renderer;
+	private String renderer;
 
 	/**
 	 * Whether the <code>ccemux</code> Lua API is enabled for emulated computers
 	 * - allows access to potentially abusable functions
 	 */
 	@ConfigOption(key = "apiEnabled", parser = BooleanParser.class, defaultValue = "true")
-	public boolean apiEnabled;
+	private boolean apiEnabled;
 
 	/**
 	 * Gets the link to the CC jar
@@ -83,6 +86,42 @@ public class CCEmuXConfig implements Config {
 	}
 
 	/**
+	 * The width of the terminal for emulated computers
+	 */
+	public int getTermWidth() {
+		return termWidth;
+	}
+
+	/**
+	 * The height of the terminal for emulated computers
+	 */
+	public int getTermHeight() {
+		return termHeight;
+	}
+
+	/**
+	 * The scale of the terminal for emulated computers
+	 */
+	public int getTermScale() {
+		return termScale;
+	}
+
+	/**
+	 * The renderer to use for emulated computers
+	 */
+	public String getRenderer() {
+		return renderer;
+	}
+
+	/**
+	 * Whether the <code>ccemux</code> Lua API is available for emulated
+	 * computers.
+	 */
+	public boolean isApiEnabled() {
+		return apiEnabled;
+	}
+
+	/**
 	 * Creates a new instance with the specified data directory (which will be
 	 * used for config, saves, etc)
 	 * 
@@ -92,9 +131,18 @@ public class CCEmuXConfig implements Config {
 		this.dataDir = dataDir;
 	}
 
-	public void loadConfig() {
+	/**
+	 * Loads the config from embedded resources and from the data dir
+	 * 
+	 * @throws ConfigBindingException
+	 *             Thrown when there is a problem binding data to the object
+	 * @throws ParseException
+	 *             Thrown when one of the supplied values cannot be parsed
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void loadConfig() throws ConfigBindingException, ParseException {
 		Properties props = new Properties();
-		
+
 		// load embedded defaults
 		try {
 			props.load(CCEmuXConfig.class.getResourceAsStream("/cc.properties"));
@@ -102,10 +150,10 @@ public class CCEmuXConfig implements Config {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		// load user config if present
 		File cfgFile = dataDir.resolve(CONFIG_FILE_NAME).toFile();
-		
+
 		if (cfgFile.exists()) {
 			try (FileReader r = new FileReader(cfgFile)) {
 				props.load(r);
@@ -113,5 +161,7 @@ public class CCEmuXConfig implements Config {
 				e.printStackTrace();
 			}
 		}
+
+		this.bindConfigOptions((Map) props);
 	}
 }

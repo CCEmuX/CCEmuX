@@ -8,7 +8,7 @@ plugins {
 group = 'net.clgd'
 version = '1.0-SNAPSHOT'
 
-mainClassName = 'net.clgd.ccemux.Launcher'
+mainClassName = 'net.clgd.ccemux.init.Launcher'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
