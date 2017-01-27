@@ -6,6 +6,7 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
 import net.clgd.ccemux.rendering.tror.TRoRRenderer;;
 
+@Deprecated
 public enum RenderingMethod {
 	Headless((EmulatedComputer comp) -> new Renderer() {
 		@Override

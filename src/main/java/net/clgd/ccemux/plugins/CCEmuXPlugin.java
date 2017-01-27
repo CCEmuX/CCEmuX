@@ -16,15 +16,15 @@ public interface CCEmuXPlugin {
 	public String getName();
 
 	/**
-	 * The version of the plugin. Format does not matter, but semantic
-	 * versioning is recommended - e.g. 1.2.3-alpha
-	 */
-	public String getVersion();
-
-	/**
 	 * A brief description of the plugin and what it does.
 	 */
 	public String getDescription();
+
+	/**
+	 * The version of the plugin. Format does not matter, but semantic
+	 * versioning is recommended - e.g. <code>"1.2.3-alpha"</code>
+	 */
+	public Optional<String> getVersion();
 
 	/**
 	 * The author of the plugin. If an empty <code>Optional</code> is returned,
