@@ -4,6 +4,7 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
+import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.lwjgl3.KeyTranslator;
@@ -33,8 +34,10 @@ public class LWJGLRenderer implements Renderer {
 
 	private boolean visible = false;
 	public final int margin = 2;
+	
 	private int terminalDisplayList = -1;
 	private int terminalTextList = -1;
+	private int terminalCursorList = -1;
 
 	private GLTexture fontTexture;
 
@@ -186,6 +189,19 @@ public class LWJGLRenderer implements Renderer {
 		glTexCoord2f(sx2, sy2);
 		glVertex2f(dx2, dy2);
 	}
+	
+	private void buildCursorList() {
+		if (terminalCursorList < 0) {
+			terminalCursorList = glGenLists(1);
+		}
+		
+		glNewList(terminalCursorList, GL_COMPILE);
+		glBegin(GL_TRIANGLES);
+		Color colour = Utils.getCCColourFromInt(computer.terminal.getTextColour());
+		glChar(computer.cursorChar, 0, 0, colour);
+		glEnd();
+		glEndList();
+	}
 
 	private void buildTerminalList() {
 		if (terminalDisplayList < 0) {
@@ -244,7 +260,7 @@ public class LWJGLRenderer implements Renderer {
 			terminalTextList = glGenLists(1);
 		}
 
-		glNewList(terminalDisplayList, GL_COMPILE);
+		glNewList(terminalTextList, GL_COMPILE);
 		glBegin(GL_TRIANGLES);
 
 		synchronized (computer.terminal) {
@@ -289,15 +305,32 @@ public class LWJGLRenderer implements Renderer {
 		if (computer.terminal.getChanged()) {
 			buildTerminalList();
 			buildTextList();
+			buildCursorList();
 			computer.terminal.clearChanged();
 		}
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (terminalDisplayList >= 0) glCallList(terminalDisplayList);
+		if (terminalDisplayList >= 0) {
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glCallList(terminalDisplayList);
+		}
+		
 		if (terminalTextList >= 0) {
 			fontTexture.bind(GL_TEXTURE_2D);
 			glCallList(terminalTextList);
+		}
+		
+		boolean blinkLocked = false;
+		boolean blink = computer.terminal.getCursorBlink() && (blinkLocked || CCEmuX.getGlobalCursorBlink());
+		
+		if (blink && terminalCursorList >= 0) {
+			fontTexture.bind(GL_TEXTURE_2D);
+			glPushMatrix();
+			glTranslatef(computer.terminal.getCursorX() * pixelWidth + margin, computer.terminal.getCursorY() *
+				pixelHeight + margin, 0);
+			glCallList(terminalCursorList);
+			glPopMatrix();
 		}
 
 		glfwSwapBuffers(window);
