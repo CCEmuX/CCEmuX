@@ -110,7 +110,7 @@ public class KeyTranslator {
 		return swingToCCMap.getOrDefault(keycode, 0);
 	}
 
-	public static int translateToSwing(int keycode) {
+	public static int translateToLWJGL(int keycode) {
 		return swingToCCMap.inverse().getOrDefault(keycode, 0);
 	}
 }

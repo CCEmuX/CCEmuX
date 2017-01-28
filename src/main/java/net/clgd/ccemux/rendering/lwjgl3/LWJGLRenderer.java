@@ -4,16 +4,15 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.rendering.lwjgl3.KeyTranslator;
 import net.clgd.ccemux.rendering.awt.TerminalComponent;
 import org.lwjgl.glfw.GLFWCharCallback;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import org.lwjgl.glfw.GLFWWindowCloseCallback;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryUtil;
 
 import java.awt.*;
 import java.util.Random;
@@ -58,7 +57,7 @@ public class LWJGLRenderer implements Renderer {
 	private final GLFWKeyCallback keyCallback = new GLFWKeyCallback() {
 		@Override
 		public void invoke(long window, int key, int scancode, int action, int mods) {
-			
+			computer.pressKey(KeyTranslator.translateToCC(key), action == GLFW_RELEASE);
 		}
 	};
 	
