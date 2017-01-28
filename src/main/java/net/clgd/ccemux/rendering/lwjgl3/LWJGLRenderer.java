@@ -9,13 +9,12 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.lwjgl3.KeyTranslator;
 import net.clgd.ccemux.rendering.awt.TerminalComponent;
-import org.lwjgl.glfw.GLFWCharCallback;
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.glfw.GLFWWindowCloseCallback;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.GL;
 
 import java.awt.*;
+import java.nio.DoubleBuffer;
 import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -40,6 +39,9 @@ public class LWJGLRenderer implements Renderer {
 	private int terminalCursorList = -1;
 
 	private GLTexture fontTexture;
+	
+	private boolean dragging = false;
+	private int draggingButton = 0;
 
 	private final GLFWWindowCloseCallback closeCallback = new GLFWWindowCloseCallback() {
 		@Override
@@ -68,6 +70,34 @@ public class LWJGLRenderer implements Renderer {
 		@Override
 		public void invoke(long window, int codepoint) {
 			computer.pressChar((char)codepoint);
+		}
+	};
+	
+	private final GLFWMouseButtonCallback mouseCallback = new GLFWMouseButtonCallback() {
+		@Override
+		public void invoke(long window, int button, int action, int mods) {
+			DoubleBuffer xb = BufferUtils.createDoubleBuffer(1);
+			DoubleBuffer yb = BufferUtils.createDoubleBuffer(1);
+			glfwGetCursorPos(window, xb, yb);
+			
+			int x = (int)xb.get();
+			int y = (int)yb.get();
+			Point p = mapPointToCC(new Point(x, y));
+			int b = MouseTranslator.lwjglToCC(button);
+			computer.click(b, p.x, p.y, action == GLFW_RELEASE);
+			
+			dragging = action == GLFW_PRESS;
+			draggingButton = b;
+		}
+	};
+	
+	private final GLFWCursorPosCallback cursorPosCallback = new GLFWCursorPosCallback() {
+		@Override
+		public void invoke(long window, double xpos, double ypos) {
+			if (dragging) {
+				Point p = mapPointToCC(new Point((int)xpos, (int)ypos));
+				computer.drag(draggingButton, p.x, p.y);
+			}
 		}
 	};
 
@@ -99,6 +129,8 @@ public class LWJGLRenderer implements Renderer {
 		glfwSetWindowCloseCallback(window, closeCallback);
 		glfwSetKeyCallback(window, keyCallback);
 		glfwSetCharCallback(window, charCallback);
+		glfwSetMouseButtonCallback(window, mouseCallback);
+		glfwSetCursorPosCallback(window, cursorPosCallback);
 
 		glfwShowWindow(window);
 		visible = true;
@@ -136,6 +168,16 @@ public class LWJGLRenderer implements Renderer {
 		}
 
 		this.visible = visible;
+	}
+	
+	private Point mapPointToCC(Point p) {
+		int px = p.x - margin;
+		int py = p.y - margin;
+		
+		int x = px / pixelWidth;
+		int y = py / pixelHeight;
+		
+		return new Point(x + 1, y + 1);
 	}
 
 	@Override
