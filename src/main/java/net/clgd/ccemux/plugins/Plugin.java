@@ -4,12 +4,12 @@ import java.net.URL;
 import java.util.Optional;
 
 /**
- * Represents a plugin that can be loaded by CCEmuX
+ * Represents a plugin that can be loaded by CCEmuX.
  * 
  * @author apemanzilla
  *
  */
-public interface CCEmuXPlugin {
+public interface Plugin {
 	/**
 	 * The name of the plugin. Should be short and concise - e.g. My Plugin.
 	 */
@@ -39,6 +39,10 @@ public interface CCEmuXPlugin {
 	 * end-users.
 	 */
 	public Optional<URL> getWebsite();
+
+	public default void loaderSetup() {
+
+	}
 
 	/**
 	 * Called when CCEmuX is starting, before any emulation occurs, used to load

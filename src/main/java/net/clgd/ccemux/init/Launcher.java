@@ -4,18 +4,19 @@ import static org.apache.commons.cli.Option.builder;
 
 import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.ServiceLoader;
-import java.util.Set;
 
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
@@ -23,13 +24,14 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 
 import com.google.common.collect.ImmutableSet;
 
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.config.ConfigOption;
 import net.clgd.ccemux.config.parsers.ParseException;
-import net.clgd.ccemux.plugins.CCEmuXPlugin;
+import net.clgd.ccemux.plugins.PluginManager;
 
 public class Launcher {
 	private static final Options opts = new Options();
@@ -56,6 +58,32 @@ public class Launcher {
 
 	private static void printHelp() {
 		new HelpFormatter().printHelp("ccemux [args]", opts);
+	}
+
+	public static void main(String args[]) {
+		try (RewritingLoader loader = new RewritingLoader(
+				((URLClassLoader) Launcher.class.getClassLoader()).getURLs()) {
+			@Override
+			public Class<?> findClass(String name) throws ClassNotFoundException {
+				// System.out.println("Finding class " + name);
+				return super.findClass(name);
+			}
+		}) {
+			@SuppressWarnings("unchecked")
+			Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
+
+			Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
+			constructor.setAccessible(true);
+
+			Method launch = klass.getDeclaredMethod("launch");
+			launch.setAccessible(true);
+			launch.invoke(constructor.newInstance(new Object[] { args }));
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("Failed to setup rewriting classloader - some features may be unavailable");
+
+			new Launcher(args).launch();
+		}
 	}
 
 	private final CommandLine cli;
@@ -89,6 +117,7 @@ public class Launcher {
 		}
 		logger = LoggerFactory.getLogger("CCEmuX");
 		logger.info("Starting CCEmuX");
+		logger.debug("ClassLoader in use: {}", this.getClass().getClassLoader().getClass().getName());
 
 		// set data dir
 		if (cli.hasOption('d')) {
@@ -120,12 +149,11 @@ public class Launcher {
 	}
 
 	private void setSystemLAF() {
-		if (!GraphicsEnvironment.isHeadless()) {
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch (Exception e) {
-				logger.warn("Could not set system look and feel", e);
-			}
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+				| UnsupportedLookAndFeelException e) {
+			logger.warn("Failed to set system look and feel", e);
 		}
 	}
 
@@ -151,9 +179,7 @@ public class Launcher {
 		return cfg;
 	}
 
-	// TODO: Extract to separate class?
-	private Set<CCEmuXPlugin> loadPlugins() {
-		logger.debug("Collecting plugin sources");
+	private PluginManager loadPlugins() {
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile())
@@ -161,7 +187,7 @@ public class Launcher {
 		if (!pd.exists())
 			pd.mkdirs();
 
-		Set<URL> urls = new HashSet<>();
+		HashSet<URL> urls = new HashSet<>();
 
 		for (File f : pd.listFiles()) {
 			logger.debug("Adding plugin source '{}'", f.getName());
@@ -184,40 +210,26 @@ public class Launcher {
 			}
 		}
 
-		logger.info("Loading plugins");
-
-		URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader());
-		Set<CCEmuXPlugin> plugins = new HashSet<>();
-		ServiceLoader.load(CCEmuXPlugin.class, classLoader).forEach(p -> {
-			logger.debug("Discovered plugin: {}", p.getName());
-			plugins.add(p);
-		});
-
-		return plugins;
+		return new PluginManager(logger, urls.toArray(new URL[0]), this.getClass().getClassLoader());
 	}
 
 	private void launch() {
 		try {
-			File dd = dataDir.toFile();
+			setSystemLAF();
 
+			// create ccemux data dir
+			File dd = dataDir.toFile();
 			if (dd.isFile())
 				dd.delete();
-
 			if (!dd.exists())
 				dd.mkdirs();
 
-			setSystemLAF();
-
 			CCEmuXConfig cfg = loadConfig();
 
-			loadPlugins();
-		} catch (Throwable e) {
+			PluginManager pluginMgr = loadPlugins();
+			pluginMgr.loaderSetup();
+		} catch (Exception e) {
 			crashMessage(e);
-			System.exit(2);
 		}
-	}
-
-	public static void main(String args[]) {
-		new Launcher(args).launch();
 	}
 }

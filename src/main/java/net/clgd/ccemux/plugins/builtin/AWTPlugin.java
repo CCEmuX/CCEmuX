@@ -3,11 +3,11 @@ package net.clgd.ccemux.plugins.builtin;
 import java.net.URL;
 import java.util.Optional;
 
-import net.clgd.ccemux.plugins.CCEmuXPlugin;
+import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RenderingMethods;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
 
-public class AWTPlugin implements CCEmuXPlugin {
+public class AWTPlugin implements Plugin {
 
 	@Override
 	public String getName() {
