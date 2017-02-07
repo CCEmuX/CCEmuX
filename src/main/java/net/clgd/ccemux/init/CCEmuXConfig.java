@@ -3,11 +3,15 @@ package net.clgd.ccemux.init;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Properties;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.clgd.ccemux.config.Config;
 import net.clgd.ccemux.config.ConfigBindingException;
@@ -18,6 +22,8 @@ import net.clgd.ccemux.config.parsers.ParseException;
 import net.clgd.ccemux.config.parsers.StringParser;
 
 public class CCEmuXConfig implements Config {
+	private static final Logger log = LoggerFactory.getLogger(CCEmuXConfig.class);
+
 	public static final String CONFIG_FILE_NAME = "ccemux.properties";
 
 	public final Path dataDir;
@@ -83,6 +89,10 @@ public class CCEmuXConfig implements Config {
 	public Path getCCLocal() {
 		return dataDir.resolve(
 				ccPatternLocal.replace("[module]", ccModule).replace("[revision]", ccRevision).replace("[ext]", ccExt));
+	}
+	
+	public String getCCRevision() {
+		return ccRevision;
 	}
 
 	/**

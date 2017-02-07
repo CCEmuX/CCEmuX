@@ -6,28 +6,27 @@ import java.util.HashSet;
 import java.util.ServiceLoader;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("serial")
 public class PluginManager extends HashSet<Plugin> {
-	private final Logger logger;
+	private static final Logger log = LoggerFactory.getLogger(PluginManager.class);
 
-	public PluginManager(Logger logger, URL[] sources, ClassLoader parent) {
-		this.logger = logger;
-
+	public PluginManager( URL[] sources, ClassLoader parent) {
 		URLClassLoader pluginLoader = new URLClassLoader(sources, parent);
 		ServiceLoader.load(Plugin.class, pluginLoader).forEach(p -> {
 			add(p);
-			logger.info("Loaded plugin [{}]", p.getName());
+			log.info("Loaded plugin [{}]", p);
 		});
 	}
 
 	public void loaderSetup() {
 		forEach(p -> {
 			try {
-				logger.debug("Calling loaderSetup for plugin [{}]", p.getName());
+				log.debug("Calling loaderSetup for plugin [{}]", p);
 				p.loaderSetup();
 			} catch (Exception e) {
-				logger.warn("Exception while calling loaderSetup for plugin [" + p.getName() + ']', e);
+				log.warn("Exception while calling loaderSetup for plugin [{}]: {}", p, e);
 			}
 		});
 	}
@@ -35,10 +34,10 @@ public class PluginManager extends HashSet<Plugin> {
 	public void setup() {
 		forEach(p -> {
 			try {
-				logger.debug("Calling setup for plugin [{}]", p.getName());
+				log.debug("Calling setup for plugin [{}]", p);
 				p.setup();
 			} catch (Exception e) {
-				logger.warn("Exception while calling setup for plugin [" + p.getName() + ']', e);
+				log.warn("Exception while calling setup for plugin [{}]: {}", p, e);
 			}
 		});
 	}
