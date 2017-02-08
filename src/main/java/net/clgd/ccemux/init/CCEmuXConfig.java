@@ -1,177 +1,199 @@
 package net.clgd.ccemux.init;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Properties;
+import java.nio.file.Paths;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.clgd.ccemux.config.Config;
-import net.clgd.ccemux.config.ConfigBindingException;
-import net.clgd.ccemux.config.ConfigOption;
-import net.clgd.ccemux.config.parsers.BooleanParser;
-import net.clgd.ccemux.config.parsers.IntegerParser;
-import net.clgd.ccemux.config.parsers.ParseException;
-import net.clgd.ccemux.config.parsers.StringParser;
+import com.google.gson.Gson;
 
-public class CCEmuXConfig implements Config {
+public class CCEmuXConfig {
 	private static final Logger log = LoggerFactory.getLogger(CCEmuXConfig.class);
 
-	public static final String CONFIG_FILE_NAME = "ccemux.properties";
+	public static final CCEmuXConfig defaults;
 
-	public final Path dataDir;
+	public static final String CONFIG_FILE_NAME = "ccemux.json";
 
-	@ConfigOption(key = "ccModule", parser = StringParser.class, defaultValue = "")
-	private String ccModule;
+	static {
+		Gson gson = new Gson();
 
-	@ConfigOption(key = "ccRevision", parser = StringParser.class, defaultValue = "")
-	private String ccRevision;
-
-	@ConfigOption(key = "ccExt", parser = StringParser.class, defaultValue = "")
-	private String ccExt;
-
-	@ConfigOption(key = "ccPatternRemote", parser = StringParser.class, defaultValue = "")
-	private String ccPatternRemote;
-
-	@ConfigOption(key = "ccPatternLocal", parser = StringParser.class, defaultValue = "")
-	private String ccPatternLocal;
-
-	/**
-	 * The width of the terminal for emulated computers
-	 */
-	@ConfigOption(key = "termWidth", parser = IntegerParser.class, defaultValue = "51")
-	private int termWidth;
-
-	/**
-	 * The height of the terminal for emulated computers
-	 */
-	@ConfigOption(key = "termHeight", parser = IntegerParser.class, defaultValue = "19")
-	private int termHeight;
-
-	/**
-	 * The scale of the terminal for renderers - may be ignored depending on
-	 * implementation
-	 */
-	@ConfigOption(key = "termScale", parser = IntegerParser.class, defaultValue = "3")
-	private int termScale;
-
-	/**
-	 * The renderer to use
-	 */
-	@ConfigOption(key = "renderer", parser = StringParser.class, defaultValue = "AWT")
-	private String renderer;
-
-	/**
-	 * Whether the <code>ccemux</code> Lua API is enabled for emulated computers
-	 * - allows access to potentially abusable functions
-	 */
-	@ConfigOption(key = "apiEnabled", parser = BooleanParser.class, defaultValue = "true")
-	private boolean apiEnabled;
-
-	/**
-	 * Gets the link to the CC jar
-	 */
-	public URL getCCRemote() throws MalformedURLException {
-		return new URL(ccPatternRemote.replace("[module]", ccModule).replace("[revision]", ccRevision).replace("[ext]",
-				ccExt));
-	}
-
-	/**
-	 * Gets the path to the CC jar saved locally
-	 */
-	public Path getCCLocal() {
-		return dataDir.resolve(
-				ccPatternLocal.replace("[module]", ccModule).replace("[revision]", ccRevision).replace("[ext]", ccExt));
-	}
-	
-	public String getCCRevision() {
-		return ccRevision;
-	}
-
-	/**
-	 * The width of the terminal for emulated computers
-	 */
-	public int getTermWidth() {
-		return termWidth;
-	}
-
-	/**
-	 * The height of the terminal for emulated computers
-	 */
-	public int getTermHeight() {
-		return termHeight;
-	}
-
-	/**
-	 * The scale of the terminal for emulated computers
-	 */
-	public int getTermScale() {
-		return termScale;
-	}
-
-	/**
-	 * The renderer to use for emulated computers
-	 */
-	public String getRenderer() {
-		return renderer;
-	}
-
-	/**
-	 * Whether the <code>ccemux</code> Lua API is available for emulated
-	 * computers.
-	 */
-	public boolean isApiEnabled() {
-		return apiEnabled;
-	}
-
-	/**
-	 * Creates a new instance with the specified data directory (which will be
-	 * used for config, saves, etc)
-	 * 
-	 * @param dataDir
-	 */
-	public CCEmuXConfig(Path dataDir) {
-		this.dataDir = dataDir;
-	}
-
-	/**
-	 * Loads the config from embedded resources and from the data dir
-	 * 
-	 * @throws ConfigBindingException
-	 *             Thrown when there is a problem binding data to the object
-	 * @throws ParseException
-	 *             Thrown when one of the supplied values cannot be parsed
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void loadConfig() throws ConfigBindingException, ParseException {
-		Properties props = new Properties();
-
-		// load embedded defaults
-		try {
-			props.load(CCEmuXConfig.class.getResourceAsStream("/cc.properties"));
-			props.load(CCEmuXConfig.class.getResourceAsStream("/default.properties"));
-		} catch (IOException e) {
-			e.printStackTrace();
+		CCEmuXConfig tmp;
+		try (Reader r = new InputStreamReader(CCEmuXConfig.class.getResourceAsStream("/ccemux.json"))) {
+			tmp = gson.fromJson(r, CCEmuXConfig.class);
+		} catch (NullPointerException | IOException e) {
+			log.warn("Failed to get default config values", e);
+			tmp = new CCEmuXConfig();
 		}
 
-		// load user config if present
+		defaults = tmp;
+	}
+
+	public static CCEmuXConfig loadConfig(Path dataDir) {
+		Gson gson = new Gson();
+
 		File cfgFile = dataDir.resolve(CONFIG_FILE_NAME).toFile();
 
-		if (cfgFile.exists()) {
-			try (FileReader r = new FileReader(cfgFile)) {
-				props.load(r);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		CCEmuXConfig cfg;
+
+		try {
+			cfg = gson.fromJson(new FileReader(cfgFile), CCEmuXConfig.class);
+		} catch (FileNotFoundException e) {
+			log.warn("No user config file found, using defaults", e);
+			cfg = new CCEmuXConfig();
 		}
 
-		this.bindConfigOptions((Map) props);
+		cfg.dataDir = dataDir;
+
+		return cfg;
+	}
+
+	private CCEmuXConfig() {
+
+	}
+
+	private transient Path dataDir;
+
+	private String ccModule;
+
+	private String ccRevision;
+
+	private String ccExt;
+
+	private String ccPatternRemote;
+
+	private String ccPatternLocal;
+
+	private Integer termWidth;
+
+	private Integer termHeight;
+
+	private Integer termScale;
+
+	private String renderer;
+
+	private Boolean apiEnabled;
+
+	public URL getCCRemote() throws MalformedURLException {
+		return new URL(getCCPatternRemote().replace("[module]", getCCModule()).replace("[revision]", getCCRevision())
+				.replace("[ext]", getCCExt()));
+	}
+
+	public Path getCCLocal() {
+		return Paths.get(getCCPatternLocal().replace("[module]", getCCModule()).replace("[revision]", getCCRevision())
+				.replace("[ext]", getCCExt()));
+	}
+
+	public Path getDataDir() {
+		return dataDir;
+	}
+
+	public String getCCModule() {
+		if (this == defaults) return ccModule;
+
+		return Optional.ofNullable(ccModule).orElse(defaults.ccModule);
+	}
+
+	public String getCCRevision() {
+		if (this == defaults) return ccRevision;
+
+		return Optional.ofNullable(ccRevision).orElse(defaults.ccRevision);
+	}
+
+	public String getCCExt() {
+		if (this == defaults) return ccExt;
+
+		return Optional.ofNullable(ccExt).orElse(defaults.ccExt);
+	}
+
+	public String getCCPatternRemote() {
+		if (this == defaults) return ccPatternRemote;
+
+		return Optional.ofNullable(ccPatternRemote).orElse(defaults.ccPatternRemote);
+	}
+
+	public String getCCPatternLocal() {
+		if (this == defaults) return ccPatternLocal;
+
+		return Optional.ofNullable(ccPatternLocal).orElse(defaults.ccPatternLocal);
+	}
+
+	public int getTermWidth() {
+		if (this == defaults) return termWidth;
+
+		return Optional.ofNullable(termWidth).orElse(defaults.termWidth);
+	}
+
+	public int getTermHeight() {
+		if (this == defaults) return termHeight;
+
+		return Optional.ofNullable(termHeight).orElse(defaults.termHeight);
+	}
+
+	public int getTermScale() {
+		if (this == defaults) return termScale;
+
+		return Optional.ofNullable(termScale).orElse(defaults.termScale);
+	}
+
+	public String getRenderer() {
+		if (this == defaults) return renderer;
+
+		return Optional.ofNullable(renderer).orElse(defaults.renderer);
+	}
+
+	public boolean isApiEnabled() {
+		if (this == defaults) return apiEnabled;
+
+		return Optional.ofNullable(apiEnabled).orElse(defaults.apiEnabled);
+	}
+
+	public void setCCModule(String ccModule) {
+		this.ccModule = ccModule;
+	}
+
+	public void setCCRevision(String ccRevision) {
+		this.ccRevision = ccRevision;
+	}
+
+	public void setCCExt(String ccExt) {
+		this.ccExt = ccExt;
+	}
+
+	public void setCCPatternRemote(String ccPatternRemote) {
+		this.ccPatternRemote = ccPatternRemote;
+	}
+
+	public void setCCPatternLocal(String ccPatternLocal) {
+		this.ccPatternLocal = ccPatternLocal;
+	}
+
+	public void setTermWidth(int termWidth) {
+		this.termWidth = termWidth;
+	}
+
+	public void setTermHeight(int termHeight) {
+		this.termHeight = termHeight;
+	}
+
+	public void setTermScale(int termScale) {
+		this.termScale = termScale;
+	}
+
+	public void setRenderer(String renderer) {
+		this.renderer = renderer;
+	}
+
+	public void setApiEnabled(boolean apiEnabled) {
+		this.apiEnabled = apiEnabled;
 	}
 }

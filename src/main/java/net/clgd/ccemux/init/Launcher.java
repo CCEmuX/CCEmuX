@@ -7,15 +7,17 @@ import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -34,9 +36,8 @@ import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 
 import dan200.computercraft.ComputerCraft;
 import net.clgd.ccemux.OperatingSystem;
-import net.clgd.ccemux.config.ConfigOption;
-import net.clgd.ccemux.config.parsers.ParseException;
 import net.clgd.ccemux.plugins.PluginManager;
+import net.clgd.ccemux.rendering.RenderingMethods;
 
 public class Launcher {
 	private static final Logger log = LoggerFactory.getLogger(Launcher.class);
@@ -55,12 +56,12 @@ public class Launcher {
 				.desc("Sets the renderer to use. Run without a value to list all available renderers.").hasArg()
 				.optionalArg(true).argName("renderer").build());
 
-		opts.addOption(builder().longOpt("plugin").desc(
-				"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
-				.hasArg().argName("file").build());
-
 		opts.addOption(builder().longOpt("cc")
 				.desc("Sepcifies a custom CC jar that will be used in place of the one specified by the config file.")
+				.hasArg().argName("file").build());
+
+		opts.addOption(builder().longOpt("plugin")
+				.desc("Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
 				.hasArg().argName("file").build());
 	}
 
@@ -70,13 +71,7 @@ public class Launcher {
 
 	public static void main(String args[]) {
 		try (final RewritingLoader loader = new RewritingLoader(
-				((URLClassLoader) Launcher.class.getClassLoader()).getURLs()) {
-			@Override
-			public Class<?> findClass(String name) throws ClassNotFoundException {
-				log.trace("Finding class: {}", name);
-				return super.findClass(name);
-			}
-		}) {
+				((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
 			@SuppressWarnings("unchecked")
 			final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
 
@@ -164,22 +159,20 @@ public class Launcher {
 		}
 	}
 
-	private CCEmuXConfig loadConfig() throws ParseException {
+	private CCEmuXConfig loadConfig() {
 		log.debug("Loading config data");
 
-		CCEmuXConfig cfg = new CCEmuXConfig(dataDir);
-		cfg.loadConfig();
+		CCEmuXConfig cfg = CCEmuXConfig.loadConfig(dataDir);
+
+		for (Field f : CCEmuXConfig.class.getDeclaredFields()) {
+			try {
+				f.setAccessible(true);
+				if (!(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers()))) log.trace(" {} -> {}", f.getName(), f.get(cfg));
+			} catch (Exception e) {
+			}
+		}
 
 		log.info("Config loaded");
-
-		Arrays.stream(cfg.getClass().getDeclaredFields()).filter(f -> f.isAnnotationPresent(ConfigOption.class))
-				.forEach(f -> {
-					f.setAccessible(true);
-					try {
-						log.trace("-> {} = {}", f.getName(), f.get(cfg));
-					} catch (IllegalAccessException | IllegalArgumentException e) {
-					}
-				});
 
 		return cfg;
 	}
@@ -187,10 +180,8 @@ public class Launcher {
 	private PluginManager loadPlugins() {
 		File pd = dataDir.resolve("plugins").toFile();
 
-		if (pd.isFile())
-			pd.delete();
-		if (!pd.exists())
-			pd.mkdirs();
+		if (pd.isFile()) pd.delete();
+		if (!pd.exists()) pd.mkdirs();
 
 		HashSet<URL> urls = new HashSet<>();
 
@@ -218,60 +209,63 @@ public class Launcher {
 		return new PluginManager(urls.toArray(new URL[0]), this.getClass().getClassLoader());
 	}
 
+	private boolean loadCC(CCEmuXConfig cfg) throws MalformedURLException, ReflectiveOperationException {
+		File jar;
+
+		if (cli.hasOption("cc")) {
+			jar = Paths.get(cli.getOptionValue("cc")).toFile();
+		} else {
+			jar = cfg.getCCLocal().toFile();
+
+			if (!jar.exists()) {
+				try {
+					CCLoader.download(cfg.getCCRemote(), jar);
+				} catch (IOException e) {
+					log.error("Failed to download CC jar", e);
+					if (!GraphicsEnvironment.isHeadless()) {
+						JOptionPane.showMessageDialog(null,
+								new JLabel("<html>CCEmuX failed to automatically download the ComputerCraft jar.<br />"
+										+ "Please check your internet connection, or manually download the jar to the path below.<br />"
+										+ "<pre>" + cfg.getCCLocal().toAbsolutePath().toString() + "</pre><br />"
+										+ "If issues persist, please open a bug report.</html>"),
+								"Failed to download CC jar", JOptionPane.ERROR_MESSAGE);
+						return false;
+					}
+				}
+			}
+		}
+
+		CCLoader.load(jar);
+
+		log.info("Loaded CC version {}", ComputerCraft.getVersion());
+		if (!ComputerCraft.getVersion().equals(cfg.getCCRevision())) {
+			log.warn("The expected CC version ({}) does not match the actual CC version ({}) - problems may occur!",
+					cfg.getCCRevision(), ComputerCraft.getVersion());
+		}
+
+		return true;
+	}
+
 	private void launch() {
 		try {
 			setSystemLAF();
 
 			File dd = dataDir.toFile();
-			if (dd.isFile())
-				dd.delete();
-			if (!dd.exists())
-				dd.mkdirs();
+			if (dd.isFile()) dd.delete();
+			if (!dd.exists()) dd.mkdirs();
 
 			CCEmuXConfig cfg = loadConfig();
-
+			
 			PluginManager pluginMgr = loadPlugins();
 			pluginMgr.loaderSetup();
 
-			if (CCLoader.isLoaded()) {
-				log.info("CC already present on classpath, skipping runtime loading");
-				if (cli.hasOption("cc")) {
-					log.warn("'cc' command line option ignored - classpath already contains CC");
-				}
-			} else {
-				File jar;
+			loadCC(cfg);
 
-				if (cli.hasOption("cc")) {
-					jar = Paths.get(cli.getOptionValue("cc")).toFile();
-				} else {
-					jar = cfg.getCCLocal().toFile();
+			pluginMgr.setup();
 
-					if (!jar.exists()) {
-						try {
-							CCLoader.download(cfg.getCCRemote(), jar);
-						} catch (IOException e) {
-							log.error("Failed to download CC jar", e);
-							if (!GraphicsEnvironment.isHeadless()) {
-								JOptionPane.showMessageDialog(null, new JLabel(
-										"<html>CCEmuX failed to automatically download the ComputerCraft jar.<br />"
-												+ "Please check your internet connection, or manually download the jar to the path below.<br />"
-												+ "<pre>" + cfg.getCCLocal().toAbsolutePath().toString()
-												+ "</pre><br />"
-												+ "If issues persist, please open a bug report.</html>"),
-										"Failed to download CC jar", JOptionPane.ERROR_MESSAGE);
-								return;
-							}
-						}
-					}
-				}
-
-				CCLoader.load(jar);
-			}
-
-			log.info("Loaded CC version {}", ComputerCraft.getVersion());
-			if (!ComputerCraft.getVersion().equals(cfg.getCCRevision())) {
-				log.warn("The CC version expected ({}) does not match the actual CC version ({}) - problems may occur!",
-						cfg.getCCRevision(), ComputerCraft.getVersion());
+			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
+				log.info("Available rendering methods:");
+				RenderingMethods.getAllImplementations().entrySet().stream().map(Map.Entry::getKey).forEach(log::info);
 			}
 		} catch (Throwable e) {
 			crashMessage(e);
