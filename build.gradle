@@ -35,6 +35,7 @@ repositories {
 		name = "squiddev"
 		url = "https://dl.bintray.com/squiddev/maven"
 	}
+	
 	maven {
 		name = "snapshots"
 		url = "https://oss.sonatype.org/content/repositories/snapshots/"

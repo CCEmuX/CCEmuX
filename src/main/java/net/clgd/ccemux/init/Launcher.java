@@ -17,7 +17,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Optional;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -209,13 +209,13 @@ public class Launcher {
 		return new PluginManager(urls.toArray(new URL[0]), this.getClass().getClassLoader());
 	}
 
-	private boolean loadCC(CCEmuXConfig cfg) throws MalformedURLException, ReflectiveOperationException {
+	private Optional<File> loadCC(CCEmuXConfig cfg) throws MalformedURLException, ReflectiveOperationException {
 		File jar;
 
 		if (cli.hasOption("cc")) {
 			jar = Paths.get(cli.getOptionValue("cc")).toFile();
 		} else {
-			jar = cfg.getCCLocal().toFile();
+			jar = dataDir.resolve(cfg.getCCLocal()).toFile();
 
 			if (!jar.exists()) {
 				try {
@@ -229,7 +229,7 @@ public class Launcher {
 										+ "<pre>" + cfg.getCCLocal().toAbsolutePath().toString() + "</pre><br />"
 										+ "If issues persist, please open a bug report.</html>"),
 								"Failed to download CC jar", JOptionPane.ERROR_MESSAGE);
-						return false;
+						return Optional.empty();
 					}
 				}
 			}
@@ -243,7 +243,7 @@ public class Launcher {
 					cfg.getCCRevision(), ComputerCraft.getVersion());
 		}
 
-		return true;
+		return Optional.of(jar);
 	}
 
 	private void launch() {
@@ -265,7 +265,7 @@ public class Launcher {
 
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
 				log.info("Available rendering methods:");
-				RenderingMethods.getAllImplementations().entrySet().stream().map(Map.Entry::getKey).forEach(log::info);
+				RenderingMethods.getAllImplementations().entrySet().stream().forEach(e -> log.info(" {}", e.getKey()));
 			}
 		} catch (Throwable e) {
 			crashMessage(e);
