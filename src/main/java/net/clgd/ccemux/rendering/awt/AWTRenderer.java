@@ -1,5 +1,8 @@
 package net.clgd.ccemux.rendering.awt;
 
+import static net.clgd.ccemux.rendering.awt.KeyTranslator.translateToCC;
+import static net.clgd.ccemux.rendering.awt.MouseTranslator.swingToCC;
+
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.HeadlessException;
@@ -18,16 +21,21 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.lang.Character.UnicodeBlock;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
-
-import static net.clgd.ccemux.rendering.awt.KeyTranslator.*;
-import static net.clgd.ccemux.rendering.awt.MouseTranslator.*;
+import net.clgd.ccemux.rendering.RendererConfig;
 
 public class AWTRenderer extends Frame
 		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
+	private static final Logger log = LoggerFactory.getLogger(AWTRenderer.class);
+	
 	private static final long serialVersionUID = 374030924274589331L;
 	
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
@@ -35,6 +43,18 @@ public class AWTRenderer extends Frame
 	private static boolean isPrintableChar(char c) {
 		UnicodeBlock block = UnicodeBlock.of(c);
 		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null && block != UnicodeBlock.SPECIALS;
+	}
+	
+	private final List<Renderer.Listener> listeners = new ArrayList<>();
+	
+	@Override
+	public void addListener(Renderer.Listener listener) {
+		listeners.add(listener);
+	}
+	
+	@Override
+	public void removeListener(Renderer.Listener listener) {
+		listeners.remove(listener);
 	}
 	
 	public final EmulatedComputer computer;
@@ -48,18 +68,18 @@ public class AWTRenderer extends Frame
 
 	public double blinkLockedTime = 0d;
 
-	public AWTRenderer(EmulatedComputer computer) {
+	public AWTRenderer(EmulatedComputer computer, RendererConfig config) {
 		super(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
 
-		pixelWidth = 6 * computer.emu.conf.getTermScale();
-		pixelHeight = 9 * computer.emu.conf.getTermScale();
+		pixelWidth = 6 * config.termScale;
+		pixelHeight = 9 * config.termScale;
 
 		setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));
 
-		termComponent = new TerminalComponent(computer.terminal, computer.emu.conf.getTermScale());
+		termComponent = new TerminalComponent(computer.terminal, config.termScale);
 		add(termComponent, BorderLayout.CENTER);
 		
 		// required for tab to work
@@ -79,7 +99,8 @@ public class AWTRenderer extends Frame
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				computer.dispose();
+				AWTRenderer.this.dispose();
+				listeners.forEach(Renderer.Listener::onClosed);
 			}
 		});
 		
@@ -128,15 +149,11 @@ public class AWTRenderer extends Frame
 			lastBlink = CCEmuX.getGlobalCursorBlink();
 			
 			if (doRepaint) {
-				termComponent.cursorChar = computer.cursorChar;
+				// TODO
+				//termComponent.cursorChar = computer.cursorChar;
 				termComponent.render(dt);
 			}
 		}
-	}
-
-	@Override
-	public void onDispose() {
-		dispose();
 	}
 
 	private Point mapPointToCC(Point p) {
@@ -164,20 +181,13 @@ public class AWTRenderer extends Frame
 			try {
 				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
 			} catch (HeadlessException | UnsupportedFlavorException | IOException e) {
-				computer.emu.logger.error("Could not read clipboard", e);
+				log.error("Could not read clipboard", e);
 			}
 		} else {
 			return false;
 		}
 		
 		return true;
-	}
-	
-	@Override
-	public void onTerminalResized(int width, int height) {
-		termComponent.resizeTerminal(width, height);
-		
-		pack();
 	}
 
 	@Override

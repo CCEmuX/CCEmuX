@@ -1,19 +1,19 @@
 package net.clgd.ccemux.emulation;
 
-import java.awt.*;
+import java.awt.Desktop;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ILuaAPI;
-import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.RenderingMethod;
 
 @FunctionalInterface
 interface APIMethod {
@@ -21,31 +21,35 @@ interface APIMethod {
 }
 
 public class CCEmuXAPI implements ILuaAPI {
+	private static final Logger log = LoggerFactory.getLogger(CCEmuXAPI.class);
 
-	private String name;
-	private EmulatedComputer computer;
+	private final String name;
 	private final Map<String, APIMethod> methods = new LinkedHashMap<>();
 
-	{
-		methods.put("getVersion", o -> new Object[] {CCEmuX.getVersion()});
+	public CCEmuXAPI(CCEmuX emu, EmulatedComputer computer, String name) {
+		this.name = name;
 
-		methods.put("setCursorChar", o -> {
-			if (o.length < 1 || !(o[0] instanceof String)) {
-				throw new LuaException("expected string for argument #1");
-			}
+		methods.put("getVersion", o -> new Object[] { CCEmuX.getVersion() });
 
-			String s = (String) o[0];
-			if (s.length() < 1) {
-				throw new LuaException("cursor char cannot be empty");
-			}
-
-			computer.cursorChar = s.charAt(0);
-
-			return new Object[] {};
-		});
+		// TODO
+		// methods.put("setCursorChar", o -> {
+		// if (o.length < 1 || !(o[0] instanceof String)) {
+		// throw new LuaException("expected string for argument #1");
+		// }
+		//
+		// String s = (String) o[0];
+		// if (s.length() < 1) {
+		// throw new LuaException("cursor char cannot be empty");
+		// }
+		//
+		// computer.cursorChar = s.charAt(0);
+		//
+		// return new Object[] {};
+		// });
 
 		methods.put("closeEmu", o -> {
-			computer.dispose();
+			computer.shutdown();
+			emu.removeComputer(computer);
 			return new Object[] {};
 		});
 
@@ -54,42 +58,37 @@ public class CCEmuXAPI implements ILuaAPI {
 
 			if (o.length > 0 && o[0] != null) {
 				if (o[0] instanceof Number) {
-					id = ((Number)o[0]).intValue();
+					id = ((Number) o[0]).intValue();
 				} else {
 					throw new LuaException("expected number or nil for argument #1");
 				}
 			}
 
-			EmulatedComputer ec = computer.emu.createEmulatedComputer(id, null);
-			List<Renderer> r = ec.emu.conf.getRenderer().stream()
-					.map(s -> RenderingMethod.create(s, ec))
-					.collect(Collectors.toList());
+			EmulatedComputer ec = emu.addComputer(id);
 
-			r.forEach(_r -> _r.setVisible(true));
-
-			return new Object[] {ec.getID()};
+			return new Object[] { ec.getID() };
 		});
 
 		methods.put("openDataDir", o -> {
 			try {
-				Desktop.getDesktop().browse(computer.emu.dataDir.toUri());
-				return new Object[] {true};
+				Desktop.getDesktop().browse(emu.cfg.getDataDir().toUri());
+				return new Object[] { true };
 			} catch (Exception e) {
-				return new Object[] {false, e.toString()};
+				return new Object[] { false, e.toString() };
 			}
 		});
 
 		methods.put("milliTime", o -> {
-			return new Object[] {System.currentTimeMillis()};
+			return new Object[] { System.currentTimeMillis() };
 		});
 
 		methods.put("nanoTime", o -> {
-			return new Object[] {System.nanoTime()};
+			return new Object[] { System.nanoTime() };
 		});
 
 		methods.put("echo", o -> {
 			if (o.length > 0 && o[0] instanceof String) {
-				computer.emu.logger.info("[Computer {}] {}", computer.getID(), (String)o[0]);
+				log.info("[Computer {}] {}", computer.getID(), (String) o[0]);
 			} else {
 				throw new LuaException("expected string for argument #1");
 			}
@@ -110,11 +109,6 @@ public class CCEmuXAPI implements ILuaAPI {
 		});
 	}
 
-	public CCEmuXAPI(EmulatedComputer computer, String name) {
-		this.computer = computer;
-		this.name = name;
-	}
-
 	@Override
 	public String[] getMethodNames() {
 		return methods.keySet().toArray(new String[] {});
@@ -127,20 +121,17 @@ public class CCEmuXAPI implements ILuaAPI {
 	}
 
 	@Override
-	public void advance(double arg0) {
-	}
+	public void advance(double dt) {}
 
 	@Override
 	public String[] getNames() {
-		return new String[]{name};
+		return new String[] { name };
 	}
 
 	@Override
-	public void shutdown() {
-	}
+	public void shutdown() {}
 
 	@Override
-	public void startup() {
-	}
+	public void startup() {}
 
 }

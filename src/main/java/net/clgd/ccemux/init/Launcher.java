@@ -5,6 +5,7 @@ import static org.apache.commons.cli.Option.builder;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -36,8 +37,9 @@ import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 
 import dan200.computercraft.ComputerCraft;
 import net.clgd.ccemux.OperatingSystem;
+import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
-import net.clgd.ccemux.rendering.RenderingMethods;
+import net.clgd.ccemux.rendering.RendererFactory;
 
 public class Launcher {
 	private static final Logger log = LoggerFactory.getLogger(Launcher.class);
@@ -82,11 +84,12 @@ public class Launcher {
 			launch.setAccessible(true);
 			launch.invoke(constructor.newInstance(new Object[] { args }));
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("Failed to setup rewriting classloader - some features may be unavailable");
+			log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
 
 			new Launcher(args).launch();
 		}
+		
+		System.exit(0);
 	}
 
 	private final CommandLine cli;
@@ -167,9 +170,9 @@ public class Launcher {
 		for (Field f : CCEmuXConfig.class.getDeclaredFields()) {
 			try {
 				f.setAccessible(true);
-				if (!(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers()))) log.trace(" {} -> {}", f.getName(), f.get(cfg));
-			} catch (Exception e) {
-			}
+				if (!(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers())))
+					log.trace(" {} -> {}", f.getName(), f.get(cfg));
+			} catch (Exception e) {}
 		}
 
 		log.info("Config loaded");
@@ -255,18 +258,29 @@ public class Launcher {
 			if (!dd.exists()) dd.mkdirs();
 
 			CCEmuXConfig cfg = loadConfig();
-			
+
 			PluginManager pluginMgr = loadPlugins();
 			pluginMgr.loaderSetup();
 
-			loadCC(cfg);
+			File ccJar = loadCC(cfg).orElseThrow(FileNotFoundException::new);
 
 			pluginMgr.setup();
 
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
 				log.info("Available rendering methods:");
-				RenderingMethods.getAllImplementations().entrySet().stream().forEach(e -> log.info(" {}", e.getKey()));
+				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
 			}
+
+			pluginMgr.onInitializationCompleted();
+			
+			log.info("Setting up emulation environment");
+			
+			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
+			emu.addComputer();
+			emu.run();
+			
+			pluginMgr.onClosing(emu);
+			log.info("Emulation complete, goodbye!");
 		} catch (Throwable e) {
 			crashMessage(e);
 		}

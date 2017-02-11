@@ -82,6 +82,8 @@ public class CCEmuXConfig {
 	private String renderer;
 
 	private Boolean apiEnabled;
+	
+	private Long maxComputerCapacity;
 
 	public URL getCCRemote() throws MalformedURLException {
 		return new URL(getCCPatternRemote().replace("[module]", getCCModule()).replace("[revision]", getCCRevision())
@@ -156,6 +158,12 @@ public class CCEmuXConfig {
 
 		return Optional.ofNullable(apiEnabled).orElse(defaults.apiEnabled);
 	}
+	
+	public long getMaxComputerCapaccity() {
+		if (this == defaults) return maxComputerCapacity;
+
+		return Optional.ofNullable(maxComputerCapacity).orElse(defaults.maxComputerCapacity);
+	}
 
 	public void setCCModule(String ccModule) {
 		this.ccModule = ccModule;
@@ -195,5 +203,9 @@ public class CCEmuXConfig {
 
 	public void setApiEnabled(boolean apiEnabled) {
 		this.apiEnabled = apiEnabled;
+	}
+	
+	public void setMaxComputerCapacity(long capacity) {
+		this.maxComputerCapacity = capacity;
 	}
 }

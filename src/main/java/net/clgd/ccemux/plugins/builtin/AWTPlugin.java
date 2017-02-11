@@ -3,9 +3,8 @@ package net.clgd.ccemux.plugins.builtin;
 import java.net.URL;
 import java.util.Optional;
 
-import dan200.computercraft.ComputerCraft;
 import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.rendering.RenderingMethods;
+import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
 
 public class AWTPlugin extends Plugin {
@@ -37,7 +36,6 @@ public class AWTPlugin extends Plugin {
 
 	@Override
 	public void setup() {
-		RenderingMethods.addImplementation(AWTRenderer.class, "AWT");
+		RendererFactory.implementations.put("AWT", AWTRenderer::new);
 	}
-
 }

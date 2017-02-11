@@ -9,5 +9,7 @@
 	"termHeight": 19,
 	"termScale": 3,
 	"apiEnabled": true,
-	"renderer": "AWT"
+	"renderer": "AWT",
+	
+	"maxComputerCapacity": 1000000
 }
