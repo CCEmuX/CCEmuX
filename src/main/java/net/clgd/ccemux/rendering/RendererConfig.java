@@ -1,6 +1,6 @@
 package net.clgd.ccemux.rendering;
 
-import net.clgd.ccemux.init.CCEmuXConfig;
+import net.clgd.ccemux.init.Config;
 
 /**
  * Contains fields that may be used by {@link RendererFactory}
@@ -14,7 +14,7 @@ public class RendererConfig {
 		this.termScale = termScale;
 	}
 	
-	public RendererConfig(CCEmuXConfig generalConfig) {
+	public RendererConfig(Config generalConfig) {
 		this(generalConfig.getTermScale());
 	}
 

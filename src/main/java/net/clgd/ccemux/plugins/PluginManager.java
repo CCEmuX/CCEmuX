@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.EmulatedComputer.Builder;
+import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.plugins.hooks.Closing;
 import net.clgd.ccemux.plugins.hooks.ComputerBeingCreated;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
@@ -26,11 +27,15 @@ public class PluginManager extends HashSet<Plugin> implements Closing, ComputerB
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
 	private static final Logger log = LoggerFactory.getLogger(PluginManager.class);
 
-	public PluginManager(URL[] sources, ClassLoader parent) {
+	public PluginManager(URL[] sources, ClassLoader parent, Config cfg) {
 		URLClassLoader pluginLoader = new URLClassLoader(sources, parent);
 		ServiceLoader.load(Plugin.class, pluginLoader).forEach(p -> {
-			add(p);
-			log.info("Loaded plugin [{}]", p);
+			if (!cfg.isPluginBlacklisted(p)) {
+				add(p);
+				log.info("Loaded plugin [{}]", p);
+			} else {
+				log.info("Skipping blacklisted plugin [{}]", p);
+			}
 		});
 	}
 

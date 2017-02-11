@@ -11,5 +11,7 @@
 	"apiEnabled": true,
 	"renderer": "AWT",
 	
-	"maxComputerCapacity": 1000000
+	"maxComputerCapacity": 1000000,
+	
+	"pluginBlacklist": []
 }

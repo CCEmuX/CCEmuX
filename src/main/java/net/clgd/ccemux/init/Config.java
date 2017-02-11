@@ -11,45 +11,52 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 
-public class CCEmuXConfig {
-	private static final Logger log = LoggerFactory.getLogger(CCEmuXConfig.class);
+import net.clgd.ccemux.plugins.Plugin;
 
-	public static final CCEmuXConfig defaults;
+public class Config {
+	private static final Logger log = LoggerFactory.getLogger(Config.class);
+
+	public static final Config defaults;
 
 	public static final String CONFIG_FILE_NAME = "ccemux.json";
 
 	static {
 		Gson gson = new Gson();
 
-		CCEmuXConfig tmp;
-		try (Reader r = new InputStreamReader(CCEmuXConfig.class.getResourceAsStream("/ccemux.json"))) {
-			tmp = gson.fromJson(r, CCEmuXConfig.class);
+		Config tmp;
+		try (Reader r = new InputStreamReader(Config.class.getResourceAsStream("/ccemux.json"))) {
+			tmp = gson.fromJson(r, Config.class);
 		} catch (NullPointerException | IOException e) {
 			log.warn("Failed to get default config values", e);
-			tmp = new CCEmuXConfig();
+			tmp = new Config();
 		}
 
 		defaults = tmp;
 	}
 
-	public static CCEmuXConfig loadConfig(Path dataDir) {
+	public static Config loadConfig(Path dataDir) {
 		Gson gson = new Gson();
 
 		File cfgFile = dataDir.resolve(CONFIG_FILE_NAME).toFile();
 
-		CCEmuXConfig cfg;
+		Config cfg;
 
 		try {
-			cfg = gson.fromJson(new FileReader(cfgFile), CCEmuXConfig.class);
+			cfg = gson.fromJson(new FileReader(cfgFile), Config.class);
+			
+			if (cfg == null) {
+				cfg = new Config();
+			}
 		} catch (FileNotFoundException e) {
 			log.warn("No user config file found, using defaults", e);
-			cfg = new CCEmuXConfig();
+			cfg = new Config();
 		}
 
 		cfg.dataDir = dataDir;
@@ -57,7 +64,7 @@ public class CCEmuXConfig {
 		return cfg;
 	}
 
-	private CCEmuXConfig() {
+	private Config() {
 
 	}
 
@@ -84,6 +91,8 @@ public class CCEmuXConfig {
 	private Boolean apiEnabled;
 	
 	private Long maxComputerCapacity;
+	
+	private Set<String> pluginBlacklist;
 
 	public URL getCCRemote() throws MalformedURLException {
 		return new URL(getCCPatternRemote().replace("[module]", getCCModule()).replace("[revision]", getCCRevision())
@@ -163,6 +172,16 @@ public class CCEmuXConfig {
 		if (this == defaults) return maxComputerCapacity;
 
 		return Optional.ofNullable(maxComputerCapacity).orElse(defaults.maxComputerCapacity);
+	}
+	
+	public boolean isPluginBlacklisted(String className) {
+		if (this == defaults) return Optional.ofNullable(pluginBlacklist).map(s -> s.contains(className)).orElse(false);
+		
+		return Optional.ofNullable(pluginBlacklist).map(s -> s.contains(className)).orElse(false) || defaults.isPluginBlacklisted(className);
+	}
+	
+	public boolean isPluginBlacklisted(Plugin plugin) {
+		return isPluginBlacklisted(plugin.getClass().getName());
 	}
 
 	public void setCCModule(String ccModule) {

@@ -88,7 +88,7 @@ public class Launcher {
 
 			new Launcher(args).launch();
 		}
-		
+
 		System.exit(0);
 	}
 
@@ -162,12 +162,12 @@ public class Launcher {
 		}
 	}
 
-	private CCEmuXConfig loadConfig() {
+	private Config loadConfig() {
 		log.debug("Loading config data");
 
-		CCEmuXConfig cfg = CCEmuXConfig.loadConfig(dataDir);
+		Config cfg = Config.loadConfig(dataDir);
 
-		for (Field f : CCEmuXConfig.class.getDeclaredFields()) {
+		for (Field f : Config.class.getDeclaredFields()) {
 			try {
 				f.setAccessible(true);
 				if (!(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers())))
@@ -180,7 +180,7 @@ public class Launcher {
 		return cfg;
 	}
 
-	private PluginManager loadPlugins() {
+	private PluginManager loadPlugins(Config cfg) {
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile()) pd.delete();
@@ -209,10 +209,10 @@ public class Launcher {
 			}
 		}
 
-		return new PluginManager(urls.toArray(new URL[0]), this.getClass().getClassLoader());
+		return new PluginManager(urls.toArray(new URL[0]), this.getClass().getClassLoader(), cfg);
 	}
 
-	private Optional<File> loadCC(CCEmuXConfig cfg) throws MalformedURLException, ReflectiveOperationException {
+	private Optional<File> loadCC(Config cfg) throws MalformedURLException, ReflectiveOperationException {
 		File jar;
 
 		if (cli.hasOption("cc")) {
@@ -257,9 +257,9 @@ public class Launcher {
 			if (dd.isFile()) dd.delete();
 			if (!dd.exists()) dd.mkdirs();
 
-			CCEmuXConfig cfg = loadConfig();
+			Config cfg = loadConfig();
 
-			PluginManager pluginMgr = loadPlugins();
+			PluginManager pluginMgr = loadPlugins(cfg);
 			pluginMgr.loaderSetup();
 
 			File ccJar = loadCC(cfg).orElseThrow(FileNotFoundException::new);
@@ -271,14 +271,25 @@ public class Launcher {
 				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
 			}
 
+			if (!RendererFactory.implementations.containsKey(cfg.getRenderer())) {
+				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.getRenderer());
+
+				if (!GraphicsEnvironment.isHeadless()) {
+					JOptionPane.showMessageDialog(null,
+							"Specified renderer '" + cfg.getRenderer() + "' does not exist.\n"
+									+ "Please double check your config file and plugin list.",
+							"Configuration Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+
 			pluginMgr.onInitializationCompleted();
-			
+
 			log.info("Setting up emulation environment");
-			
+
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
 			emu.addComputer();
 			emu.run();
-			
+
 			pluginMgr.onClosing(emu);
 			log.info("Emulation complete, goodbye!");
 		} catch (Throwable e) {

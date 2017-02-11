@@ -17,7 +17,7 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
-import net.clgd.ccemux.init.CCEmuXConfig;
+import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererConfig;
@@ -39,7 +39,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		return System.currentTimeMillis() / 400 % 2 == 0;
 	}
 
-	public final CCEmuXConfig cfg;
+	public final Config cfg;
 	private final PluginManager pluginMgr;
 	public final File ccJar;
 
@@ -50,7 +50,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	private long started = -1;
 	private boolean running;
 
-	public CCEmuX(CCEmuXConfig cfg, PluginManager pluginMgr, File ccJar) {
+	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccJar) {
 		this.cfg = cfg;
 		this.pluginMgr = pluginMgr;
 		this.ccJar = ccJar;
