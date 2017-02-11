@@ -3,8 +3,8 @@ package net.clgd.ccemux.emulation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	private final PluginManager pluginMgr;
 	public final File ccJar;
 
-	private List<EmulatedComputer> computers = new ArrayList<>();
+	private Map<EmulatedComputer, Renderer> computers = new HashMap<>();
 
 	private int nextID = 0;
 
@@ -65,7 +65,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 			EmulatedComputer computer = builder.build();
 			if (cfg.isApiEnabled()) computer.addAPI(new CCEmuXAPI(this, computer, "ccemux"));
-			computers.add(computer);
 
 			pluginMgr.onComputerCreated(this, computer);
 
@@ -82,6 +81,8 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			});
 
 			pluginMgr.onRendererCreated(this, renderer);
+			
+			computers.put(computer, renderer);
 
 			renderer.setVisible(true);
 
@@ -100,7 +101,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			try {
 				log.info("Removing computer ID {}", computer.getID());
 
-				if (computers.remove(computer)) {
+				Renderer renderer = computers.remove(computer);
+				if (renderer != null) {
+					renderer.dispose();
 					pluginMgr.onComputerRemoved(this, computer);
 					return true;
 				} else {
@@ -117,7 +120,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	private void advance(double dt) {
 		synchronized (computers) {
-			computers.forEach(c -> {
+			computers.keySet().forEach(c -> {
 				synchronized (c) {
 					c.advance(dt);
 				}
