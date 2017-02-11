@@ -8,7 +8,7 @@ import net.clgd.ccemux.plugins.Hook;
  * This hook is called after a computer has been removed from emulation.
  * 
  * @author apemanzilla
- * @see ComputerBeingCreated
+ * @see CreatingComputer
  * @see ComputerCreated
  * @see RendererCreated
  */

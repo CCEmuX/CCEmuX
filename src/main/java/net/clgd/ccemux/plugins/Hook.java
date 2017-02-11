@@ -2,7 +2,7 @@ package net.clgd.ccemux.plugins;
 
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.hooks.Closing;
-import net.clgd.ccemux.plugins.hooks.ComputerBeingCreated;
+import net.clgd.ccemux.plugins.hooks.CreatingComputer;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
 import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
@@ -18,7 +18,7 @@ import net.clgd.ccemux.rendering.Renderer;
  * In approximate chronological order, here is a list of some common hooks:
  * <ul>
  * <li>{@link InitializationCompleted} - CCEmuX has finished startup tasks</li>
- * <li>{@link ComputerBeingCreated} - An {@link EmulatedComputer} instance is
+ * <li>{@link CreatingComputer} - An {@link EmulatedComputer} instance is
  * being created</li>
  * <li>{@link ComputerCreated} - An {@link EmulatedComputer} instance has been
  * created</li>

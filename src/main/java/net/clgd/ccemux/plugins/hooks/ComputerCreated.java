@@ -11,7 +11,7 @@ import net.clgd.ccemux.plugins.Hook;
  * APIs, for example.
  * 
  * @author apemanzilla
- * @see ComputerBeingCreated
+ * @see CreatingComputer
  * @see RendererCreated
  * @see ComputerRemoved
  */

@@ -8,7 +8,7 @@ import net.clgd.ccemux.rendering.Renderer;
  * Called immediately after a {@link Renderer} is created.
  * 
  * @author apemanzilla
- * @see ComputerBeingCreated
+ * @see CreatingComputer
  * @see ComputerCreated
  * @see ComputerRemoved
  */

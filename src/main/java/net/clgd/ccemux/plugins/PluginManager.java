@@ -14,7 +14,7 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.EmulatedComputer.Builder;
 import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.plugins.hooks.Closing;
-import net.clgd.ccemux.plugins.hooks.ComputerBeingCreated;
+import net.clgd.ccemux.plugins.hooks.CreatingComputer;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
 import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
@@ -23,7 +23,7 @@ import net.clgd.ccemux.plugins.hooks.Tick;
 import net.clgd.ccemux.rendering.Renderer;
 
 @SuppressWarnings("serial")
-public class PluginManager extends HashSet<Plugin> implements Closing, ComputerBeingCreated, ComputerCreated,
+public class PluginManager extends HashSet<Plugin> implements Closing, CreatingComputer, ComputerCreated,
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
 	private static final Logger log = LoggerFactory.getLogger(PluginManager.class);
 
@@ -97,8 +97,8 @@ public class PluginManager extends HashSet<Plugin> implements Closing, ComputerB
 	}
 
 	@Override
-	public void onComputerBeingCreated(CCEmuX emu, Builder builder) {
-		doHooks(ComputerBeingCreated.class, h -> h.onComputerBeingCreated(emu, builder));
+	public void onCreatingComputer(CCEmuX emu, Builder builder) {
+		doHooks(CreatingComputer.class, h -> h.onCreatingComputer(emu, builder));
 	}
 
 	@Override

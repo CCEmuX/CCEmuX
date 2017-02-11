@@ -61,7 +61,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			EmulatedTerminal term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
 			EmulatedComputer.Builder builder = EmulatedComputer.builder(this, term).id(id);
 
-			pluginMgr.onComputerBeingCreated(this, builder);
+			pluginMgr.onCreatingComputer(this, builder);
 
 			EmulatedComputer computer = builder.build();
 			if (cfg.isApiEnabled()) computer.addAPI(new CCEmuXAPI(this, computer, "ccemux"));
@@ -193,7 +193,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	@Override
 	public IWritableMount createSaveDirMount(String path, long capacity) {
-		return new FileMount(cfg.getDataDir().resolve(path).toFile(), cfg.getMaxComputerCapaccity());
+		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(), cfg.getMaxComputerCapaccity());
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.clgd.ccemux.plugins;
 
+import java.io.File;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Optional;
@@ -92,11 +93,19 @@ public abstract class Plugin {
 	 */
 	public abstract Optional<URL> getWebsite();
 
+	/**
+	 * Called early while CCEmuX is starting, before even CC itself is loaded.
+	 * This method is intended to be used to interact with the classloader
+	 * before CC is loaded and should not be used unless you know what you're
+	 * doing!
+	 * 
+	 * @see #setup()
+	 */
 	public void loaderSetup() {};
 
 	/**
-	 * Called early while CCEmuX is starting, before even CC itself is loaded.
-	 * This method should be used to register hooks, or renderers.<br />
+	 * Called while CCEmuX is starting. This method should be used to register
+	 * hooks, or renderers.<br />
 	 * <br />
 	 * In order to prevent issues, any setup code that needs to interact with CC
 	 * should use the

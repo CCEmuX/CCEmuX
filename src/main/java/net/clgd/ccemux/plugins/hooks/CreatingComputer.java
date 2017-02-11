@@ -17,6 +17,6 @@ import net.clgd.ccemux.plugins.Hook;
  * @see ComputerRemoved
  */
 @FunctionalInterface
-public interface ComputerBeingCreated extends Hook {
-	public void onComputerBeingCreated(CCEmuX emu, EmulatedComputer.Builder builder);
+public interface CreatingComputer extends Hook {
+	public void onCreatingComputer(CCEmuX emu, EmulatedComputer.Builder builder);
 }
