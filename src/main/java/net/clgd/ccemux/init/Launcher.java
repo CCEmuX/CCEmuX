@@ -261,6 +261,11 @@ public class Launcher {
 
 			PluginManager pluginMgr = loadPlugins(cfg);
 			pluginMgr.loaderSetup();
+			
+			if (getClass().getClassLoader() instanceof RewritingLoader) {
+				((RewritingLoader) getClass().getClassLoader()).chain.finalise();
+				log.warn("ClassLoader chain finalized");
+			}
 
 			File ccJar = loadCC(cfg).orElseThrow(FileNotFoundException::new);
 
