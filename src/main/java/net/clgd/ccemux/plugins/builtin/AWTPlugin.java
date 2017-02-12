@@ -1,6 +1,5 @@
 package net.clgd.ccemux.plugins.builtin;
 
-import java.net.URL;
 import java.util.Optional;
 
 import net.clgd.ccemux.plugins.Plugin;
@@ -30,7 +29,7 @@ public class AWTPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<URL> getWebsite() {
+	public Optional<String> getWebsite() {
 		return Optional.empty();
 	}
 

@@ -1,6 +1,5 @@
 package net.clgd.ccemux.plugins.builtin;
 
-import java.net.URL;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -20,7 +19,7 @@ public class CCTweaksPlugin extends Plugin {
 
 	@Override
 	public String getDescription() {
-		return "Adds CCTweaks functionality";
+		return "Adds modifications to CC, providing new APIs and other features";
 	}
 
 	@Override
@@ -34,42 +33,42 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<URL> getWebsite() {
-		return Optional.empty();
+	public Optional<String> getWebsite() {
+		return Optional.of("https://github.com/SquidDev-CC/CCTweaks-Lua");
 	}
-	
+
 	@Override
 	public void loaderSetup() {
 		if (getClass().getClassLoader() instanceof RewritingLoader) {
-			
+
 			org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
 				@Override
 				public void doDebug(String message) {
 					log.debug(message);
 				}
-				
+
 				@Override
 				public void doWarn(String message) {
 					log.warn(message);
 				}
-				
+
 				@Override
 				public void doError(String message, Throwable t) {
 					log.error(message, t);
 				}
 			};
-			
+
 			RewritingLoader loader = (RewritingLoader) getClass().getClassLoader();
-			
+
 			try {
-				//Thread.currentThread().setContextClassLoader(loader);
-				
+				// Thread.currentThread().setContextClassLoader(loader);
+
 				loader.loadConfig();
 				loader.loadChain();
 			} catch (Exception e) {
 				log.warn("Failed to apply classloader tweaks", e);
 			}
-			
+
 		} else {
 			log.warn("Incompatible ClassLoader in use - CCTweaks functionality unavailable");
 		}

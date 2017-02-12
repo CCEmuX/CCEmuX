@@ -1,7 +1,5 @@
 package net.clgd.ccemux.plugins;
 
-import java.io.File;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -91,7 +89,7 @@ public abstract class Plugin {
 	 * end-users.
 	 * 
 	 */
-	public abstract Optional<URL> getWebsite();
+	public abstract Optional<String> getWebsite();
 
 	/**
 	 * Called early while CCEmuX is starting, before even CC itself is loaded.
