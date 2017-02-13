@@ -74,10 +74,7 @@ configure(customRom) {
 	description = "Packs custom rom files into an embeddable archive."
 }
 
-processResources {
-	// contains CC metadata - eg version and URL
-	from('ccemux.json')
-}.dependsOn customRom
+processResources.dependsOn customRom
 
 jar {
 	manifest {

@@ -24,6 +24,8 @@ import java.lang.Character.UnicodeBlock;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,6 +113,13 @@ public class AWTRenderer extends Frame
 		
 		// center window in screen
 		setLocationRelativeTo(null);
+		
+		// set icon
+		try {
+			setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/icon.png")));
+		} catch (IOException e) {
+			log.warn("Failed to set taskbar icon", e);
+		}
 		
 		lastBlink = CCEmuX.getGlobalCursorBlink();
 	}
