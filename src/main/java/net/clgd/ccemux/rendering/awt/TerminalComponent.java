@@ -35,10 +35,10 @@ class TerminalComponent extends Canvas {
 
 	BufferedImage[] fontImages;
 
-	public TerminalComponent(Terminal terminal, int termScale) {
-		this.pixelWidth = 6 * termScale;
-		this.pixelHeight = 9 * termScale;
-		this.margin = 2 * termScale;
+	public TerminalComponent(Terminal terminal, double termScale) {
+		this.pixelWidth = (int) (6 * termScale);
+		this.pixelHeight = (int) (9 * termScale);
+		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
 
 		fontImages = new BufferedImage[16];

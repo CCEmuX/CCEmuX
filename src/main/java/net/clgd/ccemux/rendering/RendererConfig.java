@@ -8,9 +8,9 @@ import net.clgd.ccemux.init.Config;
  *
  */
 public class RendererConfig {
-	public final int termScale;
+	public final double termScale;
 	
-	public RendererConfig(int termScale) {
+	public RendererConfig(double termScale) {
 		this.termScale = termScale;
 	}
 	
@@ -22,7 +22,9 @@ public class RendererConfig {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + termScale;
+		long temp;
+		temp = Double.doubleToLongBits(termScale);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 
@@ -32,7 +34,7 @@ public class RendererConfig {
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		RendererConfig other = (RendererConfig) obj;
-		if (termScale != other.termScale) return false;
+		if (Double.doubleToLongBits(termScale) != Double.doubleToLongBits(other.termScale)) return false;
 		return true;
 	}
 }

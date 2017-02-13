@@ -84,7 +84,7 @@ public class Config {
 
 	private Integer termHeight;
 
-	private Integer termScale;
+	private Double termScale;
 
 	private String renderer;
 
@@ -150,7 +150,7 @@ public class Config {
 		return Optional.ofNullable(termHeight).orElse(defaults.termHeight);
 	}
 
-	public int getTermScale() {
+	public double getTermScale() {
 		if (this == defaults) return termScale;
 
 		return Optional.ofNullable(termScale).orElse(defaults.termScale);
@@ -212,7 +212,7 @@ public class Config {
 		this.termHeight = termHeight;
 	}
 
-	public void setTermScale(int termScale) {
+	public void setTermScale(double termScale) {
 		this.termScale = termScale;
 	}
 
@@ -227,4 +227,70 @@ public class Config {
 	public void setMaxComputerCapacity(long capacity) {
 		this.maxComputerCapacity = capacity;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((apiEnabled == null) ? 0 : apiEnabled.hashCode());
+		result = prime * result + ((ccExt == null) ? 0 : ccExt.hashCode());
+		result = prime * result + ((ccModule == null) ? 0 : ccModule.hashCode());
+		result = prime * result + ((ccPatternLocal == null) ? 0 : ccPatternLocal.hashCode());
+		result = prime * result + ((ccPatternRemote == null) ? 0 : ccPatternRemote.hashCode());
+		result = prime * result + ((ccRevision == null) ? 0 : ccRevision.hashCode());
+		result = prime * result + ((maxComputerCapacity == null) ? 0 : maxComputerCapacity.hashCode());
+		result = prime * result + ((pluginBlacklist == null) ? 0 : pluginBlacklist.hashCode());
+		result = prime * result + ((renderer == null) ? 0 : renderer.hashCode());
+		result = prime * result + ((termHeight == null) ? 0 : termHeight.hashCode());
+		result = prime * result + ((termScale == null) ? 0 : termScale.hashCode());
+		result = prime * result + ((termWidth == null) ? 0 : termWidth.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Config other = (Config) obj;
+		if (apiEnabled == null) {
+			if (other.apiEnabled != null) return false;
+		} else if (!apiEnabled.equals(other.apiEnabled)) return false;
+		if (ccExt == null) {
+			if (other.ccExt != null) return false;
+		} else if (!ccExt.equals(other.ccExt)) return false;
+		if (ccModule == null) {
+			if (other.ccModule != null) return false;
+		} else if (!ccModule.equals(other.ccModule)) return false;
+		if (ccPatternLocal == null) {
+			if (other.ccPatternLocal != null) return false;
+		} else if (!ccPatternLocal.equals(other.ccPatternLocal)) return false;
+		if (ccPatternRemote == null) {
+			if (other.ccPatternRemote != null) return false;
+		} else if (!ccPatternRemote.equals(other.ccPatternRemote)) return false;
+		if (ccRevision == null) {
+			if (other.ccRevision != null) return false;
+		} else if (!ccRevision.equals(other.ccRevision)) return false;
+		if (maxComputerCapacity == null) {
+			if (other.maxComputerCapacity != null) return false;
+		} else if (!maxComputerCapacity.equals(other.maxComputerCapacity)) return false;
+		if (pluginBlacklist == null) {
+			if (other.pluginBlacklist != null) return false;
+		} else if (!pluginBlacklist.equals(other.pluginBlacklist)) return false;
+		if (renderer == null) {
+			if (other.renderer != null) return false;
+		} else if (!renderer.equals(other.renderer)) return false;
+		if (termHeight == null) {
+			if (other.termHeight != null) return false;
+		} else if (!termHeight.equals(other.termHeight)) return false;
+		if (termScale == null) {
+			if (other.termScale != null) return false;
+		} else if (!termScale.equals(other.termScale)) return false;
+		if (termWidth == null) {
+			if (other.termWidth != null) return false;
+		} else if (!termWidth.equals(other.termWidth)) return false;
+		return true;
+	}
+	
+	
 }

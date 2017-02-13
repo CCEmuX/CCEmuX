@@ -73,8 +73,8 @@ public class AWTRenderer extends Frame
 
 		this.computer = computer;
 
-		pixelWidth = 6 * config.termScale;
-		pixelHeight = 9 * config.termScale;
+		pixelWidth = (int) (6 * config.termScale);
+		pixelHeight = (int) (9 * config.termScale);
 
 		setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));

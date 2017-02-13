@@ -259,9 +259,12 @@ public class Launcher {
 
 			Config cfg = loadConfig();
 
+			if (cfg.getTermScale() != (int) cfg.getTermScale())
+				log.warn("Terminal scale is not an integer - stuff might look bad! Don't blame us!");
+
 			PluginManager pluginMgr = loadPlugins(cfg);
 			pluginMgr.loaderSetup();
-			
+
 			if (getClass().getClassLoader() instanceof RewritingLoader) {
 				((RewritingLoader) getClass().getClassLoader()).chain.finalise();
 				log.warn("ClassLoader chain finalized");
