@@ -59,16 +59,17 @@ public class AWTRenderer extends Frame
 		listeners.remove(listener);
 	}
 	
-	public final EmulatedComputer computer;
-	public final TerminalComponent termComponent;
+	private final EmulatedComputer computer;
+	private final TerminalComponent termComponent;
 
-	public final int pixelWidth;
-	public final int pixelHeight;
+	private final int pixelWidth;
+	private final int pixelHeight;
 
-	public boolean lastBlink = false;
-	public int dragButton = 4;
+	private boolean lastBlink = false;
+	private int dragButton = 4;
+	private Point lastDragSpot = null;
 
-	public double blinkLockedTime = 0d;
+	private double blinkLockedTime = 0d;
 
 	public AWTRenderer(EmulatedComputer computer, RendererConfig config) {
 		super(EMU_WINDOW_TITLE);
@@ -231,7 +232,10 @@ public class AWTRenderer extends Frame
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
+		if (p.equals(lastDragSpot)) return;
+		
 		computer.drag(dragButton, p.x, p.y);
+		lastDragSpot = p;
 	}
 
 	@Override
