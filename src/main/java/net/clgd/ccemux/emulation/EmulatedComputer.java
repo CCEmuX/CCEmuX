@@ -178,7 +178,7 @@ public class EmulatedComputer extends Computer {
 	}
 
 	public void click(int button, int x, int y, boolean release) {
-		queueEvent(release ? "mouse_up" : "mouse", new Object[] { button, x, y });
+		queueEvent(release ? "mouse_up" : "mouse_click", new Object[] { button, x, y });
 	}
 
 	public void drag(int button, int x, int y) {
