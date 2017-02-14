@@ -15,13 +15,7 @@ mainClassName = 'net.clgd.ccemux.init.Launcher'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-// load CC properties
-//project.ext.cc = new Properties()
-//file('cc.properties').withInputStream {
-//	stream -> cc.load(stream)
-//}
-
-project.ext.cc = new JsonSlurper().parse(file('ccemux.json'))
+project.ext.cc = new JsonSlurper().parse(file('src/main/resources/ccemux.json'))
 
 repositories {
 	mavenCentral()
