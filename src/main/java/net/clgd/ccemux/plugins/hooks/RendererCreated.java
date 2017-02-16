@@ -1,7 +1,6 @@
 package net.clgd.ccemux.plugins.hooks;
 
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.plugins.Hook;
 import net.clgd.ccemux.rendering.Renderer;
 
 /**

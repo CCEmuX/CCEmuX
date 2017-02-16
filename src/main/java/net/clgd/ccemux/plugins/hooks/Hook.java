@@ -1,12 +1,6 @@
-package net.clgd.ccemux.plugins;
+package net.clgd.ccemux.plugins.hooks;
 
 import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.plugins.hooks.Closing;
-import net.clgd.ccemux.plugins.hooks.CreatingComputer;
-import net.clgd.ccemux.plugins.hooks.ComputerCreated;
-import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
-import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
-import net.clgd.ccemux.plugins.hooks.RendererCreated;
 import net.clgd.ccemux.rendering.Renderer;
 
 /**

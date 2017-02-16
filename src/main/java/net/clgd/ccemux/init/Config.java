@@ -50,12 +50,12 @@ public class Config {
 
 		try {
 			cfg = gson.fromJson(new FileReader(cfgFile), Config.class);
-			
+
 			if (cfg == null) {
 				cfg = new Config();
 			}
 		} catch (FileNotFoundException e) {
-			log.warn("No user config file found, using defaults", e);
+			log.warn("No user config file found, using defaults");
 			cfg = new Config();
 		}
 
@@ -89,9 +89,9 @@ public class Config {
 	private String renderer;
 
 	private Boolean apiEnabled;
-	
+
 	private Long maxComputerCapacity;
-	
+
 	private Set<String> pluginBlacklist;
 
 	public URL getCCRemote() throws MalformedURLException {
@@ -167,19 +167,20 @@ public class Config {
 
 		return Optional.ofNullable(apiEnabled).orElse(defaults.apiEnabled);
 	}
-	
+
 	public long getMaxComputerCapaccity() {
 		if (this == defaults) return maxComputerCapacity;
 
 		return Optional.ofNullable(maxComputerCapacity).orElse(defaults.maxComputerCapacity);
 	}
-	
+
 	public boolean isPluginBlacklisted(String className) {
 		if (this == defaults) return Optional.ofNullable(pluginBlacklist).map(s -> s.contains(className)).orElse(false);
-		
-		return Optional.ofNullable(pluginBlacklist).map(s -> s.contains(className)).orElse(false) || defaults.isPluginBlacklisted(className);
+
+		return Optional.ofNullable(pluginBlacklist).map(s -> s.contains(className)).orElse(false)
+				|| defaults.isPluginBlacklisted(className);
 	}
-	
+
 	public boolean isPluginBlacklisted(Plugin plugin) {
 		return isPluginBlacklisted(plugin.getClass().getName());
 	}
@@ -223,7 +224,7 @@ public class Config {
 	public void setApiEnabled(boolean apiEnabled) {
 		this.apiEnabled = apiEnabled;
 	}
-	
+
 	public void setMaxComputerCapacity(long capacity) {
 		this.maxComputerCapacity = capacity;
 	}
@@ -291,6 +292,5 @@ public class Config {
 		} else if (!termWidth.equals(other.termWidth)) return false;
 		return true;
 	}
-	
-	
+
 }

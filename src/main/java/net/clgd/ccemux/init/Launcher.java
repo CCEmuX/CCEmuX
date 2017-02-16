@@ -62,8 +62,8 @@ public class Launcher {
 				.desc("Sepcifies a custom CC jar that will be used in place of the one specified by the config file.")
 				.hasArg().argName("file").build());
 
-		opts.addOption(builder().longOpt("plugin")
-				.desc("Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
+		opts.addOption(builder().longOpt("plugin").desc(
+				"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
 				.hasArg().argName("file").build());
 	}
 
@@ -263,6 +263,7 @@ public class Launcher {
 				log.warn("Terminal scale is not an integer - stuff might look bad! Don't blame us!");
 
 			PluginManager pluginMgr = loadPlugins(cfg);
+			pluginMgr.loadConfigs();
 			pluginMgr.loaderSetup();
 
 			if (getClass().getClassLoader() instanceof RewritingLoader) {

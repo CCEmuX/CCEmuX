@@ -5,6 +5,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import net.clgd.ccemux.plugins.config.PluginConfigHandler;
+import net.clgd.ccemux.plugins.hooks.Hook;
+
 /**
  * Represents a plugin for CCEmuX. Plugins can add or change behavior, such as
  * adding Lua APIs, adding rendering systems, or even changing the behavior of
@@ -90,6 +93,16 @@ public abstract class Plugin {
 	 * 
 	 */
 	public abstract Optional<String> getWebsite();
+
+	/**
+	 * Gets the config handler for this plugin.
+	 * 
+	 * @see net.clgd.ccemux.plugins.config.PluginConfigHandler
+	 *      PluginConfigHandler
+	 */
+	public Optional<PluginConfigHandler<?>> getConfigHandler() {
+		return Optional.empty();
+	}
 
 	/**
 	 * Called early while CCEmuX is starting, before even CC itself is loaded.

@@ -2,7 +2,6 @@ package net.clgd.ccemux.plugins.hooks;
 
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.plugins.Hook;
 
 /**
  * Invoked immediately after an {@link EmulatedComputer} is created by CCEmuX,

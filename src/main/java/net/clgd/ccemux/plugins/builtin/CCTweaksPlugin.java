@@ -1,5 +1,7 @@
 package net.clgd.ccemux.plugins.builtin;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -8,6 +10,8 @@ import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
 import net.clgd.ccemux.plugins.Plugin;
+import net.clgd.ccemux.plugins.config.JSONConfigHandler;
+import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 
 public class CCTweaksPlugin extends Plugin {
 	private static final Logger log = LoggerFactory.getLogger(CCTweaksPlugin.class);
@@ -35,6 +39,17 @@ public class CCTweaksPlugin extends Plugin {
 	@Override
 	public Optional<String> getWebsite() {
 		return Optional.of("https://github.com/SquidDev-CC/CCTweaks-Lua");
+	}
+
+	// TODO: Make a better implementation that uses configgen?
+	@Override
+	public Optional<PluginConfigHandler<?>> getConfigHandler() {
+		return Optional.of(new JSONConfigHandler<Map<String, String>>(new HashMap<String, String>()) {
+			@Override
+			public void configLoaded(Map<String, String> config) {
+				config.forEach((k, v) -> System.setProperty("cctweaks." + k, v));
+			}
+		});
 	}
 
 	@Override

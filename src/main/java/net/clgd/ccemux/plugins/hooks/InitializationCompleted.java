@@ -1,7 +1,5 @@
 package net.clgd.ccemux.plugins.hooks;
 
-import net.clgd.ccemux.plugins.Hook;
-
 /**
  * This hook is called when CCEmuX has finished initialization - after CC has
  * been loaded, but before any computers have been created. This hook should be
