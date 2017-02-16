@@ -62,8 +62,8 @@ public class Launcher {
 				.desc("Sepcifies a custom CC jar that will be used in place of the one specified by the config file.")
 				.hasArg().argName("file").build());
 
-		opts.addOption(builder().longOpt("plugin").desc(
-				"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
+		opts.addOption(builder().longOpt("plugin")
+				.desc("Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
 				.hasArg().argName("file").build());
 	}
 
@@ -180,7 +180,13 @@ public class Launcher {
 		return cfg;
 	}
 
-	private PluginManager loadPlugins(Config cfg) {
+	private PluginManager loadPlugins(Config cfg) throws ReflectiveOperationException {
+		if (!(getClass().getClassLoader() instanceof URLClassLoader)) {
+			throw new RuntimeException("Classloader in use is not a URLClassLoader");
+		}
+
+		URLClassLoader loader = (URLClassLoader) getClass().getClassLoader();
+
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile()) pd.delete();
@@ -189,11 +195,13 @@ public class Launcher {
 		HashSet<URL> urls = new HashSet<>();
 
 		for (File f : pd.listFiles()) {
-			log.debug("Adding plugin source '{}'", f.getName());
-			try {
-				urls.add(f.toURI().toURL());
-			} catch (MalformedURLException e) {
-				log.warn("Failed to add plugin source", e);
+			if (f.isFile()) {
+				log.debug("Adding plugin source '{}'", f.getName());
+				try {
+					urls.add(f.toURI().toURL());
+				} catch (MalformedURLException e) {
+					log.warn("Failed to add plugin source", e);
+				}
 			}
 		}
 
@@ -209,7 +217,14 @@ public class Launcher {
 			}
 		}
 
-		return new PluginManager(urls.toArray(new URL[0]), this.getClass().getClassLoader(), cfg);
+		Method m = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+		m.setAccessible(true);
+
+		for (URL u : urls) {
+			m.invoke(loader, u);
+		}
+
+		return new PluginManager(loader, cfg);
 	}
 
 	private Optional<File> loadCC(Config cfg) throws MalformedURLException, ReflectiveOperationException {
@@ -264,7 +279,7 @@ public class Launcher {
 
 			PluginManager pluginMgr = loadPlugins(cfg);
 			pluginMgr.loadConfigs();
-			pluginMgr.loaderSetup();
+			pluginMgr.loaderSetup(getClass().getClassLoader());
 
 			if (getClass().getClassLoader() instanceof RewritingLoader) {
 				((RewritingLoader) getClass().getClassLoader()).chain.finalise();

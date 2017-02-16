@@ -1,5 +1,6 @@
 package net.clgd.ccemux.plugins;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -25,7 +26,7 @@ public abstract class Plugin {
 	 * @see Hook
 	 */
 	public final Set<Hook> getHooks() {
-		return hooks;
+		return Collections.unmodifiableSet(hooks);
 	}
 
 	/**
@@ -37,8 +38,8 @@ public abstract class Plugin {
 	 */
 	@SuppressWarnings("unchecked")
 	public final <T extends Hook> Set<T> getHooks(Class<T> cls) {
-		return hooks.stream().filter(h -> cls.isAssignableFrom(h.getClass())).map(h -> (T) h)
-				.collect(Collectors.toSet());
+		return Collections.unmodifiableSet(Collections.unmodifiableSet(hooks.stream()
+				.filter(h -> cls.isAssignableFrom(h.getClass())).map(h -> (T) h).collect(Collectors.toSet())));
 	}
 
 	/**
@@ -47,7 +48,7 @@ public abstract class Plugin {
 	 * @see Hook
 	 * @see #registerHook(Class, Hook)
 	 */
-	public final void registerHook(Hook hook) {
+	protected final void registerHook(Hook hook) {
 		hooks.add(hook);
 	}
 
@@ -112,7 +113,7 @@ public abstract class Plugin {
 	 * 
 	 * @see #setup()
 	 */
-	public void loaderSetup() {};
+	public void loaderSetup(ClassLoader loader) {};
 
 	/**
 	 * Called while CCEmuX is starting. This method should be used to register

@@ -1,8 +1,6 @@
 package net.clgd.ccemux.plugins;
 
 import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -36,10 +34,9 @@ public class PluginManager extends HashSet<Plugin> implements Closing, CreatingC
 
 	private final Config cfg;
 
-	public PluginManager(URL[] sources, ClassLoader parent, Config cfg) {
+	public PluginManager(ClassLoader loader, Config cfg) {
 		this.cfg = cfg;
-		URLClassLoader pluginLoader = new URLClassLoader(sources, parent);
-		ServiceLoader.load(Plugin.class, pluginLoader).forEach(p -> {
+		ServiceLoader.load(Plugin.class, loader).forEach(p -> {
 			if (!cfg.isPluginBlacklisted(p)) {
 				add(p);
 				log.info("Loaded plugin [{}]", p);
@@ -78,11 +75,11 @@ public class PluginManager extends HashSet<Plugin> implements Closing, CreatingC
 		});
 	}
 
-	public void loaderSetup() {
+	public void loaderSetup(ClassLoader loader) {
 		forEach(p -> {
 			try {
 				log.debug("Calling loaderSetup for plugin [{}]", p);
-				p.loaderSetup();
+				p.loaderSetup(loader);
 			} catch (Exception e) {
 				log.warn("Exception while calling loaderSetup for plugin [{}]", p, e);
 			}

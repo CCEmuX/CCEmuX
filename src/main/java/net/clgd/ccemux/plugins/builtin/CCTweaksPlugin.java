@@ -53,8 +53,8 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public void loaderSetup() {
-		if (getClass().getClassLoader() instanceof RewritingLoader) {
+	public void loaderSetup(ClassLoader loader) {
+		if (loader instanceof RewritingLoader) {
 
 			org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
 				@Override
@@ -73,13 +73,13 @@ public class CCTweaksPlugin extends Plugin {
 				}
 			};
 
-			RewritingLoader loader = (RewritingLoader) getClass().getClassLoader();
+			RewritingLoader rwLoader = (RewritingLoader) loader;
 
 			try {
 				// Thread.currentThread().setContextClassLoader(loader);
 
-				loader.loadConfig();
-				loader.loadChain();
+				rwLoader.loadConfig();
+				rwLoader.loadChain();
 			} catch (Exception e) {
 				log.warn("Failed to apply classloader tweaks", e);
 			}
