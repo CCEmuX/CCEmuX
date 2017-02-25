@@ -135,7 +135,7 @@ public class Launcher {
 
 		CCBootstrapper b = new CCBootstrapper(dataDir.resolve(config.getCCLocal()).toFile());
 		b.logger = logger;
-		
+
 		if (!b.exists()) {
 			URL dl = new URL(config.getCCRemote());
 			logger.info("Downloading CC from {}", dl.toString());
@@ -166,7 +166,7 @@ public class Launcher {
 		} else {
 			logger.error("Failed to load CC jar: File not found");
 		}
-		
+
 		if (cmd.hasOption('r') && cmd.getOptionValue('r', "").isEmpty()) {
 			System.out.format("Available rendering methods: %s\n",
 					Arrays.stream(RenderingMethod.getMethods()).map(r -> r.name()).reduce((p1, p2) -> p1 + ", " + p2).orElse(""));
@@ -191,7 +191,7 @@ public class Launcher {
 		}
 
 		List<Path> saveDirs = new ArrayList<>();
-		
+
 		if (cmd.hasOption('s'))
 			saveDirs = Arrays.stream(cmd.getOptionValue('s', "").split(","))
 				.map(s -> Paths.get(s).toAbsolutePath()).collect(Collectors.toList());
@@ -202,7 +202,7 @@ public class Launcher {
 			RewritingLoader loader = org.squiddev.cctweaks.lua.launch.Launcher.setupLoader();
 
 			ImmutableSet.of("net.clgd.ccemux.Config", "net.clgd.ccemux.Launcher", "net.clgd.ccemux.CCBootstrapper",
-					"org.slf4j.", "javax.", "org.apache.").forEach(s -> loader.addClassLoaderExclusion(s));
+					"org.slf4j.", "javax.", "org.apache.").forEach(loader::addClassLoaderExclusion);
 
 			loader.chain.finalise();
 
