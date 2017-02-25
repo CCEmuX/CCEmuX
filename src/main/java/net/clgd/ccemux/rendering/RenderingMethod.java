@@ -4,7 +4,8 @@ import java.util.function.Function;
 
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
-import net.clgd.ccemux.rendering.tror.TRoRRenderer;;
+import net.clgd.ccemux.rendering.gdx.GDXRenderer;
+import net.clgd.ccemux.rendering.tror.TRoRRenderer;
 
 public enum RenderingMethod {
 	Headless((EmulatedComputer comp) -> new Renderer() {
@@ -30,6 +31,7 @@ public enum RenderingMethod {
 	}),
 
 	AWT(AWTRenderer::new),
+	GDX(GDXRenderer::newInstance),
 	TRoR_STDIO(TRoRRenderer::new);
 
 	private final Function<EmulatedComputer, Renderer> creator;
