@@ -15,6 +15,11 @@ mainClassName = 'net.clgd.ccemux.init.Launcher'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+eclipse.project {
+	natures 'org.eclipse.buildship.core.gradleprojectnature'
+	natures 'org.springsource.ide.eclipse.gradle.core.nature'
+}
+
 project.ext.cc = new JsonSlurper().parse(file('src/main/resources/ccemux.json'))
 
 repositories {
