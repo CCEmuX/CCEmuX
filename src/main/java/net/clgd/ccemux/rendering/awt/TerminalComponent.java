@@ -1,58 +1,35 @@
 package net.clgd.ccemux.rendering.awt;
 
-import dan200.computercraft.ComputerCraft;
+import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+import net.clgd.ccemux.rendering.TerminalFont;
 
 class TerminalComponent extends Canvas {
-	private static final long serialVersionUID = 669029640511347733L;
-
-	public static final String CC_FONT_PATH = "/assets/computercraft/textures/gui/termFont.png";
-
-	private static Point getCharLocation(char c, int charWidth, int charHeight, int fontWidth, int fontHeight) {
-		int columns = fontWidth / charWidth;
-		int rows = fontHeight / charHeight;
-		int charCode = (int) c;
-
-		return new Point((charCode % columns) * charWidth, (charCode / rows) * charHeight);
-	}
-
+	private static final long serialVersionUID = -5043543826280613143L;
+	
 	public final Terminal terminal;
 	public final int pixelWidth;
 	public final int pixelHeight;
 	public final int margin;
+	public final TerminalFont font;
 
 	public char cursorChar = '_';
 
 	public boolean blinkLocked = false;
-
-	BufferedImage[] fontImages;
 
 	public TerminalComponent(Terminal terminal, double termScale) {
 		this.pixelWidth = (int) (6 * termScale);
 		this.pixelHeight = (int) (9 * termScale);
 		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
-
-		fontImages = new BufferedImage[16];
-
-		BufferedImage baseImage;
-		try {
-			baseImage = ImageIO.read(ComputerCraft.class.getResource(CC_FONT_PATH));
-		} catch (IOException e) {
-			throw new RuntimeException("Failed to load CC font", e);
-		}
-
-		for (int i = 0; i < fontImages.length; i++) {
-			fontImages[i] = Utils.makeTintedCopy(baseImage, Utils.getCCColourFromInt(i));
-		}
+		this.font = TerminalFont.getBest();
 
 		resizeTerminal(terminal.getWidth(), terminal.getHeight());
 	}
@@ -68,24 +45,17 @@ class TerminalComponent extends Canvas {
 		if ((int) c == 0)
 			return; // nothing to do here
 
-		// TODO: replace with something non-magical.
-		int charWidth = 6;
-		int charHeight = 9;
-
-		int fontWidth = 96;
-		int fontHeight = 144;
-
-		Point charLocation = getCharLocation(c, charWidth, charHeight, fontWidth, fontHeight);
+		Rectangle r = font.getCharCoords(c);
 
 		g.drawImage(
 				// tinted char
-				fontImages[color],
+				font.getTinted()[color],
 
 				// destination
 				x, y, x + pixelWidth, y + pixelHeight,
 
 				// source
-				charLocation.x, charLocation.y, charLocation.x + charWidth, charLocation.y + charHeight,
+				r.x, r.y, r.x + r.width, r.y + r.height,
 
 				null);
 	}

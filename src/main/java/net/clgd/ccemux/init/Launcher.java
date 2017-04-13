@@ -40,6 +40,7 @@ import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
+import net.clgd.ccemux.rendering.TerminalFont;
 
 public class Launcher {
 	private static final Logger log = LoggerFactory.getLogger(Launcher.class);
@@ -308,6 +309,8 @@ public class Launcher {
 
 			pluginMgr.onInitializationCompleted();
 
+			TerminalFont.load();
+			
 			log.info("Setting up emulation environment");
 
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
