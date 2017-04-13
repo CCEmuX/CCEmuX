@@ -1,116 +1,142 @@
 package net.clgd.ccemux.emulation;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.core.computer.IComputerEnvironment;
+import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
-import net.clgd.ccemux.Config;
+import dan200.computercraft.core.filesystem.JarMount;
+import net.clgd.ccemux.init.Config;
+import net.clgd.ccemux.plugins.PluginManager;
+import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.rendering.RendererConfig;
+import net.clgd.ccemux.rendering.RendererFactory;
 
-public class CCEmuX implements Runnable {
-
-	private static final Field computerRootField;
-
-	static {
-		Field f;
-
-		try {
-			f = EmulatedComputer.class.getSuperclass().getDeclaredField("m_rootMount");
-			f.setAccessible(true);
-		} catch (NoSuchFieldException | SecurityException e) {
-			f = null;
-		}
-
-		computerRootField = f;
-	}
+public class CCEmuX implements Runnable, IComputerEnvironment {
+	private static final Logger log = LoggerFactory.getLogger(CCEmuX.class);
 
 	public static String getVersion() {
-		String v = Config.class.getPackage().getImplementationVersion();
-		return v == null ? "[Unknown]" : v ;
-	}
-
-	public final Logger logger;
-	public final Config conf;
-	public final Path dataDir;
-	public final File ccJar;
-
-	public final EmulatedEnvironment env;
-
-	private boolean running;
-	private long timeStarted;
-	private final List<EmulatedComputer> computers = new ArrayList<>();
-
-	public CCEmuX(Logger logger, Config conf) {
-		this.logger = logger;
-		this.conf = conf;
-		this.dataDir = conf.getDataDir();
-		this.ccJar = dataDir.resolve(conf.getCCLocal()).toFile();
-
-		env = new EmulatedEnvironment(this);
-	}
-
-	public EmulatedComputer createEmulatedComputer(int id, Path saveDir) {
-		logger.trace("Creating emulated computer");
-		synchronized (computers) {
-			EmulatedComputer ec = new EmulatedComputer(this, conf.getTermWidth(), conf.getTermHeight(), id);
-			logger.info("Created emulated computer ID {}", ec.getID());
-
-			if (saveDir != null) {
-				logger.info("Overriding save dir for computer {} to '{}'", ec.getID(), saveDir.toString());
-				try {
-					computerRootField.set(ec, new FileMount(saveDir.toFile(), env.getComputerSpaceLimit()));
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-
-			ec.turnOn();
-			computers.add(ec);
-			return ec;
+		Package p = CCEmuX.class.getPackage();
+		if (p != null) {
+			return p.getImplementationVersion();
+		} else {
+			return null;
 		}
 	}
 
-	public EmulatedComputer createEmulatedComputer() {
-		return createEmulatedComputer(-1, null);
+	public static boolean getGlobalCursorBlink() {
+		return System.currentTimeMillis() / 400 % 2 == 0;
 	}
 
-	public boolean removeEmulatedComputer(EmulatedComputer ec) {
+	public final Config cfg;
+	private final PluginManager pluginMgr;
+	public final File ccJar;
+
+	private Map<EmulatedComputer, Renderer> computers = new HashMap<>();
+
+	private int nextID = 0;
+
+	private long started = -1;
+	private boolean running;
+
+	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccJar) {
+		this.cfg = cfg;
+		this.pluginMgr = pluginMgr;
+		this.ccJar = ccJar;
+	}
+
+	public EmulatedComputer addComputer(int id) {
 		synchronized (computers) {
-			logger.trace("Removing emulated computer ID {}", ec.getID());
+			EmulatedTerminal term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
+			EmulatedComputer.Builder builder = EmulatedComputer.builder(this, term).id(id);
 
-			boolean success = computers.remove(ec);
+			pluginMgr.onCreatingComputer(this, builder);
 
-			if (computers.isEmpty()) {
-				running = false;
-				logger.info("All emulated computers removed, stopping event loop");
+			EmulatedComputer computer = builder.build();
+			if (cfg.isApiEnabled()) computer.addAPI(new CCEmuXAPI(this, computer, "ccemux"));
+
+			pluginMgr.onComputerCreated(this, computer);
+
+			Renderer renderer = RendererFactory.implementations.get(cfg.getRenderer()).create(computer,
+					new RendererConfig(cfg));
+
+			computer.addListener(renderer);
+
+			renderer.addListener(new Renderer.Listener() {
+				@Override
+				public void onClosed() {
+					CCEmuX.this.removeComputer(computer);
+				}
+			});
+
+			pluginMgr.onRendererCreated(this, renderer);
+			
+			computers.put(computer, renderer);
+
+			renderer.setVisible(true);
+
+			log.info("Created new computer ID {}", computer.getID());
+			computer.turnOn();
+			return computer;
+		}
+	}
+	
+	public EmulatedComputer addComputer() {
+		return addComputer(-1);
+	}
+
+	public boolean removeComputer(EmulatedComputer computer) {
+		synchronized (computers) {
+			try {
+				log.info("Removing computer ID {}", computer.getID());
+
+				Renderer renderer = computers.remove(computer);
+				if (renderer != null) {
+					renderer.dispose();
+					pluginMgr.onComputerRemoved(this, computer);
+					return true;
+				} else {
+					return false;
+				}
+			} finally {
+				if (computers.size() < 1 && running) {
+					log.info("All computers removed, stopping emulation");
+					running = false;
+				}
 			}
-
-			return success;
 		}
 	}
 
 	private void advance(double dt) {
 		synchronized (computers) {
-			computers.forEach(c -> {
+			computers.keySet().forEach(c -> {
 				synchronized (c) {
 					c.advance(dt);
 				}
 			});
 		}
+
+		pluginMgr.onTick(this, dt);
 	}
 
 	@Override
 	public void run() {
 		running = true;
+		started = System.currentTimeMillis();
 
-		timeStarted = System.currentTimeMillis();
-		long lastTime = System.currentTimeMillis();
-
-		double computerTickTimer = 0.0;
+		long lastTime = started;
+		double computerTickTimer = 0d;
 
 		while (running) {
 			long now = System.currentTimeMillis();
@@ -118,51 +144,84 @@ public class CCEmuX implements Runnable {
 
 			computerTickTimer += dt;
 
-			if (computerTickTimer >= 0.05) {
+			if (computerTickTimer >= 0.05d) {
 				advance(dt);
-				computerTickTimer = 0.0;
+				computerTickTimer = 0d;
 			}
 
-			lastTime = System.currentTimeMillis();
+			lastTime = now;
 
 			try {
-				Thread.sleep(1000 / conf.getFramerate());
-			} catch (InterruptedException ignored) {}
+				Thread.sleep(Math.max(0, 50 - (System.currentTimeMillis() - now)));
+			} catch (InterruptedException e) {}
 		}
 
-		logger.debug("Emulation stopped");
+		log.info("Emulation stopped");
+		started = -1;
 	}
 
 	public boolean isRunning() {
 		return running;
 	}
 
-	public long getTimeStarted() {
-		return timeStarted;
-	}
-
-	public double getTimeStartedInSeconds() {
-		return timeStarted / 1000d;
-	}
-
-	public long getTimeSinceStart() {
-		return System.currentTimeMillis() - timeStarted;
-	}
-
-	public double getSecondsSinceStart() {
-		return getTimeSinceStart() / 1000d;
+	public void stop() {
+		running = false;
 	}
 
 	public long getTicksSinceStart() {
-		return (int) (getSecondsSinceStart() * 20);
+		return (System.currentTimeMillis() - started) / 50;
 	}
 
-	public static boolean getGlobalCursorBlink() {
-		return System.currentTimeMillis() / 400 % 2 == 0;
+	@Override
+	public int assignNewID() {
+		return nextID++;
 	}
 
-	public List<EmulatedComputer> getComputers() {
-		return computers;
+	@Override
+	public IMount createResourceMount(String domain, String subPath) {
+		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
+		if (path.startsWith("\\")) path = path.substring(1);
+
+		try {
+			return new ComboMount(new IMount[] { new JarMount(ccJar, path),
+					new CustomRomMount(new ZipInputStream(this.getClass().getResourceAsStream("/custom.rom"))) });
+		} catch (IOException e) {
+			log.error("Failed to create resource mount", e);
+			return null;
+		}
 	}
 
+	@Override
+	public IWritableMount createSaveDirMount(String path, long capacity) {
+		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(), cfg.getMaxComputerCapaccity());
+	}
+
+	@Override
+	public long getComputerSpaceLimit() {
+		return cfg.getMaxComputerCapaccity();
+	}
+
+	@Override
+	public int getDay() {
+		return (int) (((getTicksSinceStart() + 6000) / 24000) + 1);
+	}
+
+	@Override
+	public String getHostString() {
+		if (getVersion() != null) {
+			return String.format("ComputerCraft %s (CCEmuX %s)", ComputerCraft.getVersion(), getVersion());
+		} else {
+			return String.format("ComputerCraft %s (CCEmuX)", ComputerCraft.getVersion());
+		}
+	}
+
+	@Override
+	public double getTimeOfDay() {
+		return ((getTicksSinceStart() + 6000) % 24000) / 1000d;
+	}
+
+	@Override
+	public boolean isColour() {
+		return true;
+	}
 }

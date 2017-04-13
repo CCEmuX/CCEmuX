@@ -6,9 +6,9 @@ if ccemux then
         print("emu close - close this computer")
         print("emu open [id] - open another computer")
         print("emu data - opens the data folder")
-        print("emu set <setting> <values> - edits a setting")
-        print("emu list settings - list editable settings")
-        print("emu save - saves current settings")
+        --print("emu set <setting> <values> - edits a setting")
+        --print("emu list settings - list editable settings")
+        --print("emu save - saves current settings")
         print("Run 'help emu' for additional information")
     end
 
