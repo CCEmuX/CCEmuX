@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.squiddev.cctweaks.lua.TweaksLogger;
 import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
@@ -56,7 +57,7 @@ public class CCTweaksPlugin extends Plugin {
 	public void loaderSetup(ClassLoader loader) {
 		if (loader instanceof RewritingLoader) {
 
-			org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
+			TweaksLogger.instance = org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
 				@Override
 				public void doDebug(String message) {
 					log.debug(message);
