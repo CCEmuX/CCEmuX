@@ -8,6 +8,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.computer.Computer;
+import net.clgd.ccemux.peripherals.PeripheralFactory;
+import org.luaj.vm2.Lua;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +111,58 @@ public class CCEmuXAPI implements ILuaAPI {
 
 			return new Object[] {};
 		});
+
+		methods.put("attach", o -> {
+			if (o.length > 1 && o[0] instanceof String && o[1] instanceof String) {
+				String peripheralName = (String) o[0];
+				String sideName = (String) o[1];
+				int sideId = parseSide(sideName);
+				IPeripheral peripheral = PeripheralFactory.implementations.get(peripheralName);
+
+				if(sideId > 0) {
+					if(peripheral != null) {
+						computer.setPeripheral(sideId, peripheral);
+					} else {
+						throw new LuaException("invalid peripheral");
+					}
+				} else {
+					throw new LuaException("invalid side");
+				}
+			} else if (o.length > 1 && !(o[1] instanceof String)) {
+				throw new LuaException("expected string for argument #2");
+			} else {
+				throw new LuaException("expected string for argument #1");
+			}
+
+			return new Object[] {};
+		});
+
+		methods.put("detach", o -> {
+			if (o.length > 0 && o[0] instanceof String) {
+				String sideName = (String) o[0];
+				int sideId = parseSide(sideName);
+
+				if (sideId > 0) {
+					computer.setPeripheral(sideId, null);
+				} else {
+					throw new LuaException("invalid side");
+				}
+			} else {
+				throw new LuaException("expected string for argument #1");
+			}
+
+			return new Object[] {};
+		});
+	}
+
+	private int parseSide(String side) {
+		for(int n = 0; n < Computer.s_sideNames.length; ++n) {
+			if(side.equals(Computer.s_sideNames[n])) {
+				return n;
+			}
+		}
+
+		return -1;
 	}
 
 	@Override
