@@ -11,7 +11,6 @@ import java.util.Map;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
 import net.clgd.ccemux.peripherals.PeripheralFactory;
-import org.luaj.vm2.Lua;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
