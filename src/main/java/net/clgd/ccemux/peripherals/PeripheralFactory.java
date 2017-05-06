@@ -6,6 +6,9 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import java.util.HashMap;
 import java.util.Map;
 
-public interface PeripheralFactory {
-	public static final Map<String, IPeripheral> implementations = new HashMap<>();
+@FunctionalInterface
+public interface PeripheralFactory<T extends IPeripheral> {
+	public static final Map<String, PeripheralFactory<?>> implementations = new HashMap<>();
+
+	public T create();
 }

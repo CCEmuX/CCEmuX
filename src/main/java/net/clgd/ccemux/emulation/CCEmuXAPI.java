@@ -113,10 +113,10 @@ public class CCEmuXAPI implements ILuaAPI {
 
 		methods.put("attach", o -> {
 			if (o.length > 1 && o[0] instanceof String && o[1] instanceof String) {
-				String peripheralName = (String) o[0];
-				String sideName = (String) o[1];
+				String sideName = (String) o[0];
+				String peripheralName = (String) o[1];
 				int sideId = parseSide(sideName);
-				IPeripheral peripheral = PeripheralFactory.implementations.get(peripheralName);
+				IPeripheral peripheral = PeripheralFactory.implementations.get(peripheralName).create();
 
 				if(sideId > 0) {
 					if(peripheral != null) {
