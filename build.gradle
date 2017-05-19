@@ -25,16 +25,16 @@ project.ext.cc = new JsonSlurper().parse(file('src/main/resources/ccemux.json'))
 repositories {
 	mavenCentral()
 
-	ivy {
+	maven {
 		name = 'computercraft'
-		artifactPattern cc.ccPatternRemote
+		url = "https://crzd.me/files/maven/"
 	}
 
 	maven {
 		name = "squiddev"
 		url = "https://dl.bintray.com/squiddev/maven"
 	}
-	
+
 	maven {
 		name = "snapshots"
 		url = "https://oss.sonatype.org/content/repositories/snapshots/"
@@ -42,25 +42,27 @@ repositories {
 }
 
 dependencies {
-	compileOnly ":${cc.ccModule}:${cc.ccRevision}"
+	compileOnly "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
 
 	compile 'org.slf4j:slf4j-simple:1.7.21'
-	
+
 	compile 'commons-io:commons-io:2.5'
 	compile 'commons-cli:commons-cli:1.3.1'
 	compile 'commons-codec:commons-codec:1.10'
-	
-	compile 'org.squiddev:cctweaks-lua:1.4.0'
+	compile 'org.apache.logging.log4j:log4j-core:2.8.2'
+	compile 'org.apache.commons:commons-lang3:3.5'
+
+	compile 'org.squiddev:cctweaks-lua:1.5.0-nightly-2017051909'
 
 	compile 'com.google.guava:guava:20.0'
 	compile 'com.google.code.gson:gson:2.8.0'
-	
+
 	testCompile 'junit:junit:4.12'
 }
 
 task customRom (type: Zip) {
 	from 'src/main/rom'
-	
+
 	include '*'
 	include '*/*'
 
