@@ -13,7 +13,7 @@ import net.clgd.ccemux.rendering.TerminalFont;
 
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
-	
+
 	public final Terminal terminal;
 	public final int pixelWidth;
 	public final int pixelHeight;
@@ -49,7 +49,7 @@ class TerminalComponent extends Canvas {
 
 		g.drawImage(
 				// tinted char
-				font.getTinted()[color],
+				font.getTinted(terminal.getPalette().getColour(15 - color)),
 
 				// destination
 				x, y, x + pixelWidth, y + pixelHeight,
@@ -76,8 +76,8 @@ class TerminalComponent extends Canvas {
 
 				for (int x = 0; x < terminal.getWidth(); x++) {
 					int width = (x == 0 || x == terminal.getWidth() - 1) ? pixelWidth + margin : pixelWidth;
-
-					g.setColor(Utils.getCCColourFromChar((bgLine == null) ? 'f' : bgLine.charAt(x)));
+					
+					g.setColor(Utils.getCCColourFromCharPalette((bgLine == null) ? 'f' : bgLine.charAt(x), terminal.getPalette()));
 					g.fillRect(dx, dy, width, height);
 
 					char character = (textLine == null) ? ' ' : textLine.charAt(x);

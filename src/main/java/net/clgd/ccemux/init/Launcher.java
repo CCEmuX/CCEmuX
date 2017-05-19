@@ -73,6 +73,8 @@ public class Launcher {
 	}
 
 	public static void main(String args[]) {
+		System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
+
 		try (final RewritingLoader loader = new RewritingLoader(
 				((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
 			@SuppressWarnings("unchecked")
@@ -310,7 +312,7 @@ public class Launcher {
 			pluginMgr.onInitializationCompleted();
 
 			TerminalFont.load();
-			
+
 			log.info("Setting up emulation environment");
 
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
