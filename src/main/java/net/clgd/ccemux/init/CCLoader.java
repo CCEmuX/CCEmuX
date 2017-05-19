@@ -7,7 +7,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import dan200.computercraft.ComputerCraft;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,5 +48,7 @@ public class CCLoader {
 		Method m = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
 		m.setAccessible(true);
 		m.invoke(CCLoader.class.getClassLoader(), jar.toURI().toURL());
+		ComputerCraft.logPeripheralErrors = true;
+		ComputerCraft.log = LogManager.getLogger("ComputerCraft");
 	}
 }
