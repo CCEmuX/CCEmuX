@@ -23,15 +23,6 @@ public class Utils {
 		return getCCColourFromInt(base16ToInt(c));
 	}
 
-	public static Color getCCColourFromIntPalette(int i, Palette p) {
-		float[] col = clampColor(p.getColour(15 - i));
-		return new Color(col[0], col[1], col[2]);
-	}
-
-	public static Color getCCColourFromCharPalette(char c, Palette p) {
-		return getCCColourFromIntPalette(base16ToInt(c), p);
-	}
-
 	public static float[] clampColor(float[] col) {
 		return new float[]{clampFloat(col[0], 0f, 1f), clampFloat(col[1], 0f, 1f), clampFloat(col[2], 0f, 1f)};
 	}

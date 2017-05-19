@@ -92,16 +92,7 @@ public class TerminalFont {
 	public BufferedImage getBase() {
 		return base;
 	}
-
-	public BufferedImage getTinted(float[] col) {
-		Color col2 = new Color(col[0], col[1], col[2]);
-		if(tinted.containsKey(col2)) {
-			return tinted.get(col2);
-		} else {
-			return tinted.put(col2, Utils.makeTintedCopy(base, col2));
-		}
-	}
-
+	
 	public BufferedImage getTinted(Color col) {
 		if(tinted.containsKey(col)) {
 			return tinted.get(col);
