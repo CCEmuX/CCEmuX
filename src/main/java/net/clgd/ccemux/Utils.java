@@ -1,7 +1,6 @@
 package net.clgd.ccemux;
 
 import dan200.computercraft.shared.util.Colour;
-import dan200.computercraft.shared.util.Palette;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -23,11 +22,11 @@ public class Utils {
 		return getCCColourFromInt(base16ToInt(c));
 	}
 
-	public static float[] clampColor(float[] col) {
-		return new float[]{clampFloat(col[0], 0f, 1f), clampFloat(col[1], 0f, 1f), clampFloat(col[2], 0f, 1f)};
+	public static double[] clampColor(double[] col) {
+		return new double[]{clamp(col[0], 0f, 1f), clamp(col[1], 0f, 1f), clamp(col[2], 0f, 1f)};
 	}
 
-	public static float clampFloat(float f, float min, float max) {
+	public static double clamp(double f, double min, double max) {
 		if (f > max) {
 			return max;
 		} else if (f < min) {
