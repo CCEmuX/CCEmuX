@@ -22,7 +22,7 @@ public class PaletteCacher {
 
 	private Palette copyPalette(Palette from, Palette to) {
 		for (int i = 0; i < 16; i++) {
-			float[] col = from.getColour(i);
+			double[] col = from.getColour(i);
 			to.setColour(i, col[0], col[1], col[2]);
 		}
 		return to;
@@ -33,7 +33,7 @@ public class PaletteCacher {
 	}
 
 	public Color getColor(int c) {
-		float[] col = Utils.clampColor(currentPalette.getColour(15 - c));
-		return new Color(col[0], col[1], col[2]);
+		double[] col = Utils.clampColor(currentPalette.getColour(15 - c));
+		return new Color((float)col[0], (float)col[1], (float)col[2]);
 	}
 }

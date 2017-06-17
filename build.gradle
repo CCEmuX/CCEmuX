@@ -27,7 +27,7 @@ repositories {
 
 	maven {
 		name = 'computercraft'
-		url = "https://crzd.me/files/maven/"
+		url = "https://cc.crzd.me/maven"
 	}
 
 	maven {
@@ -52,7 +52,7 @@ dependencies {
 	compile 'org.apache.logging.log4j:log4j-core:2.8.2'
 	compile 'org.apache.commons:commons-lang3:3.5'
 
-	compile 'org.squiddev:cctweaks-lua:1.5.0-nightly-2017051909'
+	compile 'org.squiddev:cctweaks-lua:1.5.0-nightly-build0'
 
 	compile 'com.google.guava:guava:20.0'
 	compile 'com.google.code.gson:gson:2.8.0'
