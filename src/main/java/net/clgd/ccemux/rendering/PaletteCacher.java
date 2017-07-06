@@ -1,9 +1,9 @@
 package net.clgd.ccemux.rendering;
 
+import java.awt.Color;
+
 import dan200.computercraft.shared.util.Palette;
 import net.clgd.ccemux.Utils;
-
-import java.awt.*;
 
 public class PaletteCacher {
 	private Palette currentPalette;
@@ -33,7 +33,11 @@ public class PaletteCacher {
 	}
 
 	public Color getColor(int c) {
-		double[] col = Utils.clampColor(currentPalette.getColour(15 - c));
+		double[] col;
+		if ((col = currentPalette.getColour(15 - c)) == null) {
+			col = currentPalette.getColour(0);
+		}
+		col = Utils.clampColor(col);
 		return new Color((float)col[0], (float)col[1], (float)col[2]);
 	}
 }

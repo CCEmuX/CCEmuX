@@ -1,9 +1,12 @@
 package net.clgd.ccemux;
 
-import dan200.computercraft.shared.util.Colour;
-
-import java.awt.*;
+import java.awt.Color;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+
+import dan200.computercraft.shared.util.Colour;
 
 public class Utils {
 
