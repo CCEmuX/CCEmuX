@@ -61,8 +61,8 @@ public class Launcher {
 				.desc("Sepcifies a custom CC jar that will be used in place of the one specified by the config file.")
 				.hasArg().argName("file").build());
 
-		opts.addOption(builder().longOpt("plugin")
-				.desc("Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
+		opts.addOption(builder().longOpt("plugin").desc(
+				"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
 				.hasArg().argName("file").build());
 	}
 
@@ -71,7 +71,8 @@ public class Launcher {
 	}
 
 	public static void main(String args[]) {
-		System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
+		System.setProperty("http.agent",
+				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
 
 		try (final RewritingLoader loader = new RewritingLoader(
 				((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {

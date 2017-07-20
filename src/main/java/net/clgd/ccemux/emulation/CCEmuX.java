@@ -2,6 +2,7 @@ package net.clgd.ccemux.emulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,8 +15,10 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.init.Config;
+import net.clgd.ccemux.init.Launcher;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererConfig;
@@ -23,14 +26,21 @@ import net.clgd.ccemux.rendering.RendererFactory;
 
 @Slf4j
 public class CCEmuX implements Runnable, IComputerEnvironment {
-
 	public static String getVersion() {
-		Package p = CCEmuX.class.getPackage();
-		if (p != null) {
-			return p.getImplementationVersion();
-		} else {
-			return null;
+		Package p = Launcher.class.getPackage();
+		
+		if (p == null) {
+			// try with a fresh classloader (RewritingLoader doesn't track packages)
+			val loader = Launcher.class.getClassLoader();
+			if (loader instanceof URLClassLoader) {
+				val ucl = new URLClassLoader(((URLClassLoader) loader).getURLs());
+				try {
+					p = Class.forName(Launcher.class.getName(), false, ucl).getPackage();
+				} catch (ClassNotFoundException e) { }
+			}
 		}
+		
+		return p == null ? null : p.getImplementationVersion();
 	}
 
 	public static boolean getGlobalCursorBlink() {
