@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.BlockingDeque;
 
 import net.clgd.ccemux.Utils;
@@ -39,6 +40,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 		computer.terminal.getEmulatedPalette().addListener(this);
 
 		events = InputProvider.getStdinProvider().getQueue(computer);
+
+		resize(computer.terminal.getWidth(), computer.terminal.getHeight());
 	}
 
 	@Override
@@ -58,11 +61,11 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 	@Override
 	public void setVisible(boolean visible) {
-
 	}
 
 	@Override
 	public void dispose() {
+		sendLine("SC", "");
 	}
 
 	@Override
@@ -137,7 +140,21 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 					}
 
 					computer.queueEvent(event, args.toArray());
+					break;
 				}
+				case "XA":
+					switch (packet.payload.toLowerCase(Locale.ENGLISH)) {
+						case "shutdown":
+							computer.shutdown();
+							break;
+						case "reboot":
+							computer.reboot();
+							break;
+						case "close":
+							for (Listener listener : listeners) listener.onClosed();
+							break;
+					}
+					break;
 			}
 		}
 	}
