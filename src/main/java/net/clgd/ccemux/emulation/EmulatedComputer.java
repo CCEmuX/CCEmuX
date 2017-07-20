@@ -212,6 +212,8 @@ public class EmulatedComputer extends Computer {
 			val path = base.resolve(f.getName()).toString();
 			
 			if (f.isFile()) {
+				if (f.length() > mount.getRemainingSpace()) throw new IOException("Not enough space on computer");
+				
 				val s = mount.openForWrite(path);
 				IOUtils.copy(FileUtils.openInputStream(f), s);
 			} else {

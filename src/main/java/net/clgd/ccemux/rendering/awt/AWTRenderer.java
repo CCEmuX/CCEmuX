@@ -131,10 +131,11 @@ public class AWTRenderer extends Frame
 						@SuppressWarnings("unchecked")
 						val data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 						computer.copyFiles(data, "/");
+						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.", "Files copied", JOptionPane.INFORMATION_MESSAGE);
 					} else if (DataFlavor.selectBestTextFlavor(flavors) != null) {
 						val f = DataFlavor.selectBestTextFlavor(flavors);
 
-						log.debug("Accepting text drag and drop for computer ${}", computer.getID());
+						log.debug("Accepting text drag and drop for computer #{}", computer.getID());
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
 						val r = f.getReaderForText(dtde.getTransferable());
 						computer.paste(IOUtils.toString(r));
