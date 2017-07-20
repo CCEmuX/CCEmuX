@@ -46,7 +46,7 @@ public class InputProvider {
 		thread.start();
 	}
 
-	public BlockingDeque<InputPacket> getQueue(EmulatedComputer computer) {
+	BlockingDeque<InputPacket> getQueue(EmulatedComputer computer) {
 		return getQueue(computer.getID());
 	}
 
@@ -68,11 +68,11 @@ public class InputProvider {
 		return stdinProvider;
 	}
 
-	public static class InputPacket {
-		public final String code;
-		public final String payload;
+	static class InputPacket {
+		final String code;
+		final String payload;
 
-		public InputPacket(String code, String payload) {
+		InputPacket(String code, String payload) {
 			this.code = code;
 			this.payload = payload;
 		}
