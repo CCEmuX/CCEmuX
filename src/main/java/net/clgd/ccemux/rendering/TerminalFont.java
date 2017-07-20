@@ -1,6 +1,7 @@
 package net.clgd.ccemux.rendering;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -11,23 +12,22 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.Utils;
 
+@Slf4j
 public class TerminalFont {
-	private static final Logger log = LoggerFactory.getLogger(TerminalFont.class);
-
 	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
 
 	public static final int BASE_CHAR_WIDTH = 6, BASE_CHAR_HEIGHT = 9;
 	public static final int COLUMNS = 16, ROWS = 16;
 
-	public static final List<TerminalFont> fonts = new ArrayList<TerminalFont>();
+	@Getter
+	private static final List<TerminalFont> fonts = new ArrayList<TerminalFont>();
 
 	public static void load() throws IOException {
-		log.info("Loading terminal fonts");
+		log.debug("Loading terminal fonts");
 
 		Enumeration<URL> urls = TerminalFont.class.getClassLoader().getResources(FONT_RESOURCE_PATH);
 		while (urls.hasMoreElements()) {
@@ -36,15 +36,17 @@ public class TerminalFont {
 				TerminalFont font = new TerminalFont(url);
 
 				fonts.add(font);
-				log.debug("Loaded font from {}", url);
+				log.debug("Loaded terminal font from {}", url);
 			} catch (IOException e) {
-				log.error("Failed to load font from {}", url, e);
+				log.error("Failed to load terminal font from {}", url, e);
 			}
 		}
 	}
 
 	/**
-	 * Gets the best terminal font, determined by the scale (higher scale = better)
+	 * Gets the best terminal font, determined by the scale compared to regular
+	 * CC (higher scale = better)
+	 * 
 	 * @return
 	 */
 	public static TerminalFont getBest() {
@@ -52,11 +54,16 @@ public class TerminalFont {
 				f1.getHorizontalScale() + f1.getVerticalScale())).findFirst().orElse(null);
 	}
 
+	@Getter
 	private final URL source;
 
+	@Getter
 	private final double horizontalScale, verticalScale;
+	
+	@Getter
 	private final int charWidth, charHeight;
 
+	@Getter
 	private final BufferedImage base;
 
 	private final HashMap<Color, BufferedImage> tinted;
@@ -85,35 +92,11 @@ public class TerminalFont {
 				getCharHeight());
 	}
 
-	public URL getSource() {
-		return source;
-	}
-
-	public BufferedImage getBase() {
-		return base;
-	}
-	
 	public BufferedImage getTinted(Color col) {
-		if(tinted.containsKey(col)) {
+		if (tinted.containsKey(col)) {
 			return tinted.get(col);
 		} else {
 			return tinted.put(col, Utils.makeTintedCopy(base, col));
 		}
-	}
-
-	public double getHorizontalScale() {
-		return horizontalScale;
-	}
-
-	public double getVerticalScale() {
-		return verticalScale;
-	}
-
-	public int getCharWidth() {
-		return charWidth;
-	}
-
-	public int getCharHeight() {
-		return charHeight;
 	}
 }

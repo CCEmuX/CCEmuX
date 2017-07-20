@@ -26,17 +26,15 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererConfig;
 
+@Slf4j
 public class AWTRenderer extends Frame
 		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
-	private static final Logger log = LoggerFactory.getLogger(AWTRenderer.class);
 	
 	private static final long serialVersionUID = 374030924274589331L;
 
