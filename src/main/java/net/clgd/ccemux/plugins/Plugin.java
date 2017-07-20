@@ -1,11 +1,14 @@
 package net.clgd.ccemux.plugins;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 import net.clgd.ccemux.plugins.hooks.Hook;
 
@@ -17,6 +20,7 @@ import net.clgd.ccemux.plugins.hooks.Hook;
  * @author apemanzilla
  * @see Hook
  */
+@Slf4j
 public abstract class Plugin {
 	private final Set<Hook> hooks = new HashSet<>();
 
@@ -133,5 +137,18 @@ public abstract class Plugin {
 			return getName() + " v" + getVersion().get();
 		else
 			return getName();
+	}
+	
+	/**
+	 * Attempts to locate the file that this plugin was loaded from
+	 * @return
+	 */
+	public final Optional<File> getSource() {
+		try {
+			return Optional.of(new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()));
+		} catch (URISyntaxException e) {
+			log.error("Failed to locate plugin source for plugin {}", toString(), e);
+			return Optional.empty();
+		}
 	}
 }

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
 
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
@@ -35,11 +36,12 @@ public class PluginManager extends HashSet<Plugin> implements Closing, CreatingC
 	public PluginManager(ClassLoader loader, Config cfg) {
 		this.cfg = cfg;
 		ServiceLoader.load(Plugin.class, loader).forEach(p -> {
+			val source = p.getSource().map(File::getAbsolutePath).orElse("(unknown");
 			if (!cfg.isPluginBlacklisted(p)) {
 				add(p);
-				log.info("Loaded plugin [{}]", p);
+				log.info("Loaded plugin [{}] from {}", p, source);
 			} else {
-				log.info("Skipping blacklisted plugin [{}]", p);
+				log.info("Skipping blacklisted plugin [{}] from {}", p, source);
 			}
 		});
 	}
