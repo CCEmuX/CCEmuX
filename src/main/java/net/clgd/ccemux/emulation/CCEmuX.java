@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipInputStream;
 
 import dan200.computercraft.ComputerCraft;
@@ -51,7 +51,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	private final PluginManager pluginMgr;
 	public final File ccJar;
 
-	private Map<EmulatedComputer, Renderer> computers = new HashMap<>();
+	private Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
 
 	private int nextID = 0;
 
