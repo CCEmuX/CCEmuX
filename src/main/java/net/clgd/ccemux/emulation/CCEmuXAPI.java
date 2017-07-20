@@ -8,20 +8,18 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ILuaAPI;
+import lombok.extern.slf4j.Slf4j;
 
 @FunctionalInterface
 interface APIMethod {
 	Object[] accept(Object[] o) throws LuaException;
 }
 
+@Slf4j
 public class CCEmuXAPI implements ILuaAPI {
-	private static final Logger log = LoggerFactory.getLogger(CCEmuXAPI.class);
 
 	private final String name;
 	private final Map<String, APIMethod> methods = new LinkedHashMap<>();

@@ -31,20 +31,18 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 
 import dan200.computercraft.ComputerCraft;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.TerminalFont;
 
+@Slf4j
 public class Launcher {
-	private static final Logger log = LoggerFactory.getLogger(Launcher.class);
-
 	private static final Options opts = new Options();
 
 	// initialize cli options

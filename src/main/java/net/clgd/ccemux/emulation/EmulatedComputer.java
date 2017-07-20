@@ -4,12 +4,10 @@ import java.lang.reflect.Field;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
@@ -17,9 +15,8 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
  * @author apemanzilla
  *
  */
+@Slf4j
 public class EmulatedComputer extends Computer {
-	private static final Logger log = LoggerFactory.getLogger(EmulatedComputer.class);
-
 	/**
 	 * A class used to create new <code>EmulatedComputer</code> instances
 	 * 

@@ -9,9 +9,8 @@ import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.EmulatedComputer.Builder;
@@ -27,11 +26,10 @@ import net.clgd.ccemux.plugins.hooks.RendererCreated;
 import net.clgd.ccemux.plugins.hooks.Tick;
 import net.clgd.ccemux.rendering.Renderer;
 
+@Slf4j
 @SuppressWarnings("serial")
 public class PluginManager extends HashSet<Plugin> implements Closing, CreatingComputer, ComputerCreated,
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
-	private static final Logger log = LoggerFactory.getLogger(PluginManager.class);
-
 	private final Config cfg;
 
 	public PluginManager(ClassLoader loader, Config cfg) {

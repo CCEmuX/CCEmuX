@@ -7,17 +7,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import dan200.computercraft.ComputerCraft;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import dan200.computercraft.ComputerCraft;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CCLoader {
-	private static final Logger log = LoggerFactory.getLogger(CCLoader.class);
 
-	private CCLoader() {
-	}
+	private CCLoader() {}
 
 	public static boolean isLoaded() {
 		try {
@@ -31,8 +30,7 @@ public class CCLoader {
 	public static void download(URL remote, File jar) throws IOException {
 		log.info("Downloading CC jar from {} to {}", remote, jar);
 
-		if (jar.exists())
-			jar.delete();
+		if (jar.exists()) jar.delete();
 
 		FileUtils.copyURLToFile(remote, jar, 5000, 5000);
 

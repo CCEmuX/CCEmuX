@@ -13,16 +13,13 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.gson.Gson;
 
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.plugins.Plugin;
 
+@Slf4j
 public class Config {
-	private static final Logger log = LoggerFactory.getLogger(Config.class);
-
 	public static final Config defaults;
 
 	public static final String CONFIG_FILE_NAME = "ccemux.json";

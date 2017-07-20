@@ -7,9 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipInputStream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -17,14 +14,15 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererConfig;
 import net.clgd.ccemux.rendering.RendererFactory;
 
+@Slf4j
 public class CCEmuX implements Runnable, IComputerEnvironment {
-	private static final Logger log = LoggerFactory.getLogger(CCEmuX.class);
 
 	public static String getVersion() {
 		Package p = CCEmuX.class.getPackage();
