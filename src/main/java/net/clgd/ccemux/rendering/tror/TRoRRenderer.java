@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingDeque;
 
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.EmulatedPalette;
 import net.clgd.ccemux.emulation.EmulatedTerminal;
@@ -15,11 +16,6 @@ import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererConfig;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.Listener {
-	private static final String[] COLOURS = new String[]{
-			"0", "1", "2", "3", "4", "5", "6", "7",
-			"8", "9", "a", "b", "c", "d", "e", "f"
-	};
-
 	private final EmulatedComputer computer;
 	private final RendererConfig config;
 
@@ -57,7 +53,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 	@Override
 	public boolean isVisible() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -192,17 +188,17 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 	@Override
 	public void setTextColour(int colour) {
-		sendLine("TF", COLOURS[colour]);
+		sendLine("TF", Character.toString(Utils.intToBase16(colour)));
 	}
 
 	@Override
 	public void setBackgroundColour(int colour) {
-		sendLine("TK", COLOURS[colour]);
+		sendLine("TK", Character.toString(Utils.intToBase16(colour)));
 	}
 
 	@Override
 	public void setColour(int index, double r, double g, double b) {
-		sendLine("TM", String.format("%s,%.4f,%.4f,%.4f", COLOURS[index], r, g, b));
+		sendLine("TM", String.format("%c,%.4f,%.4f,%.4f", Utils.intToBase16(index), r, g, b));
 	}
 
 	@Override
