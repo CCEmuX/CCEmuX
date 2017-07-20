@@ -16,6 +16,10 @@ public class Utils {
 		return BASE_16.indexOf(String.valueOf(c).toLowerCase());
 	}
 
+	public static char intToBase16(int p) {
+		return BASE_16.charAt(p);
+	}
+
 	public static Color getCCColourFromInt(int i) {
 		Colour col = Colour.fromInt(15 - i);
 		return col == null ? Color.WHITE : new Color(col.getR(), col.getG(), col.getB());
