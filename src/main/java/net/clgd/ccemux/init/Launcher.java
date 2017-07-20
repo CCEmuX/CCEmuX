@@ -310,7 +310,7 @@ public class Launcher {
 
 			pluginMgr.onInitializationCompleted();
 
-			TerminalFont.load();
+			TerminalFont.loadFonts();
 
 			log.info("Setting up emulation environment");
 

@@ -26,7 +26,7 @@ public class TerminalFont {
 	@Getter
 	private static final List<TerminalFont> fonts = new ArrayList<TerminalFont>();
 
-	public static void load() throws IOException {
+	public static void loadFonts() throws IOException {
 		log.debug("Loading terminal fonts");
 
 		Enumeration<URL> urls = TerminalFont.class.getClassLoader().getResources(FONT_RESOURCE_PATH);
