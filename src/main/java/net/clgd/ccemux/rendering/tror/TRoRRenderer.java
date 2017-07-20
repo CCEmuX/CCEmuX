@@ -25,6 +25,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	private final BlockingDeque<InputProvider.InputPacket> events;
 
 	private final Writer output;
+	private boolean isVisible = true;
 
 	public TRoRRenderer(EmulatedComputer computer, RendererConfig config) {
 		this.computer = computer;
@@ -56,11 +57,40 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 	@Override
 	public boolean isVisible() {
-		return true;
+		return isVisible;
 	}
 
 	@Override
 	public void setVisible(boolean visible) {
+		if (isVisible != visible) {
+			isVisible = visible;
+
+			if (visible) {
+				// Broadcast the entire terminal state to ensure the remote is in sync.
+				EmulatedTerminal terminal = computer.terminal;
+				setCursorPos(terminal.getCursorX(), terminal.getCursorY());
+				setCursorBlink(terminal.getCursorBlink());
+				resize(terminal.getWidth(), terminal.getHeight());
+
+				StringBuilder builder = new StringBuilder();
+				for (int y = 0; y < terminal.getHeight(); y++) {
+					if (y > 0) builder.append(':');
+
+					builder.append(terminal.getTextColourLine(y).m_text);
+					builder.append(',');
+					builder.append(terminal.getBackgroundColourLine(y).m_text);
+					builder.append(',');
+					builder.append(terminal.getLine(y).m_text);
+				}
+				sendLine("TV", builder.toString());
+
+				EmulatedPalette palette = terminal.getEmulatedPalette();
+				for (int i = 0; i < 16; i++) {
+					double[] colour = palette.getColour(i);
+					setColour(i, colour[0], colour[1], colour[2]);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -160,6 +190,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	}
 
 	private void sendLine(String mode, String line) {
+		if (!isVisible) return;
+
 		try {
 			output.write(mode);
 			output.write(':');
