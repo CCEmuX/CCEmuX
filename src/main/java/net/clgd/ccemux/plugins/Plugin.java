@@ -146,7 +146,7 @@ public abstract class Plugin {
 	public final Optional<File> getSource() {
 		try {
 			return Optional.of(new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()));
-		} catch (URISyntaxException e) {
+		} catch (URISyntaxException | NullPointerException | SecurityException e) {
 			log.error("Failed to locate plugin source for plugin {}", toString(), e);
 			return Optional.empty();
 		}

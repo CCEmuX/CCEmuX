@@ -1,3 +1,4 @@
 net.clgd.ccemux.plugins.builtin.AWTPlugin
 net.clgd.ccemux.plugins.builtin.CCTweaksPlugin
 net.clgd.ccemux.plugins.builtin.TRoRPlugin
+net.clgd.ccemux.plugins.builtin.HDFontPlugin
