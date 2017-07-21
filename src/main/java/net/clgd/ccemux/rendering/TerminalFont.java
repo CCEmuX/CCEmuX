@@ -88,7 +88,8 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	 */
 	public static TerminalFont getBest() {
 		val fonts = explicitFonts.size() > 0 ? explicitFonts : implicitFonts;
-		return fonts.stream().sorted().reduce((a, b) -> b).get();
+		return fonts.stream().sorted().reduce((a, b) -> b)
+				.orElseThrow(() -> new RuntimeException("No terminal fonts available"));
 	}
 
 	/**

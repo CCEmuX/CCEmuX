@@ -121,7 +121,7 @@ public class EmulatedComputer extends Computer {
 
 				return ec;
 			} else {
-				throw new IllegalStateException("This computer has alrady been built!");
+				throw new IllegalStateException("This computer has already been built!");
 			}
 		}
 	}
