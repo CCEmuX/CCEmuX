@@ -27,6 +27,13 @@ public final class VirtualDirectory implements VirtualMountEntry {
 	public static class Builder {
 		private VirtualDirectory dir = new VirtualDirectory();
 
+		/**
+		 * Adds an entry to the directory being built, creating directories and
+		 * overwriting existing entries as necessary.
+		 * 
+		 * @throws IllegalArgumentException
+		 *             Thrown if the given path is invalid
+		 */
 		public void addEntry(Path path, VirtualMountEntry entry) {
 			path = path.normalize();
 

@@ -6,7 +6,6 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.ZipInputStream;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
@@ -17,6 +16,8 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.emulation.filesystem.VirtualMount;
 import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.init.Launcher;
 import net.clgd.ccemux.plugins.PluginManager;
@@ -28,18 +29,19 @@ import net.clgd.ccemux.rendering.RendererFactory;
 public class CCEmuX implements Runnable, IComputerEnvironment {
 	public static String getVersion() {
 		Package p = Launcher.class.getPackage();
-		
+
 		if (p == null) {
-			// try with a fresh classloader (RewritingLoader doesn't track packages)
+			// try with a fresh classloader (RewritingLoader doesn't track
+			// packages)
 			val loader = Launcher.class.getClassLoader();
 			if (loader instanceof URLClassLoader) {
 				val ucl = new URLClassLoader(((URLClassLoader) loader).getURLs());
 				try {
 					p = Class.forName(Launcher.class.getName(), false, ucl).getPackage();
-				} catch (ClassNotFoundException e) { }
+				} catch (ClassNotFoundException e) {}
 			}
 		}
-		
+
 		return p == null ? null : p.getImplementationVersion();
 	}
 
@@ -89,7 +91,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			});
 
 			pluginMgr.onRendererCreated(this, renderer);
-			
+
 			computers.put(computer, renderer);
 
 			renderer.setVisible(true);
@@ -99,7 +101,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			return computer;
 		}
 	}
-	
+
 	public EmulatedComputer addComputer() {
 		return addComputer(-1);
 	}
@@ -191,8 +193,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		if (path.startsWith("\\")) path = path.substring(1);
 
 		try {
-			return new ComboMount(new IMount[] { new JarMount(ccJar, path),
-					new CustomRomMount(new ZipInputStream(this.getClass().getResourceAsStream("/custom.rom"))) });
+			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
+			pluginMgr.onCreatingROM(this, romBuilder);
+			return new ComboMount(new IMount[] { new JarMount(ccJar, path), new VirtualMount(romBuilder.build()) });
 		} catch (IOException e) {
 			log.error("Failed to create resource mount", e);
 			return null;
@@ -201,7 +204,8 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	@Override
 	public IWritableMount createSaveDirMount(String path, long capacity) {
-		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(), cfg.getMaxComputerCapaccity());
+		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(),
+				cfg.getMaxComputerCapaccity());
 	}
 
 	@Override
