@@ -21,8 +21,6 @@ eclipse.project {
 	natures 'org.springsource.ide.eclipse.gradle.core.nature'
 }
 
-project.ext.cc = new JsonSlurper().parse(file('src/main/resources/ccemux.json'))
-
 repositories {
 	mavenCentral()
 
@@ -42,10 +40,15 @@ repositories {
 	}
 }
 
+project.ext.cc = new JsonSlurper().parse(file('src/main/resources/ccemux.json'))
+project.ext.lombokVersion = '1.16.18'
+
 dependencies {
-	compileOnly 'org.projectlombok:lombok:1.16.18'
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testCompile "org.projectlombok:lombok:${lombokVersion}"
 
 	compileOnly "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
+	testCompile "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
 
 	compile 'org.slf4j:slf4j-api:1.7.25'
 	compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
