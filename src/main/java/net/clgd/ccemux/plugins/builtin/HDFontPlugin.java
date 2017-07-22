@@ -28,7 +28,7 @@ public class HDFontPlugin extends Plugin {
 
 	@Override
 	public Optional<String> getAuthor() {
-		return Optional.of("Bomb Bloke");
+		return Optional.of("BombBloke");
 	}
 
 	@Override

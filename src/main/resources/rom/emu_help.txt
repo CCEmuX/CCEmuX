@@ -10,7 +10,8 @@ Opens a new emulated computer, with the given ID (if specified) or with the next
 This will open the CCEmuX data dir (where config files and computer save folders are stored) in your default file browser. Can be called from within programs via ccemux.openDataDir(). Note that it may fail on some Linux systems (i.e. if you don't have a DE installed)
 
 Credits
-* Lignumm - developer
+* Lignum - developer
 * apemanzilla - developer
 * Lemmmy - contributions to ccemux API and program
 * SquidDev - CCTweaks support and general help during development
+* BombBloke - created and allowed us to use the HD font
