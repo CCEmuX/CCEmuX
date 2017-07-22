@@ -1,5 +1,7 @@
 package net.clgd.ccemux;
 
+import static com.google.common.primitives.Doubles.constrainToRange;
+
 import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -30,17 +32,8 @@ public class Utils {
 	}
 
 	public static double[] clampColor(double[] col) {
-		return new double[]{clamp(col[0], 0f, 1f), clamp(col[1], 0f, 1f), clamp(col[2], 0f, 1f)};
-	}
-
-	public static double clamp(double f, double min, double max) {
-		if (f > max) {
-			return max;
-		} else if (f < min) {
-			return min;
-		} else {
-			return f;
-		}
+		return new double[] { constrainToRange(col[0], 0, 1), constrainToRange(col[1], 0, 1),
+				constrainToRange(col[2], 0, 1) };
 	}
 
 	public static BufferedImage makeTintedCopy(BufferedImage bi, Color tint) {
@@ -53,8 +46,7 @@ public class Utils {
 			for (int x = 0; x < bi.getWidth(); x++) {
 				int rgb = bi.getRGB(x, y);
 
-				if (rgb != 0)
-					tinted.setRGB(x, y, tint.getRGB());
+				if (rgb != 0) tinted.setRGB(x, y, tint.getRGB());
 			}
 		}
 
