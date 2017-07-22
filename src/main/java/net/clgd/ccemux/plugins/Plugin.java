@@ -59,13 +59,23 @@ public abstract class Plugin {
 	/**
 	 * Registers a new hook which may be called later. The <code>cls</code>
 	 * parameter is only used to help out with type inference so that lambdas
-	 * can be used.
+	 * can be used.<br />
+	 * <br />
+	 * 
+	 * @deprecated Using this method with lambdas as opposed to
+	 *             {@link #registerHook(Hook)} with anonymous classes may cause
+	 *             crashes, as lambdas force the JVM to load classes earlier
+	 *             than usual, which can result in a
+	 *             {@link ClassNotFoundException} because of the way
+	 *             ComputerCraft is loaded at runtime. This method will most
+	 *             likely be removed in the future.
 	 * 
 	 * @see Hook
 	 * @see #registerHook(Hook)
 	 */
+	@Deprecated
 	public final <T extends Hook> void registerHook(Class<T> cls, T hook) {
-		hooks.add(hook);
+		registerHook(hook);
 	}
 
 	/**
@@ -138,9 +148,10 @@ public abstract class Plugin {
 		else
 			return getName();
 	}
-	
+
 	/**
 	 * Attempts to locate the file that this plugin was loaded from
+	 * 
 	 * @return
 	 */
 	public final Optional<File> getSource() {

@@ -74,7 +74,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			pluginMgr.onCreatingComputer(this, builder);
 
 			EmulatedComputer computer = builder.build();
-			if (cfg.isApiEnabled()) computer.addAPI(new CCEmuXAPI(this, computer, "ccemux"));
 
 			pluginMgr.onComputerCreated(this, computer);
 
