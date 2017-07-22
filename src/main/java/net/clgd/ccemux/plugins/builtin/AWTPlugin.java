@@ -2,10 +2,13 @@ package net.clgd.ccemux.plugins.builtin;
 
 import java.util.Optional;
 
+import com.google.auto.service.AutoService;
+
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
 
+@AutoService(Plugin.class)
 public class AWTPlugin extends Plugin {
 
 	@Override

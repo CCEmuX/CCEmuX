@@ -13,6 +13,8 @@ import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 
+import com.google.auto.service.AutoService;
+
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ILuaAPI;
@@ -26,6 +28,7 @@ import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.CreatingROM;
 
 @Slf4j
+@AutoService(Plugin.class)
 public class CCEmuXAPI extends Plugin {
 	@FunctionalInterface
 	private static interface APIMethod {

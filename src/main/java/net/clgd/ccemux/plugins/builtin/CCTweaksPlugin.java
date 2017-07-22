@@ -8,12 +8,15 @@ import org.squiddev.cctweaks.lua.TweaksLogger;
 import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
+import com.google.auto.service.AutoService;
+
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.plugins.config.JSONConfigHandler;
 import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 
 @Slf4j
+@AutoService(Plugin.class)
 public class CCTweaksPlugin extends Plugin {
 
 	@Override

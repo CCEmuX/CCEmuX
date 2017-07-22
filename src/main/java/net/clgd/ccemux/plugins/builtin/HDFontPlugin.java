@@ -5,11 +5,14 @@ import java.util.Optional;
 
 import javax.imageio.ImageIO;
 
+import com.google.auto.service.AutoService;
+
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j
+@AutoService(Plugin.class)
 public class HDFontPlugin extends Plugin {
 	@Override
 	public String getName() {

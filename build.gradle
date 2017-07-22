@@ -47,6 +47,8 @@ dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 
+	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+
 	compileOnly "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
 	testCompile "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
 
