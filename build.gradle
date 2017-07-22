@@ -45,7 +45,7 @@ project.ext.lombokVersion = '1.16.18'
 
 dependencies {
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	testCompile "org.projectlombok:lombok:${lombokVersion}"
+	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 
 	compileOnly "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
 	testCompile "dan200.computercraft:ComputerCraft:${cc.ccRevision}"
