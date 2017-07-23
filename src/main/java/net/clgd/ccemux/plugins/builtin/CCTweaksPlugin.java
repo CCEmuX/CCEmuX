@@ -18,7 +18,6 @@ import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 @Slf4j
 @AutoService(Plugin.class)
 public class CCTweaksPlugin extends Plugin {
-
 	@Override
 	public String getName() {
 		return "CCTweaks";

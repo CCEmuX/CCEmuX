@@ -4,6 +4,7 @@ import static org.apache.commons.cli.Option.builder;
 
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -295,6 +296,10 @@ public class Launcher {
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
 				log.info("Available rendering methods:");
 				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
+				System.exit(0);
+			} else if (cli.hasOption('r')) {
+				cfg.setRenderer(cli.getOptionValue('r'));
+				log.info("Overriding renderer ({} selected)", cfg.getRenderer());
 			}
 
 			if (!RendererFactory.implementations.containsKey(cfg.getRenderer())) {
@@ -314,6 +319,8 @@ public class Launcher {
 
 			log.info("Setting up emulation environment");
 
+			if (!GraphicsEnvironment.isHeadless()) SplashScreen.getSplashScreen().close();
+			
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
 			emu.addComputer();
 			emu.run();

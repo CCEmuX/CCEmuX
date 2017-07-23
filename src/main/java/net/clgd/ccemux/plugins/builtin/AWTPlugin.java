@@ -10,7 +10,6 @@ import net.clgd.ccemux.rendering.awt.AWTRenderer;
 
 @AutoService(Plugin.class)
 public class AWTPlugin extends Plugin {
-
 	@Override
 	public String getName() {
 		return "AWT Renderer";
