@@ -319,8 +319,9 @@ public class Launcher {
 
 			log.info("Setting up emulation environment");
 
-			if (!GraphicsEnvironment.isHeadless()) SplashScreen.getSplashScreen().close();
-			
+			if (!GraphicsEnvironment.isHeadless())
+				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
+
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
 			emu.addComputer();
 			emu.run();
