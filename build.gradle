@@ -69,9 +69,13 @@ dependencies {
 	testCompile 'junit:junit:4.12'
 }
 
+processResources {
+	exclude '**/*.xcf' // GIMP images
+}
+
 jar {
 	manifest {
-		attributes 'SplashScreen-Image': 'splash1.png', 'Implementation-Version': version
+		attributes 'SplashScreen-Image': 'splash2.gif', 'Implementation-Version': version
 	}
 }
 
