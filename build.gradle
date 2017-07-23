@@ -75,7 +75,7 @@ processResources {
 
 jar {
 	manifest {
-		attributes 'SplashScreen-Image': 'splash2.gif', 'Implementation-Version': version
+		attributes 'SplashScreen-Image': 'img/splash2.gif', 'Implementation-Version': version
 	}
 }
 

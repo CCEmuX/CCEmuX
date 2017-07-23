@@ -180,7 +180,7 @@ public class AWTRenderer extends Frame
 
 		// set icon
 		try {
-			setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/icon.png")));
+			setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/img/icon.png")));
 		} catch (IOException e) {
 			log.warn("Failed to set taskbar icon", e);
 		}

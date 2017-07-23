@@ -45,7 +45,7 @@ public class HDFontPlugin extends Plugin {
 		try {
 			log.info("Registering HD font");
 			TerminalFont.registerFont(
-					new TerminalFont(ImageIO.read(HDFontPlugin.class.getResourceAsStream("/hdfont.png"))));
+					new TerminalFont(ImageIO.read(HDFontPlugin.class.getResourceAsStream("/img/hdfont.png"))));
 		} catch (IOException e) {
 			log.error("Failed to register HD font", e);
 		}
