@@ -278,7 +278,6 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		log.trace("{}", e.getKeyCode());
 		computer.pressKey(translateToCC(e.getKeyCode()), false);
 	}
 

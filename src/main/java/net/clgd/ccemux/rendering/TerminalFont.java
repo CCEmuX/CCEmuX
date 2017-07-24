@@ -115,12 +115,12 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	private final int charWidth, charHeight;
 
 	/**
-	 * Copies of the font image, colored for each default CC color
+	 * Copies of the font image with different colors
 	 */
-	//private final HashMap<Color, BufferedImage> tinted;
 	private final Cache<Color, BufferedImage> tinted = CacheBuilder.newBuilder()
-			.maximumSize(128)
-			.expireAfterAccess(60, TimeUnit.SECONDS)
+			.initialCapacity(16)
+			.maximumSize(64)
+			.expireAfterAccess(30, TimeUnit.SECONDS)
 			.build();
 
 	/**
@@ -137,14 +137,6 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 
 		charWidth = (int) Math.round(BASE_CHAR_WIDTH * horizontalScale);
 		charHeight = (int) Math.round(BASE_CHAR_HEIGHT * verticalScale);
-
-		/**
-		 * Generate default color palette
-		 */
-		for (int i = 0; i < 16; i++) {
-			Color tint = Utils.getCCColourFromInt(i);
-			tinted.put(tint, Utils.makeTintedCopy(base, tint));
-		}
 	}
 
 	/**
@@ -184,8 +176,8 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 		try {
 			return tinted.get(col, () -> Utils.makeTintedCopy(base, col));
 		} catch (ExecutionException e) {
-			log.error("Failed to tint font with color {}", col, e);
-			return base;
+			log.error("Failed to get tinted font for color {}", col, e);
+			throw new RuntimeException(e);
 		}
 	}
 
