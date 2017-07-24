@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import lombok.Getter;
 import lombok.val;
@@ -113,7 +117,11 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	/**
 	 * Copies of the font image, colored for each default CC color
 	 */
-	private final HashMap<Color, BufferedImage> tinted;
+	//private final HashMap<Color, BufferedImage> tinted;
+	private final Cache<Color, BufferedImage> tinted = CacheBuilder.newBuilder()
+			.maximumSize(128)
+			.expireAfterAccess(60, TimeUnit.SECONDS)
+			.build();
 
 	/**
 	 * Creates a new terminal font
@@ -133,7 +141,6 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 		/**
 		 * Generate default color palette
 		 */
-		tinted = new HashMap<>();
 		for (int i = 0; i < 16; i++) {
 			Color tint = Utils.getCCColourFromInt(i);
 			tinted.put(tint, Utils.makeTintedCopy(base, tint));
@@ -174,10 +181,11 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	 * @return A colorized copy of this font
 	 */
 	public BufferedImage getTinted(Color col) {
-		if (tinted.containsKey(col)) {
-			return tinted.get(col);
-		} else {
-			return tinted.put(col, Utils.makeTintedCopy(base, col));
+		try {
+			return tinted.get(col, () -> Utils.makeTintedCopy(base, col));
+		} catch (ExecutionException e) {
+			log.error("Failed to tint font with color {}", col, e);
+			return base;
 		}
 	}
 
