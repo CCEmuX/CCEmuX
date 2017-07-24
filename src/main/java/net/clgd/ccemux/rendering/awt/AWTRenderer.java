@@ -82,10 +82,13 @@ public class AWTRenderer extends Frame
 
 	private double blinkLockedTime = 0d;
 
+	private boolean paletteChanged = false;
+
 	public AWTRenderer(EmulatedComputer computer, RendererConfig config) {
 		super(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
+		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
 
 		pixelWidth = (int) (6 * config.termScale);
 		pixelHeight = (int) (9 * config.termScale);
@@ -145,7 +148,7 @@ public class AWTRenderer extends Frame
 					JOptionPane.showMessageDialog(null, e, "Error processing file drop", JOptionPane.ERROR_MESSAGE);
 				}
 			}
-			
+
 			private void handleDragEvent(DropTargetDragEvent dtde) {
 				val flavors = dtde.getCurrentDataFlavorsAsList();
 				if (flavors.stream().anyMatch(f -> f.isFlavorJavaFileListType() || f.isFlavorTextType())) {
@@ -208,7 +211,7 @@ public class AWTRenderer extends Frame
 		termComponent.blinkLocked = blinkLockedTime > 0;
 
 		if (isVisible()) {
-			boolean doRepaint = false;
+			boolean doRepaint = paletteChanged;
 
 			if (computer.terminal.getChanged()) {
 				doRepaint = true;

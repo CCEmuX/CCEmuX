@@ -6,9 +6,9 @@ import java.util.List;
 import dan200.computercraft.shared.util.Palette;
 
 public class EmulatedPalette extends Palette {
+	@FunctionalInterface
 	public interface Listener {
-		default void setColour(int index, double r, double g, double b) {
-		}
+		void setColour(int index, double r, double g, double b);
 	}
 
 	private final Palette delegate;
