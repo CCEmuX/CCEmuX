@@ -100,6 +100,7 @@ public class AWTRenderer extends Frame
 		add(termComponent, BorderLayout.CENTER);
 
 		// required for tab to work
+		setFocusTraversalKeysEnabled(false);
 		termComponent.setFocusTraversalKeysEnabled(false);
 
 		termComponent.addKeyListener(this);
@@ -277,6 +278,7 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void keyPressed(KeyEvent e) {
+		log.trace("{}", e.getKeyCode());
 		computer.pressKey(translateToCC(e.getKeyCode()), false);
 	}
 
