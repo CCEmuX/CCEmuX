@@ -14,6 +14,7 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
+import lombok.Getter;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
@@ -49,9 +50,14 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		return System.currentTimeMillis() / 400 % 2 == 0;
 	}
 
-	public final Config cfg;
+	@Getter
+	private final Config cfg;
+	
+	@Getter
 	private final PluginManager pluginMgr;
-	public final File ccJar;
+	
+	@Getter
+	private final File ccJar;
 
 	private Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
 

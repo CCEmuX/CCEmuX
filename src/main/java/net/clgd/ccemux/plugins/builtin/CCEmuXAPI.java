@@ -69,7 +69,7 @@ public class CCEmuXAPI extends Plugin {
 
 			methods.put("openDataDir", o -> {
 				try {
-					Desktop.getDesktop().browse(emu.cfg.getDataDir().toUri());
+					Desktop.getDesktop().browse(emu.getCfg().getDataDir().toUri());
 					return new Object[] { true };
 				} catch (Exception e) {
 					return new Object[] { false, e.toString() };
