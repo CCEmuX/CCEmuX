@@ -52,7 +52,7 @@ public class CCEmuXAPI extends Plugin {
 			});
 
 			methods.put("openEmu", o -> {
-				int id = -1;
+				int id;
 
 				if (o.length > 0 && o[0] != null) {
 					if (o[0] instanceof Number) {
@@ -60,9 +60,11 @@ public class CCEmuXAPI extends Plugin {
 					} else {
 						throw new LuaException("expected number or nil for argument #1");
 					}
+				} else {
+					id = -1;
 				}
 
-				EmulatedComputer ec = emu.addComputer(id);
+				EmulatedComputer ec = emu.createComputer(b -> b.id(id));
 
 				return new Object[] { ec.getID() };
 			});

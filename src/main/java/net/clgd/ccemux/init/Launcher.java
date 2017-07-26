@@ -323,7 +323,7 @@ public class Launcher {
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
 
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
-			emu.addComputer();
+			emu.createComputer();
 			emu.run();
 
 			pluginMgr.onClosing(emu);

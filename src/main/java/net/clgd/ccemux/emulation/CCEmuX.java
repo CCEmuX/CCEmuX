@@ -6,6 +6,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
@@ -52,10 +53,10 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	@Getter
 	private final Config cfg;
-	
+
 	@Getter
 	private final PluginManager pluginMgr;
-	
+
 	@Getter
 	private final File ccJar;
 
@@ -72,43 +73,58 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		this.ccJar = ccJar;
 	}
 
-	public EmulatedComputer addComputer(int id) {
-		synchronized (computers) {
-			EmulatedTerminal term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
-			EmulatedComputer.Builder builder = EmulatedComputer.builder(this, term).id(id);
-
-			pluginMgr.onCreatingComputer(this, builder);
-
-			EmulatedComputer computer = builder.build();
-
-			pluginMgr.onComputerCreated(this, computer);
-
-			Renderer renderer = RendererFactory.implementations.get(cfg.getRenderer()).create(computer,
-					new RendererConfig(cfg));
-
-			computer.addListener(renderer);
-
-			renderer.addListener(new Renderer.Listener() {
-				@Override
-				public void onClosed() {
-					CCEmuX.this.removeComputer(computer);
-				}
-			});
-
-			pluginMgr.onRendererCreated(this, renderer);
-
-			computers.put(computer, renderer);
-
-			renderer.setVisible(true);
-
-			log.info("Created new computer ID {}", computer.getID());
-			computer.turnOn();
-			return computer;
-		}
+	/**
+	 * Creates a new computer and renderer, applying config settings and plugin
+	 * hooks appropriately.
+	 * 
+	 * @see #createComputer(Consumer)
+	 * 
+	 * @return The new computer
+	 */
+	public EmulatedComputer createComputer() {
+		return createComputer(b -> {});
 	}
 
-	public EmulatedComputer addComputer() {
-		return addComputer(-1);
+	/**
+	 * Creates a new computer and renderer, applying config settings and plugin
+	 * hooks appropriately. Additionally takes a {@link Consumer} which will be
+	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
+	 * can be used to change the computers ID or other properties.
+	 * 
+	 * @param builderMutator
+	 *            Will be called after plugin hooks with the builder
+	 * @return The new computer
+	 */
+	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator) {
+		val term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
+		val builder = EmulatedComputer.builder(this, term).id(-1);
+
+		pluginMgr.onCreatingComputer(this, builder);
+		builderMutator.accept(builder);
+
+		val computer = builder.build();
+
+		pluginMgr.onComputerCreated(this, computer);
+
+		addComputer(computer);
+
+		return computer;
+	}
+
+	private void addComputer(EmulatedComputer ec) {
+		Renderer r = RendererFactory.implementations.get(cfg.getRenderer()).create(ec, new RendererConfig(cfg));
+
+		ec.addListener(r);
+		r.addListener(() -> this.removeComputer(ec)); // onClose
+
+		pluginMgr.onRendererCreated(this, r);
+
+		computers.put(ec, r);
+
+		r.setVisible(true);
+
+		log.info("Created new computer ID {}", ec.getID());
+		ec.turnOn();
 	}
 
 	public boolean removeComputer(EmulatedComputer computer) {
