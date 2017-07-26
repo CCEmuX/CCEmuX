@@ -7,6 +7,7 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.util.concurrent.Callable;
 
 import dan200.computercraft.shared.util.Colour;
 
@@ -41,7 +42,7 @@ public class Utils {
 		if (!GraphicsEnvironment.isHeadless()) {
 			GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
 					.getDefaultConfiguration();
-	
+
 			tinted = gc.createCompatibleImage(bi.getWidth(), bi.getHeight(), Transparency.TRANSLUCENT);
 		} else {
 			tinted = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
@@ -56,5 +57,48 @@ public class Utils {
 		}
 
 		return tinted;
+	}
+
+	/**
+	 * Tries to get a value as the result of a {@link Callable}, and if an
+	 * exception occurs, instead returns a given value.
+	 * 
+	 * @param getter
+	 *            A <code>Callable</code> that may produce a value or throw an
+	 *            exception
+	 * @param other
+	 *            The value to use it the <code>Callable</code> throws an
+	 *            <code>Exception</code>
+	 * @return The value returned by the <code>Callable</code>, or the second
+	 *         parameter if the <code>Callable</code> threw an
+	 *         <code>Exception</code>
+	 * @see #tryGet(Callable)
+	 */
+	public static <T> T tryGet(Callable<T> getter, T other) {
+		T got;
+		try {
+			got = getter.call();
+		} catch (Exception e) {
+			got = other;
+		}
+
+		return got;
+	}
+
+	/**
+	 * Returns the value returned by a given {@link Callable}, or returns
+	 * <code>null</code> if the <code>Callable</code> throws an
+	 * <code>Exception</code>.
+	 * 
+	 * @param getter
+	 *            A <code>Callable</code> that may produce a value or throw an
+	 *            <code>Exception</code>
+	 * @return The value returned by the <code>Callable</code>, or
+	 *         <code>null</code> if the <code>Callable</code> threw an
+	 *         <code>Exception</code>
+	 * @see #tryGet(Callable, Object)
+	 */
+	public static <T> T tryGet(Callable<T> getter) {
+		return tryGet(getter, null);
 	}
 }
