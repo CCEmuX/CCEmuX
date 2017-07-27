@@ -122,4 +122,33 @@ public class ConfigHandlerTest {
 		
 		assertEquals(expected, ConfigPropertyHandler.apply(new TestClass(), values));
 	}
+	
+	@Test
+	public void testSpecialCases() throws IllegalAccessException {
+		@EqualsAndHashCode
+		@ToString
+		class TestClass2 {
+			@ConfigProperty
+			float nan;
+			
+			@ConfigProperty
+			float infinity;
+			
+			@ConfigProperty
+			float negInfinity;
+			
+			@ConfigProperty
+			float uninitialized;
+		}
+		
+		val expected = new TestClass2();
+		
+		expected.nan = Float.NaN;
+		expected.infinity = Float.POSITIVE_INFINITY;
+		expected.negInfinity = Float.NEGATIVE_INFINITY;
+		
+		val got = ConfigPropertyHandler.apply(new TestClass2(), ConfigPropertyHandler.getConfig(expected));
+		
+		assertEquals(expected, got);
+	}
 }
