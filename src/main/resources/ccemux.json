@@ -6,5 +6,5 @@
 
 	"maxComputerCapacity": 1000000,
 
-	"pluginBlacklist": ["net.clgd.ccemux.plugins.builtin.CCTweaksPlugin"]
+	"pluginBlacklist": []
 }

@@ -57,7 +57,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	@Getter
 	private final PluginManager pluginMgr;
-	
+
 	@Getter
 	private final File ccSource;
 
@@ -77,9 +77,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately.
-	 * 
+	 *
 	 * @see #createComputer(Consumer)
-	 * 
+	 *
 	 * @return The new computer
 	 */
 	public EmulatedComputer createComputer() {
@@ -91,7 +91,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	 * hooks appropriately. Additionally takes a {@link Consumer} which will be
 	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
 	 * can be used to change the computers ID or other properties.
-	 * 
+	 *
 	 * @param builderMutator
 	 *            Will be called after plugin hooks with the builder
 	 * @return The new computer
@@ -224,10 +224,10 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			return null;
 		}
 	}
-	
+
 	@Override
 	public InputStream createResourceFile(String domain, String path) {
-		return CCEmuX.class.getResourceAsStream("/" + Paths.get("assets", domain, path).toString());
+		return CCEmuX.class.getResourceAsStream("/assets/" + domain + "/" + path);
 	}
 
 	@Override
