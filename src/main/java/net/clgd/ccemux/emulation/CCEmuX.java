@@ -2,6 +2,7 @@ package net.clgd.ccemux.emulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -222,6 +223,11 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 			log.error("Failed to create resource mount", e);
 			return null;
 		}
+	}
+	
+	@Override
+	public InputStream createResourceFile(String domain, String path) {
+		return CCEmuX.class.getResourceAsStream("/" + Paths.get("assets", domain, path).toString());
 	}
 
 	@Override

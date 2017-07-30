@@ -48,7 +48,7 @@ dependencies {
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
 
-	compile "dan200.computercraft:ComputerCraft:1.80pr0-build0"
+	compile "dan200.computercraft:ComputerCraft:1.80pr0-build12"
 
 	compile 'org.slf4j:slf4j-api:1.7.25'
 	compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
@@ -59,7 +59,7 @@ dependencies {
 	compile 'commons-codec:commons-codec:1.10'
 	compile 'org.apache.commons:commons-lang3:3.6'
 
-	compile 'org.squiddev:cctweaks-lua:1.5.0-nightly-build0'
+	compile 'org.squiddev:cctweaks-lua:1.5.0-pr1'
 
 	compile 'com.google.guava:guava:22.0'
 	compile 'com.google.code.gson:gson:2.8.1'

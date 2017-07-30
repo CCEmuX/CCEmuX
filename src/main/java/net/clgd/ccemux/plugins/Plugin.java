@@ -143,10 +143,7 @@ public abstract class Plugin {
 	public abstract void setup();
 
 	public final String toString() {
-		if (getVersion().isPresent())
-			return getName() + " v" + getVersion().get();
-		else
-			return getName();
+		return getName() + getVersion().map(v -> " v" + v).orElse("");
 	}
 
 	/**
