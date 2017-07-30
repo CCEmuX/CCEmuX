@@ -56,9 +56,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	@Getter
 	private final PluginManager pluginMgr;
-
+	
 	@Getter
-	private final File ccJar;
+	private final File ccSource;
 
 	private Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
 
@@ -67,10 +67,10 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	private long started = -1;
 	private boolean running;
 
-	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccJar) {
+	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccSource) {
 		this.cfg = cfg;
 		this.pluginMgr = pluginMgr;
-		this.ccJar = ccJar;
+		this.ccSource = ccSource;
 	}
 
 	/**
@@ -216,7 +216,8 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		try {
 			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
 			pluginMgr.onCreatingROM(this, romBuilder);
-			return new ComboMount(new IMount[] { new JarMount(ccJar, path), new VirtualMount(romBuilder.build()) });
+
+			return new ComboMount(new IMount[] { new JarMount(ccSource, path), new VirtualMount(romBuilder.build()) });
 		} catch (IOException e) {
 			log.error("Failed to create resource mount", e);
 			return null;

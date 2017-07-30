@@ -6,13 +6,13 @@ import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.SplashScreen;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -32,9 +31,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 
 import dan200.computercraft.ComputerCraft;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
@@ -75,7 +74,7 @@ public class Launcher {
 		System.setProperty("http.agent",
 				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
 
-		try (final RewritingLoader loader = new RewritingLoader(
+		try (final CCEmuXClassloader loader = new CCEmuXClassloader(
 				((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
 			@SuppressWarnings("unchecked")
 			final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
@@ -230,41 +229,16 @@ public class Launcher {
 		return new PluginManager(loader, cfg);
 	}
 
-	private Optional<File> loadCC(Config cfg) throws MalformedURLException, ReflectiveOperationException {
-		File jar;
+	private File getCCSource() throws URISyntaxException {
+		URI source = Optional.ofNullable(ComputerCraft.class.getProtectionDomain().getCodeSource())
+				.orElseThrow(() -> new IllegalStateException("Cannot locate CC")).getLocation().toURI();
 
-		if (cli.hasOption("cc")) {
-			jar = Paths.get(cli.getOptionValue("cc")).toFile();
-		} else {
-			jar = dataDir.resolve(cfg.getCCLocal()).toFile();
+		log.debug("CC is loaded from {}", source);
 
-			if (!jar.exists()) {
-				try {
-					CCLoader.download(cfg.getCCRemote(), jar);
-				} catch (IOException e) {
-					log.error("Failed to download CC jar", e);
-					if (!GraphicsEnvironment.isHeadless()) {
-						JOptionPane.showMessageDialog(null,
-								new JLabel("<html>CCEmuX failed to automatically download the ComputerCraft jar.<br />"
-										+ "Please check your internet connection, or manually download the jar to the path below.<br />"
-										+ "<pre>" + cfg.getCCLocal().toAbsolutePath().toString() + "</pre><br />"
-										+ "If issues persist, please open a bug report.</html>"),
-								"Failed to download CC jar", JOptionPane.ERROR_MESSAGE);
-						return Optional.empty();
-					}
-				}
-			}
-		}
+		if (!source.getScheme().equals("file"))
+			throw new IllegalStateException("Incompatible CC location: " + source.toString());
 
-		CCLoader.load(jar);
-
-		log.info("Loaded CC version {}", ComputerCraft.getVersion());
-		if (!ComputerCraft.getVersion().equals(cfg.getCCRevision())) {
-			log.warn("The expected CC version ({}) does not match the actual CC version ({}) - problems may occur!",
-					cfg.getCCRevision(), ComputerCraft.getVersion());
-		}
-
-		return Optional.of(jar);
+		return new File(source);
 	}
 
 	private void launch() {
@@ -284,12 +258,15 @@ public class Launcher {
 			pluginMgr.loadConfigs();
 			pluginMgr.loaderSetup(getClass().getClassLoader());
 
-			if (getClass().getClassLoader() instanceof RewritingLoader) {
-				((RewritingLoader) getClass().getClassLoader()).chain.finalise();
+			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
+				val loader = (CCEmuXClassloader) getClass().getClassLoader();
+				loader.chain.finalise();
 				log.warn("ClassLoader chain finalized");
+				loader.allowCC();
+				log.debug("CC access now allowed");
+			} else {
+				log.warn("Incompatible classloader type: {}", getClass().getClassLoader().getClass());
 			}
-
-			File ccJar = loadCC(cfg).orElseThrow(FileNotFoundException::new);
 
 			pluginMgr.setup();
 
@@ -322,7 +299,7 @@ public class Launcher {
 			if (!GraphicsEnvironment.isHeadless())
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
 
-			CCEmuX emu = new CCEmuX(cfg, pluginMgr, ccJar);
+			CCEmuX emu = new CCEmuX(cfg, pluginMgr, getCCSource());
 			emu.createComputer();
 			emu.run();
 

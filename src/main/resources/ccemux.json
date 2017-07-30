@@ -1,10 +1,4 @@
 {
-	"ccModule": "ComputerCraft",
-	"ccRevision": "1.80pr0-build0",
-	"ccExt": "jar",
-	"ccPatternRemote": "http://cc.crzd.me/maven/dan200/computercraft/ComputerCraft/[revision]/[module]-[revision].[ext]",
-	"ccPatternLocal": "[module][revision].[ext]",
-
 	"termWidth": 51,
 	"termHeight": 19,
 	"termScale": 3,

@@ -32,7 +32,11 @@ public class CrashReport {
 	public static Map<String, String> collectInfo() {
 		val info = new LinkedHashMap<String, String>();
 
-		info.put("CCEmuX version", MoreObjects.firstNonNull(CCEmuX.getVersion(), "unknown"));
+		try {
+			info.put("CCEmuX version", MoreObjects.firstNonNull(CCEmuX.getVersion(), "unknown"));
+		} catch (Throwable t) {
+			info.put("CCEmuX version", t.toString());
+		}
 
 		info.put("OS name", getProperty("os.name", "unknown"));
 		info.put("OS version", getProperty("os.version", "unknown"));
