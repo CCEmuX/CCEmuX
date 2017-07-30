@@ -57,10 +57,6 @@ public class Launcher {
 				.desc("Sets the renderer to use. Run without a value to list all available renderers.").hasArg()
 				.optionalArg(true).argName("renderer").build());
 
-		opts.addOption(builder().longOpt("cc")
-				.desc("Sepcifies a custom CC jar that will be used in place of the one specified by the config file.")
-				.hasArg().argName("file").build());
-
 		opts.addOption(builder().longOpt("plugin").desc(
 				"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
 				.hasArg().argName("file").build());

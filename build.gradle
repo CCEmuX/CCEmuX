@@ -48,7 +48,7 @@ dependencies {
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
 
-	compile "dan200.computercraft:ComputerCraft:1.80pr0-build12"
+	compile 'dan200.computercraft:ComputerCraft:1.80pr0-build12'
 
 	compile 'org.slf4j:slf4j-api:1.7.25'
 	compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
@@ -78,10 +78,26 @@ jar {
 }
 
 shadowJar {
-	classifier = null
-
+	classifier = 'all'
+	
 	exclude '*.html'
 	exclude 'META-INF/maven/*/*/*.*'
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+task noCCJar (type: ShadowJar) {
+	classifier = 'no-cc'
+	
+	from sourceSets.main.output
+	configurations = [ project.configurations.runtime ]
+	
+	exclude '*.html'
+	exclude 'META-INF/maven/*/*/*.*'
+	
+	dependencies {
+		exclude(dependency('.*:ComputerCraft:.*'))
+	}
 }
 
 run {
@@ -93,3 +109,4 @@ runShadow {
 }
 
 build.dependsOn shadowJar
+build.dependsOn noCCJar
