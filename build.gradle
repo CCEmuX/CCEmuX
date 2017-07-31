@@ -56,7 +56,6 @@ dependencies {
 
 	compile 'commons-io:commons-io:2.5'
 	compile 'commons-cli:commons-cli:1.4'
-	compile 'commons-codec:commons-codec:1.10'
 	compile 'org.apache.commons:commons-lang3:3.6'
 
 	compile 'org.squiddev:cctweaks-lua:1.5.0-pr2'
