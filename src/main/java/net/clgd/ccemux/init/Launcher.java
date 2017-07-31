@@ -67,24 +67,25 @@ public class Launcher {
 	}
 
 	public static void main(String args[]) {
-		System.setProperty("http.agent",
-				"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36");
-
-		try (final CCEmuXClassloader loader = new CCEmuXClassloader(
-				((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
-			@SuppressWarnings("unchecked")
-			final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
-
-			final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
-			constructor.setAccessible(true);
-
-			final Method launch = klass.getDeclaredMethod("launch");
-			launch.setAccessible(true);
-			launch.invoke(constructor.newInstance(new Object[] { args }));
-		} catch (Exception e) {
-			log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
-
+		if (System.getProperty("ccemux.forceDirectLaunch") != null) {
+			log.info("Skipping custom classloader, some features may be unavailable");
 			new Launcher(args).launch();
+		} else {
+			try (final CCEmuXClassloader loader = new CCEmuXClassloader(
+					((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
+				@SuppressWarnings("unchecked")
+				final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
+	
+				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
+				constructor.setAccessible(true);
+	
+				final Method launch = klass.getDeclaredMethod("launch");
+				launch.setAccessible(true);
+				launch.invoke(constructor.newInstance(new Object[] { args }));
+			} catch (Exception e) {
+				log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
+				new Launcher(args).launch();
+			}
 		}
 
 		System.exit(0);
