@@ -1,9 +1,9 @@
 import groovy.json.JsonSlurper
 
 plugins {
-	id 'java'
+	id 'java-library'
 	id 'application'
-	id 'com.github.johnrengelman.shadow' version '2.0.0'
+	id 'com.github.johnrengelman.shadow' version '2.0.1'
 	id 'eclipse'
 	id 'idea'
 }
@@ -48,20 +48,20 @@ dependencies {
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
 
-	compile 'dan200.computercraft:ComputerCraft:1.80pr0-build12'
+	api 'dan200.computercraft:ComputerCraft:1.80pr0-build12'
 
-	compile 'org.slf4j:slf4j-api:1.7.25'
-	compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
-	compile 'org.apache.logging.log4j:log4j-core:2.8.2'
+	api 'org.slf4j:slf4j-api:1.7.25'
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
+	implementation 'org.apache.logging.log4j:log4j-core:2.8.2'
 
-	compile 'commons-io:commons-io:2.5'
-	compile 'commons-cli:commons-cli:1.4'
-	compile 'org.apache.commons:commons-lang3:3.6'
+	implementation 'commons-io:commons-io:2.5'
+	implementation 'commons-cli:commons-cli:1.4'
+	implementation 'org.apache.commons:commons-lang3:3.6'
 
-	compile 'org.squiddev:cctweaks-lua:1.5.0-pr2'
+	implementation 'org.squiddev:cctweaks-lua:1.5.0-pr2'
 
-	compile 'com.google.guava:guava:22.0'
-	compile 'com.google.code.gson:gson:2.8.1'
+	implementation 'com.google.guava:guava:22.0'
+	implementation 'com.google.code.gson:gson:2.8.1'
 
 	testCompile 'junit:junit:4.12'
 }
@@ -89,7 +89,7 @@ task noCCJar (type: ShadowJar) {
 	classifier = 'no-cc'
 	
 	from sourceSets.main.output
-	configurations = [ project.configurations.runtime ]
+	configurations = [ project.configurations.runtimeClasspath ]
 	
 	exclude '*.html'
 	exclude 'META-INF/maven/*/*/*.*'

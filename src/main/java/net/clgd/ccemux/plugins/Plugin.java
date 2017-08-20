@@ -74,7 +74,7 @@ public abstract class Plugin {
 	 * @see #registerHook(Hook)
 	 */
 	@Deprecated
-	public final <T extends Hook> void registerHook(Class<T> cls, T hook) {
+	protected final <T extends Hook> void registerHook(Class<T> cls, T hook) {
 		registerHook(hook);
 	}
 

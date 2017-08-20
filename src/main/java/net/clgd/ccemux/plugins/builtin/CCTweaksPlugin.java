@@ -1,8 +1,11 @@
 package net.clgd.ccemux.plugins.builtin;
 
+import java.awt.GraphicsEnvironment;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import javax.swing.JOptionPane;
 
 import org.squiddev.cctweaks.lua.TweaksLogger;
 import org.squiddev.cctweaks.lua.launch.RewritingLoader;
@@ -88,6 +91,11 @@ public class CCTweaksPlugin extends Plugin {
 
 		} else {
 			log.warn("Incompatible ClassLoader in use - CCTweaks functionality unavailable");
+			
+			if (!GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(null,
+					"Your configuration is incompatible with the CCTweaks plugin.\n"
+							+ "Please consult the logs for more information.",
+					"CCTweaks unavailable", JOptionPane.WARNING_MESSAGE);
 		}
 	}
 
