@@ -1,8 +1,6 @@
 package net.clgd.ccemux.plugins.builtin;
 
 import java.awt.GraphicsEnvironment;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.JOptionPane;
@@ -14,9 +12,8 @@ import org.squiddev.cctweaks.lua.lib.ApiRegister;
 import com.google.auto.service.AutoService;
 
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.plugins.config.JSONConfigHandler;
-import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 
 @Slf4j
 @AutoService(Plugin.class)
@@ -46,19 +43,15 @@ public class CCTweaksPlugin extends Plugin {
 		return Optional.of("https://github.com/SquidDev-CC/CCTweaks-Lua");
 	}
 
-	// TODO: Make a better implementation that uses configgen?
-	@Override
-	public Optional<PluginConfigHandler<?>> getConfigHandler() {
-		return Optional.of(new JSONConfigHandler<Map<String, String>>(new HashMap<String, String>()) {
-			@Override
-			public void configLoaded(Map<String, String> config) {
-				config.forEach((k, v) -> System.setProperty("cctweaks." + k, v));
-			}
-		});
+	private void applyConfig(EmuConfig cfg) {
+		cfg.keys().stream().filter(k -> k.startsWith("cctweaks."))
+				.forEach(k -> System.setProperty(k, cfg.getAs(k, String.class).get()));
 	}
 
 	@Override
-	public void loaderSetup(ClassLoader loader) {
+	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {
+		applyConfig(cfg);
+
 		if (loader instanceof RewritingLoader) {
 
 			TweaksLogger.instance = org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
@@ -91,7 +84,7 @@ public class CCTweaksPlugin extends Plugin {
 
 		} else {
 			log.warn("Incompatible ClassLoader in use - CCTweaks functionality unavailable");
-			
+
 			if (!GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(null,
 					"Your configuration is incompatible with the CCTweaks plugin.\n"
 							+ "Please consult the logs for more information.",
@@ -100,7 +93,7 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public void setup() {
+	public void setup(EmuConfig cfg) {
 		ApiRegister.init();
 		ApiRegister.loadPlugins();
 	}

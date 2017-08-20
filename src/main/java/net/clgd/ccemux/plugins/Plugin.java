@@ -2,14 +2,11 @@ package net.clgd.ccemux.plugins;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.plugins.config.PluginConfigHandler;
+import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.hooks.Hook;
 
 /**
@@ -110,16 +107,6 @@ public abstract class Plugin {
 	public abstract Optional<String> getWebsite();
 
 	/**
-	 * Gets the config handler for this plugin.
-	 * 
-	 * @see net.clgd.ccemux.plugins.config.PluginConfigHandler
-	 *      PluginConfigHandler
-	 */
-	public Optional<PluginConfigHandler<?>> getConfigHandler() {
-		return Optional.empty();
-	}
-
-	/**
 	 * Called early while CCEmuX is starting, before even CC itself is loaded.
 	 * This method is intended to be used to interact with the classloader
 	 * before CC is loaded and should not be used unless you know what you're
@@ -127,7 +114,7 @@ public abstract class Plugin {
 	 * 
 	 * @see #setup()
 	 */
-	public void loaderSetup(ClassLoader loader) {};
+	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {};
 
 	/**
 	 * Called while CCEmuX is starting. This method should be used to register
@@ -140,7 +127,7 @@ public abstract class Plugin {
 	 * 
 	 * @see Hook
 	 */
-	public abstract void setup();
+	public abstract void setup(EmuConfig cfg);
 
 	public final String toString() {
 		return getName() + getVersion().map(v -> " v" + v).orElse("");

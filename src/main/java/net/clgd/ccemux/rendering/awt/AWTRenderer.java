@@ -3,28 +3,11 @@ package net.clgd.ccemux.rendering.awt;
 import static net.clgd.ccemux.rendering.awt.KeyTranslator.translateToCC;
 import static net.clgd.ccemux.rendering.awt.MouseTranslator.swingToCC;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.HeadlessException;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.dnd.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Character.UnicodeBlock;
@@ -39,10 +22,8 @@ import org.apache.logging.log4j.core.util.IOUtils;
 
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.RendererConfig;
 
 @Slf4j
 public class AWTRenderer extends Frame
@@ -84,19 +65,19 @@ public class AWTRenderer extends Frame
 
 	private boolean paletteChanged = false;
 
-	public AWTRenderer(EmulatedComputer computer, RendererConfig config) {
+	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
 		super(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
 		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
 
-		pixelWidth = (int) (6 * config.termScale);
-		pixelHeight = (int) (9 * config.termScale);
+		pixelWidth = (int) (6 * config.termScale.get());
+		pixelHeight = (int) (9 * config.termScale.get());
 
 		setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));
 
-		termComponent = new TerminalComponent(computer.terminal, config.termScale);
+		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());
 		add(termComponent, BorderLayout.CENTER);
 
 		// required for tab to work
@@ -135,7 +116,8 @@ public class AWTRenderer extends Frame
 						@SuppressWarnings("unchecked")
 						val data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 						computer.copyFiles(data, "/");
-						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.", "Files copied", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.",
+								"Files copied", JOptionPane.INFORMATION_MESSAGE);
 					} else if (DataFlavor.selectBestTextFlavor(flavors) != null) {
 						val f = DataFlavor.selectBestTextFlavor(flavors);
 

@@ -1,44 +1,28 @@
 package net.clgd.ccemux.plugins;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
-import org.apache.commons.io.FileUtils;
-
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
-import net.clgd.ccemux.init.Config;
-import net.clgd.ccemux.plugins.config.PluginConfigHandler;
-import net.clgd.ccemux.plugins.hooks.Closing;
-import net.clgd.ccemux.plugins.hooks.ComputerCreated;
-import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
-import net.clgd.ccemux.plugins.hooks.CreatingComputer;
-import net.clgd.ccemux.plugins.hooks.CreatingROM;
-import net.clgd.ccemux.plugins.hooks.Hook;
-import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
-import net.clgd.ccemux.plugins.hooks.RendererCreated;
-import net.clgd.ccemux.plugins.hooks.Tick;
+import net.clgd.ccemux.plugins.hooks.*;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
 @SuppressWarnings("serial")
 public class PluginManager extends HashSet<Plugin> implements Closing, CreatingComputer, CreatingROM, ComputerCreated,
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
-	private final Config cfg;
+	private final EmuConfig cfg;
 
-	public PluginManager(ClassLoader loader, Config cfg) {
+	public PluginManager(ClassLoader loader, EmuConfig cfg) {
 		this.cfg = cfg;
 		ServiceLoader.load(Plugin.class, loader).forEach(p -> {
 			val source = p.getSource().map(File::getAbsolutePath).orElse("(unknown)");
-			if (!cfg.isPluginBlacklisted(p)) {
+			if (cfg.pluginEnabled(p).get()) {
 				add(p);
 				log.info("Loaded plugin [{}] from {}", p, source);
 			} else {
@@ -47,40 +31,11 @@ public class PluginManager extends HashSet<Plugin> implements Closing, CreatingC
 		});
 	}
 
-	public void loadConfigs() {
-		Path configDir = cfg.getDataDir().resolve("plugins").resolve("configs");
-
-		File cd = configDir.toFile();
-		if (cd.isFile()) cd.delete();
-
-		if (!cd.exists()) cd.mkdirs();
-
-		stream().filter(p -> p.getConfigHandler().isPresent()).forEach(p -> {
-			try {
-				log.info("Loading config for plugin [{}]", p);
-
-				PluginConfigHandler<?> h = p.getConfigHandler().get();
-
-				File f = configDir.resolve(p.getClass().getName() + "." + h.getConfigFileExtension()).toFile();
-
-				if (f.isFile() && f.length() > 0) {
-					log.debug("Found user config file");
-					h.doLoadConfig(Optional.of(FileUtils.readFileToString(f, (Charset) null)));
-				} else {
-					log.debug("Using default config");
-					h.doLoadConfig(Optional.empty());
-				}
-			} catch (Exception e) {
-				log.warn("Exception while loading config for plugin [{}]", p, e);
-			}
-		});
-	}
-
 	public void loaderSetup(ClassLoader loader) {
 		forEach(p -> {
 			try {
 				log.debug("Calling loaderSetup for plugin [{}]", p);
-				p.loaderSetup(loader);
+				p.loaderSetup(cfg, loader);
 			} catch (Exception e) {
 				log.warn("Exception while calling loaderSetup for plugin [{}]", p, e);
 			}
@@ -91,7 +46,7 @@ public class PluginManager extends HashSet<Plugin> implements Closing, CreatingC
 		forEach(p -> {
 			try {
 				log.debug("Calling setup for plugin [{}]", p);
-				p.setup();
+				p.setup(cfg);
 			} catch (Exception e) {
 				log.warn("Exception while calling setup for plugin [{}]", p, e);
 			}

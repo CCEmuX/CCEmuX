@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 import com.google.auto.service.AutoService;
 
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.TerminalFont;
 
@@ -41,7 +42,7 @@ public class HDFontPlugin extends Plugin {
 	}
 
 	@Override
-	public void setup() {
+	public void setup(EmuConfig cfg) {
 		try {
 			log.info("Registering HD font");
 			TerminalFont.registerFont(

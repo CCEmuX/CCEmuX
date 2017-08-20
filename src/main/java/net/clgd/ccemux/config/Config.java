@@ -1,15 +1,16 @@
 package net.clgd.ccemux.config;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import com.google.common.collect.*;
 import com.google.gson.*;
 
 import lombok.Value;
+import lombok.experimental.NonFinal;
 
 @Value
+@NonFinal
 public class Config {
 	@Value
 	private class ChangeListener<T> {
@@ -34,27 +35,55 @@ public class Config {
 	private final Multimap<String, ChangeListener<?>> listeners = Multimaps
 			.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
 
+	/**
+	 * A wrapper for a specific key and value in a config
+	 * 
+	 * @author apemanzilla
+	 *
+	 * @param <T>
+	 *            The type of value stored
+	 */
 	@Value
 	public class Property<T> {
 		String key;
-		Class<T> cls;
+		Class<T> type;
+		T defaultValue;
 
+		/**
+		 * Adds a listener to be invoked when this value is changed, which is
+		 * passed the old and new values respectively.
+		 */
 		public void addListener(BiConsumer<T, T> consumer) {
-			Config.this.addListener(key, cls, consumer);
+			Config.this.addListener(key, type, consumer);
 		}
 
+		/**
+		 * Removes a listener
+		 */
 		public void removeListener(BiConsumer<T, T> consumer) {
 			Config.this.removeListener(key, consumer);
 		}
 
-		public Optional<T> get() {
-			return getAs(key, cls);
+		/**
+		 * Gets the raw value of this property, even if it's <code>null</code>.
+		 */
+		public T getNullable() {
+			return getAs(key, type).orElse(null);
 		}
 
-		public T getOr(T defaultValue) {
-			return getAsOr(key, cls, defaultValue);
+		/**
+		 * Gets the value of this property, or the default value if the value is
+		 * <code>null</code>.
+		 * 
+		 * @return
+		 */
+		public T get() {
+			return getAsOr(key, type, defaultValue);
 		}
 
+		/**
+		 * Sets the value of this property.
+		 */
 		public void set(T value) {
 			put(key, value);
 		}
@@ -81,6 +110,14 @@ public class Config {
 
 	public <T> void removeListener(BiConsumer<T, T> consumer) {
 		listeners.values().removeIf(c -> c.listener.equals(consumer));
+	}
+
+	/**
+	 * A set of keys present in this config. Modifications to this set will not
+	 * affect the config.
+	 */
+	public Set<String> keys() {
+		return new HashSet<>(data.keySet());
 	}
 
 	/**
@@ -150,7 +187,7 @@ public class Config {
 		putRaw(key, gson.toJsonTree(t));
 	}
 
-	public <T> Property<T> property(String key, Class<T> cls) {
-		return new Property<>(key, cls);
+	public <T> Property<T> property(String key, Class<T> cls, T defaultValue) {
+		return new Property<>(key, cls, defaultValue);
 	}
 }

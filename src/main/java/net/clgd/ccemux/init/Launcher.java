@@ -2,35 +2,20 @@ package net.clgd.ccemux.init;
 
 import static org.apache.commons.cli.Option.builder;
 
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.SplashScreen;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.net.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 
 import dan200.computercraft.ComputerCraft;
 import lombok.val;
@@ -75,10 +60,10 @@ public class Launcher {
 					((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
 				@SuppressWarnings("unchecked")
 				final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
-	
+
 				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
 				constructor.setAccessible(true);
-	
+
 				final Method launch = klass.getDeclaredMethod("launch");
 				launch.setAccessible(true);
 				launch.invoke(constructor.newInstance(new Object[] { args }));
@@ -161,25 +146,7 @@ public class Launcher {
 		}
 	}
 
-	private Config loadConfig() {
-		log.debug("Loading config data");
-
-		Config cfg = Config.loadConfig(dataDir);
-
-		for (Field f : Config.class.getDeclaredFields()) {
-			try {
-				f.setAccessible(true);
-				if (!(Modifier.isTransient(f.getModifiers()) || Modifier.isStatic(f.getModifiers())))
-					log.trace(" {} -> {}", f.getName(), f.get(cfg));
-			} catch (Exception e) {}
-		}
-
-		log.info("Config loaded");
-
-		return cfg;
-	}
-
-	private PluginManager loadPlugins(Config cfg) throws ReflectiveOperationException {
+	private PluginManager loadPlugins(UserConfig cfg) throws ReflectiveOperationException {
 		if (!(getClass().getClassLoader() instanceof URLClassLoader)) {
 			throw new RuntimeException("Classloader in use is not a URLClassLoader");
 		}
@@ -246,13 +213,14 @@ public class Launcher {
 			if (dd.isFile()) dd.delete();
 			if (!dd.exists()) dd.mkdirs();
 
-			Config cfg = loadConfig();
+			log.info("Loading user config");
+			UserConfig cfg = UserConfig.loadConfig(dataDir);
+			log.debug("Config: {}", cfg);
 
-			if (cfg.getTermScale() != (int) cfg.getTermScale())
+			if (cfg.termScale.get() != cfg.termScale.get().intValue())
 				log.warn("Terminal scale is not an integer - stuff might look bad! Don't blame us!");
 
 			PluginManager pluginMgr = loadPlugins(cfg);
-			pluginMgr.loadConfigs();
 			pluginMgr.loaderSetup(getClass().getClassLoader());
 
 			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
@@ -272,16 +240,15 @@ public class Launcher {
 				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
 				System.exit(0);
 			} else if (cli.hasOption('r')) {
-				cfg.setRenderer(cli.getOptionValue('r'));
-				log.info("Overriding renderer ({} selected)", cfg.getRenderer());
+				// TODO: figure out this
 			}
 
-			if (!RendererFactory.implementations.containsKey(cfg.getRenderer())) {
-				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.getRenderer());
+			if (!RendererFactory.implementations.containsKey(cfg.renderer.get())) {
+				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.renderer.get());
 
 				if (!GraphicsEnvironment.isHeadless()) {
 					JOptionPane.showMessageDialog(null,
-							"Specified renderer '" + cfg.getRenderer() + "' does not exist.\n"
+							"Specified renderer '" + cfg.renderer.get() + "' does not exist.\n"
 									+ "Please double check your config file and plugin list.",
 							"Configuration Error", JOptionPane.ERROR_MESSAGE);
 				}

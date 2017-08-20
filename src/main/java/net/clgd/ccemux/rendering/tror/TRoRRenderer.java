@@ -1,24 +1,16 @@
 package net.clgd.ccemux.rendering.tror;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.emulation.EmulatedPalette;
-import net.clgd.ccemux.emulation.EmulatedTerminal;
+import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.RendererConfig;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.Listener {
 	private final EmulatedComputer computer;
-	private final RendererConfig config;
+	private final EmuConfig config;
 
 	private final List<Listener> listeners = new ArrayList<>();
 
@@ -27,7 +19,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	private final Writer output;
 	private boolean isVisible = true;
 
-	public TRoRRenderer(EmulatedComputer computer, RendererConfig config) {
+	public TRoRRenderer(EmulatedComputer computer, EmuConfig config) {
 		this.computer = computer;
 		this.config = config;
 
@@ -66,7 +58,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 			isVisible = visible;
 
 			if (visible) {
-				// Broadcast the entire terminal state to ensure the remote is in sync.
+				// Broadcast the entire terminal state to ensure the remote is
+				// in sync.
 				EmulatedTerminal terminal = computer.terminal;
 				setCursorPos(terminal.getCursorX(), terminal.getCursorY());
 				setCursorBlink(terminal.getCursorBlink());
@@ -103,88 +96,98 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 		InputProvider.InputPacket packet;
 		while ((packet = events.poll()) != null) {
 			switch (packet.code) {
-				case "EV": {
-					String payload = packet.payload;
-					int index = payload.indexOf(',');
-					if (index < 0) index = payload.length();
+			case "EV": {
+				String payload = packet.payload;
+				int index = payload.indexOf(',');
+				if (index < 0) index = payload.length();
 
-					String event = payload.substring(0, index);
-					List<Object> args = new ArrayList<>();
-					index++;
-					while (index < payload.length()) {
-						char startChar = payload.charAt(index);
-						if (startChar == '"' || startChar == '\'') {
-							StringBuilder builder = new StringBuilder();
-							index++;
-							while (index < payload.length() - 1) {
-								char current = payload.charAt(index++);
+				String event = payload.substring(0, index);
+				List<Object> args = new ArrayList<>();
+				index++;
+				while (index < payload.length()) {
+					char startChar = payload.charAt(index);
+					if (startChar == '"' || startChar == '\'') {
+						StringBuilder builder = new StringBuilder();
+						index++;
+						while (index < payload.length() - 1) {
+							char current = payload.charAt(index++);
 
-								if (current == startChar) {
-									break;
-								} else if (current == '\\') {
-									current = payload.charAt(index++);
-									if (current == 'a') builder.append((char) 0x7);
-									else if (current == 'b') builder.append('\b');
-									else if (current == 'f') builder.append('\f');
-									else if (current == 'n') builder.append('\n');
-									else if (current == 'r') builder.append('\r');
-									else if (current == 't') builder.append('\t');
-									else if (current == 'v') builder.append((char) 0xB);
-									else if (current == '\\') builder.append('\\');
-									else if (current == '\'') builder.append('\'');
-									else if (current == '\"') builder.append('\"');
+							if (current == startChar) {
+								break;
+							} else if (current == '\\') {
+								current = payload.charAt(index++);
+								if (current == 'a')
+									builder.append((char) 0x7);
+								else if (current == 'b')
+									builder.append('\b');
+								else if (current == 'f')
+									builder.append('\f');
+								else if (current == 'n')
+									builder.append('\n');
+								else if (current == 'r')
+									builder.append('\r');
+								else if (current == 't')
+									builder.append('\t');
+								else if (current == 'v')
+									builder.append((char) 0xB);
+								else if (current == '\\')
+									builder.append('\\');
+								else if (current == '\'')
+									builder.append('\'');
+								else if (current == '\"') builder.append('\"');
 
-									// TODO: Support for numeric escape codes.
-								} else {
-									builder.append(current);
-								}
+								// TODO: Support for numeric escape codes.
+							} else {
+								builder.append(current);
 							}
-
-							args.add(builder.toString());
-							if (index >= payload.length() - 1 || payload.charAt(index) == ',') index++;
-						} else {
-							int next = payload.indexOf(',', index);
-							if (next < 0) next = payload.length();
-							String arg = payload.substring(index, next);
-							switch (arg) {
-								case "nil":
-									args.add(null);
-									break;
-								case "true":
-									args.add(true);
-									break;
-								case "false":
-									args.add(false);
-									break;
-								default:
-									try {
-										args.add(Double.parseDouble(arg));
-									} catch (NumberFormatException e) {
-										args.add(null);
-									}
-									break;
-							}
-
-							index = next + 1;
 						}
-					}
 
-					computer.queueEvent(event, args.toArray());
+						args.add(builder.toString());
+						if (index >= payload.length() - 1 || payload.charAt(index) == ',') index++;
+					} else {
+						int next = payload.indexOf(',', index);
+						if (next < 0) next = payload.length();
+						String arg = payload.substring(index, next);
+						switch (arg) {
+						case "nil":
+							args.add(null);
+							break;
+						case "true":
+							args.add(true);
+							break;
+						case "false":
+							args.add(false);
+							break;
+						default:
+							try {
+								args.add(Double.parseDouble(arg));
+							} catch (NumberFormatException e) {
+								args.add(null);
+							}
+							break;
+						}
+
+						index = next + 1;
+					}
+				}
+
+				computer.queueEvent(event, args.toArray());
+				break;
+			}
+			case "XA":
+				switch (packet.payload.toLowerCase(Locale.ENGLISH)) {
+				case "shutdown":
+					computer.shutdown();
+					break;
+				case "reboot":
+					computer.reboot();
+					break;
+				case "close":
+					for (Listener listener : listeners)
+						listener.onClosed();
 					break;
 				}
-				case "XA":
-					switch (packet.payload.toLowerCase(Locale.ENGLISH)) {
-						case "shutdown":
-							computer.shutdown();
-							break;
-						case "reboot":
-							computer.reboot();
-							break;
-						case "close":
-							for (Listener listener : listeners) listener.onClosed();
-							break;
-					}
-					break;
+				break;
 			}
 		}
 	}

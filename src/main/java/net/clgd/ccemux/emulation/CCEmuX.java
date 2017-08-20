@@ -1,8 +1,6 @@
 package net.clgd.ccemux.emulation;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -13,22 +11,19 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import dan200.computercraft.core.filesystem.ComboMount;
-import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.core.filesystem.JarMount;
-import lombok.Getter;
-import lombok.val;
+import dan200.computercraft.core.filesystem.*;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.emulation.filesystem.VirtualMount;
-import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.init.Launcher;
+import net.clgd.ccemux.init.UserConfig;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.RendererConfig;
 import net.clgd.ccemux.rendering.RendererFactory;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CCEmuX implements Runnable, IComputerEnvironment {
 	public static String getVersion() {
 		Package p = Launcher.class.getPackage();
@@ -53,7 +48,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	}
 
 	@Getter
-	private final Config cfg;
+	private final EmuConfig cfg;
 
 	@Getter
 	private final PluginManager pluginMgr;
@@ -67,12 +62,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	private long started = -1;
 	private boolean running;
-
-	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccSource) {
-		this.cfg = cfg;
-		this.pluginMgr = pluginMgr;
-		this.ccSource = ccSource;
-	}
 
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
@@ -97,7 +86,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	 * @return The new computer
 	 */
 	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator) {
-		val term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
+		val term = new EmulatedTerminal(cfg.termWidth.get(), cfg.termHeight.get());
 		val builder = EmulatedComputer.builder(this, term).id(-1);
 
 		pluginMgr.onCreatingComputer(this, builder);
@@ -113,7 +102,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	}
 
 	private void addComputer(EmulatedComputer ec) {
-		Renderer r = RendererFactory.implementations.get(cfg.getRenderer()).create(ec, new RendererConfig(cfg));
+		Renderer r = RendererFactory.implementations.get(cfg.renderer.get()).create(ec, cfg);
 
 		ec.addListener(r);
 		r.addListener(() -> this.removeComputer(ec)); // onClose
@@ -232,13 +221,12 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	@Override
 	public IWritableMount createSaveDirMount(String path, long capacity) {
-		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(),
-				cfg.getMaxComputerCapaccity());
+		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(), getComputerSpaceLimit());
 	}
 
 	@Override
 	public long getComputerSpaceLimit() {
-		return cfg.getMaxComputerCapaccity();
+		return cfg.maxComputerCapacity.get();
 	}
 
 	@Override
