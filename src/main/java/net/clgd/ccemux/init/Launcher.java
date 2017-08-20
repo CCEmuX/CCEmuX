@@ -8,8 +8,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -209,9 +208,7 @@ public class Launcher {
 		try {
 			setSystemLAF();
 
-			File dd = dataDir.toFile();
-			if (dd.isFile()) dd.delete();
-			if (!dd.exists()) dd.mkdirs();
+			Files.createDirectories(dataDir);
 
 			log.info("Loading user config");
 			UserConfig cfg = UserConfig.loadConfig(dataDir);
