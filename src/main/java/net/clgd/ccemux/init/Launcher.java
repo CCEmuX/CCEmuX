@@ -146,16 +146,21 @@ public class Launcher {
 	}
 
 	private PluginManager loadPlugins(UserConfig cfg) throws ReflectiveOperationException {
-		if (!(getClass().getClassLoader() instanceof URLClassLoader)) {
-			throw new RuntimeException("Classloader in use is not a URLClassLoader");
-		}
+		URLClassLoader loader;
 
-		URLClassLoader loader = (URLClassLoader) getClass().getClassLoader();
+		if (getClass().getClassLoader() instanceof URLClassLoader) {
+			loader = (URLClassLoader) getClass().getClassLoader();
+		} else {
+			log.info("Classloader is not a URLClassLoader - creating new child classloader");
+			loader = new URLClassLoader(new URL[0], getClass().getClassLoader());
+		}
 
 		File pd = dataDir.resolve("plugins").toFile();
 
-		if (pd.isFile()) pd.delete();
-		if (!pd.exists()) pd.mkdirs();
+		if (pd.isFile())
+			pd.delete();
+		if (!pd.exists())
+			pd.mkdirs();
 
 		HashSet<URL> urls = new HashSet<>();
 
