@@ -1,57 +1,64 @@
 package net.clgd.ccemux.init;
 
+import static java.lang.System.getProperty;
+
 import java.awt.Desktop;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
-import java.util.Optional;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+
+import com.google.common.base.MoreObjects;
+
+import lombok.Data;
+import lombok.val;
+import net.clgd.ccemux.emulation.CCEmuX;
 
 /**
- * Used to collect system information when an uncaught exception causes CCEmuX to crash
+ * Used to collect system information when an uncaught exception causes CCEmuX
+ * to crash
+ * 
  * @author apemanzilla
  *
  */
+@Data
 public class CrashReport {
-	public final String exceptionClass;
-	public final String trace;
+	private final Throwable throwable;
 
-	public final String osName;
-	public final String osVersion;
-	public final String osArch;
+	public static Map<String, String> collectInfo() {
+		val info = new LinkedHashMap<String, String>();
 
-	public final String jreVendor;
-	public final String jreVersion;
-	public final String jreArch;
+		try {
+			info.put("CCEmuX version", MoreObjects.firstNonNull(CCEmuX.getVersion(), "unknown"));
+		} catch (Throwable t) {
+			info.put("CCEmuX version", t.toString());
+		}
 
-	public CrashReport(Throwable t) {
-		exceptionClass = t.getClass().getName();
-		StringWriter sw = new StringWriter();
-		t.printStackTrace(new PrintWriter(sw));
-		trace = sw.toString();
+		info.put("OS name", getProperty("os.name", "unknown"));
+		info.put("OS version", getProperty("os.version", "unknown"));
+		info.put("OS architecture", getProperty("os.arch", "unknown"));
 
-		osName = Optional.of(System.getProperty("os.name")).orElse("unknown");
-		osVersion = Optional.of(System.getProperty("os.version")).orElse("unknown");
-		osArch = Optional.of(System.getProperty("os.arch")).orElse("unknown");
+		info.put("JRE vendor", getProperty("java.vendor", "unknown"));
+		info.put("JRE version", getProperty("java.version", "unknown"));
+		info.put("JRE architecture", getProperty("sun.arch.data.model", "unknown"));
 
-		jreVendor = Optional.of(System.getProperty("java.vendor")).orElse("unknown");
-		jreVersion = Optional.of(System.getProperty("java.version")).orElse("unknown");
-		jreArch = Optional.of(System.getProperty("sun.arch.data.model")).orElse("unknown");
+		return info;
 	}
 
 	@Override
 	public String toString() {
-		return "OS name: " + osName + "\n" + "OS version: " + osVersion + "\n" + "OS architecture: " + osArch + "\n\n"
-				+ "JRE vendor: " + jreVendor + "\n" + "JRE version: " + jreVersion + "\n" + "JRE architecture: "
-				+ jreArch + "\n\n" + "Stack trace: " + trace;
+		return collectInfo().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue() + "\n").reduce("",
+				(a, b) -> a + b) + "\n" + ExceptionUtils.getStackTrace(getThrowable());
 	}
 
 	public void createIssue() throws URISyntaxException, IOException {
 		Desktop.getDesktop()
 				.browse(new URI(String.format("https://github.com/Lignumm/CCEmuX/issues/new?title=%s&body=%s",
-						URLEncoder.encode("Unexpected " + exceptionClass, "UTF-8"),
+						URLEncoder.encode("Unexpected " + getThrowable().getClass().toString(), "UTF-8"),
 						URLEncoder.encode("```\n" + toString() + "```", "UTF-8"))));
 	}
 }

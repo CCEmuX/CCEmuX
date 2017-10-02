@@ -1,11 +1,14 @@
 package net.clgd.ccemux.plugins;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 import net.clgd.ccemux.plugins.hooks.Hook;
 
@@ -17,6 +20,7 @@ import net.clgd.ccemux.plugins.hooks.Hook;
  * @author apemanzilla
  * @see Hook
  */
+@Slf4j
 public abstract class Plugin {
 	private final Set<Hook> hooks = new HashSet<>();
 
@@ -55,13 +59,23 @@ public abstract class Plugin {
 	/**
 	 * Registers a new hook which may be called later. The <code>cls</code>
 	 * parameter is only used to help out with type inference so that lambdas
-	 * can be used.
+	 * can be used.<br />
+	 * <br />
+	 * 
+	 * @deprecated Using this method with lambdas as opposed to
+	 *             {@link #registerHook(Hook)} with anonymous classes may cause
+	 *             crashes, as lambdas force the JVM to load classes earlier
+	 *             than usual, which can result in a
+	 *             {@link ClassNotFoundException} because of the way
+	 *             ComputerCraft is loaded at runtime. This method will most
+	 *             likely be removed in the future.
 	 * 
 	 * @see Hook
 	 * @see #registerHook(Hook)
 	 */
+	@Deprecated
 	public final <T extends Hook> void registerHook(Class<T> cls, T hook) {
-		hooks.add(hook);
+		registerHook(hook);
 	}
 
 	/**
@@ -129,9 +143,20 @@ public abstract class Plugin {
 	public abstract void setup();
 
 	public final String toString() {
-		if (getVersion().isPresent())
-			return getName() + " v" + getVersion().get();
-		else
-			return getName();
+		return getName() + getVersion().map(v -> " v" + v).orElse("");
+	}
+
+	/**
+	 * Attempts to locate the file that this plugin was loaded from
+	 * 
+	 * @return
+	 */
+	public final Optional<File> getSource() {
+		try {
+			return Optional.of(new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()));
+		} catch (URISyntaxException | NullPointerException | SecurityException e) {
+			log.error("Failed to locate plugin source for plugin {}", toString(), e);
+			return Optional.empty();
+		}
 	}
 }

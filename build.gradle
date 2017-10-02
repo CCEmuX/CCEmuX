@@ -1,8 +1,9 @@
 import groovy.json.JsonSlurper
 
 plugins {
+	id 'java'
 	id 'application'
-	id 'com.github.johnrengelman.shadow' version '1.2.4'
+	id 'com.github.johnrengelman.shadow' version '2.0.0'
 	id 'eclipse'
 	id 'idea'
 }
@@ -20,83 +21,91 @@ eclipse.project {
 	natures 'org.springsource.ide.eclipse.gradle.core.nature'
 }
 
-project.ext.cc = new JsonSlurper().parse(file('src/main/resources/ccemux.json'))
-
 repositories {
 	mavenCentral()
 
-	ivy {
+	maven {
 		name = 'computercraft'
-		artifactPattern cc.ccPatternRemote
+		url = "https://cc.crzd.me/maven"
 	}
 
 	maven {
 		name = "squiddev"
 		url = "https://dl.bintray.com/squiddev/maven"
 	}
-	
+
 	maven {
 		name = "snapshots"
 		url = "https://oss.sonatype.org/content/repositories/snapshots/"
 	}
 }
 
+project.ext.lombokVersion = '1.16.18'
+
 dependencies {
-	compileOnly ":${cc.ccModule}:${cc.ccRevision}"
+	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 
-	compile 'org.slf4j:slf4j-simple:1.7.21'
-	
+	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+
+	compile 'dan200.computercraft:ComputerCraft:1.80pr0-build12'
+
+	compile 'org.slf4j:slf4j-api:1.7.25'
+	compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
+	compile 'org.apache.logging.log4j:log4j-core:2.8.2'
+
 	compile 'commons-io:commons-io:2.5'
-	compile 'commons-cli:commons-cli:1.3.1'
-	compile 'commons-codec:commons-codec:1.10'
-	
-	compile 'org.squiddev:cctweaks-lua:1.4.0'
+	compile 'commons-cli:commons-cli:1.4'
+	compile 'org.apache.commons:commons-lang3:3.6'
 
-	compile 'com.google.guava:guava:20.0'
-	compile 'com.google.code.gson:gson:2.8.0'
-	
+	compile 'org.squiddev:cctweaks-lua:1.5.0-pr2'
+
+	compile 'com.google.guava:guava:22.0'
+	compile 'com.google.code.gson:gson:2.8.1'
+
 	testCompile 'junit:junit:4.12'
 }
 
-task customRom (type: Zip) {
-	from 'src/main/rom'
-	
-	include '*'
-	include '*/*'
-
-	archiveName 'custom.rom'
-	destinationDir = file('src/main/resources')
+processResources {
+	exclude '**/*.xcf' // GIMP images
 }
-
-configure(customRom) {
-	group = "Build"
-	description = "Packs custom rom files into an embeddable archive."
-}
-
-processResources.dependsOn customRom
 
 jar {
 	manifest {
-		attributes 'SplashScreen-Image': 'splash1.png', 'Implementation-Version': version
+		attributes 'SplashScreen-Image': 'img/splash2.gif', 'Implementation-Version': version
 	}
 }
 
 shadowJar {
-	classifier = null
-
+	classifier = 'all'
+	
 	exclude '*.html'
 	exclude 'META-INF/maven/*/*/*.*'
 }
 
-// enable trace logging when running via gradle
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+task noCCJar (type: ShadowJar) {
+	classifier = 'no-cc'
+	
+	from sourceSets.main.output
+	configurations = [ project.configurations.runtime ]
+	
+	exclude '*.html'
+	exclude 'META-INF/maven/*/*/*.*'
+	
+	dependencies {
+		exclude(dependency('.*:ComputerCraft:.*'))
+	}
+}
+
 run {
-	systemProperty "org.slf4j.simpleLogger.defaultLogLevel", "trace"
 	standardInput = System.in
 }
 
 runShadow {
-	systemProperty "org.slf4j.simpleLogger.defaultLogLevel", "trace"
 	standardInput = System.in
 }
 
 build.dependsOn shadowJar
+build.dependsOn noCCJar

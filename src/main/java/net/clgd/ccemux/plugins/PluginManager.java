@@ -9,39 +9,40 @@ import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.emulation.EmulatedComputer.Builder;
+import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.init.Config;
 import net.clgd.ccemux.plugins.config.PluginConfigHandler;
 import net.clgd.ccemux.plugins.hooks.Closing;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
 import net.clgd.ccemux.plugins.hooks.CreatingComputer;
+import net.clgd.ccemux.plugins.hooks.CreatingROM;
 import net.clgd.ccemux.plugins.hooks.Hook;
 import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
 import net.clgd.ccemux.plugins.hooks.RendererCreated;
 import net.clgd.ccemux.plugins.hooks.Tick;
 import net.clgd.ccemux.rendering.Renderer;
 
+@Slf4j
 @SuppressWarnings("serial")
-public class PluginManager extends HashSet<Plugin> implements Closing, CreatingComputer, ComputerCreated,
+public class PluginManager extends HashSet<Plugin> implements Closing, CreatingComputer, CreatingROM, ComputerCreated,
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
-	private static final Logger log = LoggerFactory.getLogger(PluginManager.class);
-
 	private final Config cfg;
 
 	public PluginManager(ClassLoader loader, Config cfg) {
 		this.cfg = cfg;
 		ServiceLoader.load(Plugin.class, loader).forEach(p -> {
+			val source = p.getSource().map(File::getAbsolutePath).orElse("(unknown)");
 			if (!cfg.isPluginBlacklisted(p)) {
 				add(p);
-				log.info("Loaded plugin [{}]", p);
+				log.info("Loaded plugin [{}] from {}", p, source);
 			} else {
-				log.info("Skipping blacklisted plugin [{}]", p);
+				log.info("Skipping blacklisted plugin [{}] from {}", p, source);
 			}
 		});
 	}
@@ -133,12 +134,17 @@ public class PluginManager extends HashSet<Plugin> implements Closing, CreatingC
 	}
 
 	@Override
-	public void onCreatingComputer(CCEmuX emu, Builder builder) {
+	public void onCreatingComputer(CCEmuX emu, EmulatedComputer.Builder builder) {
 		doHooks(CreatingComputer.class, h -> h.onCreatingComputer(emu, builder));
 	}
 
 	@Override
 	public void onClosing(CCEmuX emu) {
 		doHooks(Closing.class, h -> h.onClosing(emu));
+	}
+
+	@Override
+	public void onCreatingROM(CCEmuX emu, VirtualDirectory.Builder romBuilder) {
+		doHooks(CreatingROM.class, h -> h.onCreatingROM(emu, romBuilder));
 	}
 }

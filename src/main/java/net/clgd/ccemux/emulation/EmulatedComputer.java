@@ -1,15 +1,21 @@
 package net.clgd.ccemux.emulation;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
@@ -17,9 +23,24 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
  * @author apemanzilla
  *
  */
-public class EmulatedComputer extends Computer {
-	private static final Logger log = LoggerFactory.getLogger(EmulatedComputer.class);
+@Slf4j
+public class EmulatedComputer extends Computer {	
+	private static final Field rootMountField;
 
+	static {
+		Field f;
+
+		try {
+			f = EmulatedComputer.class.getSuperclass().getDeclaredField("m_rootMount");
+			f.setAccessible(true);
+		} catch (NoSuchFieldException | SecurityException e) {
+			f = null;
+			log.error("Failed to get computer root mount field", e);
+		}
+
+		rootMountField = f;
+	}
+	
 	/**
 	 * A class used to create new <code>EmulatedComputer</code> instances
 	 * 
@@ -27,22 +48,6 @@ public class EmulatedComputer extends Computer {
 	 *
 	 */
 	public static class Builder {
-		private static final Field rootMountField;
-
-		static {
-			Field f;
-
-			try {
-				f = EmulatedComputer.class.getSuperclass().getDeclaredField("m_rootMount");
-				f.setAccessible(true);
-			} catch (NoSuchFieldException | SecurityException e) {
-				f = null;
-				log.error("Failed to get computer root mount field", e);
-			}
-
-			rootMountField = f;
-		}
-
 		private final IComputerEnvironment env;
 		private final EmulatedTerminal term;
 
@@ -116,7 +121,7 @@ public class EmulatedComputer extends Computer {
 
 				return ec;
 			} else {
-				throw new IllegalStateException("This computer has alrady been built!");
+				throw new IllegalStateException("This computer has already been built!");
 			}
 		}
 	}
@@ -187,5 +192,34 @@ public class EmulatedComputer extends Computer {
 
 	public void scroll(int lines, int x, int y) {
 		queueEvent("mouse_scroll", new Object[] { lines, x, y });
+	}
+	
+	/**
+	 * Copies the given files into this computer's root mount at the given
+	 * location. All files will be copied into the destination regardless of
+	 * their absolute path, with their original name. Directories will be
+	 * recursively copied into the destination in a similar fashion to files.
+	 * 
+	 * @param files
+	 *            The files to copy
+	 */
+	public void copyFiles(Iterable<File> files, String location) throws IOException, ReflectiveOperationException {
+		if (rootMountField == null) throw new IllegalStateException("No reference to root mount, cannot write files to computer");
+		val mount = (IWritableMount) rootMountField.get(this);
+		val base = Paths.get(location);
+		
+		for (val f : files) {
+			val path = base.resolve(f.getName()).toString();
+			
+			if (f.isFile()) {
+				if (f.length() > mount.getRemainingSpace()) throw new IOException("Not enough space on computer");
+				
+				val s = mount.openForWrite(path);
+				IOUtils.copy(FileUtils.openInputStream(f), s);
+			} else {
+				mount.makeDirectory(path);
+				copyFiles(Arrays.asList(f.listFiles()), path);
+			}
+		}
 	}
 }

@@ -9,11 +9,14 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.rendering.PaletteCacher;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
-	
+
+	private final PaletteCacher paletteCacher;
+
 	public final Terminal terminal;
 	public final int pixelWidth;
 	public final int pixelHeight;
@@ -30,6 +33,7 @@ class TerminalComponent extends Canvas {
 		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
 		this.font = TerminalFont.getBest();
+		this.paletteCacher = new PaletteCacher(terminal.getPalette());
 
 		resizeTerminal(terminal.getWidth(), terminal.getHeight());
 	}
@@ -49,7 +53,7 @@ class TerminalComponent extends Canvas {
 
 		g.drawImage(
 				// tinted char
-				font.getTinted()[color],
+				font.getTinted(paletteCacher.getColor(color)),
 
 				// destination
 				x, y, x + pixelWidth, y + pixelHeight,
@@ -61,6 +65,11 @@ class TerminalComponent extends Canvas {
 	}
 
 	private void renderTerminal(double dt) {
+		// make sure all font colors are loaded
+		for (int i = 0; i < 16; i++) {
+			font.getTinted(paletteCacher.getColor(i));
+		}
+
 		synchronized (terminal) {
 			Graphics g = getBufferStrategy().getDrawGraphics();
 
@@ -77,7 +86,7 @@ class TerminalComponent extends Canvas {
 				for (int x = 0; x < terminal.getWidth(); x++) {
 					int width = (x == 0 || x == terminal.getWidth() - 1) ? pixelWidth + margin : pixelWidth;
 
-					g.setColor(Utils.getCCColourFromChar((bgLine == null) ? 'f' : bgLine.charAt(x)));
+					g.setColor(paletteCacher.getColor((bgLine == null) ? 'f' : bgLine.charAt(x)));
 					g.fillRect(dx, dy, width, height);
 
 					char character = (textLine == null) ? ' ' : textLine.charAt(x);
@@ -101,6 +110,7 @@ class TerminalComponent extends Canvas {
 			}
 
 			g.dispose();
+			paletteCacher.setCurrentPalette(terminal.getPalette());
 		}
 	}
 

@@ -2,13 +2,12 @@ package net.clgd.ccemux.emulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipInputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
@@ -17,83 +16,116 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
+import lombok.Getter;
+import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.emulation.filesystem.VirtualMount;
 import net.clgd.ccemux.init.Config;
+import net.clgd.ccemux.init.Launcher;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererConfig;
 import net.clgd.ccemux.rendering.RendererFactory;
 
+@Slf4j
 public class CCEmuX implements Runnable, IComputerEnvironment {
-	private static final Logger log = LoggerFactory.getLogger(CCEmuX.class);
-
 	public static String getVersion() {
-		Package p = CCEmuX.class.getPackage();
-		if (p != null) {
-			return p.getImplementationVersion();
-		} else {
-			return null;
+		Package p = Launcher.class.getPackage();
+
+		if (p == null) {
+			// try with a fresh classloader (RewritingLoader doesn't track
+			// packages)
+			val loader = Launcher.class.getClassLoader();
+			if (loader instanceof URLClassLoader) {
+				val ucl = new URLClassLoader(((URLClassLoader) loader).getURLs());
+				try {
+					p = Class.forName(Launcher.class.getName(), false, ucl).getPackage();
+				} catch (ClassNotFoundException e) {}
+			}
 		}
+
+		return p == null ? null : p.getImplementationVersion();
 	}
 
 	public static boolean getGlobalCursorBlink() {
 		return System.currentTimeMillis() / 400 % 2 == 0;
 	}
 
-	public final Config cfg;
-	private final PluginManager pluginMgr;
-	public final File ccJar;
+	@Getter
+	private final Config cfg;
 
-	private Map<EmulatedComputer, Renderer> computers = new HashMap<>();
+	@Getter
+	private final PluginManager pluginMgr;
+
+	@Getter
+	private final File ccSource;
+
+	private Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
 
 	private int nextID = 0;
 
 	private long started = -1;
 	private boolean running;
 
-	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccJar) {
+	public CCEmuX(Config cfg, PluginManager pluginMgr, File ccSource) {
 		this.cfg = cfg;
 		this.pluginMgr = pluginMgr;
-		this.ccJar = ccJar;
+		this.ccSource = ccSource;
 	}
 
-	public EmulatedComputer addComputer(int id) {
-		synchronized (computers) {
-			EmulatedTerminal term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
-			EmulatedComputer.Builder builder = EmulatedComputer.builder(this, term).id(id);
-
-			pluginMgr.onCreatingComputer(this, builder);
-
-			EmulatedComputer computer = builder.build();
-			if (cfg.isApiEnabled()) computer.addAPI(new CCEmuXAPI(this, computer, "ccemux"));
-
-			pluginMgr.onComputerCreated(this, computer);
-
-			Renderer renderer = RendererFactory.implementations.get(cfg.getRenderer()).create(computer,
-					new RendererConfig(cfg));
-
-			computer.addListener(renderer);
-
-			renderer.addListener(new Renderer.Listener() {
-				@Override
-				public void onClosed() {
-					CCEmuX.this.removeComputer(computer);
-				}
-			});
-
-			pluginMgr.onRendererCreated(this, renderer);
-			
-			computers.put(computer, renderer);
-
-			renderer.setVisible(true);
-
-			log.info("Created new computer ID {}", computer.getID());
-			computer.turnOn();
-			return computer;
-		}
+	/**
+	 * Creates a new computer and renderer, applying config settings and plugin
+	 * hooks appropriately.
+	 *
+	 * @see #createComputer(Consumer)
+	 *
+	 * @return The new computer
+	 */
+	public EmulatedComputer createComputer() {
+		return createComputer(b -> {});
 	}
-	
-	public EmulatedComputer addComputer() {
-		return addComputer(-1);
+
+	/**
+	 * Creates a new computer and renderer, applying config settings and plugin
+	 * hooks appropriately. Additionally takes a {@link Consumer} which will be
+	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
+	 * can be used to change the computers ID or other properties.
+	 *
+	 * @param builderMutator
+	 *            Will be called after plugin hooks with the builder
+	 * @return The new computer
+	 */
+	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator) {
+		val term = new EmulatedTerminal(cfg.getTermWidth(), cfg.getTermHeight());
+		val builder = EmulatedComputer.builder(this, term).id(-1);
+
+		pluginMgr.onCreatingComputer(this, builder);
+		builderMutator.accept(builder);
+
+		val computer = builder.build();
+
+		pluginMgr.onComputerCreated(this, computer);
+
+		addComputer(computer);
+
+		return computer;
+	}
+
+	private void addComputer(EmulatedComputer ec) {
+		Renderer r = RendererFactory.implementations.get(cfg.getRenderer()).create(ec, new RendererConfig(cfg));
+
+		ec.addListener(r);
+		r.addListener(() -> this.removeComputer(ec)); // onClose
+
+		pluginMgr.onRendererCreated(this, r);
+
+		computers.put(ec, r);
+
+		r.setVisible(true);
+
+		log.info("Created new computer ID {}", ec.getID());
+		ec.turnOn();
 	}
 
 	public boolean removeComputer(EmulatedComputer computer) {
@@ -183,8 +215,10 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		if (path.startsWith("\\")) path = path.substring(1);
 
 		try {
-			return new ComboMount(new IMount[] { new JarMount(ccJar, path),
-					new CustomRomMount(new ZipInputStream(this.getClass().getResourceAsStream("/custom.rom"))) });
+			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
+			pluginMgr.onCreatingROM(this, romBuilder);
+
+			return new ComboMount(new IMount[] { new JarMount(ccSource, path), new VirtualMount(romBuilder.build()) });
 		} catch (IOException e) {
 			log.error("Failed to create resource mount", e);
 			return null;
@@ -192,8 +226,14 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	}
 
 	@Override
+	public InputStream createResourceFile(String domain, String path) {
+		return CCEmuX.class.getResourceAsStream("/assets/" + domain + "/" + path);
+	}
+
+	@Override
 	public IWritableMount createSaveDirMount(String path, long capacity) {
-		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(), cfg.getMaxComputerCapaccity());
+		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(),
+				cfg.getMaxComputerCapaccity());
 	}
 
 	@Override

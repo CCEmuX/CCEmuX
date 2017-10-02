@@ -12,8 +12,10 @@ import net.clgd.ccemux.rendering.Renderer;
  * In approximate chronological order, here is a list of some common hooks:
  * <ul>
  * <li>{@link InitializationCompleted} - CCEmuX has finished startup tasks</li>
- * <li>{@link CreatingComputer} - An {@link EmulatedComputer} instance is
- * being created</li>
+ * <li>{@link CreatingROM} - CCEmuX is creating the ROM that computers will
+ * use</li>
+ * <li>{@link CreatingComputer} - An {@link EmulatedComputer} instance is being
+ * created</li>
  * <li>{@link ComputerCreated} - An {@link EmulatedComputer} instance has been
  * created</li>
  * <li>{@link RendererCreated} - A {@link Renderer} instance has been

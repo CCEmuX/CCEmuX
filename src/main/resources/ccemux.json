@@ -1,17 +1,10 @@
 {
-	"ccModule": "ComputerCraft",
-	"ccRevision": 1.79,
-	"ccExt": "jar",
-	"ccPatternRemote": "https://addons-origin.cursecdn.com/files/2291/384/[module][revision].[ext]",
-	"ccPatternLocal": "[module][revision].[ext]",
-	
 	"termWidth": 51,
 	"termHeight": 19,
 	"termScale": 3,
-	"apiEnabled": true,
 	"renderer": "AWT",
-	
+
 	"maxComputerCapacity": 1000000,
-	
+
 	"pluginBlacklist": []
 }

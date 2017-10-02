@@ -13,8 +13,6 @@ public interface Renderer extends EmulatedComputer.Listener {
 
 	public void dispose();
 
-	public void resize(int width, int height);
-
 	public void addListener(Listener l);
 
 	public void removeListener(Listener l);

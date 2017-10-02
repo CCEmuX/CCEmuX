@@ -6,18 +6,18 @@ import com.google.auto.service.AutoService;
 
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.awt.AWTRenderer;
+import net.clgd.ccemux.rendering.tror.TRoRRenderer;
 
 @AutoService(Plugin.class)
-public class AWTPlugin extends Plugin {
+public class TRoRPlugin extends Plugin {
 	@Override
 	public String getName() {
-		return "AWT Renderer";
+		return "TRoR Renderer";
 	}
 
 	@Override
 	public String getDescription() {
-		return "A CPU-based renderer using Java AWT.";
+		return "A CPU-based renderer which reads from stdin and writes to stdout using the TRoR protocol.";
 	}
 
 	@Override
@@ -37,6 +37,6 @@ public class AWTPlugin extends Plugin {
 
 	@Override
 	public void setup() {
-		RendererFactory.implementations.put("AWT", AWTRenderer::new);
+		RendererFactory.implementations.put("TRoR", TRoRRenderer::new);
 	}
 }
