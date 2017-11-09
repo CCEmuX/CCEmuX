@@ -51,7 +51,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	/**
 	 * Locates fonts not explicitly registered, but present at the standard path
 	 * (e.g. from resource packs)
-	 * 
+	 *
 	 * @return
 	 * @throws IOException
 	 */
@@ -75,7 +75,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	/**
 	 * Explicitly registers the given font, giving it priority over implicitly
 	 * loaded fonts.
-	 * 
+	 *
 	 * @param font
 	 */
 	public static void registerFont(TerminalFont font) {
@@ -87,7 +87,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	 * explicitly registered fonts (which always have priority over implicitly
 	 * loaded fonts) and then, if multiple candidates are available, sorting by
 	 * the font scale (higher scale being better).
-	 * 
+	 *
 	 * @return The "best" font
 	 */
 	public static TerminalFont getBest() {
@@ -125,7 +125,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 
 	/**
 	 * Creates a new terminal font
-	 * 
+	 *
 	 * @param base
 	 *            The base image for this font
 	 */
@@ -141,7 +141,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 
 	/**
 	 * Creates a new terminal font
-	 * 
+	 *
 	 * @param url
 	 *            The URL to load the base image from
 	 * @throws IOException
@@ -154,7 +154,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 	/**
 	 * Gets the scaled coordinates and dimensions for a given character in this
 	 * font
-	 * 
+	 *
 	 * @param c
 	 *            The character
 	 * @return The coordinates and dimensions of a given character
@@ -167,7 +167,7 @@ public class TerminalFont implements Serializable, Comparable<TerminalFont> {
 
 	/**
 	 * Gets a copy of this font, colored accordingly
-	 * 
+	 *
 	 * @param col
 	 *            The color to use
 	 * @return A colorized copy of this font

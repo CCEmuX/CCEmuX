@@ -3,13 +3,11 @@ package net.clgd.ccemux.rendering.gdx;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.math.Vector2;
 import lombok.Getter;
 import lombok.Setter;
 import net.clgd.ccemux.emulation.EmuConfig;
@@ -17,24 +15,56 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
 import net.clgd.ccemux.rendering.Renderer;
 
+import javax.annotation.Nullable;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
+
 public class GDXAdapter extends ApplicationAdapter implements Renderer {
+	public static final String EMU_WINDOW_TITLE = "CCEmuX";
+	
+	private static boolean isPrintableChar(char c) {
+		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
+		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
+			&& block != Character.UnicodeBlock.SPECIALS;
+	}
+	
 	@Getter private final GDXPlugin plugin;
 	@Getter private final EmulatedComputer computer;
 	
 	@Getter private volatile Thread thread;
 	
 	@Getter @Setter private volatile boolean focused;
-	@Getter @Setter private volatile Lwjgl3Window window; // TODO: can be null if main window
+	@Getter @Setter @Nullable private Lwjgl3Window window; // TODO: can be null if main window
 	
 	@Getter private volatile InputMultiplexer inputMultiplexer;
 	
 	private SpriteBatch batch;
-	private BitmapFont font;
 	private OrthographicCamera camera;
 	
-	GDXAdapter(GDXPlugin plugin, EmulatedComputer computer, EmuConfig cfg) {
+	private TerminalRenderer terminalRenderer;
+	
+	private final int pixelWidth;
+	private final int pixelHeight;
+	
+	private boolean lastBlink = false;
+	private int dragButton = 4;
+	private Vector2 lastDragSpot = null;
+	
+	private double blinkLockedTime = 0D;
+	
+	private boolean paletteChanged = false;
+	
+	private final List<Listener> listeners = new ArrayList<>();
+	
+	GDXAdapter(GDXPlugin plugin, EmulatedComputer computer, EmuConfig config) {
 		this.plugin = plugin;
+		
 		this.computer = computer;
+		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
+		
+		pixelWidth = (int) (6 * config.termScale.get());
+		pixelHeight = (int) (9 * config.termScale.get());
 	}
 	
 	void startInThread() {
@@ -47,63 +77,14 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 		super.create();
 		
 		inputMultiplexer = new InputMultiplexer();
-		inputMultiplexer.addProcessor(new InputProcessor() {
-			@Override
-			public boolean keyDown(int keycode) {
-				return false;
-			}
-			
-			@Override
-			public boolean keyUp(int keycode) {
-				return false;
-			}
-			
-			@Override
-			public boolean keyTyped(char character) {
-				if (character == 'a') {
-					plugin.getManager().createWindow(computer, null);
-					return true;
-				}
-				
-				return false;
-			}
-			
-			@Override
-			public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
-			
-			@Override
-			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-				return false;
-			}
-			
-			@Override
-			public boolean touchDragged(int screenX, int screenY, int pointer) {
-				return false;
-			}
-			
-			@Override
-			public boolean mouseMoved(int screenX, int screenY) {
-				return false;
-			}
-			
-			@Override
-			public boolean scrolled(int amount) {
-				return false;
-			}
-		});
+		inputMultiplexer.addProcessor(new GDXInputProcessor(this));
 		
 		batch = new SpriteBatch();
 		
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Lato-Regular.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = 16;
-		font = generator.generateFont(parameter);
-		font.getData().markupEnabled = true;
-		
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		
+		terminalRenderer = new TerminalRenderer();
 	}
 	
 	@Override
@@ -115,7 +96,7 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 		batch.begin();
 		batch.setProjectionMatrix(camera.combined);
 		
-		font.draw(batch, focused ? "[GREEN]focused[]" : "[RED]unfocused[]", 200, 200);
+		terminalRenderer.render(batch);
 		
 		batch.end();
 	}
@@ -128,22 +109,22 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	
 	@Override
 	public boolean isVisible() {
-		return false;
+		return true;
 	}
 	
 	@Override
 	public void setVisible(boolean visible) {
-	
+		if (window != null) window.setVisible(visible);
 	}
 	
 	@Override
-	public void addListener(Listener l) {
-	
+	public void addListener(Renderer.Listener listener) {
+		listeners.add(listener);
 	}
 	
 	@Override
-	public void removeListener(Listener l) {
-	
+	public void removeListener(Renderer.Listener listener) {
+		listeners.remove(listener);
 	}
 	
 	@Override
