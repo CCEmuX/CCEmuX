@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.swing.*;
 
 import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
 import lombok.val;
@@ -234,6 +235,8 @@ public class Launcher {
 			} else {
 				log.warn("Incompatible classloader type: {}", getClass().getClassLoader().getClass());
 			}
+
+			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
 
 			pluginMgr.setup();
 
