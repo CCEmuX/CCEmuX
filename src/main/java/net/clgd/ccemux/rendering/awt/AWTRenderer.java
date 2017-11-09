@@ -18,7 +18,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-import org.apache.logging.log4j.core.util.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
