@@ -1,10 +1,18 @@
 package net.clgd.ccemux.config;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-import com.google.common.collect.*;
-import com.google.gson.*;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Multimaps;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSyntaxException;
 
 import lombok.Value;
 import lombok.experimental.NonFinal;
@@ -21,8 +29,8 @@ public class Config {
 	private final Gson gson;
 
 	/**
-	 * Gets the underlying map of this config. Modifications to this map will
-	 * affect the config, but will <b>not</b> fire listeners.
+	 * Gets the underlying map of this config. Modifications to this map will affect
+	 * the config, but will <b>not</b> fire listeners.
 	 */
 	private final Map<String, JsonElement> data;
 
@@ -34,6 +42,12 @@ public class Config {
 	 */
 	private final Multimap<String, ChangeListener<?>> listeners = Multimaps
 			.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
+
+	public Config(Gson gson, Map<String, JsonElement> data) {
+		this.gson = gson;
+		this.data = new ConcurrentHashMap<>();
+		this.data.putAll(data);
+	}
 
 	/**
 	 * A wrapper for a specific key and value in a config
@@ -50,8 +64,8 @@ public class Config {
 		T defaultValue;
 
 		/**
-		 * Adds a listener to be invoked when this value is changed, which is
-		 * passed the old and new values respectively.
+		 * Adds a listener to be invoked when this value is changed, which is passed the
+		 * old and new values respectively.
 		 */
 		public void addListener(BiConsumer<T, T> consumer) {
 			Config.this.addListener(key, type, consumer);
@@ -94,11 +108,10 @@ public class Config {
 	 * changed.
 	 * 
 	 * @param cls
-	 *            The type of value to be deserialized and passed to the
-	 *            consumer.
+	 *            The type of value to be deserialized and passed to the consumer.
 	 * @param consumer
-	 *            A consumer that takes the old and new values (respectively) of
-	 *            the property that has changed.
+	 *            A consumer that takes the old and new values (respectively) of the
+	 *            property that has changed.
 	 */
 	public <T> void addListener(String key, Class<T> cls, BiConsumer<T, T> consumer) {
 		listeners.put(key, new ChangeListener<T>(cls, consumer));
@@ -146,8 +159,8 @@ public class Config {
 	/**
 	 * 
 	 * @return The value for the given key, as a type specified by the
-	 *         <code>cls</code> parameter, or the given default value if no
-	 *         value is available for the given key.
+	 *         <code>cls</code> parameter, or the given default value if no value is
+	 *         available for the given key.
 	 */
 	public <T> T getAsOr(String key, Class<T> cls, T defaultValue) {
 		return getAs(key, cls).orElse(defaultValue);
@@ -170,8 +183,7 @@ public class Config {
 	}
 
 	/**
-	 * Adds a raw JSON element for the given key, overwriting any existing
-	 * values.
+	 * Adds a raw JSON element for the given key, overwriting any existing values.
 	 */
 	public void putRaw(String key, JsonElement e) {
 		JsonElement old = getRaw(key).orElse(null);
