@@ -140,3 +140,4 @@ gradle-app.setting
 
 /classes/
 *.rom
+!/lib/*
