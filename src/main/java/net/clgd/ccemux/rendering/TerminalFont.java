@@ -22,19 +22,19 @@ public abstract class TerminalFont implements Serializable {
 	 * The scale of the font, calculated based on base image resolution
 	 */
 	@Getter
-	protected final double horizontalScale, verticalScale;
+	private final double horizontalScale, verticalScale;
 
 	/**
 	 * The scaled character dimensions
 	 */
 	@Getter
-	protected final int charWidth, charHeight;
+	private final int charWidth, charHeight;
 
 	/**
 	 * The margin around each character
 	 */
 	@Getter
-	protected final int margin;
+	private final int margin;
 
 	/**
 	 * Creates a new terminal font
