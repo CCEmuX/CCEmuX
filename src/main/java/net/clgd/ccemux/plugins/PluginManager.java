@@ -1,66 +1,111 @@
 package net.clgd.ccemux.plugins;
 
 import java.io.File;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.*;
+import lombok.val;
+import net.clgd.ccemux.config.Group;
+import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.plugins.hooks.*;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
 @SuppressWarnings("serial")
-public class PluginManager extends HashSet<Plugin> implements Closing, CreatingComputer, CreatingROM, ComputerCreated,
+public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated,
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
+	private static class PluginCandidate {
+		final Plugin plugin;
+		final Property<Boolean> enabled;
+
+		private PluginCandidate(Plugin plugin, Property<Boolean> enabled) {
+			this.plugin = plugin;
+			this.enabled = enabled;
+		}
+	}
+
 	private final EmuConfig cfg;
 
-	public PluginManager(ClassLoader loader, EmuConfig cfg) {
+	private final List<PluginCandidate> candidates = new ArrayList<>();
+	private final List<Plugin> enabled = new ArrayList<>();
+
+	public PluginManager(EmuConfig cfg) {
 		this.cfg = cfg;
-		ServiceLoader.load(Plugin.class, loader).forEach(p -> {
-			val source = p.getSource().map(File::getAbsolutePath).orElse("(unknown)");
-			if (cfg.pluginEnabled(p).get()) {
-				add(p);
-				log.info("Loaded plugin [{}] from {}", p, source);
+	}
+
+	public void gatherCandidates(ClassLoader loader) {
+		Group cfgPlugins = cfg.group("plugins")
+				.setName("Plugins")
+				.setDescription("Config options for the various plugins");
+		for (Plugin candidate : ServiceLoader.load(Plugin.class, loader)) {
+			Group cfgCandidate = cfgPlugins.group(candidate.getClass().getName())
+					.setName(candidate.getName())
+					.setDescription(candidate.getDescription());
+
+			candidates.add(new PluginCandidate(
+					candidate,
+					cfgCandidate.property("enabled", Boolean.class, true)
+							.setName("Enabled")
+							.setAlwaysEmit()
+			));
+
+			candidate.configSetup(cfgCandidate);
+		}
+	}
+
+	public void gatherEnabled() {
+		for (PluginCandidate candidate : candidates) {
+			val source = candidate.plugin.getSource().map(File::getAbsolutePath).orElse("(unknown)");
+			log.debug("Found plugin [{}] from {}", candidate, source);
+
+			if (candidate.enabled.get()) {
+				enabled.add(candidate.plugin);
+				log.info("Loaded plugin [{}] from {}", candidate.plugin, source);
 			} else {
-				log.info("Skipping blacklisted plugin [{}] from {}", p, source);
+				log.info("Skipping blacklisted plugin [{}] from {}", candidate.plugin, source);
 			}
-		});
+		}
 	}
 
 	public void loaderSetup(ClassLoader loader) {
-		forEach(p -> {
+		for (Plugin p : enabled) {
 			try {
 				log.debug("Calling loaderSetup for plugin [{}]", p);
 				p.loaderSetup(cfg, loader);
 			} catch (Exception e) {
 				log.warn("Exception while calling loaderSetup for plugin [{}]", p, e);
 			}
-		});
+		}
 	}
 
 	public void setup() {
-		forEach(p -> {
+		for (Plugin p : enabled) {
 			try {
 				log.debug("Calling setup for plugin [{}]", p);
 				p.setup(cfg);
 			} catch (Exception e) {
 				log.warn("Exception while calling setup for plugin [{}]", p, e);
 			}
-		});
+		}
 	}
 
 	private <T extends Hook> void doHooks(Class<T> cls, Consumer<T> f) {
-		forEach(p -> p.getHooks(cls).forEach(h -> {
-			try {
-				f.accept(h);
-			} catch (Exception e) {
-				log.warn("Exception while calling hook [{}] for plugin [{}]", cls.getName(), p, e);
+		for (Plugin p : enabled) {
+			for (T h : p.getHooks(cls)) {
+				try {
+					f.accept(h);
+				} catch (Exception e) {
+					log.warn("Exception while calling hook [{}] for plugin [{}]", cls.getName(), p, e);
+				}
 			}
-		}));
+		}
 	}
 
 	@Override

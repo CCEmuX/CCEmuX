@@ -1,17 +1,17 @@
 package net.clgd.ccemux.init;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Map;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-
-import lombok.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import net.clgd.ccemux.emulation.EmuConfig;
 
 @EqualsAndHashCode(callSuper = true)
@@ -24,31 +24,23 @@ public class UserConfig extends EmuConfig {
 		return new UserConfig(dataDir);
 	}
 
-	private static Map<String, JsonElement> loadMap(Path file) throws IOException {
-		if (Files.exists(file)) {
-			try (BufferedReader r = Files.newBufferedReader(file)) {
-				return gson.fromJson(r, new TypeToken<Map<String, JsonElement>>() {}.getType());
-			}
-		} else {
-			return Collections.emptyMap();
-		}
-	}
-
 	@Getter
 	private final Path dataDir;
 
-	private UserConfig(Path dataDir) throws IOException {
-		super(gson, loadMap(dataDir.resolve(CONFIG_FILE_NAME)));
-
+	private UserConfig(Path dataDir) {
+		super(gson);
 		this.dataDir = dataDir;
 	}
 
-	public void saveConfig() throws IOException {
-		Files.write(dataDir.resolve(CONFIG_FILE_NAME), gson.toJson(getData()).getBytes(StandardCharsets.UTF_8));
+	public void loadConfig() throws IOException {
+		try (Reader reader = Files.newBufferedReader(dataDir.resolve(CONFIG_FILE_NAME), StandardCharsets.UTF_8)) {
+			adapter.fromJson(this, gson.fromJson(reader, JsonElement.class));
+		}
 	}
 
-	@Override
-	public String toString() {
-		return getData().toString();
+	public void saveConfig() throws IOException {
+		try (Writer writer = Files.newBufferedWriter(dataDir.resolve(CONFIG_FILE_NAME), StandardCharsets.UTF_8)) {
+			gson.toJson(adapter.toJson(this), writer);
+		}
 	}
 }

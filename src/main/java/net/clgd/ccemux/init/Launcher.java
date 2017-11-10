@@ -2,24 +2,31 @@ package net.clgd.ccemux.init;
 
 import static org.apache.commons.cli.Option.builder;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 
 import javax.swing.*;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
@@ -146,7 +153,7 @@ public class Launcher {
 		}
 	}
 
-	private PluginManager loadPlugins(UserConfig cfg) throws ReflectiveOperationException {
+	private ClassLoader buildLoader() throws ReflectiveOperationException {
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile())
@@ -178,8 +185,8 @@ public class Launcher {
 				}
 			}
 		}
-		
-		return new PluginManager(new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader()), cfg);
+
+		return new URLClassLoader(urls.toArray(new URL[urls.size()]), this.getClass().getClassLoader());
 	}
 
 	private File getCCSource() throws URISyntaxException {
@@ -207,7 +214,11 @@ public class Launcher {
 			if (cfg.termScale.get() != cfg.termScale.get().intValue())
 				log.warn("Terminal scale is not an integer - stuff might look bad! Don't blame us!");
 
-			PluginManager pluginMgr = loadPlugins(cfg);
+			PluginManager pluginMgr = new PluginManager(cfg);
+			pluginMgr.gatherCandidates(buildLoader());
+			cfg.loadConfig();
+			pluginMgr.gatherEnabled();
+
 			pluginMgr.loaderSetup(getClass().getClassLoader());
 
 			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
