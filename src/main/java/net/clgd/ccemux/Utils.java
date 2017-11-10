@@ -7,6 +7,8 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 import java.util.concurrent.Callable;
 
 import dan200.computercraft.shared.util.Colour;
@@ -37,32 +39,10 @@ public class Utils {
 				constrainToRange(col[2], 0, 1) };
 	}
 
-	public static BufferedImage makeTintedCopy(BufferedImage bi, Color tint) {
-		BufferedImage tinted;
-		if (!GraphicsEnvironment.isHeadless()) {
-			GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-					.getDefaultConfiguration();
-
-			tinted = gc.createCompatibleImage(bi.getWidth(), bi.getHeight(), Transparency.TRANSLUCENT);
-		} else {
-			tinted = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-		}
-
-		for (int y = 0; y < bi.getHeight(); y++) {
-			for (int x = 0; x < bi.getWidth(); x++) {
-				int rgb = bi.getRGB(x, y);
-
-				if (rgb != 0) tinted.setRGB(x, y, tint.getRGB());
-			}
-		}
-
-		return tinted;
-	}
-
 	/**
 	 * Tries to get a value as the result of a {@link Callable}, and if an
 	 * exception occurs, instead returns a given value.
-	 * 
+	 *
 	 * @param getter
 	 *            A <code>Callable</code> that may produce a value or throw an
 	 *            exception
@@ -89,7 +69,7 @@ public class Utils {
 	 * Returns the value returned by a given {@link Callable}, or returns
 	 * <code>null</code> if the <code>Callable</code> throws an
 	 * <code>Exception</code>.
-	 * 
+	 *
 	 * @param getter
 	 *            A <code>Callable</code> that may produce a value or throw an
 	 *            <code>Exception</code>

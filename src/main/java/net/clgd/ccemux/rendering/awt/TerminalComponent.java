@@ -1,16 +1,25 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.Canvas;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.RescaleOp;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.rendering.PaletteCacher;
+import org.apache.commons.lang3.tuple.Pair;
 
+@Slf4j
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
 
@@ -24,6 +33,10 @@ class TerminalComponent extends Canvas {
 	public char cursorChar = '_';
 
 	public boolean blinkLocked = false;
+
+	private final Cache<Pair<Character, Color>, BufferedImage> charImgCache = CacheBuilder.newBuilder()
+		.expireAfterAccess(10, TimeUnit.SECONDS)
+		.build();
 
 	public TerminalComponent(Terminal terminal, double termScale) {
 		this.pixelWidth = (int) (6 * termScale);
@@ -43,30 +56,42 @@ class TerminalComponent extends Canvas {
 	}
 
 	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
-		if ((int) c == 0)
+		if (c == '\0' || Character.isSpaceChar(c))
 			return; // nothing to do here
 
 		Rectangle r = font.getCharCoords(c);
+		Color colour = paletteCacher.getColor(color);
 
-		g.drawImage(
-				// tinted char
-				font.getTintedBitmap(paletteCacher.getColor(color)),
+		BufferedImage charImg = null;
 
-				// destination
-				x, y, x + pixelWidth, y + pixelHeight,
+		try {
+			charImg = charImgCache.get(Pair.of(c, colour), () -> {
+				float[] rgb = new float[4];
+				colour.getRGBComponents(rgb);
 
-				// source
-				r.x, r.y, r.x + r.width, r.y + r.height,
-				null
-		);
+                RescaleOp rop = new RescaleOp(rgb, new float[4], null);
+
+				GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+						.getDefaultConfiguration();
+
+                BufferedImage pixel = gc.createCompatibleImage(pixelWidth, pixelHeight, Transparency.TRANSLUCENT);
+                BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.x + r.width, r.y + r.height);
+
+                Graphics ig = pixel.getGraphics();
+                ig.drawImage(img, 0, 0, null);
+                ig.dispose();
+
+                rop.filter(pixel, pixel);
+                return pixel;
+            });
+		} catch (ExecutionException e) {
+			log.error("Could not retrieve char image from cache!", e);
+		}
+
+		g.drawImage(charImg, x, y, null);
 	}
 
 	private void renderTerminal(AWTTerminalFont font, double dt) {
-		// make sure all font colors are loaded
-		for (int i = 0; i < 16; i++) {
-			font.getTintedBitmap(paletteCacher.getColor(i));
-		}
-
 		synchronized (terminal) {
 			Graphics g = getBufferStrategy().getDrawGraphics();
 
