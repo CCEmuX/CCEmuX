@@ -10,15 +10,14 @@ import java.net.URL;
 import java.util.*;
 
 @Slf4j
-public class TerminalFonts<RendererT extends Renderer> {
-	private static final Map<Renderer, TerminalFonts<? extends Renderer>> rendererFontsMap = new HashMap<>();
+public class TerminalFonts {
+	private static final Map<Renderer, TerminalFonts> rendererFontsMap = new HashMap<>();
 
-	@SuppressWarnings({"unchecked"})
-	public static <R extends Renderer> TerminalFonts<R> getFontsFor(R renderer) {
+	public static TerminalFonts getFontsFor(Renderer renderer) {
 		if (rendererFontsMap.containsKey(renderer)) {
-			return (TerminalFonts<R>) rendererFontsMap.get(renderer);
+			return rendererFontsMap.get(renderer);
 		} else {
-			val fonts = new TerminalFonts<R>();
+			val fonts = new TerminalFonts();
 
 			try {
 				fonts.loadImplicitFonts(renderer);
@@ -58,7 +57,7 @@ public class TerminalFonts<RendererT extends Renderer> {
 	 * @return
 	 * @throws IOException
 	 */
-	private void loadImplicitFonts(RendererT renderer) throws IOException {
+	private void loadImplicitFonts(Renderer renderer) throws IOException {
 		log.debug("Loading implicit terminal fonts");
 
 		val urls = TerminalFont.class.getClassLoader().getResources(TerminalFont.FONT_RESOURCE_PATH);
@@ -89,7 +88,7 @@ public class TerminalFonts<RendererT extends Renderer> {
 	public TerminalFont getBest() {
 		val fonts = explicitFonts.size() > 0 ? explicitFonts : implicitFonts;
 		return fonts.stream()
-				.sorted(Comparator.comparingInt(a -> (a.getCharWidth() + a.getCharHeight())))
+				.sorted(Comparator.comparingInt(a -> a.getCharWidth() + a.getCharHeight()))
 				.reduce((a, b) -> b)
 				.orElseThrow(() -> new RuntimeException("No terminal fonts available"));
 	}
