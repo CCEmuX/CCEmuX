@@ -10,7 +10,6 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.rendering.PaletteCacher;
-import net.clgd.ccemux.rendering.TerminalFont;
 
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
@@ -21,7 +20,6 @@ class TerminalComponent extends Canvas {
 	public final int pixelWidth;
 	public final int pixelHeight;
 	public final int margin;
-	public final TerminalFont font;
 
 	public char cursorChar = '_';
 
@@ -32,7 +30,6 @@ class TerminalComponent extends Canvas {
 		this.pixelHeight = (int) (9 * termScale);
 		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
-		this.font = TerminalFont.getBest();
 		this.paletteCacher = new PaletteCacher(terminal.getPalette());
 
 		resizeTerminal(terminal.getWidth(), terminal.getHeight());
@@ -45,7 +42,7 @@ class TerminalComponent extends Canvas {
 		setPreferredSize(termDimensions);
 	}
 
-	private void drawChar(Graphics g, char c, int x, int y, int color) {
+	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
 		if ((int) c == 0)
 			return; // nothing to do here
 
@@ -53,21 +50,21 @@ class TerminalComponent extends Canvas {
 
 		g.drawImage(
 				// tinted char
-				font.getTinted(paletteCacher.getColor(color)),
+				font.getTintedBitmap(paletteCacher.getColor(color)),
 
 				// destination
 				x, y, x + pixelWidth, y + pixelHeight,
 
 				// source
 				r.x, r.y, r.x + r.width, r.y + r.height,
-
-				null);
+				null
+		);
 	}
 
-	private void renderTerminal(double dt) {
+	private void renderTerminal(AWTTerminalFont font, double dt) {
 		// make sure all font colors are loaded
 		for (int i = 0; i < 16; i++) {
-			font.getTinted(paletteCacher.getColor(i));
+			font.getTintedBitmap(paletteCacher.getColor(i));
 		}
 
 		synchronized (terminal) {
@@ -92,7 +89,7 @@ class TerminalComponent extends Canvas {
 					char character = (textLine == null) ? ' ' : textLine.charAt(x);
 					char fgChar = (fgLine == null) ? ' ' : fgLine.charAt(x);
 
-					drawChar(g, character, x * pixelWidth + margin, y * pixelHeight + margin,
+					drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin,
 							Utils.base16ToInt(fgChar));
 
 					dx += width;
@@ -105,7 +102,7 @@ class TerminalComponent extends Canvas {
 			boolean blink = terminal.getCursorBlink() && (blinkLocked || CCEmuX.getGlobalCursorBlink());
 
 			if (blink) {
-				drawChar(g, cursorChar, terminal.getCursorX() * pixelWidth + margin,
+				drawChar(font, g, cursorChar, terminal.getCursorX() * pixelWidth + margin,
 						terminal.getCursorY() * pixelHeight + margin, terminal.getTextColour());
 			}
 
@@ -114,14 +111,14 @@ class TerminalComponent extends Canvas {
 		}
 	}
 
-	public void render(double dt) {
+	public void render(AWTTerminalFont font, double dt) {
 		if (getBufferStrategy() == null) {
 			createBufferStrategy(2);
 		}
 
 		do {
 			do {
-				renderTerminal(dt);
+				renderTerminal(font, dt);
 			} while (getBufferStrategy().contentsRestored());
 
 			getBufferStrategy().show();

@@ -24,7 +24,7 @@ import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
 public class Launcher {
@@ -245,12 +245,12 @@ public class Launcher {
 
 			pluginMgr.onInitializationCompleted();
 
-			TerminalFont.loadImplicitFonts();
-
 			log.info("Setting up emulation environment");
 
 			if (!GraphicsEnvironment.isHeadless())
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
+
+			TerminalFonts.loadImplicitFonts();
 
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, getCCSource());
 			emu.createComputer();

@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Character.UnicodeBlock;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 import org.apache.commons.io.IOUtils;
 
 import lombok.val;
@@ -26,10 +29,8 @@ import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
-public class AWTRenderer extends Frame
-		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
-
-	private static final long serialVersionUID = 374030924274589331L;
+public class AWTRenderer
+		implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
@@ -42,6 +43,8 @@ public class AWTRenderer extends Frame
 	}
 
 	private final List<Renderer.Listener> listeners = new ArrayList<>();
+
+	private final Frame frame;
 
 	@Override
 	public void addListener(Renderer.Listener listener) {
@@ -72,7 +75,7 @@ public class AWTRenderer extends Frame
 	private double rebootTimer = -1;
 
 	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
-		super(EMU_WINDOW_TITLE);
+		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
 		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
@@ -80,14 +83,14 @@ public class AWTRenderer extends Frame
 		pixelWidth = (int) (6 * config.termScale.get());
 		pixelHeight = (int) (9 * config.termScale.get());
 
-		setLayout(new BorderLayout());
+		frame.setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));
 
 		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());
-		add(termComponent, BorderLayout.CENTER);
+		frame.add(termComponent, BorderLayout.CENTER);
 
 		// required for tab to work
-		setFocusTraversalKeysEnabled(false);
+		frame.setFocusTraversalKeysEnabled(false);
 		termComponent.setFocusTraversalKeysEnabled(false);
 
 		termComponent.addKeyListener(this);
@@ -95,13 +98,13 @@ public class AWTRenderer extends Frame
 		termComponent.addMouseMotionListener(this);
 		termComponent.addMouseWheelListener(this);
 
-		addKeyListener(this);
-		addMouseListener(this);
-		addMouseMotionListener(this);
-		addMouseWheelListener(this);
+		frame.addKeyListener(this);
+		frame.addMouseListener(this);
+		frame.addMouseMotionListener(this);
+		frame.addMouseWheelListener(this);
 
 		// properly stop emulator when window is closed
-		addWindowListener(new WindowAdapter() {
+		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				AWTRenderer.this.dispose();
@@ -109,13 +112,13 @@ public class AWTRenderer extends Frame
 			}
 		});
 
-		setResizable(false);
-		setDropTarget(new DropTarget(null, new DropTargetListener() {
+		frame.setResizable(false);
+		frame.setDropTarget(new DropTarget(null, new DropTargetListener() {
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
 					val flavors = dtde.getCurrentDataFlavors();
-					if (Arrays.stream(flavors).anyMatch(f -> f.isFlavorJavaFileListType())) {
+					if (Arrays.stream(flavors).anyMatch(DataFlavor::isFlavorJavaFileListType)) {
 						log.debug("Accepting file drag and drop for computer #{}", computer.getID());
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
 
@@ -165,14 +168,14 @@ public class AWTRenderer extends Frame
 		}));
 
 		// fit to contents
-		pack();
+		frame.pack();
 
 		// center window in screen
-		setLocationRelativeTo(null);
+		frame.setLocationRelativeTo(null);
 
 		// set icon
 		try {
-			setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/img/icon.png")));
+			frame.setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/img/icon.png")));
 		} catch (IOException e) {
 			log.warn("Failed to set taskbar icon", e);
 		}
@@ -195,7 +198,7 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void onAdvance(double dt) {
-		setTitle(getWindowTitle());
+		frame.setTitle(getWindowTitle());
 		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
 		termComponent.blinkLocked = blinkLockedTime > 0;
 
@@ -238,9 +241,15 @@ public class AWTRenderer extends Frame
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
-				termComponent.render(dt);
+				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
+				termComponent.render(font, dt);
 			}
 		}
+	}
+
+	@Override
+	public TerminalFont loadFont(URL url) throws IOException {
+		return new AWTTerminalFont(url);
 	}
 
 	private Point mapPointToCC(Point p) {
@@ -357,4 +366,19 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void mouseExited(MouseEvent e) {}
+
+	@Override
+	public boolean isVisible() {
+		return frame.isVisible();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		frame.setVisible(visible);
+	}
+
+	@Override
+	public void dispose() {
+		frame.dispose();
+	}
 }
