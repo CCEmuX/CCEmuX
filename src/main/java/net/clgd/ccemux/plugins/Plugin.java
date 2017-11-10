@@ -92,10 +92,10 @@ public abstract class Plugin {
 	public abstract Optional<String> getVersion();
 
 	/**
-	 * The authors of the plugin. If an empty <code>Set</code> is returned,
+	 * The authors of the plugin. If an empty <code>Collection</code> is returned,
 	 * no authors will be shown to end-users.
 	 */
-	public abstract Set<String> getAuthors();
+	public abstract Collection<String> getAuthors();
 
 	/**
 	 * Gets the website for this plugin. This can be a link to a forum thread, a

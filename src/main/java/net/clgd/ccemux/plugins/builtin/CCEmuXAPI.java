@@ -142,8 +142,8 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	@Override
-	public Set<String> getAuthors() {
-		return new HashSet<>();
+	public Collection<String> getAuthors() {
+		return Collections.emptyList();
 	}
 
 	@Override

@@ -1,12 +1,13 @@
 package net.clgd.ccemux.plugins.builtin;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
 import com.google.auto.service.AutoService;
 
-import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
@@ -31,8 +32,8 @@ public class HDFontPlugin extends Plugin {
 	}
 
 	@Override
-	public Set<String> getAuthors() {
-		return Sets.newHashSet("BombBloke");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("BombBloke");
 	}
 
 	@Override

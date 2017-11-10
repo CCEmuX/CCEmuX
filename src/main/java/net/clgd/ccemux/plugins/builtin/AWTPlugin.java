@@ -1,11 +1,12 @@
 package net.clgd.ccemux.plugins.builtin;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
 import com.google.auto.service.AutoService;
 
-import com.google.common.collect.Sets;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
@@ -29,8 +30,8 @@ public class AWTPlugin extends Plugin {
 	}
 
 	@Override
-	public Set<String> getAuthors() {
-		return Sets.newHashSet("CLGD");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("CLGD");
 	}
 
 	@Override
