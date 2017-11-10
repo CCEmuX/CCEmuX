@@ -46,11 +46,9 @@ public class TerminalFonts<RendererT extends Renderer> {
 	@Getter
 	private final Set<TerminalFont> implicitFonts = new HashSet<>();
 
-	public static void loadAndRegisterFont(InputStream stream) throws IOException {
-		for (val entry : rendererFontsMap.entrySet()) {
-			val font = entry.getKey().loadFont(stream);
-			entry.getValue().registerFont(font);
-		}
+	public static <R extends Renderer> void loadAndRegisterFontFor(R renderer, InputStream stream) throws IOException {
+		val font = renderer.loadFont(stream);
+		getFontsFor(renderer).registerFont(font);
 	}
 
 	/**
@@ -91,7 +89,7 @@ public class TerminalFonts<RendererT extends Renderer> {
 	public TerminalFont getBest() {
 		val fonts = explicitFonts.size() > 0 ? explicitFonts : implicitFonts;
 		return fonts.stream()
-				.sorted(Comparator.comparingInt(a -> a.getCharWidth() + a.getCharHeight()))
+				.sorted(Comparator.comparingInt(a -> (a.getCharWidth() + a.getCharHeight())))
 				.reduce((a, b) -> b)
 				.orElseThrow(() -> new RuntimeException("No terminal fonts available"));
 	}

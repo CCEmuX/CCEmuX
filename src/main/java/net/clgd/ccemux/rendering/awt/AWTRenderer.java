@@ -87,8 +87,7 @@ public class AWTRenderer extends Renderer
 		frame.setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));
 
-		AWTTerminalFont bestFont = (AWTTerminalFont)TerminalFonts.getFontsFor(this).getBest();
-		termComponent = new TerminalComponent(computer.terminal, config.termScale.get(), bestFont);
+		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());
 		frame.add(termComponent, BorderLayout.CENTER);
 
 		// required for tab to work
@@ -243,7 +242,8 @@ public class AWTRenderer extends Renderer
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
-				termComponent.render(dt);
+				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(this).getBest();
+				termComponent.render(font, dt);
 			}
 		}
 	}
