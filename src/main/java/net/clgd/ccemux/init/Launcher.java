@@ -25,6 +25,7 @@ import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.apis.AddressPredicate;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.clgd.ccemux.OperatingSystem;
@@ -65,15 +66,14 @@ public class Launcher {
 		} else {
 			try (final CCEmuXClassloader loader = new CCEmuXClassloader(
 					((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
-				@SuppressWarnings("unchecked")
-				final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
+				@SuppressWarnings("unchecked") final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
 
 				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
 				constructor.setAccessible(true);
 
 				final Method launch = klass.getDeclaredMethod("launch");
 				launch.setAccessible(true);
-				launch.invoke(constructor.newInstance(new Object[] { args }));
+				launch.invoke(constructor.newInstance(new Object[]{args}));
 			} catch (Exception e) {
 				log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
 				new Launcher(args).launch();
@@ -130,8 +130,8 @@ public class Launcher {
 			scrollPane.setMaximumSize(new Dimension(600, 400));
 
 			int result = JOptionPane.showConfirmDialog(null,
-					new Object[] { "CCEmuX has crashed!", scrollPane,
-							"Would you like to create a bug report on GitHub?" },
+					new Object[]{"CCEmuX has crashed!", scrollPane,
+							"Would you like to create a bug report on GitHub?"},
 					"CCEmuX Crash", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
 
 			if (result == JOptionPane.YES_OPTION) {
@@ -232,6 +232,15 @@ public class Launcher {
 			}
 
 			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
+
+			// Setup the properties to sync with the original.
+			// computerSpaceLimit isn't technically needed, but we do it for consistency's sake.
+			cfg.maxComputerCapacity.addAndFireListener((o, n) -> ComputerCraft.computerSpaceLimit = n.intValue());
+			cfg.httpEnabled.addAndFireListener((o, n) -> ComputerCraft.http_enable = n);
+			cfg.httpWhitelist.addAndFireListener((o, n) -> ComputerCraft.http_whitelist = new AddressPredicate(n));
+			cfg.httpBlacklist.addAndFireListener((o, n) -> ComputerCraft.http_blacklist = new AddressPredicate(n));
+			cfg.disableLua51Features.addAndFireListener((o, n) -> ComputerCraft.disable_lua51_features = n);
+			cfg.defaultComputerSettings.addAndFireListener((o, n) -> ComputerCraft.default_computer_settings = n);
 
 			pluginMgr.setup();
 
