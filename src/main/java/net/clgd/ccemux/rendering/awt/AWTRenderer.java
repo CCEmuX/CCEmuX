@@ -14,6 +14,7 @@ import java.lang.Character.UnicodeBlock;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -23,9 +24,11 @@ import net.clgd.ccemux.rendering.TerminalFont;
 import net.clgd.ccemux.rendering.TerminalFonts;
 import org.apache.commons.io.IOUtils;
 
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.*;
+import lombok.val;
+import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
@@ -73,6 +76,8 @@ public class AWTRenderer
 	private double terminateTimer = -1;
 	private double shutdownTimer = -1;
 	private double rebootTimer = -1;
+
+	private final BitSet keysDown = new BitSet(256);
 
 	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
 		frame = new Frame(EMU_WINDOW_TITLE);
@@ -284,42 +289,44 @@ public class AWTRenderer
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
-			char real = (char) (e.getKeyChar() + 96);
-
-			// Start action timers
-			if (real == 's' && shutdownTimer < 0) shutdownTimer = 0;
-			if (real == 'r' && rebootTimer < 0) rebootTimer = 0;
-			if (real == 't' && terminateTimer < 0) terminateTimer = 0;
-
-			// Handle pasting, this exists early.
-			if (real == 'v') {
-				try {
-					computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
-				} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
-					log.error("Could not read clipboard", er);
-				}
-				return;
+		// Pasting should be handled first as it blocks all events
+		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0 && e.getKeyCode() == KeyEvent.VK_V) {
+			try {
+				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
+			} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
+				log.error("Could not read clipboard", er);
 			}
+			return;
 		}
 
 		if (allowKeyEvents()) {
+			keysDown.set(e.getKeyCode());
 			computer.pressKey(translateToCC(e.getKeyCode()), false);
+		}
+
+		// Start action timers
+		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
+			int key = e.getKeyCode();
+			if (key == KeyEvent.VK_S && shutdownTimer < 0) shutdownTimer = 0;
+			if (key == KeyEvent.VK_R && rebootTimer < 0) rebootTimer = 0;
+			if (key == KeyEvent.VK_T && terminateTimer < 0) terminateTimer = 0;
 		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		// Reset action timers
 		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
-			char real = (char) (e.getKeyChar() + 96);
-
-			// Reset control timers
-			if (real == 's') shutdownTimer = -1;
-			if (real == 'r') rebootTimer = -1;
-			if (real == 't') terminateTimer = -1;
+			int key = e.getKeyCode();
+			if (key == KeyEvent.VK_S) shutdownTimer = -1;
+			if (key == KeyEvent.VK_R) rebootTimer = -1;
+			if (key == KeyEvent.VK_T) terminateTimer = -1;
 		}
 
-		computer.pressKey(translateToCC(e.getKeyCode()), true);
+		if (keysDown.get(e.getKeyCode())) {
+			keysDown.clear(e.getKeyCode());
+			computer.pressKey(translateToCC(e.getKeyCode()), true);
+		}
 	}
 
 	private void fireMouseEvent(MouseEvent e, boolean press) {
