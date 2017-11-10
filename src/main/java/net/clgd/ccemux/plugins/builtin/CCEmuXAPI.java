@@ -142,8 +142,8 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.empty();
+	public Collection<String> getAuthors() {
+		return Collections.emptyList();
 	}
 
 	@Override

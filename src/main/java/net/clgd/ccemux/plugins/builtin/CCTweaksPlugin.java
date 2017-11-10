@@ -1,7 +1,10 @@
 package net.clgd.ccemux.plugins.builtin;
 
 import java.awt.GraphicsEnvironment;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -34,8 +37,8 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("SquidDev");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("SquidDev");
 	}
 
 	@Override
