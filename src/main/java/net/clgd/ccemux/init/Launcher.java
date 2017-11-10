@@ -261,8 +261,6 @@ public class Launcher {
 
 			pluginMgr.onInitializationCompleted();
 
-			TerminalFont.loadImplicitFonts();
-
 			log.info("Setting up emulation environment");
 
 			if (!GraphicsEnvironment.isHeadless())

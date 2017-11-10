@@ -1,19 +1,26 @@
 package net.clgd.ccemux.rendering;
 
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 
-public interface Renderer extends EmulatedComputer.Listener {
-	public static interface Listener {
-		public void onClosed();
+import java.io.IOException;
+import java.io.InputStream;
+
+@Slf4j
+public abstract class Renderer implements EmulatedComputer.Listener {
+	public interface Listener {
+		void onClosed();
 	}
 
-	public boolean isVisible();
+	public abstract boolean isVisible();
 
-	public void setVisible(boolean visible);
+	public abstract void setVisible(boolean visible);
 
-	public void dispose();
+	public abstract void dispose();
 
-	public void addListener(Listener l);
+	public abstract void addListener(Listener l);
 
-	public void removeListener(Listener l);
+	public abstract void removeListener(Listener l);
+
+	public abstract TerminalFont loadFont(InputStream stream) throws IOException;
 }

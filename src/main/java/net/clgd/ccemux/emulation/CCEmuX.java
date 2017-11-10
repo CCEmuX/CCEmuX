@@ -56,7 +56,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	@Getter
 	private final File ccSource;
 
-	private Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
+	private final Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
 
 	private int nextID = 0;
 

@@ -21,18 +21,18 @@ class TerminalComponent extends Canvas {
 	public final int pixelWidth;
 	public final int pixelHeight;
 	public final int margin;
-	public final TerminalFont font;
+	public final AWTTerminalFont font;
 
 	public char cursorChar = '_';
 
 	public boolean blinkLocked = false;
 
-	public TerminalComponent(Terminal terminal, double termScale) {
+	public TerminalComponent(Terminal terminal, double termScale, AWTTerminalFont font) {
 		this.pixelWidth = (int) (6 * termScale);
 		this.pixelHeight = (int) (9 * termScale);
 		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
-		this.font = TerminalFont.getBest();
+		this.font = font;
 		this.paletteCacher = new PaletteCacher(terminal.getPalette());
 
 		resizeTerminal(terminal.getWidth(), terminal.getHeight());
@@ -53,21 +53,21 @@ class TerminalComponent extends Canvas {
 
 		g.drawImage(
 				// tinted char
-				font.getTinted(paletteCacher.getColor(color)),
+				font.getTintedBitmap(paletteCacher.getColor(color)),
 
 				// destination
 				x, y, x + pixelWidth, y + pixelHeight,
 
 				// source
 				r.x, r.y, r.x + r.width, r.y + r.height,
-
-				null);
+				null
+		);
 	}
 
 	private void renderTerminal(double dt) {
 		// make sure all font colors are loaded
 		for (int i = 0; i < 16; i++) {
-			font.getTinted(paletteCacher.getColor(i));
+			font.getTintedBitmap(paletteCacher.getColor(i));
 		}
 
 		synchronized (terminal) {

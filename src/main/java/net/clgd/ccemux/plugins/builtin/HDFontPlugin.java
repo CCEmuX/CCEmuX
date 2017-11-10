@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
 @AutoService(Plugin.class)
@@ -45,8 +46,7 @@ public class HDFontPlugin extends Plugin {
 	public void setup(EmuConfig cfg) {
 		try {
 			log.info("Registering HD font");
-			TerminalFont.registerFont(
-					new TerminalFont(ImageIO.read(HDFontPlugin.class.getResourceAsStream("/img/hdfont.png"))));
+			TerminalFonts.loadAndRegisterFont(HDFontPlugin.class.getResourceAsStream("/img/hdfont.png"));
 		} catch (IOException e) {
 			log.error("Failed to register HD font", e);
 		}
