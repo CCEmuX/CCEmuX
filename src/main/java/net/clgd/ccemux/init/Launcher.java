@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import javax.swing.*;
 
-import net.clgd.ccemux.rendering.TerminalFonts;
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 
@@ -25,7 +24,7 @@ import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
 public class Launcher {

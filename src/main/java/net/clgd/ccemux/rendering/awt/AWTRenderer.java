@@ -32,8 +32,6 @@ import net.clgd.ccemux.rendering.Renderer;
 public class AWTRenderer
 		implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
-	private static final long serialVersionUID = 374030924274589331L;
-
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
 	private static final double ACTION_TIME = 0.5;

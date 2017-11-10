@@ -17,7 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.emulation.filesystem.VirtualMount;
 import net.clgd.ccemux.init.Launcher;
-import net.clgd.ccemux.init.UserConfig;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererFactory;

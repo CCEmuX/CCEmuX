@@ -10,8 +10,6 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.rendering.PaletteCacher;
-import net.clgd.ccemux.rendering.TerminalFont;
-import net.clgd.ccemux.rendering.TerminalFonts;
 
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
