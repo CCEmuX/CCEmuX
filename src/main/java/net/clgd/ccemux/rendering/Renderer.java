@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URL;
 
 @Slf4j
 public abstract class Renderer implements EmulatedComputer.Listener {
@@ -22,5 +22,5 @@ public abstract class Renderer implements EmulatedComputer.Listener {
 
 	public abstract void removeListener(Listener l);
 
-	public abstract TerminalFont loadFont(InputStream stream) throws IOException;
+	public abstract TerminalFont loadFont(URL url) throws IOException;
 }

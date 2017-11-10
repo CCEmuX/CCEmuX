@@ -10,8 +10,8 @@ import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.Character.UnicodeBlock;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,6 +19,7 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
+import net.clgd.ccemux.rendering.TerminalFont;
 import net.clgd.ccemux.rendering.TerminalFonts;
 import org.apache.commons.io.IOUtils;
 
@@ -242,15 +243,15 @@ public class AWTRenderer extends Renderer
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
-				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(this).getBest();
+				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
 				termComponent.render(font, dt);
 			}
 		}
 	}
 
 	@Override
-	public AWTTerminalFont loadFont(InputStream stream) throws IOException {
-		return new AWTTerminalFont(stream);
+	public TerminalFont loadFont(URL url) throws IOException {
+		return new AWTTerminalFont(url);
 	}
 
 	private Point mapPointToCC(Point p) {

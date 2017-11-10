@@ -47,13 +47,10 @@ public class HDFontPlugin extends Plugin {
 
 	@Override
 	public void setup(EmuConfig cfg) {
-		registerHook((RendererCreated) (emu, renderer) -> {
-            log.info("Registering HD font for {}", renderer.getClass().getName());
-            try {
-                TerminalFonts.loadAndRegisterFontFor(renderer, HDFontPlugin.class.getResourceAsStream("/img/hdfont.png"));
-            } catch (IOException e) {
-                log.error("Failed to register HD font", e);
-            }
-        });
+		try {
+			TerminalFonts.registerFont(HDFontPlugin.class.getResource("/img/hdfont.png"));
+		} catch (IOException e) {
+			log.error("Failed to load HD font!", e);
+		}
 	}
 }

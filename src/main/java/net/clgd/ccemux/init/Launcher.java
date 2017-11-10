@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import javax.swing.*;
 
+import net.clgd.ccemux.rendering.TerminalFonts;
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 
@@ -265,6 +266,8 @@ public class Launcher {
 
 			if (!GraphicsEnvironment.isHeadless())
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
+
+			TerminalFonts.loadImplicitFonts();
 
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, getCCSource());
 			emu.createComputer();

@@ -1,6 +1,7 @@
 package net.clgd.ccemux.rendering.tror;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
@@ -49,7 +50,7 @@ public class TRoRRenderer extends Renderer implements EmulatedTerminal.Listener,
 	}
 
 	@Override
-	public TerminalFont loadFont(InputStream stream) throws IOException {
+	public TerminalFont loadFont(URL url) throws IOException {
 		return null;
 	}
 

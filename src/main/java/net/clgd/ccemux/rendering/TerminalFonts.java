@@ -5,76 +5,63 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 public class TerminalFonts {
-	private static final Map<Renderer, TerminalFonts> rendererFontsMap = new HashMap<>();
+	private static final Map<Class<? extends Renderer>, TerminalFonts> rendererFontsMap = new HashMap<>();
 
-	public static TerminalFonts getFontsFor(Renderer renderer) {
+	public static TerminalFonts getFontsFor(Class<? extends Renderer> renderer) {
 		if (rendererFontsMap.containsKey(renderer)) {
 			return rendererFontsMap.get(renderer);
 		} else {
-			val fonts = new TerminalFonts();
-
-			try {
-				fonts.loadImplicitFonts(renderer);
-			} catch (IOException e) {
-				log.error("Failed to load implicit fonts for renderer {}", renderer.getClass().getName(), e);
-				e.printStackTrace();
-			}
-
+			TerminalFonts fonts = new TerminalFonts();
 			rendererFontsMap.put(renderer, fonts);
 			return fonts;
 		}
 	}
+
+	private TerminalFont bestFont;
+	private boolean bestFontInvalidated = true;
 
 	/**
 	 * A set of fonts that have been registered explicitly. (presumably by a
 	 * plugin) These fonts will have priority over implicit fonts.
 	 */
 	@Getter
-	private final Set<TerminalFont> explicitFonts = new HashSet<>();
+	private static final Set<URL> explicitFonts = new HashSet<>();
 
 	/**
 	 * A set of fonts that have been loaded implicitly, from the CC jar or
 	 * resource packs usually.
 	 */
 	@Getter
-	private final Set<TerminalFont> implicitFonts = new HashSet<>();
+	private static final Set<URL> implicitFonts = new HashSet<>();
 
-	public static <R extends Renderer> void loadAndRegisterFontFor(R renderer, InputStream stream) throws IOException {
-		val font = renderer.loadFont(stream);
-		getFontsFor(renderer).registerFont(font);
-	}
+	public static void registerFont(URL url) throws IOException {
+		explicitFonts.add(url);
 
-	/**
-	 * Locates fonts not explicitly registered, but present at the standard path
-	 * (e.g. from resource packs)
-	 *
-	 * @return
-	 * @throws IOException
-	 */
-	private void loadImplicitFonts(Renderer renderer) throws IOException {
-		log.debug("Loading implicit terminal fonts");
-
-		val urls = TerminalFont.class.getClassLoader().getResources(TerminalFont.FONT_RESOURCE_PATH);
-		while (urls.hasMoreElements()) {
-			URL url = urls.nextElement();
-			try {
-				TerminalFont font = renderer.loadFont(url.openStream());
-				implicitFonts.add(font);
-				log.debug("Loaded implicit terminal font from {}", url);
-			} catch (IOException e) {
-				log.error("Failed to load implicit terminal font from {}", url, e);
-			}
+		for (TerminalFonts fonts : rendererFontsMap.values()) {
+			fonts.bestFontInvalidated = true;
 		}
 	}
 
-	private void registerFont(TerminalFont font) {
-		explicitFonts.add(font);
+	public static void loadImplicitFonts() throws IOException {
+		log.debug("Loading implicit terminal fonts");
+
+		val urls = TerminalFont.class.getClassLoader().getResources(TerminalFont.FONT_RESOURCE_PATH);
+
+		while (urls.hasMoreElements()) {
+			URL url = urls.nextElement();
+			implicitFonts.add(url);
+			log.debug("Loaded implicit terminal font from {}", url);
+		}
+
+		for (TerminalFonts fonts : rendererFontsMap.values()) {
+			fonts.bestFontInvalidated = true;
+		}
 	}
 
 	/**
@@ -85,11 +72,42 @@ public class TerminalFonts {
 	 *
 	 * @return The "best" font
 	 */
-	public TerminalFont getBest() {
-		val fonts = explicitFonts.size() > 0 ? explicitFonts : implicitFonts;
-		return fonts.stream()
-				.sorted(Comparator.comparingInt(a -> a.getCharWidth() + a.getCharHeight()))
-				.reduce((a, b) -> b)
-				.orElseThrow(() -> new RuntimeException("No terminal fonts available"));
+	public TerminalFont getBest(Renderer renderer) {
+		if (bestFontInvalidated) {
+			List<TerminalFont> explicit = explicitFonts.stream().map(url -> {
+					try {
+						return renderer.loadFont(url);
+					} catch (IOException e) {
+						log.error("Failed to load explicit font {}", url, e);
+					}
+
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+
+			List<TerminalFont> implicit = implicitFonts.stream().map(url -> {
+					try {
+						return renderer.loadFont(url);
+					} catch (IOException e) {
+						log.error("Failed to load implicit font {}", url, e);
+					}
+
+					return null;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+
+			val fonts = !explicit.isEmpty() ? explicit : implicit;
+
+			bestFont = fonts.stream()
+					.sorted(Comparator.comparingInt(a -> a.getCharWidth() + a.getCharHeight()))
+					.reduce((a, b) -> b)
+					.orElseThrow(() -> new RuntimeException("No terminal fonts available"));
+
+			bestFontInvalidated = false;
+		}
+
+		return bestFont;
 	}
 }
