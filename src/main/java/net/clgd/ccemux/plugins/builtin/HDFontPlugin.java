@@ -3,17 +3,11 @@ package net.clgd.ccemux.plugins.builtin;
 import java.io.IOException;
 import java.util.Optional;
 
-import javax.imageio.ImageIO;
-
 import com.google.auto.service.AutoService;
 
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.plugins.hooks.RendererCreated;
-import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.TerminalFont;
 import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j

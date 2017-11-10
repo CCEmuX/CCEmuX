@@ -1,13 +1,10 @@
 package net.clgd.ccemux.rendering;
 
 import java.awt.Rectangle;
-import java.io.Serializable;
 
 import lombok.Getter;
 
-public abstract class TerminalFont implements Serializable {
-	private static final long serialVersionUID = 8866829337690482036L;
-
+public abstract class TerminalFont {
 	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
 
 	public static final int BASE_WIDTH = 256, BASE_HEIGHT = 256;
