@@ -29,8 +29,8 @@ import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
-public class AWTRenderer extends Renderer
-		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class AWTRenderer
+		implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	private static final long serialVersionUID = 374030924274589331L;
 

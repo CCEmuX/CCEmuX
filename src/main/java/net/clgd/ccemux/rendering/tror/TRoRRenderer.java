@@ -10,7 +10,7 @@ import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 
-public class TRoRRenderer extends Renderer implements EmulatedTerminal.Listener, EmulatedPalette.Listener {
+public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.Listener {
 	private final EmulatedComputer computer;
 	private final EmuConfig config;
 
