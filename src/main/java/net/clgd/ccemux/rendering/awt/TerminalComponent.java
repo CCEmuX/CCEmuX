@@ -1,14 +1,5 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.RescaleOp;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.terminal.Terminal;
@@ -18,6 +9,12 @@ import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.rendering.PaletteCacher;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RescaleOp;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 class TerminalComponent extends Canvas {
@@ -64,18 +61,20 @@ class TerminalComponent extends Canvas {
 
 		BufferedImage charImg = null;
 
+		float[] zero = new float[4];
+
 		try {
 			charImg = charImgCache.get(Pair.of(c, colour), () -> {
 				float[] rgb = new float[4];
 				colour.getRGBComponents(rgb);
 
-                RescaleOp rop = new RescaleOp(rgb, new float[4], null);
+                RescaleOp rop = new RescaleOp(rgb, zero, null);
 
-				GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-						.getDefaultConfiguration();
+                GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
+						.getDefaultScreenDevice().getDefaultConfiguration();
 
-                BufferedImage pixel = gc.createCompatibleImage(pixelWidth, pixelHeight, Transparency.TRANSLUCENT);
-                BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.x + r.width, r.y + r.height);
+                BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.width, r.height);
+				BufferedImage pixel = gc.createCompatibleImage(r.width, r.height, Transparency.TRANSLUCENT);
 
                 Graphics ig = pixel.getGraphics();
                 ig.drawImage(img, 0, 0, null);

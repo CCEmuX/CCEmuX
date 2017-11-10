@@ -1,9 +1,11 @@
 package net.clgd.ccemux.rendering.awt;
 
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;

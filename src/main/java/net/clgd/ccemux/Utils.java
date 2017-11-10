@@ -7,8 +7,6 @@ import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.Transparency;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
 import java.util.concurrent.Callable;
 
 import dan200.computercraft.shared.util.Colour;
