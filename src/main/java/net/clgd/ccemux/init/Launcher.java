@@ -147,15 +147,6 @@ public class Launcher {
 	}
 
 	private PluginManager loadPlugins(UserConfig cfg) throws ReflectiveOperationException {
-		URLClassLoader loader;
-
-		if (getClass().getClassLoader() instanceof URLClassLoader) {
-			loader = (URLClassLoader) getClass().getClassLoader();
-		} else {
-			log.info("Classloader is not a URLClassLoader - creating new child classloader");
-			loader = new URLClassLoader(new URL[0], getClass().getClassLoader());
-		}
-
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile())
@@ -187,15 +178,8 @@ public class Launcher {
 				}
 			}
 		}
-
-		Method m = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-		m.setAccessible(true);
-
-		for (URL u : urls) {
-			m.invoke(loader, u);
-		}
-
-		return new PluginManager(loader, cfg);
+		
+		return new PluginManager(new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader()), cfg);
 	}
 
 	private File getCCSource() throws URISyntaxException {
