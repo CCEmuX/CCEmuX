@@ -14,9 +14,12 @@ import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
 import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.rendering.TerminalFont;
 
 import javax.annotation.Nullable;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,6 +128,11 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	@Override
 	public void removeListener(Renderer.Listener listener) {
 		listeners.remove(listener);
+	}
+	
+	@Override
+	public TerminalFont loadFont(URL url) throws IOException {
+		return new GDXTerminalFont(url);
 	}
 	
 	@Override

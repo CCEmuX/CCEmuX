@@ -26,8 +26,8 @@ public class AWTTerminalFont extends TerminalFont {
 			.build();
 
 	public AWTTerminalFont(BufferedImage base) {
-		super(base.getWidth(), base.getHeight());
 		this.base = base;
+		calculateCharSizes(base.getWidth(), base.getHeight());
 	}
 
 	public AWTTerminalFont(InputStream stream) throws IOException {

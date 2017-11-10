@@ -17,37 +17,29 @@ public abstract class TerminalFont {
 	 * The scale of the font, calculated based on base image resolution
 	 */
 	@Getter
-	private final double horizontalScale, verticalScale;
+	private double horizontalScale, verticalScale;
 
 	/**
 	 * The scaled character dimensions
 	 */
 	@Getter
-	private final int charWidth, charHeight;
+	private int charWidth, charHeight;
 
 	/**
 	 * The margin around each character
 	 */
 	@Getter
-	private final int margin;
-
-	/**
-	 * Creates a new terminal font
-	 *
-	 * @param imageWidth
-	 * 			The width of the font image.
-	 * @param imageHeight
-	 * 			The height of the font image.
-	 */
-	public TerminalFont(int imageWidth, int imageHeight) {
+	private int margin;
+	
+	protected void calculateCharSizes(int imageWidth, int imageHeight) {
 		horizontalScale = imageWidth / (double) BASE_WIDTH;
 		verticalScale = imageHeight / (double) BASE_HEIGHT;
-
+		
 		margin = (int) Math.round(BASE_MARGIN * horizontalScale);
 		charWidth = (int) Math.round(BASE_CHAR_WIDTH * horizontalScale);
 		charHeight = (int) Math.round(BASE_CHAR_HEIGHT * verticalScale);
 	}
-
+	
 	/**
 	 * Gets the scaled coordinates and dimensions for a given character in this
 	 * font
