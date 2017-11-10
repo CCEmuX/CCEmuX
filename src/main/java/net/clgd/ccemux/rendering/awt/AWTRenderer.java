@@ -33,6 +33,8 @@ public class AWTRenderer extends Frame
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
+	private static final double ACTION_TIME = 0.5;
+
 	private static boolean isPrintableChar(char c) {
 		UnicodeBlock block = UnicodeBlock.of(c);
 		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
@@ -64,6 +66,10 @@ public class AWTRenderer extends Frame
 	private double blinkLockedTime = 0d;
 
 	private boolean paletteChanged = false;
+
+	private double terminateTimer = -1;
+	private double shutdownTimer = -1;
+	private double rebootTimer = -1;
 
 	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
 		super(EMU_WINDOW_TITLE);
@@ -194,6 +200,28 @@ public class AWTRenderer extends Frame
 		termComponent.blinkLocked = blinkLockedTime > 0;
 
 		if (isVisible()) {
+			// Handle action keys
+			if (shutdownTimer >= 0 && shutdownTimer < ACTION_TIME) {
+				shutdownTimer += dt;
+				if (shutdownTimer >= ACTION_TIME) computer.shutdown();
+			}
+
+			if (rebootTimer >= 0 && rebootTimer < ACTION_TIME) {
+				rebootTimer += dt;
+				if (rebootTimer >= ACTION_TIME) {
+					if (computer.isOn()) {
+						computer.reboot();
+					} else {
+						computer.turnOn();
+					}
+				}
+			}
+
+			if (terminateTimer >= 0 && terminateTimer < ACTION_TIME) {
+				terminateTimer += dt;
+				if (terminateTimer >= ACTION_TIME) computer.terminate();
+			}
+
 			boolean doRepaint = paletteChanged;
 
 			if (computer.terminal.getChanged()) {
@@ -225,34 +253,21 @@ public class AWTRenderer extends Frame
 		return new Point(x + 1, y + 1);
 	}
 
-	private boolean handleCtrlPress(char control) {
-		if (control == 't') {
-			computer.terminate();
-		} else if (control == 'r') {
-			if (!computer.isOn()) {
-				computer.turnOn();
-			} else {
-				computer.reboot();
-			}
-		} else if (control == 's') {
-			computer.shutdown();
-		} else if (control == 'v') {
-			try {
-				computer.paste(
-						(String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
-			} catch (HeadlessException | UnsupportedFlavorException | IOException e) {
-				log.error("Could not read clipboard", e);
-			}
-		} else {
-			return false;
-		}
-
-		return true;
+	/**
+	 * Determine whether {@code key} and {@code char} events should be queued.
+	 *
+	 * If any of the action keys are pressed (terminate, shutdown, reboot) then such events will
+	 * be blocked.
+	 *
+	 * @return Whether such events should be queued.
+	 */
+	private boolean allowKeyEvents() {
+		return shutdownTimer < 0 && rebootTimer < 0 && terminateTimer < 0;
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (isPrintableChar(e.getKeyChar())) {
+		if (isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}
@@ -260,16 +275,39 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		computer.pressKey(translateToCC(e.getKeyCode()), false);
+		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
+			char real = (char) (e.getKeyChar() + 96);
+
+			// Start action timers
+			if (real == 's' && shutdownTimer < 0) shutdownTimer = 0;
+			if (real == 'r' && rebootTimer < 0) rebootTimer = 0;
+			if (real == 't' && terminateTimer < 0) terminateTimer = 0;
+
+			// Handle pasting, this exists early.
+			if (real == 'v') {
+				try {
+					computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
+				} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
+					log.error("Could not read clipboard", er);
+				}
+				return;
+			}
+		}
+
+		if (allowKeyEvents()) {
+			computer.pressKey(translateToCC(e.getKeyCode()), false);
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
-			// For whatever stupid reason, Swing subtracts 96 from all chars
-			// when ctrl is held.
 			char real = (char) (e.getKeyChar() + 96);
-			if (handleCtrlPress(real)) return;
+
+			// Reset control timers
+			if (real == 's') shutdownTimer = -1;
+			if (real == 'r') rebootTimer = -1;
+			if (real == 't') terminateTimer = -1;
 		}
 
 		computer.pressKey(translateToCC(e.getKeyCode()), true);
