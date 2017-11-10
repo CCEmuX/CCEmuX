@@ -1,12 +1,10 @@
 package net.clgd.ccemux.rendering;
 
-import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.EmulatedComputer;
-
 import java.io.IOException;
 import java.net.URL;
 
-@Slf4j
+import net.clgd.ccemux.emulation.EmulatedComputer;
+
 public abstract class Renderer implements EmulatedComputer.Listener {
 	public interface Listener {
 		void onClosed();

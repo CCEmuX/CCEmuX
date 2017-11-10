@@ -4,11 +4,9 @@ import java.awt.Rectangle;
 import java.io.Serializable;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public abstract class TerminalFont implements Serializable {
-	private static final long serialVersionUID = -2121299756211115254L;
+	private static final long serialVersionUID = 8866829337690482036L;
 
 	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
 
