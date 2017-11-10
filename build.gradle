@@ -50,15 +50,13 @@ repositories {
 	maven { url "https://oss.sonatype.org/content/repositories/releases/" }
 }
 
-project.ext.lombokVersion = '1.16.18'
-
 dependencies {
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
-	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+	compileOnly files("lib/lombok-1.16.19.jar")
+	testCompileOnly files("lib/lombok-1.16.19.jar")
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
 
-	api 'dan200.computercraft:ComputerCraft:1.80pr0-build12'
+	api 'dan200.computercraft:ComputerCraft:1.80pr1-build0'
 
 	api 'org.slf4j:slf4j-api:1.7.25'
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'

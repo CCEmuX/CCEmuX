@@ -15,6 +15,7 @@ import java.util.Optional;
 import javax.swing.*;
 
 import org.apache.commons.cli.*;
+import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
 import lombok.val;
@@ -23,7 +24,7 @@ import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
 public class Launcher {
@@ -146,15 +147,6 @@ public class Launcher {
 	}
 
 	private PluginManager loadPlugins(UserConfig cfg) throws ReflectiveOperationException {
-		URLClassLoader loader;
-
-		if (getClass().getClassLoader() instanceof URLClassLoader) {
-			loader = (URLClassLoader) getClass().getClassLoader();
-		} else {
-			log.info("Classloader is not a URLClassLoader - creating new child classloader");
-			loader = new URLClassLoader(new URL[0], getClass().getClassLoader());
-		}
-
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile())
@@ -186,15 +178,8 @@ public class Launcher {
 				}
 			}
 		}
-
-		Method m = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-		m.setAccessible(true);
-
-		for (URL u : urls) {
-			m.invoke(loader, u);
-		}
-
-		return new PluginManager(loader, cfg);
+		
+		return new PluginManager(new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader()), cfg);
 	}
 
 	private File getCCSource() throws URISyntaxException {
@@ -235,6 +220,8 @@ public class Launcher {
 				log.warn("Incompatible classloader type: {}", getClass().getClassLoader().getClass());
 			}
 
+			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
+
 			pluginMgr.setup();
 
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
@@ -258,12 +245,12 @@ public class Launcher {
 
 			pluginMgr.onInitializationCompleted();
 
-			TerminalFont.loadImplicitFonts();
-
 			log.info("Setting up emulation environment");
 
 			if (!GraphicsEnvironment.isHeadless())
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
+
+			TerminalFonts.loadImplicitFonts();
 
 			CCEmuX emu = new CCEmuX(cfg, pluginMgr, getCCSource());
 			emu.createComputer();

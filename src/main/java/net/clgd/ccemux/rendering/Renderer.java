@@ -2,18 +2,23 @@ package net.clgd.ccemux.rendering;
 
 import net.clgd.ccemux.emulation.EmulatedComputer;
 
+import java.io.IOException;
+import java.net.URL;
+
 public interface Renderer extends EmulatedComputer.Listener {
-	public static interface Listener {
-		public void onClosed();
+	interface Listener {
+		void onClosed();
 	}
 
-	public boolean isVisible();
+	boolean isVisible();
 
-	public void setVisible(boolean visible);
+	void setVisible(boolean visible);
 
-	public void dispose();
+	void dispose();
 
-	public void addListener(Listener l);
+	void addListener(Listener l);
 
-	public void removeListener(Listener l);
+	void removeListener(Listener l);
+
+	TerminalFont loadFont(URL url) throws IOException;
 }

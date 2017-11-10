@@ -3,14 +3,12 @@ package net.clgd.ccemux.plugins.builtin;
 import java.io.IOException;
 import java.util.Optional;
 
-import javax.imageio.ImageIO;
-
 import com.google.auto.service.AutoService;
 
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
 @AutoService(Plugin.class)
@@ -44,11 +42,9 @@ public class HDFontPlugin extends Plugin {
 	@Override
 	public void setup(EmuConfig cfg) {
 		try {
-			log.info("Registering HD font");
-			TerminalFont.registerFont(
-					new TerminalFont(ImageIO.read(HDFontPlugin.class.getResourceAsStream("/img/hdfont.png"))));
+			TerminalFonts.registerFont(HDFontPlugin.class.getResource("/img/hdfont.png"));
 		} catch (IOException e) {
-			log.error("Failed to register HD font", e);
+			log.error("Failed to load HD font!", e);
 		}
 	}
 }

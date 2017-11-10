@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Character.UnicodeBlock;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +19,9 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-import org.apache.logging.log4j.core.util.IOUtils;
+import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
+import org.apache.commons.io.IOUtils;
 
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
@@ -26,12 +29,12 @@ import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
-public class AWTRenderer extends Frame
-		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, Renderer {
-
-	private static final long serialVersionUID = 374030924274589331L;
+public class AWTRenderer
+		implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
+
+	private static final double ACTION_TIME = 0.5;
 
 	private static boolean isPrintableChar(char c) {
 		UnicodeBlock block = UnicodeBlock.of(c);
@@ -40,6 +43,8 @@ public class AWTRenderer extends Frame
 	}
 
 	private final List<Renderer.Listener> listeners = new ArrayList<>();
+
+	private final Frame frame;
 
 	@Override
 	public void addListener(Renderer.Listener listener) {
@@ -65,8 +70,12 @@ public class AWTRenderer extends Frame
 
 	private boolean paletteChanged = false;
 
+	private double terminateTimer = -1;
+	private double shutdownTimer = -1;
+	private double rebootTimer = -1;
+
 	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
-		super(EMU_WINDOW_TITLE);
+		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
 		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
@@ -74,14 +83,14 @@ public class AWTRenderer extends Frame
 		pixelWidth = (int) (6 * config.termScale.get());
 		pixelHeight = (int) (9 * config.termScale.get());
 
-		setLayout(new BorderLayout());
+		frame.setLayout(new BorderLayout());
 		// setMinimumSize(new Dimension(300, 200));
 
 		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());
-		add(termComponent, BorderLayout.CENTER);
+		frame.add(termComponent, BorderLayout.CENTER);
 
 		// required for tab to work
-		setFocusTraversalKeysEnabled(false);
+		frame.setFocusTraversalKeysEnabled(false);
 		termComponent.setFocusTraversalKeysEnabled(false);
 
 		termComponent.addKeyListener(this);
@@ -89,13 +98,13 @@ public class AWTRenderer extends Frame
 		termComponent.addMouseMotionListener(this);
 		termComponent.addMouseWheelListener(this);
 
-		addKeyListener(this);
-		addMouseListener(this);
-		addMouseMotionListener(this);
-		addMouseWheelListener(this);
+		frame.addKeyListener(this);
+		frame.addMouseListener(this);
+		frame.addMouseMotionListener(this);
+		frame.addMouseWheelListener(this);
 
 		// properly stop emulator when window is closed
-		addWindowListener(new WindowAdapter() {
+		frame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				AWTRenderer.this.dispose();
@@ -103,13 +112,13 @@ public class AWTRenderer extends Frame
 			}
 		});
 
-		setResizable(false);
-		setDropTarget(new DropTarget(null, new DropTargetListener() {
+		frame.setResizable(false);
+		frame.setDropTarget(new DropTarget(null, new DropTargetListener() {
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
 					val flavors = dtde.getCurrentDataFlavors();
-					if (Arrays.stream(flavors).anyMatch(f -> f.isFlavorJavaFileListType())) {
+					if (Arrays.stream(flavors).anyMatch(DataFlavor::isFlavorJavaFileListType)) {
 						log.debug("Accepting file drag and drop for computer #{}", computer.getID());
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
 
@@ -159,14 +168,14 @@ public class AWTRenderer extends Frame
 		}));
 
 		// fit to contents
-		pack();
+		frame.pack();
 
 		// center window in screen
-		setLocationRelativeTo(null);
+		frame.setLocationRelativeTo(null);
 
 		// set icon
 		try {
-			setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/img/icon.png")));
+			frame.setIconImage(ImageIO.read(AWTRenderer.class.getResourceAsStream("/img/icon.png")));
 		} catch (IOException e) {
 			log.warn("Failed to set taskbar icon", e);
 		}
@@ -189,11 +198,33 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void onAdvance(double dt) {
-		setTitle(getWindowTitle());
+		frame.setTitle(getWindowTitle());
 		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
 		termComponent.blinkLocked = blinkLockedTime > 0;
 
 		if (isVisible()) {
+			// Handle action keys
+			if (shutdownTimer >= 0 && shutdownTimer < ACTION_TIME) {
+				shutdownTimer += dt;
+				if (shutdownTimer >= ACTION_TIME) computer.shutdown();
+			}
+
+			if (rebootTimer >= 0 && rebootTimer < ACTION_TIME) {
+				rebootTimer += dt;
+				if (rebootTimer >= ACTION_TIME) {
+					if (computer.isOn()) {
+						computer.reboot();
+					} else {
+						computer.turnOn();
+					}
+				}
+			}
+
+			if (terminateTimer >= 0 && terminateTimer < ACTION_TIME) {
+				terminateTimer += dt;
+				if (terminateTimer >= ACTION_TIME) computer.terminate();
+			}
+
 			boolean doRepaint = paletteChanged;
 
 			if (computer.terminal.getChanged()) {
@@ -210,9 +241,15 @@ public class AWTRenderer extends Frame
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
-				termComponent.render(dt);
+				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
+				termComponent.render(font, dt);
 			}
 		}
+	}
+
+	@Override
+	public TerminalFont loadFont(URL url) throws IOException {
+		return new AWTTerminalFont(url);
 	}
 
 	private Point mapPointToCC(Point p) {
@@ -225,34 +262,21 @@ public class AWTRenderer extends Frame
 		return new Point(x + 1, y + 1);
 	}
 
-	private boolean handleCtrlPress(char control) {
-		if (control == 't') {
-			computer.terminate();
-		} else if (control == 'r') {
-			if (!computer.isOn()) {
-				computer.turnOn();
-			} else {
-				computer.reboot();
-			}
-		} else if (control == 's') {
-			computer.shutdown();
-		} else if (control == 'v') {
-			try {
-				computer.paste(
-						(String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
-			} catch (HeadlessException | UnsupportedFlavorException | IOException e) {
-				log.error("Could not read clipboard", e);
-			}
-		} else {
-			return false;
-		}
-
-		return true;
+	/**
+	 * Determine whether {@code key} and {@code char} events should be queued.
+	 *
+	 * If any of the action keys are pressed (terminate, shutdown, reboot) then such events will
+	 * be blocked.
+	 *
+	 * @return Whether such events should be queued.
+	 */
+	private boolean allowKeyEvents() {
+		return shutdownTimer < 0 && rebootTimer < 0 && terminateTimer < 0;
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (isPrintableChar(e.getKeyChar())) {
+		if (isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}
@@ -260,16 +284,39 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		computer.pressKey(translateToCC(e.getKeyCode()), false);
+		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
+			char real = (char) (e.getKeyChar() + 96);
+
+			// Start action timers
+			if (real == 's' && shutdownTimer < 0) shutdownTimer = 0;
+			if (real == 'r' && rebootTimer < 0) rebootTimer = 0;
+			if (real == 't' && terminateTimer < 0) terminateTimer = 0;
+
+			// Handle pasting, this exists early.
+			if (real == 'v') {
+				try {
+					computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
+				} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
+					log.error("Could not read clipboard", er);
+				}
+				return;
+			}
+		}
+
+		if (allowKeyEvents()) {
+			computer.pressKey(translateToCC(e.getKeyCode()), false);
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
 		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
-			// For whatever stupid reason, Swing subtracts 96 from all chars
-			// when ctrl is held.
 			char real = (char) (e.getKeyChar() + 96);
-			if (handleCtrlPress(real)) return;
+
+			// Reset control timers
+			if (real == 's') shutdownTimer = -1;
+			if (real == 'r') rebootTimer = -1;
+			if (real == 't') terminateTimer = -1;
 		}
 
 		computer.pressKey(translateToCC(e.getKeyCode()), true);
@@ -319,4 +366,19 @@ public class AWTRenderer extends Frame
 
 	@Override
 	public void mouseExited(MouseEvent e) {}
+
+	@Override
+	public boolean isVisible() {
+		return frame.isVisible();
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		frame.setVisible(visible);
+	}
+
+	@Override
+	public void dispose() {
+		frame.dispose();
+	}
 }

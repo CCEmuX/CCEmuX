@@ -1,18 +1,20 @@
 package net.clgd.ccemux.rendering.tror;
 
 import java.io.*;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.rendering.TerminalFont;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.Listener {
 	private final EmulatedComputer computer;
 	private final EmuConfig config;
 
-	private final List<Listener> listeners = new ArrayList<>();
+	private final List<Renderer.Listener> listeners = new ArrayList<>();
 
 	private final BlockingDeque<InputProvider.InputPacket> events;
 
@@ -45,6 +47,11 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	@Override
 	public void removeListener(Renderer.Listener listener) {
 		listeners.remove(listener);
+	}
+
+	@Override
+	public TerminalFont loadFont(URL url) throws IOException {
+		return null;
 	}
 
 	@Override
