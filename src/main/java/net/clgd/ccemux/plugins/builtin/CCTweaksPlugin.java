@@ -2,9 +2,11 @@ package net.clgd.ccemux.plugins.builtin;
 
 import java.awt.GraphicsEnvironment;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
+import com.google.common.collect.Sets;
 import org.squiddev.cctweaks.lua.TweaksLogger;
 import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
@@ -34,8 +36,8 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("SquidDev");
+	public Set<String> getAuthors() {
+		return Sets.newHashSet("SquidDev");
 	}
 
 	@Override

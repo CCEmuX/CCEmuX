@@ -142,8 +142,8 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.empty();
+	public Set<String> getAuthors() {
+		return new HashSet<>();
 	}
 
 	@Override

@@ -1,9 +1,11 @@
 package net.clgd.ccemux.plugins.builtin;
 
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.auto.service.AutoService;
 
+import com.google.common.collect.Sets;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
@@ -27,8 +29,8 @@ public class TRoRPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("CLGD");
+	public Set<String> getAuthors() {
+		return Sets.newHashSet("CLGD");
 	}
 
 	@Override
