@@ -6,9 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Window;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import dan200.computercraft.core.terminal.Terminal;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 public class GDXAdapter extends ApplicationAdapter implements Renderer {
@@ -168,7 +167,7 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	public void onAdvance(double dt) {
 		if (Gdx.graphics == null) return;
 		
-		if (getWindowTitle() != title) {
+		if (!getWindowTitle().equalsIgnoreCase(title)) {
 			title = getWindowTitle();
 			
 			if (window != null) {
