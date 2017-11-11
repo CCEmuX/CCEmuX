@@ -50,9 +50,6 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	private int margin;
 	private int screenWidth, screenHeight;
 	
-	private int dragButton = 4;
-	private Vector2 lastDragSpot = null;
-	
 	@Setter private double blinkLockedTime = 0D;
 	
 	@Setter private double terminateTimer = -1;

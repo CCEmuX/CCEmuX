@@ -3,6 +3,8 @@ package net.clgd.ccemux.rendering.gdx;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Pools;
 import dan200.computercraft.core.terminal.Terminal;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -25,8 +27,8 @@ public class GDXInputProcessor implements InputProcessor {
 	private final EmulatedComputer computer;
 	private final Terminal terminal;
 	
-	private int lastKey;
-	private int repeatedCounter;
+	private int lastKey, repeatedCounter, dragButton;
+	private Vector2 lastDragSpot = new Vector2();
 	
 	GDXInputProcessor(GDXAdapter adapter) {
 		this.plugin = adapter.getPlugin();
@@ -91,19 +93,48 @@ public class GDXInputProcessor implements InputProcessor {
 		return false;
 	}
 	
+	private Vector2 mapPointToCC(Vector2 point) {
+		int px = (int) (point.x - adapter.getMargin());
+		int py = (int) (point.y - adapter.getMargin());
+		
+		int x = px / adapter.getPixelWidth();
+		int y = py / adapter.getPixelHeight();
+		
+		return point.set(x + 1, y + 1);
+	}
+	
+	private void fireMouseEvent(int screenX, int screenY, int button, boolean press) {
+		Vector2 point = Pools.get(Vector2.class).obtain();
+		mapPointToCC(point.set(screenX, screenY));
+		computer.click(MouseTranslator.gdxToCC(button), (int) point.x, (int) point.y, !press);
+		Pools.free(point);
+	}
+	
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		return false;
+		fireMouseEvent(screenX, screenY, button, true);
+		dragButton = MouseTranslator.gdxToCC(button);
+		return true;
 	}
 	
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		return false;
+		fireMouseEvent(screenX, screenY, button, false);
+		return true;
 	}
 	
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		return false;
+		Vector2 point = Pools.get(Vector2.class).obtain();
+		mapPointToCC(point.set(screenX, screenY));
+		
+		if (point.equals(lastDragSpot)) return false;
+		
+		computer.drag(dragButton, (int) point.x, (int) point.y);
+		lastDragSpot.set(point);
+		
+		Pools.free(point);
+		return true;
 	}
 	
 	@Override
