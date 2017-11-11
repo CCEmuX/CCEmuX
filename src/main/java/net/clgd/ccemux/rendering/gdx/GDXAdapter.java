@@ -148,8 +148,27 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 		return new GDXTerminalFont(url);
 	}
 	
+	private String getWindowTitle() {
+		int id = computer.getID();
+		String title = EMU_WINDOW_TITLE + " - ";
+		
+		if (computer.getLabel() != null) {
+			title += computer.getLabel() + " (Computer #" + id + ")";
+		} else {
+			title += "Computer #" + id;
+		}
+		
+		return title;
+	}
+	
 	@Override
 	public void onAdvance(double dt) {
+		if (window != null) {
+			window.setTitle(getWindowTitle());
+		} else {
+			Gdx.graphics.setTitle(getWindowTitle());
+		}
+		
 		handleBlinkLock(dt);
 		handleActionKeys(dt);
 	}
