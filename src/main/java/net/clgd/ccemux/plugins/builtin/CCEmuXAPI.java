@@ -27,12 +27,11 @@ import net.clgd.ccemux.plugins.hooks.CreatingROM;
 @AutoService(Plugin.class)
 public class CCEmuXAPI extends Plugin {
 	@FunctionalInterface
-	private static interface APIMethod {
+	private interface APIMethod {
 		Object[] accept(Object[] o) throws LuaException;
 	}
 
 	private static class API implements ILuaAPI {
-
 		private final String name;
 		private final Map<String, APIMethod> methods = new LinkedHashMap<>();
 
@@ -74,13 +73,8 @@ public class CCEmuXAPI extends Plugin {
 				}
 			});
 
-			methods.put("milliTime", o -> {
-				return new Object[] { System.currentTimeMillis() };
-			});
-
-			methods.put("nanoTime", o -> {
-				return new Object[] { System.nanoTime() };
-			});
+			methods.put("milliTime", o -> new Object[] { System.currentTimeMillis() });
+			methods.put("nanoTime", o -> new Object[] { System.nanoTime() });
 
 			methods.put("echo", o -> {
 				if (o.length > 0 && o[0] instanceof String) {
@@ -113,7 +107,7 @@ public class CCEmuXAPI extends Plugin {
 		@Override
 		public Object[] callMethod(ILuaContext context, int method, Object[] arguments)
 				throws LuaException, InterruptedException {
-			return new ArrayList<APIMethod>(methods.values()).get(method).accept(arguments);
+			return new ArrayList<>(methods.values()).get(method).accept(arguments);
 		}
 
 		@Override
@@ -148,8 +142,8 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.empty();
+	public Collection<String> getAuthors() {
+		return Collections.emptyList();
 	}
 
 	@Override

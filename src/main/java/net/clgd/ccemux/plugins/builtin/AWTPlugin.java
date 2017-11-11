@@ -1,6 +1,9 @@
 package net.clgd.ccemux.plugins.builtin;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.auto.service.AutoService;
 
@@ -27,8 +30,8 @@ public class AWTPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("CLGD");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("CLGD");
 	}
 
 	@Override
