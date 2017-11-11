@@ -77,6 +77,8 @@ dependencies {
 	implementation "com.badlogicgames.gdx:gdx-platform:1.9.7:natives-desktop"
 	implementation "com.badlogicgames.gdx:gdx-freetype-platform:1.9.7:natives-desktop"
 
+	implementation "com.kotcrab.vis:vis-ui:1.4.0-SNAPSHOT"
+
 	testCompile 'junit:junit:4.12'
 }
 

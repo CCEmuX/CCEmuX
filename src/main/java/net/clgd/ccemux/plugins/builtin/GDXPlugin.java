@@ -50,9 +50,16 @@ public class GDXPlugin extends Plugin implements RendererFactory {
 	@Override
 	public Renderer create(EmulatedComputer computer, EmuConfig cfg) {
 		if (manager == null) {
-			manager = new GDXManager(this, cfg);
+			manager = new GDXManager(this);
 		}
 		
 		return manager.createWindow(computer, cfg);
+	}
+	
+	@Override
+	public boolean createConfigEditor(EmuConfig config) {
+		if (manager == null) return false;
+		manager.createConfigEditor(config);
+		return true;
 	}
 }

@@ -1,10 +1,5 @@
 package net.clgd.ccemux.rendering.gdx;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowConfiguration;
 import lombok.Getter;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
@@ -18,66 +13,31 @@ public class GDXManager {
 	@Getter private final GDXPlugin plugin;
 	
 	@Getter private boolean madeFirstWindow = false;
-	@Getter private volatile GDXAdapter mainAdapter;
-	@Getter private volatile List<GDXAdapter> windows = new ArrayList<>();
+	@Getter private volatile BaseGDXAdapter mainAdapter;
+	@Getter private volatile List<BaseGDXAdapter> windows = new ArrayList<>();
 	
-	public GDXManager(GDXPlugin plugin, EmuConfig config) {
+	public GDXManager(GDXPlugin plugin) {
 		this.plugin = plugin;
 	}
 	
-	public Renderer createWindow(EmulatedComputer computer, EmuConfig cfg) {
-		GDXAdapter adapter = new GDXAdapter(plugin, computer, cfg);
+	public Renderer createWindow(EmulatedComputer computer, EmuConfig config) {
+		GDXAdapter adapter = new GDXAdapter(plugin, computer, config);
 		adapter.startInThread();
 		return adapter;
 	}
 	
-	void initialise(GDXAdapter adapter) {
+	void initialiseAdapter(BaseGDXAdapter adapter) {
 		if (!madeFirstWindow) {
 			madeFirstWindow = true;
 			mainAdapter = adapter;
-			initialiseMainApp(adapter);
+			adapter.initialise(true);
 		} else {
-			initialiseWindow(adapter);
+			adapter.initialise(false);
 		}
 	}
 	
-	private void setupConfig(GDXAdapter adapter, Lwjgl3WindowConfiguration config) {
-		config.setResizable(false); // TODO
-		config.setWindowedMode(adapter.getScreenWidth(), adapter.getScreenHeight());
-		config.setWindowIcon("img/icon.png");
-		config.setWindowListener(new Lwjgl3WindowAdapter() {
-			@Override
-			public void focusLost() {
-				adapter.setFocused(false);
-			}
-			
-			@Override
-			public void focusGained() {
-				adapter.setFocused(true);
-				Gdx.input.setInputProcessor(adapter.getInputMultiplexer());
-			}
-			
-			@Override
-			public void filesDropped(String[] files) {
-				adapter.filesDropped(files);
-			}
-		});
-	}
-	
-	private void initialiseMainApp(GDXAdapter adapter) {
-		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.useVsync(true); // TODO: setting for this
-		setupConfig(adapter, config);
-		
-		new Lwjgl3Application(adapter, config);
-	}
-	
-	private void initialiseWindow(GDXAdapter adapter) {
-		Lwjgl3Application app = (Lwjgl3Application) Gdx.app;
-		
-		Lwjgl3WindowConfiguration config = new Lwjgl3WindowConfiguration();
-		setupConfig(adapter, config);
-		
-		adapter.setWindow(app.newWindow(adapter, config));
+	public void createConfigEditor(EmuConfig config) {
+		ConfigAdapter adapter = new ConfigAdapter(plugin, config);
+		adapter.startInThread();
 	}
 }
