@@ -25,6 +25,8 @@ public class GDXInputProcessor implements InputProcessor {
 	private final EmulatedComputer computer;
 	private final Terminal terminal;
 	
+	private int lastKey;
+	
 	GDXInputProcessor(GDXAdapter adapter) {
 		this.plugin = adapter.getPlugin();
 		this.adapter = adapter;
@@ -50,6 +52,7 @@ public class GDXInputProcessor implements InputProcessor {
 		}
 		
 		if (adapter.allowKeyEvents()) {
+			lastKey = keycode;
 			computer.pressKey(KeyTranslator.translateToCC(keycode), false);
 			return true;
 		}
@@ -67,6 +70,7 @@ public class GDXInputProcessor implements InputProcessor {
 			if (keycode == Input.Keys.T) adapter.setTerminateTimer(-1);
 		}
 		
+		lastKey = -1;
 		computer.pressKey(KeyTranslator.translateToCC(keycode), true);
 		
 		return true;
@@ -74,11 +78,18 @@ public class GDXInputProcessor implements InputProcessor {
 	
 	@Override
 	public boolean keyTyped(char c) {
-		log.debug("[KEY TYPED] {}", c);
+		log.debug("[KEY TYPED] {} ({})", c, (int) c);
 		
-		if (isPrintableChar(c) && adapter.allowKeyEvents()) {
+		if (!adapter.allowKeyEvents()) return false;
+		
+		if (isPrintableChar(c)) {
 			computer.pressChar(c);
 			adapter.setBlinkLockedTime(0.25);
+			
+			return true;
+		} else if (lastKey >= 0) {
+			computer.pressKey(KeyTranslator.translateToCC(lastKey), true);
+			computer.pressKey(KeyTranslator.translateToCC(lastKey), false);
 		}
 		
 		return false;
