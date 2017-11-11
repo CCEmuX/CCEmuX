@@ -113,7 +113,7 @@ public class KeyTranslator {
 		// NUMPAD DIVIDE
 		
 		put(Input.Keys.ALT_RIGHT, 184);
-		put(Input.Keys.HOME, 197);
+		put(Input.Keys.HOME, 199);
 		put(Input.Keys.UP, 200);
 		put(Input.Keys.PAGE_UP, 201);
 		put(Input.Keys.LEFT, 203);
