@@ -276,7 +276,7 @@ public class AWTRenderer
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
+		if (isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}

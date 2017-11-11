@@ -11,7 +11,6 @@ import com.badlogic.gdx.math.Vector2;
 import dan200.computercraft.core.terminal.Terminal;
 import lombok.Getter;
 import lombok.Setter;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
@@ -19,7 +18,6 @@ import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 import javax.annotation.Nullable;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,11 +27,7 @@ import java.util.List;
 public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 	
-	private static boolean isPrintableChar(char c) {
-		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
-		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
-			&& block != Character.UnicodeBlock.SPECIALS;
-	}
+	private static final double ACTION_TIME = 0.5;
 	
 	private final GDXPlugin plugin;
 	private final EmulatedComputer computer;
@@ -59,7 +53,11 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	private int dragButton = 4;
 	private Vector2 lastDragSpot = null;
 	
-	private double blinkLockedTime = 0D;
+	@Setter private double blinkLockedTime = 0D;
+	
+	@Setter private double terminateTimer = -1;
+	@Setter private double shutdownTimer = -1;
+	@Setter private double rebootTimer = -1;
 	
 	private final List<Listener> listeners = new ArrayList<>();
 	
@@ -155,8 +153,52 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	
 	@Override
 	public void onAdvance(double dt) {
+		handleBlinkLock(dt);
+		handleActionKeys(dt);
+	}
+	
+	private void handleBlinkLock(double dt) {
 		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
 		
 		if (terminalRenderer != null) terminalRenderer.blinkLocked = blinkLockedTime > 0;
+	}
+	
+	@SuppressWarnings("Duplicates")
+	private void handleActionKeys(double dt) {
+		if (shutdownTimer >= 0 && shutdownTimer < ACTION_TIME) {
+			shutdownTimer += dt;
+			
+			if (shutdownTimer >= ACTION_TIME) computer.shutdown();
+		}
+		
+		if (rebootTimer >= 0 && rebootTimer < ACTION_TIME) {
+			rebootTimer += dt;
+			
+			if (rebootTimer >= ACTION_TIME) {
+				if (computer.isOn()) {
+					computer.reboot();
+				} else {
+					computer.turnOn();
+				}
+			}
+		}
+		
+		if (terminateTimer >= 0 && terminateTimer < ACTION_TIME) {
+			terminateTimer += dt;
+			
+			if (terminateTimer >= ACTION_TIME) computer.terminate();
+		}
+	}
+	
+	/**
+	 * Determine whether {@code key} and {@code char} events should be queued.
+	 *
+	 * If any of the action keys are pressed (terminate, shutdown, reboot) then such events will
+	 * be blocked.
+	 *
+	 * @return Whether such events should be queued.
+	 */
+	boolean allowKeyEvents() {
+		return shutdownTimer < 0 && rebootTimer < 0 && terminateTimer < 0;
 	}
 }
