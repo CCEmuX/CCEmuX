@@ -26,6 +26,7 @@ public class GDXInputProcessor implements InputProcessor {
 	private final Terminal terminal;
 	
 	private int lastKey;
+	private int repeatedCounter;
 	
 	GDXInputProcessor(GDXAdapter adapter) {
 		this.plugin = adapter.getPlugin();
@@ -36,8 +37,6 @@ public class GDXInputProcessor implements InputProcessor {
 	
 	@Override
 	public boolean keyDown(int keycode) {
-		log.debug("[KEY DOWN] {} ({})", keycode, Input.Keys.toString(keycode));
-		
 		if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
 			if (keycode == Input.Keys.S && adapter.getShutdownTimer() < 0) adapter.setShutdownTimer(0);
 			if (keycode == Input.Keys.R && adapter.getRebootTimer() < 0) adapter.setRebootTimer(0);
@@ -62,8 +61,6 @@ public class GDXInputProcessor implements InputProcessor {
 	
 	@Override
 	public boolean keyUp(int keycode) {
-		log.debug("[KEY UP] {} ({})", keycode, Input.Keys.toString(keycode));
-		
 		if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
 			if (keycode == Input.Keys.S) adapter.setShutdownTimer(-1);
 			if (keycode == Input.Keys.R) adapter.setRebootTimer(-1);
@@ -71,6 +68,7 @@ public class GDXInputProcessor implements InputProcessor {
 		}
 		
 		lastKey = -1;
+		repeatedCounter = 0;
 		computer.pressKey(KeyTranslator.translateToCC(keycode), true);
 		
 		return true;
@@ -78,8 +76,6 @@ public class GDXInputProcessor implements InputProcessor {
 	
 	@Override
 	public boolean keyTyped(char c) {
-		log.debug("[KEY TYPED] {} ({})", c, (int) c);
-		
 		if (!adapter.allowKeyEvents()) return false;
 		
 		if (isPrintableChar(c)) {
@@ -87,7 +83,7 @@ public class GDXInputProcessor implements InputProcessor {
 			adapter.setBlinkLockedTime(0.25);
 			
 			return true;
-		} else if (lastKey >= 0) {
+		} else if (lastKey >= 0 && repeatedCounter++ > 0) {
 			computer.pressKey(KeyTranslator.translateToCC(lastKey), true);
 			computer.pressKey(KeyTranslator.translateToCC(lastKey), false);
 		}
