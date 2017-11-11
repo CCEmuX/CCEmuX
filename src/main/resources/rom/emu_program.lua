@@ -6,6 +6,7 @@ if ccemux then
         print("emu close - close this computer")
         print("emu open [id] - open another computer")
         print("emu data - opens the data folder")
+        print("emu config - opens the config editor")
         --print("emu set <setting> <values> - edits a setting")
         --print("emu list settings - list editable settings")
         --print("emu save - saves current settings")
@@ -24,6 +25,13 @@ if ccemux then
                 print("Opened data folder")
             else
                 print("Unable to open data folder")
+            end
+        elseif args[1] == "config" then
+            local ok, err = ccemux.openConfig()
+            if ok then
+                print("Opened config editor")
+            else
+                print(err)
             end
         elseif args[1] == "set" then
             if #args <= 1 then
