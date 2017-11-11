@@ -12,52 +12,59 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class JsonAdapter {
-	private static final JsonAdapter instance = new JsonAdapter(
-			new GsonBuilder()
-					.setPrettyPrinting()
-					.setLenient()
-					.create()
-	);
-
-	public static JsonAdapter instance() {
-		return instance;
-	}
+	private static final Gson defaultGson = new GsonBuilder()
+			.setPrettyPrinting()
+			.setLenient()
+			.create();
 
 	private final Gson gson;
+	private final Config config;
+	private JsonElement backing = new JsonObject();
 
 	/**
-	 * Construct a new serialiser with the given {@link Gson} instance.
+	 * Construct a new serialiser/deserialiser for a config file with the given
+	 * {@link Gson} instance.
 	 *
 	 * One may wish to register custom strategies for various property types.
 	 *
-	 * @param gson The finalised instance to use.
+	 * @param gson   The finalised instance to use.
+	 * @param config The config file to interact with.
 	 */
-	public JsonAdapter(Gson gson) {
+	public JsonAdapter(Gson gson, Config config) {
 		this.gson = gson;
+		this.config = config;
+	}
+
+	/**
+	 * Construct a new serialiser/deserialiser for a config file with the default
+	 * {@link Gson} instance.
+	 *
+	 * @param config The config file to interact with.
+	 */
+	public JsonAdapter(Config config) {
+		this(defaultGson, config);
 	}
 
 	/**
 	 * Convert a config specification to JSON
 	 *
-	 * @param config The specification to convert.
 	 * @return The converted object.
 	 */
-	public JsonElement toJson(Config config) {
-		return toJson(config.getRoot());
+	public JsonElement toJson() {
+		return backing = toJson(config.getRoot(), backing);
 	}
 
 	/**
 	 * Load configuration values from JSON
 	 *
-	 * @param config  The config to load to
 	 * @param element The element to load from.
 	 */
-	public void fromJson(Config config, JsonElement element) {
-		fromJson(config.getRoot(), element);
+	public void fromJson(JsonElement element) {
+		fromJson(config.getRoot(), backing = element);
 	}
 
-	private JsonObject toJson(Group group) {
-		JsonObject object = new JsonObject();
+	private JsonObject toJson(Group group, JsonElement existing) {
+		JsonObject object = existing instanceof JsonObject ? (JsonObject) existing : new JsonObject();
 		for (ConfigEntry entry : group.children()) {
 			if (entry instanceof Property<?>) {
 				Property<?> property = (Property<?>) entry;
@@ -67,7 +74,7 @@ public class JsonAdapter {
 					object.add(entry.getKey(), gson.toJsonTree(property.get()));
 				}
 			} else if (entry instanceof Group) {
-				JsonObject element = toJson((Group) entry);
+				JsonObject element = toJson((Group) entry, object.get(entry.getKey()));
 
 				// Don't emit empty groups
 				if (element.size() > 0) object.add(entry.getKey(), element);

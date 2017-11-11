@@ -3,6 +3,7 @@ package net.clgd.ccemux.rendering.awt.config;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,10 +14,11 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import lombok.val;
-import net.clgd.ccemux.config.Config;
 import net.clgd.ccemux.config.ConfigEntry;
 import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.init.UserConfig;
 
 public class ConfigView extends JFrame {
 	private static final long serialVersionUID = 5150153551199976130L;
@@ -26,7 +28,7 @@ public class ConfigView extends JFrame {
 	private final JLabel currentGroup;
 	private final JTree tree;
 
-	public ConfigView(Config config) {
+	public ConfigView(EmuConfig config) {
 		setLayout(new BorderLayout());
 		setMinimumSize(new Dimension(400, 200));
 		setSize(new Dimension(600, 300));
@@ -108,7 +110,16 @@ public class ConfigView extends JFrame {
 
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent e) {
+			public void windowClosing(WindowEvent event) {
+				// TODO: Make this actually nice.
+				if (config instanceof UserConfig) try {
+					config.save();
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(ConfigView.this,
+							"Cannot save config file: " + e.getMessage(),
+							"Error saving config", JOptionPane.ERROR_MESSAGE);
+				}
+
 				dispose();
 			}
 		});

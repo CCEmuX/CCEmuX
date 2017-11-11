@@ -208,7 +208,7 @@ public class Launcher {
 			Files.createDirectories(dataDir);
 
 			log.info("Loading user config");
-			UserConfig cfg = UserConfig.loadConfig(dataDir);
+			UserConfig cfg = new UserConfig(dataDir);
 			log.debug("Config: {}", cfg);
 
 			if (cfg.termScale.get() != cfg.termScale.get().intValue())
@@ -216,7 +216,7 @@ public class Launcher {
 
 			PluginManager pluginMgr = new PluginManager(cfg);
 			pluginMgr.gatherCandidates(buildLoader());
-			cfg.loadConfig();
+			cfg.load();
 			pluginMgr.gatherEnabled();
 
 			pluginMgr.loaderSetup(getClass().getClassLoader());

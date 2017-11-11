@@ -1,5 +1,6 @@
 package net.clgd.ccemux.emulation;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import com.google.gson.Gson;
@@ -11,7 +12,7 @@ public abstract class EmuConfig extends Config {
 	protected final JsonAdapter adapter;
 
 	public EmuConfig(Gson gson) {
-		adapter = new JsonAdapter(gson);
+		adapter = new JsonAdapter(gson, this);
 	}
 
 	public abstract Path getDataDir();
@@ -46,4 +47,8 @@ public abstract class EmuConfig extends Config {
 	public Property<String> defaultComputerSettings = property("defaultComputerSettings", String.class, "")
 			.setName("Default computer settings")
 			.setDescription("A comma seperated list of default system settings to set on new computers. Example: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion");
+
+	public abstract void save() throws IOException;
+
+	public abstract void load() throws IOException;
 }

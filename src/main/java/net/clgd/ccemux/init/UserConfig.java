@@ -20,28 +20,24 @@ public class UserConfig extends EmuConfig {
 
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-	public static UserConfig loadConfig(Path dataDir) throws IOException {
-		return new UserConfig(dataDir);
-	}
-
 	@Getter
 	private final Path dataDir;
 
-	private UserConfig(Path dataDir) {
+	public UserConfig(Path dataDir) {
 		super(gson);
 		this.dataDir = dataDir;
 		getRoot().setName("CCEmuX Config");
 	}
 
-	public void loadConfig() throws IOException {
+	public void load() throws IOException {
 		try (Reader reader = Files.newBufferedReader(dataDir.resolve(CONFIG_FILE_NAME), StandardCharsets.UTF_8)) {
-			adapter.fromJson(this, gson.fromJson(reader, JsonElement.class));
+			adapter.fromJson(gson.fromJson(reader, JsonElement.class));
 		}
 	}
 
-	public void saveConfig() throws IOException {
+	public void save() throws IOException {
 		try (Writer writer = Files.newBufferedWriter(dataDir.resolve(CONFIG_FILE_NAME), StandardCharsets.UTF_8)) {
-			gson.toJson(adapter.toJson(this), writer);
+			gson.toJson(adapter.toJson(), writer);
 		}
 	}
 }
