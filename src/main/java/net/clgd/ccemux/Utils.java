@@ -51,8 +51,9 @@ public class Utils {
 		for (int y = 0; y < bi.getHeight(); y++) {
 			for (int x = 0; x < bi.getWidth(); x++) {
 				int rgb = bi.getRGB(x, y);
+				int a = (rgb >> 24) & 0xFF;
 
-				if (rgb != 0) tinted.setRGB(x, y, tint.getRGB());
+				if (a != 0) tinted.setRGB(x, y, tint.getRGB());
 			}
 		}
 
@@ -62,7 +63,7 @@ public class Utils {
 	/**
 	 * Tries to get a value as the result of a {@link Callable}, and if an
 	 * exception occurs, instead returns a given value.
-	 * 
+	 *
 	 * @param getter
 	 *            A <code>Callable</code> that may produce a value or throw an
 	 *            exception
@@ -89,7 +90,7 @@ public class Utils {
 	 * Returns the value returned by a given {@link Callable}, or returns
 	 * <code>null</code> if the <code>Callable</code> throws an
 	 * <code>Exception</code>.
-	 * 
+	 *
 	 * @param getter
 	 *            A <code>Callable</code> that may produce a value or throw an
 	 *            <code>Exception</code>
