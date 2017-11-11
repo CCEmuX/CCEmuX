@@ -9,6 +9,8 @@ import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.gdx.GDXManager;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 @AutoService(Plugin.class)
@@ -29,10 +31,10 @@ public class GDXPlugin extends Plugin implements RendererFactory {
 	public Optional<String> getVersion() {
 		return Optional.empty();
 	}
-
+	
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("Lemmmy");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("Lemmmy");
 	}
 
 	@Override
