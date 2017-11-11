@@ -17,11 +17,14 @@ import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 import javax.annotation.Nullable;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Getter
 public class GDXAdapter extends ApplicationAdapter implements Renderer {
@@ -224,5 +227,13 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	 */
 	boolean allowKeyEvents() {
 		return shutdownTimer < 0 && rebootTimer < 0 && terminateTimer < 0;
+	}
+	
+	void filesDropped(String[] files) {
+		try {
+			computer.copyFiles(Arrays.stream(files).map(File::new).collect(Collectors.toList()), "/");
+		} catch (IOException | ReflectiveOperationException e) {
+			e.printStackTrace();
+		}
 	}
 }

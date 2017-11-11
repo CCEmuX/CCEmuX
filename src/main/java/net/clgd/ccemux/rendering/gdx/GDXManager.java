@@ -56,6 +56,11 @@ public class GDXManager {
 				adapter.setFocused(true);
 				Gdx.input.setInputProcessor(adapter.getInputMultiplexer());
 			}
+			
+			@Override
+			public void filesDropped(String[] files) {
+				adapter.filesDropped(files);
+			}
 		});
 	}
 	
