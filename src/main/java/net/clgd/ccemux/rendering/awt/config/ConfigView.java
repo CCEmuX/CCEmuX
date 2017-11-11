@@ -1,35 +1,46 @@
 package net.clgd.ccemux.rendering.awt.config;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.EventListenerList;
+import javax.swing.event.TreeModelListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 import lombok.val;
 import net.clgd.ccemux.config.Config;
+import net.clgd.ccemux.config.ConfigEntry;
 import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.config.Property;
 
 public class ConfigView extends JFrame {
 	private static final long serialVersionUID = 5150153551199976130L;
 
-	private final Deque<Group> history = new ArrayDeque<>();
 	private final JPanel scrollBody;
 	private final JButton backButton;
 	private final JLabel currentGroup;
+	private final JTree tree;
 
 	public ConfigView(Config config) {
-		setLayout(new GridBagLayout());
+		setLayout(new BorderLayout());
 		setMinimumSize(new Dimension(400, 200));
 		setSize(new Dimension(600, 300));
 		setTitle("Config");
 		setBackground(Color.WHITE);
+
+		JSplitPane splitPane = new JSplitPane();
+		SwingHelpers.hideBackground(splitPane);
+		splitPane.setResizeWeight(0);
+		add(splitPane, BorderLayout.CENTER);
+
+		JPanel main = new JPanel(new GridBagLayout());
+		SwingHelpers.hideBackground(splitPane);
+		splitPane.setRightComponent(main);
 
 		{
 			backButton = new JButton("Back");
@@ -42,7 +53,7 @@ public class ConfigView extends JFrame {
 			constraints.insets = SwingHelpers.PADDING;
 			constraints.fill = GridBagConstraints.BOTH;
 
-			add(backButton, constraints);
+			main.add(backButton, constraints);
 		}
 
 		{
@@ -54,7 +65,7 @@ public class ConfigView extends JFrame {
 			constraints.fill = GridBagConstraints.BOTH;
 
 			currentGroup = new JLabel("");
-			add(currentGroup, constraints);
+			main.add(currentGroup, constraints);
 		}
 
 		{
@@ -70,12 +81,27 @@ public class ConfigView extends JFrame {
 			scroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			SwingHelpers.hideBackground(scroll);
 			SwingHelpers.hideBackground(scroll.getViewport());
-			add(scroll, constraints);
+			main.add(scroll, constraints);
 
 
 			scrollBody = new JPanel(new GridBagLayout());
 			SwingHelpers.hideBackground(scrollBody);
 			scroll.getViewport().add(scrollBody);
+		}
+
+		{
+			JScrollPane scroll = new JScrollPane();
+			scroll.setMinimumSize(new Dimension(100, 100));
+			scroll.setBorder(null);
+			splitPane.setLeftComponent(scroll);
+
+			tree = new JTree(new GroupTreeModel(config.getRoot()));
+			tree.setBorder(new EmptyBorder(SwingHelpers.PADDING));
+			tree.setCellRenderer(new GroupCellRenderer());
+			ToolTipManager.sharedInstance().registerComponent(tree);
+			for (int i = 0; i < tree.getRowCount(); i++) tree.expandRow(i);
+			tree.addTreeSelectionListener(t -> loadGroup((Group) tree.getSelectionPath().getLastPathComponent()));
+			scroll.getViewport().add(tree);
 		}
 
 		pushGroup(config.getRoot());
@@ -89,19 +115,23 @@ public class ConfigView extends JFrame {
 	}
 
 	private void pushGroup(Group group) {
-		history.push(group);
-		loadGroup(group);
+		TreePath path = tree.getSelectionPath();
+		if (path == null) {
+			tree.setSelectionPath(new TreePath(group));
+		} else {
+			tree.setSelectionPath(path.pathByAddingChild(group));
+		}
 	}
 
 	private void popGroup() {
-		if (history.size() > 1) {
-			history.pop();
-			loadGroup(history.peek());
+		TreePath path = tree.getSelectionPath();
+		if (path != null && path.getParentPath() != null) {
+			tree.setSelectionPath(path.getParentPath());
 		}
 	}
 
 	private void loadGroup(Group configGroup) {
-		backButton.setEnabled(history.size() > 1);
+		backButton.setEnabled(tree.getSelectionPath().getParentPath() != null);
 		currentGroup.setText(configGroup.getName());
 		scrollBody.removeAll();
 
@@ -164,6 +194,97 @@ public class ConfigView extends JFrame {
 
 		scrollBody.revalidate();
 		scrollBody.repaint();
+	}
+
+	private static class GroupTreeModel implements TreeModel {
+		private final EventListenerList listenerList = new EventListenerList();
+		private final Group root;
+
+		private GroupTreeModel(Group root) {this.root = root;}
+
+		@Override
+		public Object getRoot() {
+			return root;
+		}
+
+		@Override
+		public Object getChild(Object parent, int index) {
+			Group group = (Group) parent;
+			for (ConfigEntry entry : group.children()) {
+				if (entry instanceof Group) {
+					if (index == 0) {
+						return entry;
+					} else {
+						index--;
+					}
+				}
+			}
+			throw new IndexOutOfBoundsException("No child: " + index);
+		}
+
+		@Override
+		public int getChildCount(Object parent) {
+			int count = 0;
+			Group group = (Group) parent;
+			for (ConfigEntry entry : group.children()) {
+				if (entry instanceof Group) count++;
+			}
+			return count;
+		}
+
+		@Override
+		public boolean isLeaf(Object node) {
+			Group group = (Group) node;
+			for (ConfigEntry entry : group.children()) {
+				if (entry instanceof Group) return false;
+			}
+			return true;
+		}
+
+		@Override
+		public void valueForPathChanged(TreePath path, Object newValue) {
+		}
+
+		@Override
+		public int getIndexOfChild(Object parent, Object child) {
+			int index = 0;
+			Group group = (Group) parent;
+			for (ConfigEntry entry : group.children()) {
+				if (entry == child) return index;
+				if (entry instanceof Group) index++;
+			}
+			return -1;
+		}
+
+		@Override
+		public void addTreeModelListener(TreeModelListener l) {
+			listenerList.add(TreeModelListener.class, l);
+		}
+
+		@Override
+		public void removeTreeModelListener(TreeModelListener l) {
+			listenerList.remove(TreeModelListener.class, l);
+		}
+	}
+
+	protected static class GroupCellRenderer extends DefaultTreeCellRenderer {
+		private static final long serialVersionUID = -1372370897360112241L;
+
+		@Override
+		public Component getTreeCellRendererComponent(
+				JTree tree, Object value,
+				boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus
+		) {
+			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+			setIcon(null);
+			SwingHelpers.hideBackground(this);
+			if (value instanceof ConfigEntry) {
+				ConfigEntry entry = (ConfigEntry) value;
+				setText(entry.getName());
+				SwingHelpers.setTooltip(this, entry.getDescription());
+			}
+			return this;
+		}
 	}
 
 }

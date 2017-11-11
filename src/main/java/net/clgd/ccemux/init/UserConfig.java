@@ -30,6 +30,7 @@ public class UserConfig extends EmuConfig {
 	private UserConfig(Path dataDir) {
 		super(gson);
 		this.dataDir = dataDir;
+		getRoot().setName("CCEmuX Config");
 	}
 
 	public void loadConfig() throws IOException {
