@@ -50,6 +50,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	private final EmuConfig cfg;
 
 	@Getter
+	private final RendererFactory<?> rendererFactory;
+
+	@Getter
 	private final PluginManager pluginMgr;
 
 	@Getter
@@ -101,7 +104,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	}
 
 	private void addComputer(EmulatedComputer ec) {
-		Renderer r = RendererFactory.implementations.get(cfg.renderer.get()).create(ec, cfg);
+		Renderer r = rendererFactory.create(ec, cfg);
 
 		ec.addListener(r);
 		r.addListener(() -> this.removeComputer(ec)); // onClose

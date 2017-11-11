@@ -11,12 +11,13 @@ import java.util.*;
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
-
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ILuaAPI;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.*;
+import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory.Builder;
 import net.clgd.ccemux.emulation.filesystem.VirtualFile;
 import net.clgd.ccemux.plugins.Plugin;
@@ -97,6 +98,14 @@ public class CCEmuXAPI extends Plugin {
 
 				return new Object[] {};
 			});
+
+			methods.put("openConfig", o -> {
+				if (emu.getRendererFactory().createConfigEditor(emu.getCfg())) {
+					return new Object[]{true};
+				} else {
+					return new Object[]{false, "Not supported with this renderer"};
+				}
+			});
 		}
 
 		@Override
@@ -142,8 +151,8 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.empty();
+	public Collection<String> getAuthors() {
+		return Collections.emptyList();
 	}
 
 	@Override

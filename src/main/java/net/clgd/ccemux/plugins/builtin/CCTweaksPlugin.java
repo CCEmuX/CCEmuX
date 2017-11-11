@@ -1,6 +1,9 @@
 package net.clgd.ccemux.plugins.builtin;
 
 import java.awt.GraphicsEnvironment;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.JOptionPane;
@@ -10,14 +13,20 @@ import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
 import com.google.auto.service.AutoService;
-
+import com.google.gson.JsonPrimitive;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import net.clgd.ccemux.config.Group;
+import net.clgd.ccemux.config.Property;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 
 @Slf4j
 @AutoService(Plugin.class)
 public class CCTweaksPlugin extends Plugin {
+	private Property<Map<String, JsonPrimitive>> options;
+
 	@Override
 	public String getName() {
 		return "CCTweaks";
@@ -34,8 +43,8 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("SquidDev");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("SquidDev");
 	}
 
 	@Override
@@ -43,14 +52,22 @@ public class CCTweaksPlugin extends Plugin {
 		return Optional.of("https://github.com/SquidDev-CC/CCTweaks-Lua");
 	}
 
-	private void applyConfig(EmuConfig cfg) {
-		cfg.keys().stream().filter(k -> k.startsWith("cctweaks."))
-				.forEach(k -> System.setProperty(k, cfg.getAs(k, String.class).get()));
+	@Override
+	public void configSetup(Group group) {
+		options = group.property("options", new TypeToken<Map<String, JsonPrimitive>>() {}, Collections.emptyMap())
+				.setName("Options")
+				.setDescription("Key-value configuration options to be passed to CCTweaks");
+	}
+
+	private void syncConfig() {
+		for (val option : options.get().entrySet()) {
+			System.setProperty("cctweaks." + option.getKey(), option.getValue().getAsString());
+		}
 	}
 
 	@Override
 	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {
-		applyConfig(cfg);
+		syncConfig();
 
 		if (loader instanceof RewritingLoader) {
 
@@ -82,6 +99,14 @@ public class CCTweaksPlugin extends Plugin {
 				log.warn("Failed to apply classloader tweaks", e);
 			}
 
+			options.addListener((x, y) -> {
+				syncConfig();
+				try {
+					rwLoader.loadConfig();
+				} catch (Exception e) {
+					log.warn("Failed to refresh config", e);
+				}
+			});
 		} else {
 			log.warn("Incompatible ClassLoader in use - CCTweaks functionality unavailable");
 

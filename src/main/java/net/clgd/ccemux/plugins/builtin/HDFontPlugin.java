@@ -1,7 +1,10 @@
 package net.clgd.ccemux.plugins.builtin;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.auto.service.AutoService;
 
@@ -29,8 +32,8 @@ public class HDFontPlugin extends Plugin {
 	}
 
 	@Override
-	public Optional<String> getAuthor() {
-		return Optional.of("BombBloke");
+	public Collection<String> getAuthors() {
+		return Collections.singleton("BombBloke");
 	}
 
 	@Override

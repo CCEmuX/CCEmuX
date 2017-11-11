@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.hooks.Hook;
 
@@ -13,7 +14,7 @@ import net.clgd.ccemux.plugins.hooks.Hook;
  * Represents a plugin for CCEmuX. Plugins can add or change behavior, such as
  * adding Lua APIs, adding rendering systems, or even changing the behavior of
  * CC itself. (albeit through classloader hacks)
- * 
+ *
  * @author apemanzilla
  * @see Hook
  */
@@ -23,7 +24,7 @@ public abstract class Plugin {
 
 	/**
 	 * Gets all the hooks this plugin has registered
-	 * 
+	 *
 	 * @see Hook
 	 */
 	public final Set<Hook> getHooks() {
@@ -32,9 +33,8 @@ public abstract class Plugin {
 
 	/**
 	 * Gets all the hooks this plugin has registered of a specific type
-	 * 
-	 * @param cls
-	 *            The type
+	 *
+	 * @param cls The type
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
@@ -58,17 +58,14 @@ public abstract class Plugin {
 	 * parameter is only used to help out with type inference so that lambdas
 	 * can be used.<br />
 	 * <br />
-	 * 
+	 *
 	 * @deprecated Using this method with lambdas as opposed to
-	 *             {@link #registerHook(Hook)} with anonymous classes may cause
-	 *             crashes, as lambdas force the JVM to load classes earlier
-	 *             than usual, which can result in a
-	 *             {@link ClassNotFoundException} because of the way
-	 *             ComputerCraft is loaded at runtime. This method will most
-	 *             likely be removed in the future.
-	 * 
-	 * @see Hook
-	 * @see #registerHook(Hook)
+	 * {@link #registerHook(Hook)} with anonymous classes may cause
+	 * crashes, as lambdas force the JVM to load classes earlier
+	 * than usual, which can result in a
+	 * {@link ClassNotFoundException} because of the way
+	 * ComputerCraft is loaded at runtime. This method will most
+	 * likely be removed in the future.
 	 */
 	@Deprecated
 	protected final <T extends Hook> void registerHook(Class<T> cls, T hook) {
@@ -92,39 +89,49 @@ public abstract class Plugin {
 	public abstract Optional<String> getVersion();
 
 	/**
-	 * The author of the plugin. If an empty <code>Optional</code> is returned,
-	 * no author will be shown to end-users.
+	 * The authors of the plugin. If an empty <code>Collection</code> is returned,
+	 * no authors will be shown to end-users.
 	 */
-	public abstract Optional<String> getAuthor();
+	public abstract Collection<String> getAuthors();
 
 	/**
 	 * Gets the website for this plugin. This can be a link to a forum thread, a
 	 * wiki, source code, or anything else that may be helpful to end-users. If
 	 * an empty <code>Optional</code> is returned, no website will be shown to
 	 * end-users.
-	 * 
 	 */
 	public abstract Optional<String> getWebsite();
+
+	/**
+	 * Setup any configuration options this plugin requires.
+	 *
+	 * This is called before anything else is loaded, and so one should be careful
+	 * not to reference any CC classes.
+	 *
+	 * @param group The group to load config elements from.
+	 */
+	public void configSetup(Group group) {}
 
 	/**
 	 * Called early while CCEmuX is starting, before even CC itself is loaded.
 	 * This method is intended to be used to interact with the classloader
 	 * before CC is loaded and should not be used unless you know what you're
 	 * doing!
-	 * 
-	 * @see #setup()
+	 *
+	 * @see #setup(EmuConfig)
+	 * @see #configSetup(Group)
 	 */
-	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {};
+	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {}
 
 	/**
 	 * Called while CCEmuX is starting. This method should be used to register
-	 * hooks, or renderers.<br />
-	 * <br />
+	 * hooks, or renderers.
+	 *
 	 * In order to prevent issues, any setup code that needs to interact with CC
 	 * should use the
 	 * {@link net.clgd.ccemux.plugins.hooks.InitializationCompleted
 	 * InitializationCompleted} hook.
-	 * 
+	 *
 	 * @see Hook
 	 */
 	public abstract void setup(EmuConfig cfg);
@@ -135,7 +142,7 @@ public abstract class Plugin {
 
 	/**
 	 * Attempts to locate the file that this plugin was loaded from
-	 * 
+	 *
 	 * @return
 	 */
 	public final Optional<File> getSource() {
