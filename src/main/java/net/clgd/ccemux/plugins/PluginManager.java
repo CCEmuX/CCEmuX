@@ -51,9 +51,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 
 			candidates.add(new PluginCandidate(
 					candidate,
-					cfgCandidate.property("enabled", Boolean.class, true)
-							.setName("Enabled")
-							.setAlwaysEmit()
+					cfgCandidate.property("enabled", Boolean.class, true).setName("Enabled")
 			));
 
 			candidate.configSetup(cfgCandidate);

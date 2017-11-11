@@ -55,6 +55,15 @@ public class JsonAdapter {
 	}
 
 	/**
+	 * Convert the default values to JSON.
+	 *
+	 * @return The default values in JSON.
+	 */
+	public JsonElement toDefaultJson() {
+		return toDefaultJson(config.getRoot());
+	}
+
+	/**
 	 * Load configuration values from JSON
 	 *
 	 * @param element The element to load from.
@@ -84,6 +93,19 @@ public class JsonAdapter {
 		return object;
 	}
 
+	private JsonObject toDefaultJson(Group group) {
+		JsonObject object = new JsonObject();
+		for (ConfigEntry entry : group.children()) {
+			if (entry instanceof Property<?>) {
+				Property<?> property = (Property<?>) entry;
+				object.add(entry.getKey(), gson.toJsonTree(property.getDefaultValue()));
+			} else if (entry instanceof Group) {
+				object.add(entry.getKey(), toDefaultJson((Group) entry));
+			}
+		}
+		return object;
+	}
+
 	private void fromJson(Group group, JsonElement element) {
 		if (!(element instanceof JsonObject)) {
 			log.error("Expected object for property group {}, got {}", group.getKey(), element);
@@ -92,6 +114,8 @@ public class JsonAdapter {
 
 		JsonObject object = (JsonObject) element;
 		for (Map.Entry<String, JsonElement> jsonEntry : object.entrySet()) {
+			if (jsonEntry.getKey().startsWith("_")) continue;
+
 			Optional<ConfigEntry> configEntry = group.child(jsonEntry.getKey());
 			if (configEntry.isPresent()) {
 				if (configEntry.get() instanceof Group) {

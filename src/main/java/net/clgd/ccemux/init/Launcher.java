@@ -217,6 +217,7 @@ public class Launcher {
 			PluginManager pluginMgr = new PluginManager(cfg);
 			pluginMgr.gatherCandidates(buildLoader());
 			cfg.load();
+			cfg.saveDefault();
 			pluginMgr.gatherEnabled();
 
 			pluginMgr.loaderSetup(getClass().getClassLoader());
