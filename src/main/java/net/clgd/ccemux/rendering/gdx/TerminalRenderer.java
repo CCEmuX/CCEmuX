@@ -33,10 +33,8 @@ public class TerminalRenderer {
 	private Map<Integer, Color> fontColours = new HashMap<>();
 	private Texture backgroundTexture;
 	
-	private int pixelWidth;
-	private int pixelHeight;
+	private int pixelWidth, pixelHeight;
 	private int margin;
-	
 	private int screenWidth, screenHeight;
 	
 	public char cursorChar = '_';
@@ -49,25 +47,19 @@ public class TerminalRenderer {
 		this.computer = adapter.getComputer();
 		this.terminal = terminal;
 		
-		screenWidth = Gdx.graphics.getWidth();
-		screenHeight = Gdx.graphics.getHeight();
+		this.pixelWidth = adapter.getPixelWidth();
+		this.pixelHeight = adapter.getPixelHeight();
+		this.margin = adapter.getMargin();
+		this.screenWidth = adapter.getScreenWidth();
+		this.screenHeight = adapter.getScreenHeight();
 		
 		initialise(config);
 	}
 	
 	private void initialise(EmuConfig config) {
-		initialisePixelSize(config);
 		initialiseFont();
 		initialisePalette();
 		initialiseBackgroundTexture();
-	}
-	
-	private void initialisePixelSize(EmuConfig config) {
-		double termScale = config.termScale.get();
-		
-		pixelWidth = (int) (6 * termScale);
-		pixelHeight = (int) (9 * termScale);
-		margin = (int) (2 * termScale);
 	}
 	
 	private void initialiseFont() {

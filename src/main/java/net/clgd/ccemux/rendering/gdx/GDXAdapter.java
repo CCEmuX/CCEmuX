@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import dan200.computercraft.core.terminal.Terminal;
 import lombok.Getter;
 import lombok.Setter;
 import net.clgd.ccemux.emulation.CCEmuX;
@@ -24,6 +25,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 	
@@ -33,21 +35,26 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 			&& block != Character.UnicodeBlock.SPECIALS;
 	}
 	
-	@Getter private final GDXPlugin plugin;
-	@Getter private final EmulatedComputer computer;
-	@Getter private final EmuConfig config;
+	private final GDXPlugin plugin;
+	private final EmulatedComputer computer;
+	private final Terminal terminal;
+	private final EmuConfig config;
 	
-	@Getter private volatile Thread thread;
+	private volatile Thread thread;
 	
-	@Getter @Setter private volatile boolean focused;
-	@Getter @Setter @Nullable private Lwjgl3Window window; // TODO: can be null if main window
+	@Setter private volatile boolean focused;
+	@Setter @Nullable private Lwjgl3Window window; // TODO: can be null if main window
 	
-	@Getter private volatile InputMultiplexer inputMultiplexer;
+	private volatile InputMultiplexer inputMultiplexer;
 	
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	
 	private TerminalRenderer terminalRenderer;
+	
+	private int pixelWidth, pixelHeight;
+	private int margin;
+	private int screenWidth, screenHeight;
 	
 	private int dragButton = 4;
 	private Vector2 lastDragSpot = null;
@@ -59,11 +66,25 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	GDXAdapter(GDXPlugin plugin, EmulatedComputer computer, EmuConfig config) {
 		this.plugin = plugin;
 		this.computer = computer;
+		this.terminal = computer.terminal;
 		this.config = config;
 		
 		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> {
 			if (terminalRenderer != null) terminalRenderer.updatePalette(i, r, g, b);
 		});
+		
+		initialisePixelSize(config);
+	}
+	
+	private void initialisePixelSize(EmuConfig config) {
+		double termScale = config.termScale.get();
+		
+		pixelWidth = (int) (6 * termScale);
+		pixelHeight = (int) (9 * termScale);
+		margin = (int) (2 * termScale);
+		
+		screenWidth = (terminal.getWidth() * pixelWidth) + (margin * 2);
+		screenHeight = (terminal.getHeight() * pixelHeight) + (margin * 2);
 	}
 	
 	void startInThread() {
@@ -83,7 +104,7 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
-		terminalRenderer = new TerminalRenderer(this, computer.terminal, config);
+		terminalRenderer = new TerminalRenderer(this, terminal, config);
 	}
 	
 	@Override
