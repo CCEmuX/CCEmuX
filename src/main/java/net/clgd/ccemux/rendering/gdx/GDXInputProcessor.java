@@ -144,6 +144,13 @@ public class GDXInputProcessor implements InputProcessor {
 	
 	@Override
 	public boolean scrolled(int amount) {
-		return false;
+		int dir = amount > 0 ? 1 : -1;
+		
+		Vector2 point = Pools.get(Vector2.class).obtain();
+		mapPointToCC(point.set(Gdx.input.getX(), Gdx.input.getY()));
+		computer.scroll(dir, (int) point.x, (int) point.y);
+		Pools.free(point);
+		
+		return true;
 	}
 }
