@@ -253,7 +253,8 @@ public class Launcher {
 				// TODO: figure out this
 			}
 
-			if (!RendererFactory.implementations.containsKey(cfg.renderer.get())) {
+			RendererFactory renderFactory = RendererFactory.implementations.get(cfg.renderer.get());
+			if (renderFactory == null) {
 				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.renderer.get());
 
 				if (!GraphicsEnvironment.isHeadless()) {
@@ -262,6 +263,8 @@ public class Launcher {
 									+ "Please double check your config file and plugin list.",
 							"Configuration Error", JOptionPane.ERROR_MESSAGE);
 				}
+
+				System.exit(1);
 			}
 
 			pluginMgr.onInitializationCompleted();
@@ -273,7 +276,7 @@ public class Launcher {
 
 			TerminalFonts.loadImplicitFonts();
 
-			CCEmuX emu = new CCEmuX(cfg, pluginMgr, getCCSource());
+			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource());
 			emu.createComputer();
 			emu.run();
 

@@ -30,7 +30,6 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 import net.clgd.ccemux.rendering.TerminalFonts;
-import net.clgd.ccemux.rendering.awt.config.ConfigView;
 
 @Slf4j
 public class AWTRenderer
@@ -91,7 +90,6 @@ public class AWTRenderer
 
 		frame.setLayout(new BorderLayout());
 
-		new ConfigView(config).setVisible(true);
 		// setMinimumSize(new Dimension(300, 200));
 
 		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());

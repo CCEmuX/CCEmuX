@@ -108,18 +108,21 @@ public class ConfigView extends JFrame {
 
 		pushGroup(config.getRoot());
 
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent event) {
-				// TODO: Make this actually nice.
-				if (config instanceof UserConfig) try {
-					config.save();
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(ConfigView.this,
-							"Cannot save config file: " + e.getMessage(),
-							"Error saving config", JOptionPane.ERROR_MESSAGE);
+				if (config instanceof UserConfig) {
+					try {
+						config.save();
+					} catch (IOException e) {
+						JOptionPane.showMessageDialog(ConfigView.this,
+								"Cannot save config file: " + e.getMessage(),
+								"Error saving config", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 
+				setVisible(false);
 				dispose();
 			}
 		});
