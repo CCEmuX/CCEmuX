@@ -173,10 +173,14 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 		if (!getWindowTitle().equals(title)) {
 			title = getWindowTitle();
 			
-			if (window != null) {
-				window.setTitle(title);
-			} else {
-				Gdx.graphics.setTitle(title);
+			try {
+				if (window != null) {
+					window.setTitle(title);
+				} else {
+					Gdx.graphics.setTitle(title);
+				}
+			} catch (NullPointerException ignored) {
+				title = ""; // give it another chance to update title
 			}
 		}
 		
