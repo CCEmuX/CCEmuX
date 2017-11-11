@@ -57,6 +57,8 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	@Setter private double shutdownTimer = -1;
 	@Setter private double rebootTimer = -1;
 	
+	private String title;
+	
 	private final List<Listener> listeners = new ArrayList<>();
 	
 	GDXAdapter(GDXPlugin plugin, EmulatedComputer computer, EmuConfig config) {
@@ -166,10 +168,14 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	public void onAdvance(double dt) {
 		if (Gdx.graphics == null) return;
 		
-		if (window != null) {
-			window.setTitle(getWindowTitle());
-		} else {
-			Gdx.graphics.setTitle(getWindowTitle());
+		if (getWindowTitle() != title) {
+			title = getWindowTitle();
+			
+			if (window != null) {
+				window.setTitle(title);
+			} else {
+				Gdx.graphics.setTitle(title);
+			}
 		}
 		
 		handleBlinkLock(dt);
