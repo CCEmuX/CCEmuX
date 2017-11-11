@@ -63,8 +63,6 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	public void gatherEnabled() {
 		for (PluginCandidate candidate : candidates) {
 			val source = candidate.plugin.getSource().map(File::getAbsolutePath).orElse("(unknown)");
-			log.debug("Found plugin [{}] from {}", candidate, source);
-
 			if (candidate.enabled.get()) {
 				enabled.add(candidate.plugin);
 				log.info("Loaded plugin [{}] from {}", candidate.plugin, source);
