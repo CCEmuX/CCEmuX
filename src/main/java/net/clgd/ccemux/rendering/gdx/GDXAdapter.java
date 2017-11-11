@@ -164,6 +164,8 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	
 	@Override
 	public void onAdvance(double dt) {
+		if (Gdx.graphics == null) return;
+		
 		if (window != null) {
 			window.setTitle(getWindowTitle());
 		} else {

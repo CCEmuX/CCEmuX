@@ -44,7 +44,7 @@ public class GDXManager {
 	private void setupConfig(GDXAdapter adapter, Lwjgl3WindowConfiguration config) {
 		config.setResizable(false); // TODO
 		config.setWindowedMode(adapter.getScreenWidth(), adapter.getScreenHeight());
-		config.setWindowIcon("/img/icon.png");
+		config.setWindowIcon("img/icon.png");
 		config.setWindowListener(new Lwjgl3WindowAdapter() {
 			@Override
 			public void focusLost() {
