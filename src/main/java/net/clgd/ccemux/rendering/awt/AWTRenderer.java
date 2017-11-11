@@ -20,8 +20,6 @@ import java.util.List;
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
-import net.clgd.ccemux.rendering.TerminalFont;
-import net.clgd.ccemux.rendering.TerminalFonts;
 import org.apache.commons.io.IOUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +28,8 @@ import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
 public class AWTRenderer
@@ -89,6 +89,7 @@ public class AWTRenderer
 		pixelHeight = (int) (9 * config.termScale.get());
 
 		frame.setLayout(new BorderLayout());
+
 		// setMinimumSize(new Dimension(300, 200));
 
 		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());

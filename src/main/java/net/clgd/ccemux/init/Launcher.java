@@ -2,24 +2,32 @@ package net.clgd.ccemux.init;
 
 import static org.apache.commons.cli.Option.builder;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.net.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 
 import javax.swing.*;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
-import lombok.val;
+import dan200.computercraft.core.apis.AddressPredicate;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
@@ -58,15 +66,14 @@ public class Launcher {
 		} else {
 			try (final CCEmuXClassloader loader = new CCEmuXClassloader(
 					((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
-				@SuppressWarnings("unchecked")
-				final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
+				@SuppressWarnings("unchecked") final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
 
 				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
 				constructor.setAccessible(true);
 
 				final Method launch = klass.getDeclaredMethod("launch");
 				launch.setAccessible(true);
-				launch.invoke(constructor.newInstance(new Object[] { args }));
+				launch.invoke(constructor.newInstance(new Object[]{args}));
 			} catch (Exception e) {
 				log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
 				new Launcher(args).launch();
@@ -123,8 +130,8 @@ public class Launcher {
 			scrollPane.setMaximumSize(new Dimension(600, 400));
 
 			int result = JOptionPane.showConfirmDialog(null,
-					new Object[] { "CCEmuX has crashed!", scrollPane,
-							"Would you like to create a bug report on GitHub?" },
+					new Object[]{"CCEmuX has crashed!", scrollPane,
+							"Would you like to create a bug report on GitHub?"},
 					"CCEmuX Crash", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
 
 			if (result == JOptionPane.YES_OPTION) {
@@ -146,7 +153,7 @@ public class Launcher {
 		}
 	}
 
-	private PluginManager loadPlugins(UserConfig cfg) throws ReflectiveOperationException {
+	private ClassLoader buildLoader() throws ReflectiveOperationException {
 		File pd = dataDir.resolve("plugins").toFile();
 
 		if (pd.isFile())
@@ -178,8 +185,8 @@ public class Launcher {
 				}
 			}
 		}
-		
-		return new PluginManager(new URLClassLoader(urls.toArray(new URL[0]), this.getClass().getClassLoader()), cfg);
+
+		return new URLClassLoader(urls.toArray(new URL[urls.size()]), this.getClass().getClassLoader());
 	}
 
 	private File getCCSource() throws URISyntaxException {
@@ -201,13 +208,18 @@ public class Launcher {
 			Files.createDirectories(dataDir);
 
 			log.info("Loading user config");
-			UserConfig cfg = UserConfig.loadConfig(dataDir);
+			UserConfig cfg = new UserConfig(dataDir);
 			log.debug("Config: {}", cfg);
 
 			if (cfg.termScale.get() != cfg.termScale.get().intValue())
 				log.warn("Terminal scale is not an integer - stuff might look bad! Don't blame us!");
 
-			PluginManager pluginMgr = loadPlugins(cfg);
+			PluginManager pluginMgr = new PluginManager(cfg);
+			pluginMgr.gatherCandidates(buildLoader());
+			cfg.load();
+			cfg.saveDefault();
+			pluginMgr.gatherEnabled();
+
 			pluginMgr.loaderSetup(getClass().getClassLoader());
 
 			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
@@ -222,6 +234,15 @@ public class Launcher {
 
 			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
 
+			// Setup the properties to sync with the original.
+			// computerSpaceLimit isn't technically needed, but we do it for consistency's sake.
+			cfg.maxComputerCapacity.addAndFireListener((o, n) -> ComputerCraft.computerSpaceLimit = n.intValue());
+			cfg.httpEnabled.addAndFireListener((o, n) -> ComputerCraft.http_enable = n);
+			cfg.httpWhitelist.addAndFireListener((o, n) -> ComputerCraft.http_whitelist = new AddressPredicate(n));
+			cfg.httpBlacklist.addAndFireListener((o, n) -> ComputerCraft.http_blacklist = new AddressPredicate(n));
+			cfg.disableLua51Features.addAndFireListener((o, n) -> ComputerCraft.disable_lua51_features = n);
+			cfg.defaultComputerSettings.addAndFireListener((o, n) -> ComputerCraft.default_computer_settings = n);
+
 			pluginMgr.setup();
 
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
@@ -232,7 +253,8 @@ public class Launcher {
 				// TODO: figure out this
 			}
 
-			if (!RendererFactory.implementations.containsKey(cfg.renderer.get())) {
+			RendererFactory renderFactory = RendererFactory.implementations.get(cfg.renderer.get());
+			if (renderFactory == null) {
 				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.renderer.get());
 
 				if (!GraphicsEnvironment.isHeadless()) {
@@ -241,6 +263,8 @@ public class Launcher {
 									+ "Please double check your config file and plugin list.",
 							"Configuration Error", JOptionPane.ERROR_MESSAGE);
 				}
+
+				System.exit(1);
 			}
 
 			pluginMgr.onInitializationCompleted();
@@ -252,7 +276,7 @@ public class Launcher {
 
 			TerminalFonts.loadImplicitFonts();
 
-			CCEmuX emu = new CCEmuX(cfg, pluginMgr, getCCSource());
+			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource());
 			emu.createComputer();
 			emu.run();
 
