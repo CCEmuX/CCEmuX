@@ -37,29 +37,6 @@ public class Utils {
 				constrainToRange(col[2], 0, 1) };
 	}
 
-	public static BufferedImage makeTintedCopy(BufferedImage bi, Color tint) {
-		BufferedImage tinted;
-		if (!GraphicsEnvironment.isHeadless()) {
-			GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-					.getDefaultConfiguration();
-
-			tinted = gc.createCompatibleImage(bi.getWidth(), bi.getHeight(), Transparency.TRANSLUCENT);
-		} else {
-			tinted = new BufferedImage(bi.getWidth(), bi.getHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-		}
-
-		for (int y = 0; y < bi.getHeight(); y++) {
-			for (int x = 0; x < bi.getWidth(); x++) {
-				int rgb = bi.getRGB(x, y);
-				int a = (rgb >> 24) & 0xFF;
-
-				if (a != 0) tinted.setRGB(x, y, tint.getRGB());
-			}
-		}
-
-		return tinted;
-	}
-
 	/**
 	 * Tries to get a value as the result of a {@link Callable}, and if an
 	 * exception occurs, instead returns a given value.
