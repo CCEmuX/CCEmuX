@@ -2,10 +2,10 @@ package net.clgd.ccemux.rendering.gdx;
 
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Gdx2DPixmap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.rendering.TerminalFont;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +27,9 @@ public class GDXTerminalFont extends TerminalFont {
 	}
 	
 	private void loadTexture(URL url) throws IOException {
-		InputStream is = url.openStream();
-		Gdx2DPixmap gdx2DPixmap = new Gdx2DPixmap(is, Gdx2DPixmap.GDX2D_FORMAT_RGBA8888);
-		texture = new Texture(new Pixmap(gdx2DPixmap));
+		try (InputStream is = url.openStream()) {
+			byte[] b = IOUtils.toByteArray(is);
+			texture = new Texture(new Pixmap(b, 0, b.length));
+		}
 	}
 }

@@ -6,7 +6,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowAdapter;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowConfiguration;
 import lombok.Getter;
-import lombok.Setter;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
@@ -14,7 +13,6 @@ import net.clgd.ccemux.rendering.Renderer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class GDXManager {
 	@Getter private final GDXPlugin plugin;

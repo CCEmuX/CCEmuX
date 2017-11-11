@@ -1,6 +1,8 @@
 package net.clgd.ccemux.rendering;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.Map;
 
 import lombok.Getter;
 
@@ -31,6 +33,8 @@ public abstract class TerminalFont {
 	@Getter
 	private int margin;
 	
+	private Map<Character, Rectangle> charCoordCache = new HashMap<>();
+	
 	protected void calculateCharSizes(int imageWidth, int imageHeight) {
 		horizontalScale = imageWidth / (double) BASE_WIDTH;
 		verticalScale = imageHeight / (double) BASE_HEIGHT;
@@ -49,11 +53,17 @@ public abstract class TerminalFont {
 	 * @return The coordinates and dimensions of a given character
 	 */
 	public Rectangle getCharCoords(char c) {
+		if (charCoordCache.containsKey(c)) return charCoordCache.get(c);
+		
 		int charcode = (int) c;
-		return new Rectangle(
+		
+		Rectangle r = new Rectangle(
 				margin + charcode % COLUMNS * (getCharWidth() + margin * 2),
 				margin + charcode / ROWS * (getCharHeight() + margin * 2),
 				getCharWidth(), getCharHeight()
 		);
+		
+		charCoordCache.put(c, r);
+		return r;
 	}
 }

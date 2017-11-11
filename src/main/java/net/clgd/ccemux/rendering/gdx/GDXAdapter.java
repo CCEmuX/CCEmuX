@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import lombok.Getter;
 import lombok.Setter;
+import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
@@ -34,6 +35,7 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	
 	@Getter private final GDXPlugin plugin;
 	@Getter private final EmulatedComputer computer;
+	@Getter private final EmuConfig config;
 	
 	@Getter private volatile Thread thread;
 	
@@ -47,27 +49,21 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	
 	private TerminalRenderer terminalRenderer;
 	
-	private final int pixelWidth;
-	private final int pixelHeight;
-	
-	private boolean lastBlink = false;
 	private int dragButton = 4;
 	private Vector2 lastDragSpot = null;
 	
 	private double blinkLockedTime = 0D;
 	
-	private boolean paletteChanged = false;
-	
 	private final List<Listener> listeners = new ArrayList<>();
 	
 	GDXAdapter(GDXPlugin plugin, EmulatedComputer computer, EmuConfig config) {
 		this.plugin = plugin;
-		
 		this.computer = computer;
-		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
+		this.config = config;
 		
-		pixelWidth = (int) (6 * config.termScale.get());
-		pixelHeight = (int) (9 * config.termScale.get());
+		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> {
+			if (terminalRenderer != null) terminalRenderer.updatePalette(i, r, g, b);
+		});
 	}
 	
 	void startInThread() {
@@ -87,7 +83,7 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 		camera = new OrthographicCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
-		terminalRenderer = new TerminalRenderer();
+		terminalRenderer = new TerminalRenderer(this, computer.terminal, config);
 	}
 	
 	@Override
@@ -108,6 +104,7 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	public void resize(int width, int height) {
 		super.resize(width, height);
 		camera.setToOrtho(false, width, height);
+		terminalRenderer.resize(width, height);
 	}
 	
 	@Override
@@ -137,6 +134,8 @@ public class GDXAdapter extends ApplicationAdapter implements Renderer {
 	
 	@Override
 	public void onAdvance(double dt) {
-	
+		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
+		
+		if (terminalRenderer != null) terminalRenderer.blinkLocked = blinkLockedTime > 0;
 	}
 }
