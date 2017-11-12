@@ -7,7 +7,9 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.rendering.PaletteCacher;
+import net.clgd.ccemux.rendering.PaletteAdapter;
+import net.clgd.ccemux.rendering.PaletteAdapter.ColorAdapter;
+
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.awt.*;
@@ -20,7 +22,9 @@ import java.util.concurrent.TimeUnit;
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
 
-	private final PaletteCacher paletteCacher;
+	public static final ColorAdapter<Color> AWT_COLOR_ADAPTER = (r, g, b) -> new Color((float) r, (float) g, (float) b);
+
+	private final PaletteAdapter<Color> paletteCacher;
 
 	public final Terminal terminal;
 	public final int pixelWidth;
@@ -32,15 +36,14 @@ class TerminalComponent extends Canvas {
 	public boolean blinkLocked = false;
 
 	private final Cache<Pair<Character, Color>, BufferedImage> charImgCache = CacheBuilder.newBuilder()
-		.expireAfterAccess(10, TimeUnit.SECONDS)
-		.build();
+			.expireAfterAccess(10, TimeUnit.SECONDS).build();
 
 	public TerminalComponent(Terminal terminal, double termScale) {
 		this.pixelWidth = (int) (6 * termScale);
 		this.pixelHeight = (int) (9 * termScale);
 		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
-		this.paletteCacher = new PaletteCacher(terminal.getPalette());
+		this.paletteCacher = new PaletteAdapter<>(terminal.getPalette(), AWT_COLOR_ADAPTER);
 
 		resizeTerminal(terminal.getWidth(), terminal.getHeight());
 	}
@@ -53,8 +56,7 @@ class TerminalComponent extends Canvas {
 	}
 
 	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
-		if (c == '\0' || Character.isSpaceChar(c))
-			return; // nothing to do here
+		if (c == '\0' || Character.isSpaceChar(c)) return; // nothing to do here
 
 		Rectangle r = font.getCharCoords(c);
 		Color colour = paletteCacher.getColor(color);
@@ -68,21 +70,21 @@ class TerminalComponent extends Canvas {
 				float[] rgb = new float[4];
 				colour.getRGBComponents(rgb);
 
-                RescaleOp rop = new RescaleOp(rgb, zero, null);
+				RescaleOp rop = new RescaleOp(rgb, zero, null);
 
-                GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
-						.getDefaultScreenDevice().getDefaultConfiguration();
+				GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+						.getDefaultConfiguration();
 
-                BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.width, r.height);
+				BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.width, r.height);
 				BufferedImage pixel = gc.createCompatibleImage(r.width, r.height, Transparency.TRANSLUCENT);
 
-                Graphics ig = pixel.getGraphics();
-                ig.drawImage(img, 0, 0, null);
-                ig.dispose();
+				Graphics ig = pixel.getGraphics();
+				ig.drawImage(img, 0, 0, null);
+				ig.dispose();
 
-                rop.filter(pixel, pixel);
-                return pixel;
-            });
+				rop.filter(pixel, pixel);
+				return pixel;
+			});
 		} catch (ExecutionException e) {
 			log.error("Could not retrieve char image from cache!", e);
 		}
@@ -131,7 +133,7 @@ class TerminalComponent extends Canvas {
 			}
 
 			g.dispose();
-			paletteCacher.setCurrentPalette(terminal.getPalette());
+			//paletteCacher.setCurrentPalette(terminal.getPalette());
 		}
 	}
 
