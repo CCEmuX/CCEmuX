@@ -17,7 +17,7 @@ import com.google.auto.service.AutoService;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.config.ConfigEntry;
 import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 
@@ -68,7 +68,7 @@ public class CCTweaksPlugin extends Plugin {
 		}
 
 		for (ConfigMetadata.Property property : category.properties()) {
-			Property<?> groupProp = group.property(property.name(), property.type(), property.defaultValue());
+			ConfigProperty<?> groupProp = group.property(property.name(), property.type(), property.defaultValue());
 			if (property.description() != null) groupProp.setName(property.name());
 			groupProp.addAndFireListener((a, b) -> property.set(b));
 		}
@@ -96,8 +96,8 @@ public class CCTweaksPlugin extends Plugin {
 
 			RewritingLoader rwLoader = (RewritingLoader) loader;
 			Optional<ConfigEntry> entry = options.group("testing").child("dumpAsm");
-			if (entry.isPresent() && entry.get() instanceof Property) {
-				((Property<Boolean>) entry.get()).addAndFireListener((a, b) -> rwLoader.dump(b));
+			if (entry.isPresent() && entry.get() instanceof ConfigProperty) {
+				((ConfigProperty<Boolean>) entry.get()).addAndFireListener((a, b) -> rwLoader.dump(b));
 			}
 
 			try {

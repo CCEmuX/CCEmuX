@@ -16,7 +16,7 @@ import javax.swing.tree.TreePath;
 import lombok.val;
 import net.clgd.ccemux.config.ConfigEntry;
 import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.init.UserConfig;
 
@@ -151,7 +151,7 @@ public class ConfigView extends JFrame {
 
 		int row = 0;
 		for (val entry : configGroup.children()) {
-			if (entry instanceof Property) {
+			if (entry instanceof ConfigProperty) {
 				GridBagConstraints labelConstraints = new GridBagConstraints();
 				labelConstraints.gridx = 0;
 				labelConstraints.gridy = row;
@@ -162,7 +162,7 @@ public class ConfigView extends JFrame {
 				SwingHelpers.setTooltip(label, entry.getDescription());
 				scrollBody.add(label, labelConstraints);
 
-				Property property = (Property) entry;
+				ConfigProperty property = (ConfigProperty) entry;
 				val component = TypedComponentProvider.instance().fromProperty(property);
 				if (component.isPresent()) {
 					GridBagConstraints componentConstraints = new GridBagConstraints();

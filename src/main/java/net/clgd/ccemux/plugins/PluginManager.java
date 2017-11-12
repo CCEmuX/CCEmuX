@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
@@ -23,9 +23,9 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
 	private static class PluginCandidate {
 		final Plugin plugin;
-		final Property<Boolean> enabled;
+		final ConfigProperty<Boolean> enabled;
 
-		private PluginCandidate(Plugin plugin, Property<Boolean> enabled) {
+		private PluginCandidate(Plugin plugin, ConfigProperty<Boolean> enabled) {
 			this.plugin = plugin;
 			this.enabled = enabled;
 		}

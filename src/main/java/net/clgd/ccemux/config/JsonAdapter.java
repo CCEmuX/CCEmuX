@@ -75,8 +75,8 @@ public class JsonAdapter {
 	private JsonObject toJson(Group group, JsonElement existing) {
 		JsonObject object = existing instanceof JsonObject ? (JsonObject) existing : new JsonObject();
 		for (ConfigEntry entry : group.children()) {
-			if (entry instanceof Property<?>) {
-				Property<?> property = (Property<?>) entry;
+			if (entry instanceof ConfigProperty<?>) {
+				ConfigProperty<?> property = (ConfigProperty<?>) entry;
 
 				// Don't emit default options
 				if (!property.isDefault() || property.isAlwaysEmit()) {
@@ -96,8 +96,8 @@ public class JsonAdapter {
 	private JsonObject toDefaultJson(Group group) {
 		JsonObject object = new JsonObject();
 		for (ConfigEntry entry : group.children()) {
-			if (entry instanceof Property<?>) {
-				Property<?> property = (Property<?>) entry;
+			if (entry instanceof ConfigProperty<?>) {
+				ConfigProperty<?> property = (ConfigProperty<?>) entry;
 				object.add(entry.getKey(), gson.toJsonTree(property.getDefaultValue()));
 			} else if (entry instanceof Group) {
 				object.add(entry.getKey(), toDefaultJson((Group) entry));
@@ -120,8 +120,8 @@ public class JsonAdapter {
 			if (configEntry.isPresent()) {
 				if (configEntry.get() instanceof Group) {
 					fromJson((Group) configEntry.get(), jsonEntry.getValue());
-				} else if (configEntry.get() instanceof Property<?>) {
-					Property property = (Property<?>) configEntry.get();
+				} else if (configEntry.get() instanceof ConfigProperty<?>) {
+					ConfigProperty property = (ConfigProperty<?>) configEntry.get();
 
 					try {
 						//noinspection unchecked

@@ -19,7 +19,7 @@ import lombok.val;
  * @param <T> The type of value to store.
  */
 @Accessors(chain = true)
-public class Property<T> extends ConfigEntry {
+public class ConfigProperty<T> extends ConfigEntry {
 	private final List<BiConsumer<T, T>> listeners = new ArrayList<>(0);
 
 	@Getter
@@ -67,7 +67,7 @@ public class Property<T> extends ConfigEntry {
 	@Getter
 	private boolean isDefault;
 
-	private Property(String key, Type type, T defaultValue) {
+	private ConfigProperty(String key, Type type, T defaultValue) {
 		this.key = key;
 		this.name = key;
 		this.type = type;
@@ -86,7 +86,7 @@ public class Property<T> extends ConfigEntry {
 	 * @throws IllegalStateException If an entry with the same key exists.
 	 * @see Group#property(String, Class, Object)
 	 */
-	public Property(String key, Class<T> type, T defaultValue) {
+	public ConfigProperty(String key, Class<T> type, T defaultValue) {
 		this(key, (Type) type, defaultValue);
 	}
 
@@ -99,7 +99,7 @@ public class Property<T> extends ConfigEntry {
 	 * @throws IllegalStateException If an entry with the same key exists.
 	 * @see Group#property(String, TypeToken, Object)
 	 */
-	public Property(String key, TypeToken<T> type, T defaultValue) {
+	public ConfigProperty(String key, TypeToken<T> type, T defaultValue) {
 		this(key, type.getType(), defaultValue);
 	}
 
@@ -155,7 +155,7 @@ public class Property<T> extends ConfigEntry {
 	 * @see #isAlwaysEmit()
 	 * @see #setAlwaysEmit(boolean)
 	 */
-	public Property<T> setAlwaysEmit() {
+	public ConfigProperty<T> setAlwaysEmit() {
 		return setAlwaysEmit(true);
 	}
 

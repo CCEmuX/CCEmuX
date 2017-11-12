@@ -13,7 +13,7 @@ import com.google.common.primitives.*;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonPrimitive;
 import lombok.val;
-import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.config.ConfigProperty;
 
 public class TypedComponentProvider {
 	private static final TypedComponentProvider instance = new TypedComponentProvider();
@@ -60,7 +60,7 @@ public class TypedComponentProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Optional<JComponent> fromProperty(Property property) {
+	public Optional<JComponent> fromProperty(ConfigProperty property) {
 		return getFactory(property.getType())
 				.map((Factory x) -> x.create(property.get(), property::set, property.getType()));
 	}
