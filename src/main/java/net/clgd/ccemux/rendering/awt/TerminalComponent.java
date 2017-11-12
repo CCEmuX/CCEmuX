@@ -89,7 +89,7 @@ class TerminalComponent extends Canvas {
 			log.error("Could not retrieve char image from cache!", e);
 		}
 
-		g.drawImage(charImg, x, y, null);
+		g.drawImage(charImg, x, y, pixelWidth, pixelHeight, null);
 	}
 
 	private void renderTerminal(AWTTerminalFont font, double dt) {
