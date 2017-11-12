@@ -8,6 +8,7 @@ import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.*;
 import java.nio.file.Files;
@@ -64,8 +65,8 @@ public class Launcher {
 			log.info("Skipping custom classloader, some features may be unavailable");
 			new Launcher(args).launch();
 		} else {
-			try (final CCEmuXClassloader loader = new CCEmuXClassloader(
-					((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
+			try  {
+				val loader = new CCEmuXClassloader(Launcher.class.getClassLoader());
 				@SuppressWarnings("unchecked") final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
 
 				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
@@ -74,6 +75,8 @@ public class Launcher {
 				final Method launch = klass.getDeclaredMethod("launch");
 				launch.setAccessible(true);
 				launch.invoke(constructor.newInstance(new Object[]{args}));
+			} catch (InvocationTargetException e) {
+				log.error("Launcher failed to run", e.getTargetException());
 			} catch (Exception e) {
 				log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
 				new Launcher(args).launch();
@@ -224,7 +227,7 @@ public class Launcher {
 
 			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
 				val loader = (CCEmuXClassloader) getClass().getClassLoader();
-				loader.chain.finalise();
+				loader.chain().finalise();
 				log.warn("ClassLoader chain finalized");
 				loader.allowCC();
 				log.debug("CC access now allowed");
