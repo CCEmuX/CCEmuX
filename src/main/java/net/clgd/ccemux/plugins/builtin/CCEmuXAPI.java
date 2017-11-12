@@ -162,6 +162,9 @@ public class CCEmuXAPI extends Plugin {
 
 					romBuilder.addEntry(Paths.get("help/emu.txt"), new VirtualFile(
 							IOUtils.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_help.txt"))));
+
+					romBuilder.addEntry(Paths.get("autorun/emu.lua"), new VirtualFile(
+							IOUtils.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_completion.lua"))));
 				} catch (IOException e) {
 					log.error("Failed to register ROM entries", e);
 				}
