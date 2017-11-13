@@ -248,21 +248,25 @@ public class Launcher {
 
 			pluginMgr.setup();
 
+			String renderer;
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
 				log.info("Available rendering methods:");
 				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
 				System.exit(0);
+				return;
 			} else if (cli.hasOption('r')) {
-				// TODO: figure out this
+				renderer = cli.getOptionValue('r');
+			} else {
+				renderer = cfg.renderer.get();
 			}
 
-			RendererFactory renderFactory = RendererFactory.implementations.get(cfg.renderer.get());
+			RendererFactory renderFactory = RendererFactory.implementations.get(renderer);
 			if (renderFactory == null) {
-				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.renderer.get());
+				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", renderer);
 
 				if (!GraphicsEnvironment.isHeadless()) {
 					JOptionPane.showMessageDialog(null,
-							"Specified renderer '" + cfg.renderer.get() + "' does not exist.\n"
+							"Specified renderer '" + renderer + "' does not exist.\n"
 									+ "Please double check your config file and plugin list.",
 							"Configuration Error", JOptionPane.ERROR_MESSAGE);
 				}
