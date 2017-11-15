@@ -29,7 +29,13 @@ if ccemux then
                 program = args[2]
             end
 
-            print("Opened computer ID " .. ccemux.openEmu(id, program))
+            local id, err = ccemux.openEmu(id, program)
+
+            if not id then
+                printError(err)
+            else
+                print("Opened computer ID " .. id)
+            end
         elseif args[1] == "data" then
             if ccemux.openDataDir() then
                 print("Opened data folder")
