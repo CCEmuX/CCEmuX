@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
+import lombok.val;
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
@@ -63,6 +64,14 @@ public class CCEmuXAPI extends Plugin {
 							emu.removeComputer(ec);
 							throw new LuaException("program not found");
 						}
+						
+						if (!mount.isDirectory("startup/")) mount.makeDirectory("startup");
+						
+						val src = mount.openForRead(program);
+						val dst = mount.openForWrite("startup/0-ccemux.lua");
+						IOUtils.copy(src, dst);
+						src.close();
+						dst.close();
 					} catch (IOException e) {
 						emu.removeComputer(ec);
 						return new Object[] { false, e.toString() };
