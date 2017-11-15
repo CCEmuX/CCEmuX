@@ -4,7 +4,7 @@ if ccemux then
     local function help()
         print("Usages:")
         print("emu close - close this computer")
-        print("emu open [id] - open another computer")
+        print("emu open [id [program]] - open another computer")
         print("emu data - opens the data folder")
         print("emu config - opens the config editor")
         --print("emu set <setting> <values> - edits a setting")

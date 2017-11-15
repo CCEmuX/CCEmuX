@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
+import dan200.computercraft.api.filesystem.IWritableMount;
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
@@ -50,7 +51,25 @@ public class CCEmuXAPI extends Plugin {
 
 			methods.put("openEmu", o -> {
 				int id = ArgumentHelper.optInt(o, 0, -1);
-				EmulatedComputer ec = emu.createComputer(b -> b.id(id));
+				String program = ArgumentHelper.optString(o, 1, null);
+				
+				EmulatedComputer ec = emu.createComputer(b -> b.id(id), program == null);
+				
+				if (program != null) {
+					IWritableMount mount = ec.getRootMount();
+					
+					try {
+						if (!mount.exists(program)) {
+							emu.removeComputer(ec);
+							throw new LuaException("program not found");
+						}
+					} catch (IOException e) {
+						emu.removeComputer(ec);
+						return new Object[] { false, e.toString() };
+					}
+					
+					ec.turnOn();
+				}
 
 				return new Object[]{ec.getID()};
 			});
