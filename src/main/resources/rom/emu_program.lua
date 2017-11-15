@@ -4,7 +4,7 @@ if ccemux then
     local function help()
         print("Usages:")
         print("emu close - close this computer")
-        print("emu open [id] - open another computer")
+        print("emu open [id [program]] - open another computer")
         print("emu data - opens the data folder")
         print("emu config - opens the config editor")
         --print("emu set <setting> <values> - edits a setting")
@@ -19,7 +19,23 @@ if ccemux then
         if args[1] == "close" then
             ccemux.closeEmu()
         elseif args[1] == "open" then
-            print("Opened computer ID " .. ccemux.openEmu(tonumber(args[2])))
+            local id = os.getComputerID()
+            local program
+
+            if tonumber(args[2]) ~= nil then
+                id = tonumber(args[2])
+                program = args[3]
+            else
+                program = args[2]
+            end
+
+            local id, err = ccemux.openEmu(id, program)
+
+            if not id then
+                printError(err)
+            else
+                print("Opened computer ID " .. id)
+            end
         elseif args[1] == "data" then
             if ccemux.openDataDir() then
                 print("Opened data folder")

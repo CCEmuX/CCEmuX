@@ -8,6 +8,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -19,12 +22,12 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
- * 
+ *
  * @author apemanzilla
  *
  */
 @Slf4j
-public class EmulatedComputer extends Computer {	
+public class EmulatedComputer extends Computer {
 	private static final Field rootMountField;
 
 	static {
@@ -43,10 +46,11 @@ public class EmulatedComputer extends Computer {
 	
 	/**
 	 * A class used to create new <code>EmulatedComputer</code> instances
-	 * 
+	 *
 	 * @author apemanzilla
 	 *
 	 */
+	@Accessors(chain = true)
 	public static class Builder {
 		private final IComputerEnvironment env;
 		private final EmulatedTerminal term;
@@ -56,6 +60,14 @@ public class EmulatedComputer extends Computer {
 		private IWritableMount rootMount = null;
 
 		private String label = null;
+		
+		/**
+		 * Sets whether or not the computer should turn on automatically
+		 * after it is constructed. If false, you have to turn the
+		 * computer on manually with EmulatedComputer.turnOn() when
+		 * appropriate.
+		 */
+		@Getter @Setter private boolean startOn = true;
 
 		private transient boolean built = false;
 
@@ -68,7 +80,7 @@ public class EmulatedComputer extends Computer {
 		 * Sets the ID of the computer to construct. Setting the id to
 		 * <code>null</code> (the default value) will result in the ID being
 		 * automatically chosen by the environment.
-		 * 
+		 *
 		 * @return This builder, for chaining
 		 */
 		public Builder id(Integer num) {
@@ -80,7 +92,7 @@ public class EmulatedComputer extends Computer {
 		 * Sets the root (<code>/</code>) mount of the computer to construct.
 		 * Setting the root mount to <code>null</code> (the default value) will
 		 * result in one being created by the environment.
-		 * 
+		 *
 		 * @param rootMount
 		 *            The writable mount to use as a root mount
 		 * @return This builder, for chaining
@@ -94,7 +106,7 @@ public class EmulatedComputer extends Computer {
 		 * Sets the label of the computer to construct. Setting the label to
 		 * <code>null</code> (the default value) will result in no label being
 		 * set.
-		 * 
+		 *
 		 * @return This builder, for chaining
 		 */
 		public Builder label(String label) {
@@ -128,7 +140,7 @@ public class EmulatedComputer extends Computer {
 
 	/**
 	 * Gets a new builder to create an <code>EmulatedComputer</code> instance
-	 * 
+	 *
 	 * @return
 	 */
 	public static Builder builder(IComputerEnvironment env, EmulatedTerminal term) {
@@ -199,7 +211,7 @@ public class EmulatedComputer extends Computer {
 	 * location. All files will be copied into the destination regardless of
 	 * their absolute path, with their original name. Directories will be
 	 * recursively copied into the destination in a similar fashion to files.
-	 * 
+	 *
 	 * @param files
 	 *            The files to copy
 	 */

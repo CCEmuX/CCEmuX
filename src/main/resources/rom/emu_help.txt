@@ -3,8 +3,8 @@ USAGE
 * emu close
 Closes the current emulated computer, without affecting the others. Can be called from within programs via ccemux.closeEmu().
 
-* emu open [id]
-Opens a new emulated computer, with the given ID (if specified) or with the next ID. Can be called from within programs via ccemux.openEmu() or ccemux.openEmu(id)
+* emu open [id [program]]
+Opens a new emulated computer, with the given ID (if specified) or with the next ID. Also optionally accepts a startup program to run. Can be called from within programs via ccemux.openEmu(), ccemux.openEmu(id) or ccemux.openEmu(id, program)
 
 * emu data
 This will open the CCEmuX data dir (where config files and computer save folders are stored) in your default file browser. Can be called from within programs via ccemux.openDataDir(). Note that it may fail on some Linux systems (i.e. if you don't have a DE installed)

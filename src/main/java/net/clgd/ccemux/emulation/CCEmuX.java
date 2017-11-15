@@ -99,6 +99,8 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		pluginMgr.onComputerCreated(this, computer);
 
 		addComputer(computer);
+		
+		if (builder.isStartOn()) computer.turnOn();
 
 		return computer;
 	}
@@ -116,7 +118,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		r.setVisible(true);
 
 		log.info("Created new computer ID {}", ec.getID());
-		ec.turnOn();
 	}
 
 	public boolean removeComputer(EmulatedComputer computer) {

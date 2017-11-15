@@ -5,9 +5,13 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 
+import dan200.computercraft.api.filesystem.IWritableMount;
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
@@ -50,7 +54,38 @@ public class CCEmuXAPI extends Plugin {
 
 			methods.put("openEmu", o -> {
 				int id = ArgumentHelper.optInt(o, 0, -1);
-				EmulatedComputer ec = emu.createComputer(b -> b.id(id));
+				String program = ArgumentHelper.optString(o, 1, null);
+				
+				EmulatedComputer ec = emu.createComputer(b -> b.id(id).setStartOn(program == null));
+				
+				if (program != null) {
+					IWritableMount mount = ec.getRootMount();
+					
+					try {
+						if (!mount.exists(program)) {
+							emu.removeComputer(ec);
+							throw new LuaException("program not found");
+						}
+						
+						if (mount.exists("startup") && !mount.isDirectory("startup")) {
+							emu.removeComputer(ec);
+							throw new LuaException("startup file already exists - replace with directory instead");
+						}
+						
+						if (!mount.isDirectory("startup/")) mount.makeDirectory("startup");
+						
+						try (InputStream src = mount.openForRead(program);
+							 OutputStream dst = mount.openForWrite("startup/0-ccemux" + ".lua")) {
+							dst.write("fs.delete(\"startup/0-ccemux.lua\");".getBytes(StandardCharsets.UTF_8));
+							IOUtils.copy(src, dst);
+						}
+					} catch (IOException e) {
+						emu.removeComputer(ec);
+						return new Object[] { false, e.toString() };
+					}
+					
+					ec.turnOn();
+				}
 
 				return new Object[]{ec.getID()};
 			});
