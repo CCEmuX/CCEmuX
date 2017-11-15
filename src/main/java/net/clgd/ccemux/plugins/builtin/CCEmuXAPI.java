@@ -67,6 +67,11 @@ public class CCEmuXAPI extends Plugin {
 							throw new LuaException("program not found");
 						}
 						
+						if (mount.exists("startup") && !mount.isDirectory("startup")) {
+							emu.removeComputer(ec);
+							throw new LuaException("startup file already exists - replace with directory instead");
+						}
+						
 						if (!mount.isDirectory("startup/")) mount.makeDirectory("startup");
 						
 						try (InputStream src = mount.openForRead(program);

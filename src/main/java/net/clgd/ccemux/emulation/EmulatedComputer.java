@@ -61,6 +61,12 @@ public class EmulatedComputer extends Computer {
 
 		private String label = null;
 		
+		/**
+		 * Sets whether or not the computer should turn on automatically
+		 * after it is constructed. If false, you have to turn the
+		 * computer on manually with EmulatedComputer.turnOn() when
+		 * appropriate.
+		 */
 		@Getter @Setter private boolean startOn = true;
 
 		private transient boolean built = false;
