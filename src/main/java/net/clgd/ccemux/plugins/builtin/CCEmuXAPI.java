@@ -71,7 +71,7 @@ public class CCEmuXAPI extends Plugin {
 						
 						try (InputStream src = mount.openForRead(program);
 							 OutputStream dst = mount.openForWrite("startup/0-ccemux" + ".lua")) {
-							dst.write("fs.delete(\"startup/0-ccemux.lua\")".getBytes(StandardCharsets.UTF_8));
+							dst.write("fs.delete(\"startup/0-ccemux.lua\");".getBytes(StandardCharsets.UTF_8));
 							IOUtils.copy(src, dst);
 						}
 					} catch (IOException e) {
