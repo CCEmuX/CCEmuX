@@ -5,6 +5,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -67,12 +69,11 @@ public class CCEmuXAPI extends Plugin {
 						
 						if (!mount.isDirectory("startup/")) mount.makeDirectory("startup");
 						
-						val src = mount.openForRead(program);
-						val dst = mount.openForWrite("startup/0-ccemux.lua");
-						dst.write("fs.delete(\"startup/0-ccemux.lua\")".getBytes());
-						IOUtils.copy(src, dst);
-						src.close();
-						dst.close();
+						try (InputStream src = mount.openForRead(program);
+							 OutputStream dst = mount.openForWrite("startup/0-ccemux" + ".lua")) {
+							dst.write("fs.delete(\"startup/0-ccemux.lua\")".getBytes());
+							IOUtils.copy(src, dst);
+						}
 					} catch (IOException e) {
 						emu.removeComputer(ec);
 						return new Object[] { false, e.toString() };
