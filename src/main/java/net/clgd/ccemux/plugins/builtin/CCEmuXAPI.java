@@ -69,6 +69,7 @@ public class CCEmuXAPI extends Plugin {
 						
 						val src = mount.openForRead(program);
 						val dst = mount.openForWrite("startup/0-ccemux.lua");
+						dst.write("fs.delete(\"startup/0-ccemux.lua\")".getBytes());
 						IOUtils.copy(src, dst);
 						src.close();
 						dst.close();
