@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import java.util.*;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
-import lombok.val;
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
@@ -56,7 +55,7 @@ public class CCEmuXAPI extends Plugin {
 				int id = ArgumentHelper.optInt(o, 0, -1);
 				String program = ArgumentHelper.optString(o, 1, null);
 				
-				EmulatedComputer ec = emu.createComputer(b -> b.id(id), program == null);
+				EmulatedComputer ec = emu.createComputer(b -> b.id(id).setStartOn(program == null));
 				
 				if (program != null) {
 					IWritableMount mount = ec.getRootMount();

@@ -69,12 +69,12 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately.
 	 *
-	 * @see #createComputer(Consumer, boolean)
+	 * @see #createComputer(Consumer)
 	 *
 	 * @return The new computer
 	 */
 	public EmulatedComputer createComputer() {
-		return createComputer(b -> {}, true);
+		return createComputer(b -> {});
 	}
 
 	/**
@@ -85,10 +85,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	 *
 	 * @param builderMutator
 	 *            Will be called after plugin hooks with the builder
-	 * @param turnOn
 	 * @return The new computer
 	 */
-	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator, boolean turnOn) {
+	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator) {
 		val term = new EmulatedTerminal(cfg.termWidth.get(), cfg.termHeight.get());
 		val builder = EmulatedComputer.builder(this, term).id(-1);
 
@@ -99,12 +98,14 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 		pluginMgr.onComputerCreated(this, computer);
 
-		addComputer(computer, turnOn);
+		addComputer(computer);
+		
+		if (builder.isStartOn()) computer.turnOn();
 
 		return computer;
 	}
 
-	private void addComputer(EmulatedComputer ec, boolean turnOn) {
+	private void addComputer(EmulatedComputer ec) {
 		Renderer r = rendererFactory.create(ec, cfg);
 
 		ec.addListener(r);
@@ -117,7 +118,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		r.setVisible(true);
 
 		log.info("Created new computer ID {}", ec.getID());
-		if (turnOn) ec.turnOn();
 	}
 
 	public boolean removeComputer(EmulatedComputer computer) {
