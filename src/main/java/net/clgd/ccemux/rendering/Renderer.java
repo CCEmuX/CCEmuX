@@ -2,9 +2,6 @@ package net.clgd.ccemux.rendering;
 
 import net.clgd.ccemux.emulation.EmulatedComputer;
 
-import java.io.IOException;
-import java.net.URL;
-
 public interface Renderer extends EmulatedComputer.Listener {
 	interface Listener {
 		void onClosed();

@@ -13,6 +13,7 @@ public class CCEmuXClassloader extends DelegatingRewritingLoader {
 	CCEmuXClassloader(ClassLoader delegate) {
 		super(delegate);
 		addClassLoaderExclusion(CCEmuXClassloader.class.getName());
+		addClassLoaderExclusion("javafx.");
 	}
 
 	public void allowCC() {
