@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Value;
@@ -18,27 +18,22 @@ public class JFXRenderer implements Renderer {
 	private final Stage stage;
 	private final EmulatedComputer computer;
 	private final ReadOnlyDoubleProperty termScale;
-	private final TerminalCanvas canvas;
+	private final ComputerPane pane;
 
 	public JFXRenderer(Stage stage, EmulatedComputer computer, ReadOnlyDoubleProperty termScale) {
 		this.stage = stage;
 		this.computer = computer;
 		this.termScale = termScale;
 
-		this.canvas = new TerminalCanvas(computer.terminal, JFXTerminalFont.getBestFont(), termScale);
+		this.pane = new ComputerPane(computer, JFXTerminalFont.getBestFont(), termScale);
 
-		Scene scene = new Scene(new StackPane(canvas));
+		Scene scene = new Scene(pane);
 		stage.setScene(scene);
 		stage.setResizable(false);
-
 		stage.initStyle(StageStyle.UTILITY);
-		
+		stage.initModality(Modality.NONE);
+
 		stage.setOnCloseRequest(e -> listeners.forEach(l -> l.onClosed()));
-	}
-	
-	@Override
-	public void onAdvance(double dt) {
-		canvas.tick();
 	}
 
 	@Override
@@ -51,6 +46,7 @@ public class JFXRenderer implements Renderer {
 		Platform.runLater(() -> {
 			if (visible) {
 				stage.show();
+				stage.getScene().getRoot().requestFocus();
 			} else {
 				stage.close();
 			}
