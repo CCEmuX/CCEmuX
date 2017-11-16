@@ -35,13 +35,10 @@ public class JFXRenderer implements Renderer {
 		
 		stage.setOnCloseRequest(e -> listeners.forEach(l -> l.onClosed()));
 	}
-
+	
 	@Override
 	public void onAdvance(double dt) {
-		if (computer.terminal.getChanged()) {
-			computer.terminal.clearChanged();
-			canvas.redraw();
-		}
+		canvas.tick();
 	}
 
 	@Override

@@ -72,8 +72,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	private double blinkLockedTime = 0d;
 
-	private boolean paletteChanged = false;
-
 	private double terminateTimer = -1;
 	private double shutdownTimer = -1;
 	private double rebootTimer = -1;
@@ -84,7 +82,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
-		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
 
 		pixelWidth = (int) (6 * config.termScale.get());
 		pixelHeight = (int) (9 * config.termScale.get());
@@ -232,11 +229,16 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				if (terminateTimer >= ACTION_TIME) computer.terminate();
 			}
 
-			boolean doRepaint = paletteChanged;
+			boolean doRepaint = false;
 
 			if (computer.terminal.getChanged()) {
 				doRepaint = true;
 				computer.terminal.clearChanged();
+			}
+			
+			if (computer.terminal.getPalette().isChanged()) {
+				doRepaint = true;
+				computer.terminal.getPalette().clearChanged();
 			}
 
 			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {

@@ -1,6 +1,8 @@
 package net.clgd.ccemux.rendering.javafx;
 
-import static net.clgd.ccemux.rendering.TerminalFont.*;
+import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_HEIGHT;
+import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_WIDTH;
+import static net.clgd.ccemux.rendering.TerminalFont.BASE_MARGIN;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
@@ -9,7 +11,9 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import lombok.val;
 import net.clgd.ccemux.emulation.EmulatedTerminal;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
@@ -60,7 +64,7 @@ public class TerminalCanvas extends Pane {
 		return true;
 	}
 
-	public void redraw() {
+	private void redraw() {
 		if (!Platform.isFxApplicationThread()) {
 			Platform.runLater(this::redraw);
 			return;
@@ -106,6 +110,24 @@ public class TerminalCanvas extends Pane {
 				ox = 0;
 				oy += height;
 			}
+		}
+	}
+	
+	public void tick() {
+		boolean repaint = false;
+		
+		if (terminal.getChanged()) {
+			repaint = true;
+			terminal.clearChanged();
+		}
+		
+		if (terminal.getPalette().isChanged()) {
+			repaint = true;
+			terminal.getPalette().clearChanged();
+		}
+		
+		if (repaint) {
+			this.redraw();
 		}
 	}
 }
