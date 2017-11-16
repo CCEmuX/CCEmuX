@@ -3,6 +3,9 @@ package net.clgd.ccemux.rendering.javafx;
 import static com.google.common.primitives.Ints.constrainToRange;
 import static net.clgd.ccemux.rendering.TerminalFont.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
@@ -31,6 +34,8 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	private boolean lastBlink = false;
 	private double blinkLockedTime = 0;
+
+	private Set<KeyCode> pressedKeys = new HashSet<>();
 
 	private int[] lastDrag;
 
@@ -149,12 +154,19 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	}
 
 	private void keyPressed(KeyEvent e) {
-		computer.pressKey(JFXKeyTranslator.translateToCC(e.getCode()), false);
+		if (pressedKeys.contains(e.getCode())) {
+			computer.repeatPressKey(JFXKeyTranslator.translateToCC(e.getCode()));
+		} else {
+			computer.pressKey(JFXKeyTranslator.translateToCC(e.getCode()));
+			pressedKeys.add(e.getCode());
+		}
+		
 		blinkLockedTime = 0.25;
 	}
 
 	private void keyReleased(KeyEvent e) {
-		computer.pressKey(JFXKeyTranslator.translateToCC(e.getCode()), true);
+		computer.releaseKey(JFXKeyTranslator.translateToCC(e.getCode()));
+		pressedKeys.remove(e.getCode());
 	}
 
 	private int[] coordsToCC(double x, double y) {

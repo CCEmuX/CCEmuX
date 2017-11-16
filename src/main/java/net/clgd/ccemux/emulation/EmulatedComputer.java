@@ -65,9 +65,9 @@ public class EmulatedComputer extends Computer {
 		}
 
 		/**
-		 * Sets the ID of the computer to construct. Setting the id to <code>null</code>
-		 * (the default value) will result in the ID being automatically chosen by the
-		 * environment.
+		 * Sets the ID of the computer to construct. Setting the id to
+		 * <code>null</code> (the default value) will result in the ID being
+		 * automatically chosen by the environment.
 		 * 
 		 * @return This builder, for chaining
 		 */
@@ -77,9 +77,9 @@ public class EmulatedComputer extends Computer {
 		}
 
 		/**
-		 * Sets the root (<code>/</code>) mount of the computer to construct. Setting
-		 * the root mount to <code>null</code> (the default value) will result in one
-		 * being created by the environment.
+		 * Sets the root (<code>/</code>) mount of the computer to construct.
+		 * Setting the root mount to <code>null</code> (the default value) will
+		 * result in one being created by the environment.
 		 * 
 		 * @param rootMount
 		 *            The writable mount to use as a root mount
@@ -92,7 +92,8 @@ public class EmulatedComputer extends Computer {
 
 		/**
 		 * Sets the label of the computer to construct. Setting the label to
-		 * <code>null</code> (the default value) will result in no label being set.
+		 * <code>null</code> (the default value) will result in no label being
+		 * set.
 		 * 
 		 * @return This builder, for chaining
 		 */
@@ -106,8 +107,7 @@ public class EmulatedComputer extends Computer {
 				EmulatedComputer ec = new EmulatedComputer(env, term, Optional.ofNullable(id).orElse(-1));
 				ec.assignID();
 
-				if (label != null)
-					ec.setLabel(label);
+				if (label != null) ec.setLabel(label);
 
 				try {
 					if (rootMount != null) {
@@ -171,8 +171,21 @@ public class EmulatedComputer extends Computer {
 		listeners.forEach(l -> l.onAdvance(dt));
 	}
 
+	@Deprecated
 	public void pressKey(int keycode, boolean release) {
 		queueEvent(release ? "key_up" : "key", new Object[] { keycode });
+	}
+
+	public void pressKey(int keycode) {
+		queueEvent("key", new Object[] { keycode, false });
+	}
+	
+	public void repeatPressKey(int keycode) {
+		queueEvent("key", new Object[] { keycode, true });
+	}
+	
+	public void releaseKey(int keycode) {
+		queueEvent("key_up", new Object[] { keycode });
 	}
 
 	public void pressChar(char c) {
@@ -200,10 +213,10 @@ public class EmulatedComputer extends Computer {
 	}
 
 	/**
-	 * Copies the given files into this computer's root mount at the given location.
-	 * All files will be copied into the destination regardless of their absolute
-	 * path, with their original name. Directories will be recursively copied into
-	 * the destination in a similar fashion to files.
+	 * Copies the given files into this computer's root mount at the given
+	 * location. All files will be copied into the destination regardless of
+	 * their absolute path, with their original name. Directories will be
+	 * recursively copied into the destination in a similar fashion to files.
 	 * 
 	 * @param files
 	 *            The files to copy
@@ -218,8 +231,7 @@ public class EmulatedComputer extends Computer {
 			val path = base.resolve(f.getName()).toString();
 
 			if (f.isFile()) {
-				if (f.length() > mount.getRemainingSpace())
-					throw new IOException("Not enough space on computer");
+				if (f.length() > mount.getRemainingSpace()) throw new IOException("Not enough space on computer");
 
 				val s = mount.openForWrite(path);
 				IOUtils.copy(FileUtils.openInputStream(f), s);
