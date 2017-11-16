@@ -8,6 +8,7 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.Value;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
@@ -30,6 +31,8 @@ public class JFXRenderer implements Renderer {
 		stage.setScene(scene);
 		stage.setResizable(false);
 
+		stage.initStyle(StageStyle.UTILITY);
+		
 		stage.setOnCloseRequest(e -> listeners.forEach(l -> l.onClosed()));
 	}
 

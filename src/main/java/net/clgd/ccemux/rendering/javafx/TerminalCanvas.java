@@ -6,6 +6,7 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.*;
 import net.clgd.ccemux.emulation.EmulatedTerminal;
@@ -13,7 +14,8 @@ import net.clgd.ccemux.rendering.PaletteAdapter;
 
 @Value
 @EqualsAndHashCode(callSuper = false)
-public class TerminalCanvas extends Canvas {
+public class TerminalCanvas extends Pane {
+	private final Canvas canvas;
 	private final EmulatedTerminal terminal;
 	private final JFXTerminalFont font;
 	private final PaletteAdapter<Color> paletteAdapter;
@@ -37,19 +39,28 @@ public class TerminalCanvas extends Canvas {
 		this.totalWidth = margin.multiply(2).add(charWidth.multiply(terminal.getWidth()));
 		this.totalHeight = margin.multiply(2).add(charHeight.multiply(terminal.getHeight()));
 
-		this.widthProperty().bind(totalWidth);
-		this.heightProperty().bind(totalHeight);
+		this.prefWidthProperty().bind(totalWidth);
+		this.prefHeightProperty().bind(totalHeight);
+
+		this.canvas = new Canvas(totalWidth.get(), totalHeight.get());
+		canvas.widthProperty().bind(this.widthProperty());
+		canvas.heightProperty().bind(this.heightProperty());
+
+		canvas.widthProperty().addListener(o -> this.redraw());
+		canvas.heightProperty().addListener(o -> this.redraw());
+
+		this.getChildren().add(canvas);
 	}
 
 	@Override
 	public boolean isResizable() {
 		// makes sure that this element is drawn with a rigid size and not
 		// resized by parents
-		return false;
+		return true;
 	}
 
-	public void redraw() {		
-		val g = this.getGraphicsContext2D();
+	public void redraw() {
+		val g = canvas.getGraphicsContext2D();
 
 		// cache some important values as primitives
 		double m = margin.get();
@@ -79,14 +90,14 @@ public class TerminalCanvas extends Canvas {
 				g.fillRect(ox, oy, width, height);
 
 				// draw character
-				g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x))), ox, oy);
+				g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x))),
+						ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0));
 
 				ox += width;
 			}
 
+			ox = 0;
 			oy += height;
 		}
-		
-		System.out.println("Drawn");
 	}
 }

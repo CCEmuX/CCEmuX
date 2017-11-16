@@ -50,15 +50,10 @@ public class JFXTerminalFont extends TerminalFont {
 		// TODO: probably faster to use a PixelFormat
 		for (int x = 0; x < coords.width; x++) {
 			for (int y = 0; y < coords.height; y++) {
-				int argb = reader.getArgb(x, y);
+				Color oc = reader.getColor(coords.x + x, coords.y + y);
 
-				// TODO implement colorizing
-				// int alpha = (argb >> 24) & 0xFF;
-				// int red = (argb >> 16) & 0xFF;
-				// int green = (argb >> 8) & 0xFF;
-				// int blue = (argb) & 0xFF;
-
-				writer.setArgb(x, y, argb);
+				writer.setColor(x, y, Color.color(oc.getRed() * color.getRed(), oc.getGreen() * color.getGreen(),
+						oc.getBlue() * color.getBlue(), oc.getOpacity()));
 			}
 		}
 
