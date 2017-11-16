@@ -87,7 +87,7 @@ public class AWTPlugin extends Plugin {
 		AWTConfig(Group group) {
 			nativePaste = group.property("nativePaste", boolean.class, false)
 					.setName("Use native paste")
-					.setDescription("Listen to native paste events instead of Ctrl+V. This may not work on all platforms.");
+					.setDescription("Listen to native paste events instead of Ctrl+V.");
 		}
 	}
 }

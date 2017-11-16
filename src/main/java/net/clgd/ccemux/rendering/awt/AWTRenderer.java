@@ -17,7 +17,11 @@ import java.util.BitSet;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.InputMap;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.io.IOUtils;
 
@@ -296,7 +300,9 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		// Pasting should be handled first as it blocks all events
 		boolean hasModifier = (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
 		if (rendererConfig.nativePaste.get()
-			? e.getKeyCode() == KeyEvent.VK_PASTE
+			? DefaultEditorKit.pasteAction.equals(
+				((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
+						.get(KeyStroke.getKeyStrokeForEvent(e)))
 			: hasModifier && e.getKeyCode() == KeyEvent.VK_V) {
 			try {
 				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
