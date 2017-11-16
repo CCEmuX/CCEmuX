@@ -1,5 +1,6 @@
 package net.clgd.ccemux.rendering.javafx;
 
+import static com.google.common.primitives.Ints.constrainToRange;
 import static net.clgd.ccemux.rendering.TerminalFont.*;
 
 import dan200.computercraft.core.terminal.TextBuffer;
@@ -7,7 +8,7 @@ import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import lombok.val;
@@ -30,6 +31,8 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	private boolean lastBlink = false;
 	private double blinkLockedTime = 0;
+
+	private int[] lastDrag;
 
 	private boolean cursorBlink() {
 		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
@@ -60,6 +63,10 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		setOnKeyPressed(this::keyPressed);
 		setOnKeyReleased(this::keyReleased);
 		setOnKeyTyped(this::keyTyped);
+
+		setOnMousePressed(this::mousePressed);
+		setOnMouseReleased(this::mouseReleased);
+		setOnMouseDragged(this::mouseDragged);
 
 		this.setFocusTraversable(false);
 		canvas.setFocusTraversable(false);
@@ -129,7 +136,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				g.drawImage(font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour())),
 						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()));
 			}
-			
+
 			lastBlink = cursorBlink();
 		}
 	}
@@ -150,6 +157,33 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		computer.pressKey(JFXKeyTranslator.translateToCC(e.getCode()), true);
 	}
 
+	private int[] coordsToCC(double x, double y) {
+		return new int[] {
+				1 + constrainToRange((int) Math.floor((x - margin.get()) / charWidth.get()), 0,
+						computer.terminal.getWidth()),
+				1 + constrainToRange((int) Math.floor((y - margin.get()) / charHeight.get()), 0,
+						computer.terminal.getHeight()) };
+	}
+
+	private void mousePressed(MouseEvent e) {
+		int[] coords = coordsToCC(e.getX(), e.getY());
+		computer.click(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1], false);
+	}
+
+	private void mouseReleased(MouseEvent e) {
+		int[] coords = coordsToCC(e.getX(), e.getY());
+		computer.click(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1], true);
+	}
+
+	private void mouseDragged(MouseEvent e) {
+		int[] coords = coordsToCC(e.getX(), e.getY());
+
+		if (lastDrag == null || lastDrag[0] != coords[0] || lastDrag[1] != coords[1]) {
+			lastDrag = coords;
+			computer.drag(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1]);
+		}
+	}
+
 	@Override
 	public void onAdvance(double dt) {
 		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
@@ -165,7 +199,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			repaint = true;
 			computer.terminal.getPalette().clearChanged();
 		}
-		
+
 		if (repaint) {
 			this.redraw();
 		}
