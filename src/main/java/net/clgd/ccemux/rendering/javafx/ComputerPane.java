@@ -1,8 +1,6 @@
 package net.clgd.ccemux.rendering.javafx;
 
-import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_HEIGHT;
-import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_WIDTH;
-import static net.clgd.ccemux.rendering.TerminalFont.BASE_MARGIN;
+import static net.clgd.ccemux.rendering.TerminalFont.*;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
@@ -12,21 +10,17 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import lombok.EqualsAndHashCode;
-import lombok.Value;
 import lombok.val;
 import net.clgd.ccemux.Utils;
+import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
-@Value
-@EqualsAndHashCode(callSuper = false)
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private final Canvas canvas;
 	private final EmulatedComputer computer;
 	private final JFXTerminalFont font;
 	private final PaletteAdapter<Color> paletteAdapter;
-	private final ReadOnlyDoubleProperty termScale;
 
 	private final DoubleExpression margin;
 	private final DoubleExpression charWidth;
@@ -34,13 +28,17 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private final DoubleExpression totalWidth;
 	private final DoubleExpression totalHeight;
 
+	private boolean lastBlink = false;
 	private double blinkLockedTime = 0;
+
+	private boolean cursorBlink() {
+		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
+	}
 
 	public ComputerPane(EmulatedComputer computer, JFXTerminalFont font, ReadOnlyDoubleProperty termScale) {
 		this.computer = computer;
 		this.font = font;
 		this.paletteAdapter = new PaletteAdapter<>(computer.terminal.getPalette(), Color::color);
-		this.termScale = termScale;
 
 		this.margin = termScale.multiply(BASE_MARGIN);
 		this.charWidth = termScale.multiply(BASE_CHAR_WIDTH);
@@ -67,7 +65,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		canvas.setFocusTraversable(false);
 
 		this.getChildren().add(canvas);
-		
+
 		computer.addListener(this);
 	}
 
@@ -125,6 +123,14 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				ox = 0;
 				oy += height;
 			}
+
+			// draw cursor
+			if (cursorBlink()) {
+				g.drawImage(font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour())),
+						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()));
+			}
+			
+			lastBlink = cursorBlink();
 		}
 	}
 
@@ -137,6 +143,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	private void keyPressed(KeyEvent e) {
 		computer.pressKey(JFXKeyTranslator.translateToCC(e.getCode()), false);
+		blinkLockedTime = 0.25;
 	}
 
 	private void keyReleased(KeyEvent e) {
@@ -145,7 +152,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	@Override
 	public void onAdvance(double dt) {
-		boolean repaint = false;
+		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
+
+		boolean repaint = lastBlink != cursorBlink();
 
 		if (computer.terminal.getChanged()) {
 			repaint = true;
@@ -156,7 +165,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			repaint = true;
 			computer.terminal.getPalette().clearChanged();
 		}
-
+		
 		if (repaint) {
 			this.redraw();
 		}
