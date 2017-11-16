@@ -11,18 +11,27 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Character.UnicodeBlock;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.InputMap;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.io.IOUtils;
 
 import lombok.Getter;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.*;
+import lombok.val;
+import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 
@@ -41,7 +50,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Getter(lazy = true)
 	private static final AWTTerminalFont font = loadBestFont();
-	
+
 	private static AWTTerminalFont loadBestFont() {
 		return TerminalFont.getBest(AWTTerminalFont::new);
 	}
@@ -62,6 +71,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	private final EmulatedComputer computer;
 	private final TerminalComponent termComponent;
+	private final AWTConfig rendererConfig;
 
 	private final int pixelWidth;
 	private final int pixelHeight;
@@ -80,11 +90,12 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	private final BitSet keysDown = new BitSet(256);
 
-	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
+	public AWTRenderer(EmulatedComputer computer, EmuConfig config, AWTConfig rendererConfig) {
 		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
 		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
+		this.rendererConfig = rendererConfig;
 
 		pixelWidth = (int) (6 * config.termScale.get());
 		pixelHeight = (int) (9 * config.termScale.get());
@@ -287,11 +298,14 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// Pasting should be handled first as it blocks all events
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0
-				&& e.getKeyCode() == KeyEvent.VK_V) {
+		boolean hasModifier = (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+		if (rendererConfig.nativePaste.get()
+			? DefaultEditorKit.pasteAction.equals(
+				((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
+						.get(KeyStroke.getKeyStrokeForEvent(e)))
+			: hasModifier && e.getKeyCode() == KeyEvent.VK_V) {
 			try {
-				computer.paste(
-						(String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
+				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
 			} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
 				log.error("Could not read clipboard", er);
 			}
@@ -299,12 +313,12 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		}
 
 		if (allowKeyEvents()) {
+			computer.pressKey(translateToCC(e.getKeyCode()), keysDown.get(e.getKeyCode()));
 			keysDown.set(e.getKeyCode());
-			computer.pressKey(translateToCC(e.getKeyCode()), false);
 		}
 
 		// Start action timers
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
+		if (hasModifier) {
 			int key = e.getKeyCode();
 			if (key == KeyEvent.VK_S && shutdownTimer < 0) shutdownTimer = 0;
 			if (key == KeyEvent.VK_R && rebootTimer < 0) rebootTimer = 0;
@@ -324,7 +338,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 		if (keysDown.get(e.getKeyCode())) {
 			keysDown.clear(e.getKeyCode());
-			computer.pressKey(translateToCC(e.getKeyCode()), true);
+			computer.releaseKey(translateToCC(e.getKeyCode()));
 		}
 	}
 
