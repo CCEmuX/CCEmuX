@@ -3,6 +3,7 @@ package net.clgd.ccemux.rendering.javafx;
 import static net.clgd.ccemux.rendering.TerminalFont.*;
 
 import dan200.computercraft.core.terminal.TextBuffer;
+import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
@@ -60,44 +61,51 @@ public class TerminalCanvas extends Pane {
 	}
 
 	public void redraw() {
-		val g = canvas.getGraphicsContext2D();
+		if (!Platform.isFxApplicationThread()) {
+			Platform.runLater(this::redraw);
+			return;
+		}
+		
+		synchronized (terminal) {
+			val g = canvas.getGraphicsContext2D();
 
-		// cache some important values as primitives
-		double m = margin.get();
-		double cw = charWidth.get(), ch = charHeight.get();
-		int tw = terminal.getWidth(), th = terminal.getHeight();
+			// cache some important values as primitives
+			double m = margin.get();
+			double cw = charWidth.get(), ch = charHeight.get();
+			int tw = terminal.getWidth(), th = terminal.getHeight();
 
-		// current position offsets
-		double ox = 0, oy = 0;
+			// current position offsets
+			double ox = 0, oy = 0;
 
-		// height/width of current position
-		double height, width;
+			// height/width of current position
+			double height, width;
 
-		TextBuffer bg, fg, text;
+			TextBuffer bg, fg, text;
 
-		for (int y = 0; y < th; y++) {
-			height = ch + ((y == 0 || y == th - 1) ? m : 0);
+			for (int y = 0; y < th; y++) {
+				height = ch + ((y == 0 || y == th - 1) ? m : 0);
 
-			bg = terminal.getBackgroundColourLine(y);
-			fg = terminal.getTextColourLine(y);
-			text = terminal.getLine(y);
+				bg = terminal.getBackgroundColourLine(y);
+				fg = terminal.getTextColourLine(y);
+				text = terminal.getLine(y);
 
-			for (int x = 0; x < tw; x++) {
-				width = cw + ((x == 0 || x == tw - 1) ? m : 0);
+				for (int x = 0; x < tw; x++) {
+					width = cw + ((x == 0 || x == tw - 1) ? m : 0);
 
-				// draw background
-				g.setFill(paletteAdapter.getColor(bg.charAt(x)));
-				g.fillRect(ox, oy, width, height);
+					// draw background
+					g.setFill(paletteAdapter.getColor(bg.charAt(x)));
+					g.fillRect(ox, oy, width, height);
 
-				// draw character
-				g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x))),
-						ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0));
+					// draw character
+					g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x))),
+							ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0));
 
-				ox += width;
+					ox += width;
+				}
+
+				ox = 0;
+				oy += height;
 			}
-
-			ox = 0;
-			oy += height;
 		}
 	}
 }

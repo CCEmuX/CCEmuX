@@ -65,7 +65,7 @@ public class JFXRenderer implements Renderer {
 		Platform.runLater(stage::close);
 	}
 
-	private Set<Listener> listeners = ConcurrentHashMap.newKeySet();
+	private final Set<Listener> listeners = ConcurrentHashMap.newKeySet();
 
 	@Override
 	public void addListener(Listener l) {
