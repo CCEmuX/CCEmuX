@@ -3,9 +3,7 @@ package net.clgd.ccemux.rendering.javafx;
 import static javafx.beans.property.DoubleProperty.doubleProperty;
 import static net.clgd.ccemux.rendering.javafx.ConfigBindings.wrap;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.application.Application;

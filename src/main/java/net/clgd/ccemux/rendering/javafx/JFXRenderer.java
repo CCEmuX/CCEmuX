@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.stage.*;
 import lombok.Value;
 import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Value
@@ -32,7 +33,8 @@ public class JFXRenderer implements Renderer {
 		stage.setScene(scene);
 
 		stage.setResizable(false);
-		stage.initStyle(StageStyle.DECORATED);
+
+		stage.initStyle(JFXPlugin.forceUtilityDecoration.get() ? StageStyle.UTILITY : StageStyle.DECORATED);
 		stage.initModality(Modality.NONE);
 		stage.setTitle(generateTitle());
 

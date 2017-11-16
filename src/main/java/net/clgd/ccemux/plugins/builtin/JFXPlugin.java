@@ -4,6 +4,10 @@ import java.util.*;
 
 import com.google.auto.service.AutoService;
 
+import lombok.Getter;
+import lombok.val;
+import net.clgd.ccemux.config.ConfigProperty;
+import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
@@ -11,6 +15,18 @@ import net.clgd.ccemux.rendering.javafx.JFXRendererFactory;
 
 @AutoService(Plugin.class)
 public class JFXPlugin extends Plugin {
+	public static final ConfigProperty<Boolean> forceUtilityDecoration;
+
+	static {
+		val p = new ConfigProperty<>("forceUtilityDecoration", Boolean.class, false);
+
+		p.setName("Force utility decoration");
+		p.setDescription("Uses utility window decoration instead of regular decoration."
+				+ "May fix problems with certain window managers.");
+
+		forceUtilityDecoration = p;
+	}
+
 	@Override
 	public String getName() {
 		return "JavaFX Renderer";
@@ -34,6 +50,11 @@ public class JFXPlugin extends Plugin {
 	@Override
 	public Optional<String> getWebsite() {
 		return Optional.empty();
+	}
+
+	@Override
+	public void configSetup(Group group) {
+		group.addProperty(forceUtilityDecoration);
 	}
 
 	@Override
