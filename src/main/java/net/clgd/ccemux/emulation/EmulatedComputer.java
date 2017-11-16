@@ -179,11 +179,11 @@ public class EmulatedComputer extends Computer {
 	public void pressKey(int keycode) {
 		queueEvent("key", new Object[] { keycode, false });
 	}
-	
+
 	public void repeatPressKey(int keycode) {
 		queueEvent("key", new Object[] { keycode, true });
 	}
-	
+
 	public void releaseKey(int keycode) {
 		queueEvent("key_up", new Object[] { keycode });
 	}
@@ -221,10 +221,8 @@ public class EmulatedComputer extends Computer {
 	 * @param files
 	 *            The files to copy
 	 */
-	public void copyFiles(Iterable<File> files, String location) throws IOException, ReflectiveOperationException {
-		if (rootMountField == null)
-			throw new IllegalStateException("No reference to root mount, cannot write files to computer");
-		val mount = (IWritableMount) rootMountField.get(this);
+	public void copyFiles(Iterable<File> files, String location) throws IOException {
+		val mount = this.getRootMount();
 		val base = Paths.get(location);
 
 		for (val f : files) {

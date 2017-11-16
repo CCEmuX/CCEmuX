@@ -3,12 +3,13 @@ package net.clgd.ccemux.rendering.javafx;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.base.Strings;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.image.Image;
+import javafx.stage.*;
 import lombok.Value;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.Renderer;
@@ -29,9 +30,13 @@ public class JFXRenderer implements Renderer {
 
 		Scene scene = new Scene(pane);
 		stage.setScene(scene);
+
 		stage.setResizable(false);
-		stage.initStyle(StageStyle.UTILITY);
+		stage.initStyle(StageStyle.DECORATED);
 		stage.initModality(Modality.NONE);
+		stage.setTitle(generateTitle());
+
+		stage.getIcons().add(new Image("/img/icon.png"));
 
 		stage.setOnCloseRequest(e -> listeners.forEach(l -> l.onClosed()));
 	}
@@ -51,6 +56,21 @@ public class JFXRenderer implements Renderer {
 				stage.close();
 			}
 		});
+	}
+
+	private String generateTitle() {
+		if (!Strings.isNullOrEmpty(computer.getLabel())) {
+			return String.format("CCEmuX - \"%s\" ID %d", computer.getLabel(), computer.getID());
+		} else {
+			return String.format("CCEmuX - Computer ID %d", computer.getID());
+		}
+	}
+
+	@Override
+	public void onAdvance(double dt) {
+		if (!stage.getTitle().equals(generateTitle())) {
+			Platform.runLater(() -> stage.setTitle(generateTitle()));
+		}
 	}
 
 	@Override
