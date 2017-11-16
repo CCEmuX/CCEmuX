@@ -5,13 +5,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import javafx.scene.image.Image;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import lombok.*;
 import net.clgd.ccemux.rendering.TerminalFont;
@@ -24,8 +21,15 @@ public class JFXTerminalFont extends TerminalFont {
 
 	private final Image base;
 
-	private final Cache<Pair<Character, Color>, Image> charCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(10, SECONDS).maximumSize(1000).initialCapacity(200).build();
+	@Value
+	public static class CharImageRequest {
+		private char character;
+		private Color color;
+		private double termScale;
+	}
+
+	private final Cache<CharImageRequest, Image> charCache = CacheBuilder.newBuilder().expireAfterAccess(30, SECONDS)
+			.maximumSize(1000).initialCapacity(200).build();
 
 	public JFXTerminalFont(Image base) {
 		super(base.widthProperty().intValue(), base.heightProperty().intValue());
@@ -60,8 +64,15 @@ public class JFXTerminalFont extends TerminalFont {
 		return out;
 	}
 
+	public Image generateScaledCharImage(char c, Color color, double termScale) {
+		val base = generateCharImage(c, color);
+
+		return ImageRescaler.rescale(base, termScale / this.getHorizontalScale(), termScale / this.getVerticalScale());
+	}
+
 	@SneakyThrows(ExecutionException.class)
-	public Image getCharImage(char c, Color color) {
-		return charCache.get(Pair.of(c, color), () -> generateCharImage(c, color));
+	public Image getCharImage(char c, Color color, double termScale) {
+		return charCache.get(new CharImageRequest(c, color, termScale),
+				() -> generateScaledCharImage(c, color, termScale));
 	}
 }

@@ -5,6 +5,7 @@ import static net.clgd.ccemux.rendering.TerminalFont.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.ErrorManager;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
@@ -25,6 +26,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private final EmulatedComputer computer;
 	private final JFXTerminalFont font;
 	private final PaletteAdapter<Color> paletteAdapter;
+	private final ReadOnlyDoubleProperty termScale;
 
 	private final DoubleExpression margin;
 	private final DoubleExpression charWidth;
@@ -47,6 +49,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		this.computer = computer;
 		this.font = font;
 		this.paletteAdapter = new PaletteAdapter<>(computer.terminal.getPalette(), Color::color);
+		this.termScale = termScale;
 
 		this.margin = termScale.multiply(BASE_MARGIN);
 		this.charWidth = termScale.multiply(BASE_CHAR_WIDTH);
@@ -99,6 +102,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			val g = canvas.getGraphicsContext2D();
 
 			// cache some important values as primitives
+			double s = termScale.get();
 			double m = margin.get();
 			double cw = charWidth.get(), ch = charHeight.get();
 			int tw = computer.terminal.getWidth(), th = computer.terminal.getHeight();
@@ -126,7 +130,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 					g.fillRect(ox, oy, width, height);
 
 					// draw character
-					g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x))),
+					g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x)), s),
 							ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0));
 
 					ox += width;
@@ -138,7 +142,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 			// draw cursor
 			if (cursorBlink()) {
-				g.drawImage(font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour())),
+				g.drawImage(font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour()), s),
 						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()));
 			}
 

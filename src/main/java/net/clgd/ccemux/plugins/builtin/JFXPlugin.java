@@ -4,7 +4,6 @@ import java.util.*;
 
 import com.google.auto.service.AutoService;
 
-import lombok.Getter;
 import lombok.val;
 import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.config.Group;
