@@ -19,6 +19,4 @@ public interface Renderer extends EmulatedComputer.Listener {
 	void addListener(Listener l);
 
 	void removeListener(Listener l);
-
-	TerminalFont loadFont(URL url) throws IOException;
 }

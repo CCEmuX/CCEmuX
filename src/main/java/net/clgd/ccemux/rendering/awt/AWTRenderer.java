@@ -11,10 +11,7 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Character.UnicodeBlock;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
+import java.util.*;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -22,18 +19,15 @@ import javax.swing.JOptionPane;
 
 import org.apache.commons.io.IOUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.Getter;
 import lombok.val;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmuConfig;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
-import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
-public class AWTRenderer
-		implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
@@ -43,6 +37,13 @@ public class AWTRenderer
 		UnicodeBlock block = UnicodeBlock.of(c);
 		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
 				&& block != UnicodeBlock.SPECIALS;
+	}
+
+	@Getter(lazy = true)
+	private static final AWTTerminalFont font = loadBestFont();
+	
+	private static AWTTerminalFont loadBestFont() {
+		return TerminalFont.getBest(AWTTerminalFont::new);
 	}
 
 	private final List<Renderer.Listener> listeners = new ArrayList<>();
@@ -247,15 +248,10 @@ public class AWTRenderer
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
-				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
-				termComponent.render(font, dt);
+				//AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
+				termComponent.render(getFont(), dt);
 			}
 		}
-	}
-
-	@Override
-	public TerminalFont loadFont(URL url) throws IOException {
-		return new AWTTerminalFont(url);
 	}
 
 	private Point mapPointToCC(Point p) {
@@ -271,8 +267,8 @@ public class AWTRenderer
 	/**
 	 * Determine whether {@code key} and {@code char} events should be queued.
 	 *
-	 * If any of the action keys are pressed (terminate, shutdown, reboot) then such events will
-	 * be blocked.
+	 * If any of the action keys are pressed (terminate, shutdown, reboot) then
+	 * such events will be blocked.
 	 *
 	 * @return Whether such events should be queued.
 	 */
@@ -291,9 +287,11 @@ public class AWTRenderer
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// Pasting should be handled first as it blocks all events
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0 && e.getKeyCode() == KeyEvent.VK_V) {
+		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0
+				&& e.getKeyCode() == KeyEvent.VK_V) {
 			try {
-				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
+				computer.paste(
+						(String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
 			} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
 				log.error("Could not read clipboard", er);
 			}

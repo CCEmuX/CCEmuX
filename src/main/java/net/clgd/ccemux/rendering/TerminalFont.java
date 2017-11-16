@@ -1,9 +1,22 @@
 package net.clgd.ccemux.rendering;
 
 import java.awt.Rectangle;
+import java.io.IOException;
+import java.net.URL;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Represents a font that can be used when rendering CC terminals
+ * 
+ * @author apemanzilla
+ *
+ */
+@Slf4j
 public abstract class TerminalFont {
 	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
 
@@ -12,6 +25,94 @@ public abstract class TerminalFont {
 	public static final int BASE_CHAR_WIDTH = 6, BASE_CHAR_HEIGHT = 9;
 	public static final int BASE_MARGIN = 1;
 	public static final int COLUMNS = 16, ROWS = 16;
+
+	private static final Set<URL> registeredFonts = ConcurrentHashMap.newKeySet();
+
+	public static void registerFont(URL url) {
+		registeredFonts.add(url);
+	}
+
+	public static void loadImplicitFonts(ClassLoader loader) throws IOException {
+		log.debug("Loading implicit fonts (from classloader {}", loader);
+
+		loader.getResources(FONT_RESOURCE_PATH).asIterator().forEachRemaining(u -> {
+			log.info("Registering implicit font from {}", u);
+			registerFont(u);
+		});
+	}
+
+	/**
+	 * Loads and returns the best registered font, as determined by a given
+	 * comparator.
+	 * 
+	 * @param loader
+	 *            The loader to load fonts with
+	 * @param comparator
+	 *            The comparator to determine which font is best
+	 * @return The best registered font
+	 * @throws IllegalStateException
+	 *             Thrown when no fonts can be loaded (either none are
+	 *             registered or all throw exceptions when loaded)
+	 */
+	public static <T extends TerminalFont> T getBest(Loader<T> loader, Comparator<? super T> comparator) {
+		return registeredFonts.stream()
+				.map(u -> loader.loadFontSafe(u, e -> log.error("Error loading font from {}", u, e)))
+				.flatMap(Optional::stream).sorted(comparator).findFirst()
+				.orElseThrow(() -> new IllegalStateException("No fonts available"));
+	}
+
+	/**
+	 * Loads and returns the best registered font, as determined by the
+	 * resolution (highest combined vertical/horizontal resolution is best)
+	 * 
+	 * @param loader
+	 *            The loader to load fonts with
+	 * @return The best registered font
+	 * @throws IllegalStateException
+	 *             Thrown when no fonts can be loaded (either none are
+	 *             registered or all throw exceptions when loaded)
+	 */
+	public static <T extends TerminalFont> T getBest(Loader<T> loader) {
+		return getBest(loader, Comparator.comparingDouble(f -> -(f.getHorizontalScale() + f.getVerticalScale())));
+	}
+
+	/**
+	 * A loader that can load a generic {@link TerminalFont} from a given
+	 * {@link URL}
+	 * 
+	 * @author apemanzilla
+	 *
+	 * @param <T>
+	 */
+	@FunctionalInterface
+	public static interface Loader<T extends TerminalFont> {
+		/**
+		 * Loads the font from the given URL
+		 * 
+		 * @param url
+		 * @return
+		 * @throws Exception
+		 */
+		public T loadFont(URL url) throws Exception;
+
+		/**
+		 * Loads the font from the given URL, with a consumer to handle thrown
+		 * exceptions
+		 * 
+		 * @param url
+		 * @param catcher
+		 * @return The loaded font, or an empty optional if an exception was
+		 *         thrown
+		 */
+		public default Optional<T> loadFontSafe(URL url, Consumer<? super Exception> catcher) {
+			try {
+				return Optional.of(loadFont(url));
+			} catch (Exception e) {
+				catcher.accept(e);
+				return Optional.empty();
+			}
+		}
+	}
 
 	/**
 	 * The scale of the font, calculated based on base image resolution
@@ -35,9 +136,9 @@ public abstract class TerminalFont {
 	 * Creates a new terminal font
 	 *
 	 * @param imageWidth
-	 * 			The width of the font image.
+	 *            The width of the font image.
 	 * @param imageHeight
-	 * 			The height of the font image.
+	 *            The height of the font image.
 	 */
 	public TerminalFont(int imageWidth, int imageHeight) {
 		horizontalScale = imageWidth / (double) BASE_WIDTH;
@@ -58,10 +159,7 @@ public abstract class TerminalFont {
 	 */
 	public Rectangle getCharCoords(char c) {
 		int charcode = (int) c;
-		return new Rectangle(
-				margin + charcode % COLUMNS * (getCharWidth() + margin * 2),
-				margin + charcode / ROWS * (getCharHeight() + margin * 2),
-				getCharWidth(), getCharHeight()
-		);
+		return new Rectangle(margin + charcode % COLUMNS * (getCharWidth() + margin * 2),
+				margin + charcode / ROWS * (getCharHeight() + margin * 2), getCharWidth(), getCharHeight());
 	}
 }

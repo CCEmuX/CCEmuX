@@ -2,38 +2,29 @@ package net.clgd.ccemux.init;
 
 import static org.apache.commons.cli.Option.builder;
 
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.SplashScreen;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Optional;
 
 import javax.swing.*;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.AddressPredicate;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.TerminalFonts;
+import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j
 public class Launcher {
@@ -281,7 +272,7 @@ public class Launcher {
 			if (!GraphicsEnvironment.isHeadless())
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
 
-			TerminalFonts.loadImplicitFonts();
+			TerminalFont.loadImplicitFonts(getClass().getClassLoader());
 
 			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource());
 			emu.createComputer();
