@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.val;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
@@ -128,7 +129,10 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	}
 
 	private void keyTyped(KeyEvent e) {
-		computer.pressChar(e.getCharacter().charAt(0));
+		char c = e.getCharacter().charAt(0);
+		if (Utils.isPrintableChar(c)) {
+			computer.pressChar(e.getCharacter().charAt(0));
+		}
 	}
 
 	private void keyPressed(KeyEvent e) {

@@ -10,7 +10,6 @@ import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.Character.UnicodeBlock;
 import java.util.*;
 import java.util.List;
 
@@ -22,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import lombok.Getter;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
@@ -32,12 +32,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
 	private static final double ACTION_TIME = 0.5;
-
-	private static boolean isPrintableChar(char c) {
-		UnicodeBlock block = UnicodeBlock.of(c);
-		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
-				&& block != UnicodeBlock.SPECIALS;
-	}
 
 	@Getter(lazy = true)
 	private static final AWTTerminalFont font = loadBestFont();
@@ -280,7 +274,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
+		if (Utils.isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}
