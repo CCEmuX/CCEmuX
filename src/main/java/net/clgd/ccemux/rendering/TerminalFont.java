@@ -6,13 +6,15 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 /**
  * Represents a font that can be used when rendering CC terminals
- * 
+ *
  * @author apemanzilla
  *
  */
@@ -35,16 +37,19 @@ public abstract class TerminalFont {
 	public static void loadImplicitFonts(ClassLoader loader) throws IOException {
 		log.debug("Loading implicit fonts (from classloader {}", loader);
 
-		loader.getResources(FONT_RESOURCE_PATH).asIterator().forEachRemaining(u -> {
+		val res = loader.getResources(FONT_RESOURCE_PATH);
+
+		while (res.hasMoreElements()) {
+			URL u = res.nextElement();
 			log.info("Registering implicit font from {}", u);
 			registerFont(u);
-		});
+		}
 	}
 
 	/**
 	 * Loads and returns the best registered font, as determined by a given
 	 * comparator.
-	 * 
+	 *
 	 * @param loader
 	 *            The loader to load fonts with
 	 * @param comparator
@@ -57,14 +62,14 @@ public abstract class TerminalFont {
 	public static <T extends TerminalFont> T getBest(Loader<T> loader, Comparator<? super T> comparator) {
 		return registeredFonts.stream()
 				.map(u -> loader.loadFontSafe(u, e -> log.error("Error loading font from {}", u, e)))
-				.flatMap(Optional::stream).sorted(comparator).findFirst()
+				.flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)).sorted(comparator).findFirst()
 				.orElseThrow(() -> new IllegalStateException("No fonts available"));
 	}
 
 	/**
 	 * Loads and returns the best registered font, as determined by the
 	 * resolution (highest combined vertical/horizontal resolution is best)
-	 * 
+	 *
 	 * @param loader
 	 *            The loader to load fonts with
 	 * @return The best registered font
@@ -79,7 +84,7 @@ public abstract class TerminalFont {
 	/**
 	 * A loader that can load a generic {@link TerminalFont} from a given
 	 * {@link URL}
-	 * 
+	 *
 	 * @author apemanzilla
 	 *
 	 * @param <T>
@@ -88,7 +93,7 @@ public abstract class TerminalFont {
 	public static interface Loader<T extends TerminalFont> {
 		/**
 		 * Loads the font from the given URL
-		 * 
+		 *
 		 * @param url
 		 * @return
 		 * @throws Exception
@@ -98,7 +103,7 @@ public abstract class TerminalFont {
 		/**
 		 * Loads the font from the given URL, with a consumer to handle thrown
 		 * exceptions
-		 * 
+		 *
 		 * @param url
 		 * @param catcher
 		 * @return The loaded font, or an empty optional if an exception was
