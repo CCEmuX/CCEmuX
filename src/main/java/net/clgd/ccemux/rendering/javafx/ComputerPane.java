@@ -98,7 +98,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		setOnMouseDragged(this::mouseDragged);
 
 		setOnDragOver(this::dragOver);
-		setOnDragDropped(this::dragDropped);
+		setOnDragDropped(e -> transferContents(e.getDragboard()));
 
 		this.setFocusTraversable(false);
 		canvas.setFocusTraversable(false);
@@ -241,6 +241,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				computer.pressKey(ccCode, true);
 			}
 		} else {
+			// don't send V if ctrl/cmd is also held
+			if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) return;
+			
 			computer.pressKey(ccCode, false);
 			pressedKeys.put(e.getCode(), System.currentTimeMillis());
 		}
@@ -251,9 +254,13 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private void keyReleased(KeyEvent e) {
 		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
 		if (ccCode == 0) return;
-
-		computer.releaseKey(ccCode);
-		pressedKeys.remove(e.getCode());
+		
+		if (e.getCode().equals(KeyCode.PASTE) || (e.getCode().equals(KeyCode.V) && e.isShortcutDown())) {
+			transferContents(Clipboard.getSystemClipboard());
+		} else {
+			pressedKeys.remove(e.getCode());
+			computer.releaseKey(ccCode);
+		}
 	}
 
 	private int[] coordsToCC(double x, double y) {
@@ -289,12 +296,10 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 	}
 
-	private void dragDropped(DragEvent e) {
-		val db = e.getDragboard();
-
-		if (db.hasFiles()) {
+	public boolean transferContents(Clipboard cb) {
+		if (cb.hasFiles()) {
 			try {
-				computer.copyFiles(db.getFiles(), "/");
+				computer.copyFiles(cb.getFiles(), "/");
 
 				val a = new Alert(AlertType.INFORMATION);
 				a.setTitle("Files copied");
@@ -302,8 +307,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				a.setContentText("Files were successfully copied to computer ID " + computer.getID());
 				a.initStyle(StageStyle.UTILITY);
 				a.show();
+				return true;
 			} catch (IOException e1) {
-				log.error("Error copying files {}", db.getFiles(), e1);
+				log.error("Error copying files {}", cb.getFiles(), e1);
 
 				val a = new Alert(AlertType.ERROR);
 				a.setTitle("File copy error");
@@ -312,9 +318,13 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 						+ e1.getLocalizedMessage() + "\n\nSee logs for more information");
 				a.initStyle(StageStyle.UTILITY);
 				a.show();
+				return false;
 			}
-		} else if (db.hasString()) {
-			computer.paste(db.getString());
+		} else if (cb.hasString()) {
+			computer.paste(cb.getString());
+			return true;
+		} else {
+			return false;
 		}
 	}
 }
