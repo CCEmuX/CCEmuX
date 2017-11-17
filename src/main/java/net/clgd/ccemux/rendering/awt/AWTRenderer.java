@@ -243,7 +243,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			
 			if (computer.terminal.getPalette().isChanged()) {
 				doRepaint = true;
-				computer.terminal.getPalette().clearChanged();
+				computer.terminal.getPalette().setChanged(false);
 			}
 
 			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
@@ -285,7 +285,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (Utils.isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
+		if (Utils.isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}

@@ -41,7 +41,7 @@ public class JFXRenderer implements Renderer {
 
 		stage.getIcons().add(new Image("/img/icon.png"));
 
-		stage.setOnCloseRequest(e -> listeners.forEach(l -> l.onClosed()));
+		stage.setOnCloseRequest(e -> listeners.forEach(Listener::onClosed));
 	}
 
 	@Override

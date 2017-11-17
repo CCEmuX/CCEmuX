@@ -187,7 +187,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 		if (computer.terminal.getPalette().isChanged()) {
 			repaint = true;
-			computer.terminal.getPalette().clearChanged();
+			computer.terminal.getPalette().setChanged(false);
 		}
 
 		if (repaint) {
@@ -205,9 +205,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	private void keyTyped(KeyEvent e) {
 		char c = e.getCharacter().charAt(0);
-		if (Utils.isPrintableChar(c)) {
-			computer.pressChar(e.getCharacter().charAt(0));
-		}
+		if (Utils.isPrintableChar(c)) computer.pressChar(c);
 	}
 
 	private void keyPressed(KeyEvent e) {
@@ -243,7 +241,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		} else {
 			// don't send V if ctrl/cmd is also held
 			if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) return;
-			
+
 			computer.pressKey(ccCode, false);
 			pressedKeys.put(e.getCode(), System.currentTimeMillis());
 		}
@@ -254,7 +252,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private void keyReleased(KeyEvent e) {
 		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
 		if (ccCode == 0) return;
-		
+
 		if (e.getCode().equals(KeyCode.PASTE) || (e.getCode().equals(KeyCode.V) && e.isShortcutDown())) {
 			transferContents(Clipboard.getSystemClipboard());
 		} else {

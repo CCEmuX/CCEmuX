@@ -5,6 +5,7 @@ import java.util.List;
 
 import dan200.computercraft.shared.util.Palette;
 import lombok.Getter;
+import lombok.Setter;
 
 public class EmulatedPalette extends Palette {
 	@FunctionalInterface
@@ -16,50 +17,40 @@ public class EmulatedPalette extends Palette {
 
 	private final List<ColorChangeListener> listeners = new ArrayList<>();
 
-	@Getter
+	@Getter @Setter
 	private boolean changed = true;
 
 	public EmulatedPalette(Palette delegate) {
 		this.delegate = delegate;
 	}
 
-	public void setChanged() {
-		changed = true;
-	}
-
-	public void clearChanged() {
-		changed = false;
-	}
-
 	@Override
 	public void setColour(int i, double r, double g, double b) {
 		// The delegate is null when initially creating the object, which means
 		// resetColours causes an NPE. Hence this null check.
-		if (delegate == null)
-			return;
+		if (delegate == null) return;
 
 		delegate.setColour(i, r, g, b);
-		setChanged();
+		setChanged(true);
+		
 		for (ColorChangeListener listener : listeners)
 			listener.setColour(i, r, g, b);
 	}
 
 	@Override
 	public void resetColour(int i) {
-		if (delegate == null)
-			return;
+		if (delegate == null) return;
 
 		delegate.resetColour(i);
-		setChanged();
+		setChanged(true);
 	}
 
 	@Override
 	public void resetColours() {
-		if (delegate == null)
-			return;
+		if (delegate == null) return;
 
 		delegate.resetColours();
-		setChanged();
+		setChanged(true);
 	}
 
 	@Override
