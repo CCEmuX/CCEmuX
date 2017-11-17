@@ -14,12 +14,12 @@ import org.apache.commons.io.IOUtils;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
- * 
+ *
  * @author apemanzilla
  *
  */
@@ -43,7 +43,7 @@ public class EmulatedComputer extends Computer {
 
 	/**
 	 * A class used to create new <code>EmulatedComputer</code> instances
-	 * 
+	 *
 	 * @author apemanzilla
 	 *
 	 */
@@ -68,7 +68,7 @@ public class EmulatedComputer extends Computer {
 		 * Sets the ID of the computer to construct. Setting the id to
 		 * <code>null</code> (the default value) will result in the ID being
 		 * automatically chosen by the environment.
-		 * 
+		 *
 		 * @return This builder, for chaining
 		 */
 		public Builder id(Integer num) {
@@ -80,7 +80,7 @@ public class EmulatedComputer extends Computer {
 		 * Sets the root (<code>/</code>) mount of the computer to construct.
 		 * Setting the root mount to <code>null</code> (the default value) will
 		 * result in one being created by the environment.
-		 * 
+		 *
 		 * @param rootMount
 		 *            The writable mount to use as a root mount
 		 * @return This builder, for chaining
@@ -94,7 +94,7 @@ public class EmulatedComputer extends Computer {
 		 * Sets the label of the computer to construct. Setting the label to
 		 * <code>null</code> (the default value) will result in no label being
 		 * set.
-		 * 
+		 *
 		 * @return This builder, for chaining
 		 */
 		public Builder label(String label) {
@@ -128,7 +128,7 @@ public class EmulatedComputer extends Computer {
 
 	/**
 	 * Gets a new builder to create an <code>EmulatedComputer</code> instance
-	 * 
+	 *
 	 * @return
 	 */
 	public static Builder builder(IComputerEnvironment env, EmulatedTerminal term) {
@@ -208,7 +208,7 @@ public class EmulatedComputer extends Computer {
 	 * location. All files will be copied into the destination regardless of
 	 * their absolute path, with their original name. Directories will be
 	 * recursively copied into the destination in a similar fashion to files.
-	 * 
+	 *
 	 * @param files
 	 *            The files to copy
 	 */
