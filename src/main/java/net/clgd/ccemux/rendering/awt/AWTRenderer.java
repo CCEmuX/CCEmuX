@@ -320,7 +320,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 		if (keysDown.get(e.getKeyCode())) {
 			keysDown.clear(e.getKeyCode());
-			computer.pressKey(translateToCC(e.getKeyCode()), true);
+			computer.releaseKey(translateToCC(e.getKeyCode()));
 		}
 	}
 

@@ -20,7 +20,10 @@ public class JFXKeyTranslator {
 			.put(NUM_LOCK, 69).put(SCROLL_LOCK, 70).put(SUBTRACT, 74).put(ADD, 78).put(DECIMAL, 83).put(F11, 87)
 			.put(F12, 88).put(F13, 100).put(F14, 101).put(F15, 102).put(DIVIDE, 181).put(PAUSE, 197).put(HOME, 199)
 			.put(UP, 200).put(PAGE_UP, 201).put(LEFT, 203).put(RIGHT, 205).put(END, 207).put(DOWN, 208)
-			.put(PAGE_DOWN, 209).put(INSERT, 210).put(DELETE, 211).build();
+			.put(PAGE_DOWN, 209).put(INSERT, 210).put(DELETE, 211).put(WINDOWS, 219).put(PRINTSCREEN, 183)
+			.put(KeyCode.NUMPAD1, 79).put(KeyCode.NUMPAD2, 80).put(KeyCode.NUMPAD3, 81).put(KeyCode.NUMPAD4, 75)
+			.put(KeyCode.NUMPAD5, 76).put(KeyCode.NUMPAD6, 77).put(KeyCode.NUMPAD7, 71).put(KeyCode.NUMPAD8, 72)
+			.put(KeyCode.NUMPAD9, 73).put(KeyCode.NUMPAD0, 82).build();
 
 	public static int translateToCC(KeyCode code) {
 		return jfxToCC.getOrDefault(code, 0);

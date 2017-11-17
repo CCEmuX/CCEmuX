@@ -3,9 +3,8 @@ package net.clgd.ccemux.rendering.javafx;
 import static com.google.common.primitives.Ints.constrainToRange;
 import static net.clgd.ccemux.rendering.TerminalFont.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.logging.ErrorManager;
+import java.util.HashMap;
+import java.util.Map;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
@@ -22,6 +21,11 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
+	/**
+	 * Time (in milliseconds) that a key combo must be held before triggering
+	 */
+	public static final long COMBO_TIME = 500;
+
 	private final Canvas canvas;
 	private final EmulatedComputer computer;
 	private final JFXTerminalFont font;
@@ -37,10 +41,21 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private boolean lastBlink = false;
 	private double blinkLockedTime = 0;
 
-	private Set<KeyCode> pressedKeys = new HashSet<>();
+	/**
+	 * Map of currently-pressed key codes to the time (in millis) that they were
+	 * first pressed
+	 */
+	private Map<KeyCode, Long> pressedKeys = new HashMap<>();
 
+	/**
+	 * int[2] containing the last CC X and Y coordinates of a mouse drag, to
+	 * prevent duplicate events
+	 */
 	private int[] lastDrag;
 
+	/**
+	 * @return Whether the cursor should be shown
+	 */
 	private boolean cursorBlink() {
 		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
 	}
@@ -150,6 +165,14 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 	}
 
+	/**
+	 * @return Whether one of the standard control-combos is in progress
+	 */
+	private boolean isComboInProgress() {
+		return pressedKeys.containsKey(KeyCode.CONTROL) && (pressedKeys.containsKey(KeyCode.T)
+				|| pressedKeys.containsKey(KeyCode.R) || pressedKeys.containsKey(KeyCode.S));
+	}
+
 	private void keyTyped(KeyEvent e) {
 		char c = e.getCharacter().charAt(0);
 		if (Utils.isPrintableChar(c)) {
@@ -158,18 +181,48 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	}
 
 	private void keyPressed(KeyEvent e) {
-		if (pressedKeys.contains(e.getCode())) {
-			computer.repeatPressKey(JFXKeyTranslator.translateToCC(e.getCode()));
+		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
+		if (ccCode == 0) return;
+
+		if (pressedKeys.containsKey(e.getCode())) {
+
+			if (isComboInProgress()) {
+				// check if combo is complete
+				long m = System.currentTimeMillis();
+
+				if (m - pressedKeys.get(KeyCode.CONTROL) >= COMBO_TIME) {
+					// handle combo action
+					if (m - pressedKeys.getOrDefault(KeyCode.T, m) >= COMBO_TIME) {
+						computer.terminate();
+					} else if (m - pressedKeys.getOrDefault(KeyCode.R, m) >= COMBO_TIME) {
+						if (computer.isOn()) {
+							computer.reboot();
+						} else {
+							computer.turnOn();
+						}
+					} else if (m - pressedKeys.getOrDefault(KeyCode.S, m) >= COMBO_TIME) {
+						computer.shutdown();
+					}
+
+					// prevent the combo from triggering again for a while
+					pressedKeys.replace(KeyCode.CONTROL, m);
+				}
+			} else {
+				computer.pressKey(ccCode, true);
+			}
 		} else {
-			computer.pressKey(JFXKeyTranslator.translateToCC(e.getCode()));
-			pressedKeys.add(e.getCode());
+			computer.pressKey(ccCode, false);
+			pressedKeys.put(e.getCode(), System.currentTimeMillis());
 		}
-		
+
 		blinkLockedTime = 0.25;
 	}
 
 	private void keyReleased(KeyEvent e) {
-		computer.releaseKey(JFXKeyTranslator.translateToCC(e.getCode()));
+		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
+		if (ccCode == 0) return;
+
+		computer.releaseKey(ccCode);
 		pressedKeys.remove(e.getCode());
 	}
 

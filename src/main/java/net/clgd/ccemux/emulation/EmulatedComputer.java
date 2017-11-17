@@ -171,17 +171,8 @@ public class EmulatedComputer extends Computer {
 		listeners.forEach(l -> l.onAdvance(dt));
 	}
 
-	@Deprecated
-	public void pressKey(int keycode, boolean release) {
-		queueEvent(release ? "key_up" : "key", new Object[] { keycode });
-	}
-
-	public void pressKey(int keycode) {
-		queueEvent("key", new Object[] { keycode, false });
-	}
-
-	public void repeatPressKey(int keycode) {
-		queueEvent("key", new Object[] { keycode, true });
+	public void pressKey(int keycode, boolean repeat) {
+		queueEvent("key", new Object[] { keycode, repeat });
 	}
 
 	public void releaseKey(int keycode) {
