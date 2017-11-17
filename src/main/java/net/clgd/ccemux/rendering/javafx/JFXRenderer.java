@@ -33,6 +33,7 @@ public class JFXRenderer implements Renderer {
 		stage.setScene(scene);
 
 		stage.setResizable(false);
+		stage.sizeToScene();
 
 		stage.initStyle(JFXPlugin.forceUtilityDecoration.get() ? StageStyle.UTILITY : StageStyle.DECORATED);
 		stage.initModality(Modality.NONE);
