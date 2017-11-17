@@ -4,8 +4,6 @@ import static com.google.common.primitives.Ints.constrainToRange;
 import static net.clgd.ccemux.rendering.TerminalFont.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
@@ -15,24 +13,27 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.*;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
+import lombok.Getter;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
 @Slf4j
-public class ComputerPane extends Pane implements EmulatedComputer.Listener {
+public class ComputerPane extends StackPane implements EmulatedComputer.Listener {
 	/**
 	 * Time (in milliseconds) that a key combo must be held before triggering
 	 */
 	public static final long COMBO_TIME = 500;
 
 	private final Canvas canvas;
+	private final KeyboardCapturer kbCap;
+
+	@Getter
 	private final EmulatedComputer computer;
 	private final JFXTerminalFont font;
 	private final PaletteAdapter<Color> paletteAdapter;
@@ -46,12 +47,6 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	private boolean lastBlink = false;
 	private double blinkLockedTime = 0;
-
-	/**
-	 * Map of currently-pressed key codes to the time (in millis) that they were
-	 * first pressed
-	 */
-	private Map<KeyCode, Long> pressedKeys = new HashMap<>();
 
 	/**
 	 * int[2] containing the last CC X and Y coordinates of a mouse drag, to
@@ -88,24 +83,36 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		canvas.widthProperty().addListener(o -> this.redraw());
 		canvas.heightProperty().addListener(o -> this.redraw());
 
-		// setup event listeners
-		setOnKeyPressed(this::keyPressed);
-		setOnKeyReleased(this::keyReleased);
-		setOnKeyTyped(this::keyTyped);
-
+		// handle mouse events
 		setOnMousePressed(this::mousePressed);
 		setOnMouseReleased(this::mouseReleased);
 		setOnMouseDragged(this::mouseDragged);
-
 		setOnDragOver(this::dragOver);
-		setOnDragDropped(this::dragDropped);
+		setOnDragDropped(e -> transferContents(e.getDragboard()));
 
-		this.setFocusTraversable(false);
+		setFocusTraversable(false);
 		canvas.setFocusTraversable(false);
 
-		this.getChildren().add(canvas);
+		this.kbCap = new KeyboardCapturer(this);
+
+		// make sure that the text capture field keeps focus
+		// @formatter:off
+		kbCap.focusedProperty().addListener((s, o, n) -> { if (!n) requestFocus(); });
+		// @formatter:on
+
+		// ordering is important:
+		// canvas must be the last item so that it's drawn over the keyboard
+		// capture field
+		getChildren().add(kbCap);
+		getChildren().add(canvas);
 
 		computer.addListener(this);
+	}
+
+	@Override
+	public void requestFocus() {
+		// the keyboard capturer should be focused, not the window
+		kbCap.requestFocus();
 	}
 
 	@Override
@@ -195,67 +202,6 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 	}
 
-	/**
-	 * @return Whether one of the standard control-combos is in progress
-	 */
-	private boolean isComboInProgress() {
-		return pressedKeys.containsKey(KeyCode.CONTROL) && (pressedKeys.containsKey(KeyCode.T)
-				|| pressedKeys.containsKey(KeyCode.R) || pressedKeys.containsKey(KeyCode.S));
-	}
-
-	private void keyTyped(KeyEvent e) {
-		char c = e.getCharacter().charAt(0);
-		if (Utils.isPrintableChar(c)) {
-			computer.pressChar(e.getCharacter().charAt(0));
-		}
-	}
-
-	private void keyPressed(KeyEvent e) {
-		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
-		if (ccCode == 0) return;
-
-		if (pressedKeys.containsKey(e.getCode())) {
-
-			if (isComboInProgress()) {
-				// check if combo is complete
-				long m = System.currentTimeMillis();
-
-				if (m - pressedKeys.get(KeyCode.CONTROL) >= COMBO_TIME) {
-					// handle combo action
-					if (m - pressedKeys.getOrDefault(KeyCode.T, m) >= COMBO_TIME) {
-						computer.terminate();
-					} else if (m - pressedKeys.getOrDefault(KeyCode.R, m) >= COMBO_TIME) {
-						if (computer.isOn()) {
-							computer.reboot();
-						} else {
-							computer.turnOn();
-						}
-					} else if (m - pressedKeys.getOrDefault(KeyCode.S, m) >= COMBO_TIME) {
-						computer.shutdown();
-					}
-
-					// prevent the combo from triggering again for a while
-					pressedKeys.replace(KeyCode.CONTROL, m);
-				}
-			} else {
-				computer.pressKey(ccCode, true);
-			}
-		} else {
-			computer.pressKey(ccCode, false);
-			pressedKeys.put(e.getCode(), System.currentTimeMillis());
-		}
-
-		blinkLockedTime = 0.25;
-	}
-
-	private void keyReleased(KeyEvent e) {
-		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
-		if (ccCode == 0) return;
-
-		computer.releaseKey(ccCode);
-		pressedKeys.remove(e.getCode());
-	}
-
 	private int[] coordsToCC(double x, double y) {
 		return new int[] {
 				1 + constrainToRange((int) Math.floor((x - margin.get()) / charWidth.get()), 0,
@@ -265,6 +211,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	}
 
 	private void mousePressed(MouseEvent e) {
+		kbCap.requestFocus();
 		int[] coords = coordsToCC(e.getX(), e.getY());
 		computer.click(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1], false);
 	}
@@ -289,12 +236,20 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 	}
 
-	private void dragDropped(DragEvent e) {
-		val db = e.getDragboard();
-
-		if (db.hasFiles()) {
+	/**
+	 * Transfers the contents of the given {@link Clipboard} to the computer
+	 * where applicable
+	 * 
+	 * @param cb
+	 *            The {@link Clipboard} containing content to transfer
+	 * @return Whether the contents were successfully transferred to the
+	 *         computer or not
+	 */
+	public boolean transferContents(Clipboard cb) {
+		if (cb.hasFiles()) {
+			// copy files to computer root
 			try {
-				computer.copyFiles(db.getFiles(), "/");
+				computer.copyFiles(cb.getFiles(), "/");
 
 				val a = new Alert(AlertType.INFORMATION);
 				a.setTitle("Files copied");
@@ -302,8 +257,10 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				a.setContentText("Files were successfully copied to computer ID " + computer.getID());
 				a.initStyle(StageStyle.UTILITY);
 				a.show();
+
+				return true;
 			} catch (IOException e1) {
-				log.error("Error copying files {}", db.getFiles(), e1);
+				log.error("Error copying files {}", cb.getFiles(), e1);
 
 				val a = new Alert(AlertType.ERROR);
 				a.setTitle("File copy error");
@@ -312,9 +269,16 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 						+ e1.getLocalizedMessage() + "\n\nSee logs for more information");
 				a.initStyle(StageStyle.UTILITY);
 				a.show();
+
+				return false;
 			}
-		} else if (db.hasString()) {
-			computer.paste(db.getString());
+		} else if (cb.hasString()) {
+			// paste text
+			computer.paste(cb.getString());
+			return true;
+		} else {
+			// no applicable transfer method
+			return false;
 		}
 	}
 }
