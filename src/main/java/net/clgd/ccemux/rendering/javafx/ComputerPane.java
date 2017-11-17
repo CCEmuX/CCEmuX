@@ -3,6 +3,7 @@ package net.clgd.ccemux.rendering.javafx;
 import static com.google.common.primitives.Ints.constrainToRange;
 import static net.clgd.ccemux.rendering.TerminalFont.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,15 +12,20 @@ import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.stage.StageStyle;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
+@Slf4j
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	/**
 	 * Time (in milliseconds) that a key combo must be held before triggering
@@ -82,7 +88,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		canvas.widthProperty().addListener(o -> this.redraw());
 		canvas.heightProperty().addListener(o -> this.redraw());
 
-		// setup listeners
+		// setup event listeners
 		setOnKeyPressed(this::keyPressed);
 		setOnKeyReleased(this::keyReleased);
 		setOnKeyTyped(this::keyTyped);
@@ -90,6 +96,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		setOnMousePressed(this::mousePressed);
 		setOnMouseReleased(this::mouseReleased);
 		setOnMouseDragged(this::mouseDragged);
+
+		setOnDragOver(this::dragOver);
+		setOnDragDropped(this::dragDropped);
 
 		this.setFocusTraversable(false);
 		canvas.setFocusTraversable(false);
@@ -162,6 +171,27 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			}
 
 			lastBlink = cursorBlink();
+		}
+	}
+
+	@Override()
+	public void onAdvance(double dt) {
+		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
+
+		boolean repaint = lastBlink != cursorBlink();
+
+		if (computer.terminal.getChanged()) {
+			repaint = true;
+			computer.terminal.clearChanged();
+		}
+
+		if (computer.terminal.getPalette().isChanged()) {
+			repaint = true;
+			computer.terminal.getPalette().clearChanged();
+		}
+
+		if (repaint) {
+			this.redraw();
 		}
 	}
 
@@ -253,24 +283,38 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 	}
 
-	@Override
-	public void onAdvance(double dt) {
-		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
-
-		boolean repaint = lastBlink != cursorBlink();
-
-		if (computer.terminal.getChanged()) {
-			repaint = true;
-			computer.terminal.clearChanged();
+	private void dragOver(DragEvent e) {
+		if (e.getDragboard().hasFiles() || e.getDragboard().hasString()) {
+			e.acceptTransferModes(TransferMode.COPY);
 		}
+	}
 
-		if (computer.terminal.getPalette().isChanged()) {
-			repaint = true;
-			computer.terminal.getPalette().clearChanged();
-		}
+	private void dragDropped(DragEvent e) {
+		val db = e.getDragboard();
 
-		if (repaint) {
-			this.redraw();
+		if (db.hasFiles()) {
+			try {
+				computer.copyFiles(db.getFiles(), "/");
+
+				val a = new Alert(AlertType.INFORMATION);
+				a.setTitle("Files copied");
+				a.setHeaderText("Files copied");
+				a.setContentText("Files were successfully copied to computer ID " + computer.getID());
+				a.initStyle(StageStyle.UTILITY);
+				a.show();
+			} catch (IOException e1) {
+				log.error("Error copying files {}", db.getFiles(), e1);
+
+				val a = new Alert(AlertType.ERROR);
+				a.setTitle("File copy error");
+				a.setHeaderText("File copy error");
+				a.setContentText("There was an error copying file to computer ID " + computer.getID() + ":\n"
+						+ e1.getLocalizedMessage() + "\n\nSee logs for more information");
+				a.initStyle(StageStyle.UTILITY);
+				a.show();
+			}
+		} else if (db.hasString()) {
+			computer.paste(db.getString());
 		}
 	}
 }
