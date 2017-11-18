@@ -21,6 +21,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
@@ -29,6 +30,8 @@ import net.clgd.ccemux.rendering.PaletteAdapter;
 
 @Slf4j
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
+	private static final boolean osx = OperatingSystem.get().equals(OperatingSystem.MacOSX);
+
 	/**
 	 * Time (in milliseconds) that a key combo must be held before triggering
 	 */
@@ -211,6 +214,10 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	}
 
 	private void keyTyped(KeyEvent e) {
+		// don't send char if pasting text
+		if (e.isShortcutDown() && e.getCharacter().toLowerCase().trim().equals("v")) return;
+
+		if (e.getCharacter().length() <= 0) return;
 		char c = e.getCharacter().charAt(0);
 		if (Utils.isPrintableChar(c)) computer.pressChar(c);
 	}
@@ -246,11 +253,12 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				computer.pressKey(ccCode, true);
 			}
 		} else {
-			// don't send V if ctrl/cmd is also held
-			if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) return;
-
-			computer.pressKey(ccCode, false);
 			pressedKeys.put(e.getCode(), System.currentTimeMillis());
+
+			// don't send key if pasting text
+			if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) return;
+			
+			computer.pressKey(ccCode, false);
 		}
 
 		blinkLockedTime = 0.25;
@@ -260,10 +268,20 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		int ccCode = JFXKeyTranslator.translateToCC(e.getCode());
 		if (ccCode == 0) return;
 
-		if (e.getCode().equals(KeyCode.PASTE) || (e.getCode().equals(KeyCode.V) && e.isShortcutDown())) {
+		if (e.isShortcutDown() && osx) {
+			if (!pressedKeys.containsKey(e.getCode())) {
+				// OSX is haunted, and when cmd is held, sends keyReleased
+				// events when it should send keyPressed events
+				keyPressed(e);
+				return;
+			}
+		}
+
+		pressedKeys.remove(e.getCode());
+		
+		if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) {
 			transferContents(Clipboard.getSystemClipboard());
 		} else {
-			pressedKeys.remove(e.getCode());
 			computer.releaseKey(ccCode);
 		}
 	}
