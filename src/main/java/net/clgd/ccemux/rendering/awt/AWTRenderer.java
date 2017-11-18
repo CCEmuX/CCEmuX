@@ -10,7 +10,6 @@ import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.Character.UnicodeBlock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -27,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.Utils;
 import lombok.val;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
@@ -41,12 +41,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
 	private static final double ACTION_TIME = 0.5;
-
-	private static boolean isPrintableChar(char c) {
-		UnicodeBlock block = UnicodeBlock.of(c);
-		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
-				&& block != UnicodeBlock.SPECIALS;
-	}
 
 	@Getter(lazy = true)
 	private static final AWTTerminalFont font = loadBestFont();
@@ -82,8 +76,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	private double blinkLockedTime = 0d;
 
-	private boolean paletteChanged = false;
-
 	private double terminateTimer = -1;
 	private double shutdownTimer = -1;
 	private double rebootTimer = -1;
@@ -94,7 +86,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
-		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
 		this.rendererConfig = rendererConfig;
 
 		pixelWidth = (int) (6 * config.termScale.get());
@@ -243,11 +234,16 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				if (terminateTimer >= ACTION_TIME) computer.terminate();
 			}
 
-			boolean doRepaint = paletteChanged;
+			boolean doRepaint = false;
 
 			if (computer.terminal.getChanged()) {
 				doRepaint = true;
 				computer.terminal.clearChanged();
+			}
+			
+			if (computer.terminal.getPalette().isChanged()) {
+				doRepaint = true;
+				computer.terminal.getPalette().setChanged(false);
 			}
 
 			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
@@ -289,7 +285,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (isPrintableChar(e.getKeyChar()) & allowKeyEvents()) {
+		if (Utils.isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}

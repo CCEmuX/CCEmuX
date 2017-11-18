@@ -3,11 +3,7 @@ package net.clgd.ccemux;
 import static com.google.common.primitives.Doubles.constrainToRange;
 
 import java.awt.Color;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Transparency;
-import java.awt.image.BufferedImage;
-import java.util.concurrent.Callable;
+import java.lang.Character.UnicodeBlock;
 
 import dan200.computercraft.shared.util.Colour;
 
@@ -38,45 +34,13 @@ public class Utils {
 	}
 
 	/**
-	 * Tries to get a value as the result of a {@link Callable}, and if an
-	 * exception occurs, instead returns a given value.
-	 *
-	 * @param getter
-	 *            A <code>Callable</code> that may produce a value or throw an
-	 *            exception
-	 * @param other
-	 *            The value to use it the <code>Callable</code> throws an
-	 *            <code>Exception</code>
-	 * @return The value returned by the <code>Callable</code>, or the second
-	 *         parameter if the <code>Callable</code> threw an
-	 *         <code>Exception</code>
-	 * @see #tryGet(Callable)
+	 * Checks if a character is printable
+	 * 
+	 * @param c
+	 * @return
 	 */
-	public static <T> T tryGet(Callable<T> getter, T other) {
-		T got;
-		try {
-			got = getter.call();
-		} catch (Exception e) {
-			got = other;
-		}
-
-		return got;
-	}
-
-	/**
-	 * Returns the value returned by a given {@link Callable}, or returns
-	 * <code>null</code> if the <code>Callable</code> throws an
-	 * <code>Exception</code>.
-	 *
-	 * @param getter
-	 *            A <code>Callable</code> that may produce a value or throw an
-	 *            <code>Exception</code>
-	 * @return The value returned by the <code>Callable</code>, or
-	 *         <code>null</code> if the <code>Callable</code> threw an
-	 *         <code>Exception</code>
-	 * @see #tryGet(Callable, Object)
-	 */
-	public static <T> T tryGet(Callable<T> getter) {
-		return tryGet(getter, null);
+	public static boolean isPrintableChar(char c) {
+		UnicodeBlock block = UnicodeBlock.of(c);
+		return !Character.isISOControl(c) && block != null && block != UnicodeBlock.SPECIALS;
 	}
 }
