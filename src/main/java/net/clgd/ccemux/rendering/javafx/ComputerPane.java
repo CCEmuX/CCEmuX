@@ -14,6 +14,7 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -23,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 
 @Slf4j
@@ -126,7 +128,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			val g = canvas.getGraphicsContext2D();
 
 			// cache some important values as primitives
-			double s = termScale.get();
+			double fontScale = termScale.get();
+			if (JFXPlugin.doubleFontScale.get()) fontScale *= 2;
+
 			double m = margin.get();
 			double cw = charWidth.get(), ch = charHeight.get();
 			int tw = computer.terminal.getWidth(), th = computer.terminal.getHeight();
@@ -138,6 +142,8 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			double height, width;
 
 			TextBuffer bg, fg, text;
+
+			Image charImg;
 
 			for (int y = 0; y < th; y++) {
 				height = ch + ((y == 0 || y == th - 1) ? m : 0);
@@ -154,8 +160,8 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 					g.fillRect(ox, oy, width, height);
 
 					// draw character
-					g.drawImage(font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x)), s),
-							ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0));
+					charImg = font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x)), fontScale);
+					g.drawImage(charImg, ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0), cw, ch);
 
 					ox += width;
 				}
@@ -166,8 +172,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 			// draw cursor
 			if (cursorBlink()) {
-				g.drawImage(font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour()), s),
-						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()));
+				g.drawImage(
+						font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour()), fontScale),
+						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()), cw, ch);
 			}
 
 			lastBlink = cursorBlink();
