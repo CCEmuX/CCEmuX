@@ -27,7 +27,6 @@ import org.apache.commons.io.IOUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
@@ -189,7 +188,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			log.warn("Failed to set taskbar icon", e);
 		}
 
-		lastBlink = CCEmuX.getGlobalCursorBlink();
+		lastBlink = TerminalUtils.getGlobalCursorBlink();
 	}
 
 	private String getWindowTitle() {
@@ -246,11 +245,11 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				computer.terminal.getPalette().setChanged(false);
 			}
 
-			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
+			if (TerminalUtils.getGlobalCursorBlink() != lastBlink) {
 				doRepaint = true;
 			}
 
-			lastBlink = CCEmuX.getGlobalCursorBlink();
+			lastBlink = TerminalUtils.getGlobalCursorBlink();
 
 			if (doRepaint) {
 				// TODO

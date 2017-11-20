@@ -21,7 +21,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 import net.clgd.ccemux.rendering.PaletteAdapter;
@@ -68,7 +67,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	 * @return Whether the cursor should be shown
 	 */
 	private boolean cursorBlink() {
-		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
+		return computer.terminal.getCursorBlink() && (TerminalUtils.getGlobalCursorBlink() || blinkLockedTime > 0);
 	}
 
 	public ComputerPane(EmulatedComputer computer, JFXTerminalFont font, ReadOnlyDoubleProperty termScale) {

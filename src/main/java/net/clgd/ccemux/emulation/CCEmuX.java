@@ -42,10 +42,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		return p == null ? null : p.getImplementationVersion();
 	}
 
-	public static boolean getGlobalCursorBlink() {
-		return System.currentTimeMillis() / 400 % 2 == 0;
-	}
-
 	@Getter
 	private final EmuConfig cfg;
 

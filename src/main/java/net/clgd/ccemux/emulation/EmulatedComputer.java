@@ -211,6 +211,9 @@ public class EmulatedComputer extends Computer {
 	 *
 	 * @param files
 	 *            The files to copy
+	 * 
+	 * @throws IOException
+	 *             Thrown if there's an error copying the given files
 	 */
 	public void copyFiles(Iterable<File> files, String location) throws IOException {
 		val mount = this.getRootMount();

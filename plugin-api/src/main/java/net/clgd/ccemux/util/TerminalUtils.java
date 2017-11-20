@@ -12,6 +12,17 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class TerminalUtils {
 	/**
+	 * Checks whether a blinking cursor should be rendered, using 400ms blink
+	 * intervals
+	 * 
+	 * @return Whether a blinking cursor should be rendered, based on current
+	 *         time
+	 */
+	public static boolean getGlobalCursorBlink() {
+		return System.currentTimeMillis() / 400 % 2 == 0;
+	}
+
+	/**
 	 * Converts a hex char to an integer
 	 * 
 	 * @param c

@@ -5,7 +5,6 @@ import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 import net.clgd.ccemux.rendering.PaletteAdapter.ColorAdapter;
 import net.clgd.ccemux.util.TerminalUtils;
@@ -125,7 +124,7 @@ class TerminalComponent extends Canvas {
 				dy += height;
 			}
 
-			boolean blink = terminal.getCursorBlink() && (blinkLocked || CCEmuX.getGlobalCursorBlink());
+			boolean blink = terminal.getCursorBlink() && (blinkLocked || TerminalUtils.getGlobalCursorBlink());
 
 			if (blink) {
 				drawChar(font, g, cursorChar, terminal.getCursorX() * pixelWidth + margin,
