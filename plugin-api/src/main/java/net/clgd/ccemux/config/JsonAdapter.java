@@ -121,10 +121,9 @@ public class JsonAdapter {
 				if (configEntry.get() instanceof Group) {
 					fromJson((Group) configEntry.get(), jsonEntry.getValue());
 				} else if (configEntry.get() instanceof ConfigProperty<?>) {
-					ConfigProperty property = (ConfigProperty<?>) configEntry.get();
+					ConfigProperty<?> property = (ConfigProperty<?>) configEntry.get();
 
 					try {
-						//noinspection unchecked
 						property.set(gson.fromJson(jsonEntry.getValue(), property.getType()));
 					} catch (JsonSyntaxException e) {
 						log.error("Cannot parse property '{}' in group '{}' ({})", jsonEntry.getKey(), group.getKey(), e.getMessage());

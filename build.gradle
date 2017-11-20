@@ -1,22 +1,35 @@
 plugins {
-	id 'java-library'
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '2.0.1'
-	id 'eclipse'
-	id 'idea'
 }
 
-group = 'net.clgd'
-version = '1.0-SNAPSHOT'
+allprojects {
+	apply plugin: 'java-library'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
 
-mainClassName = 'net.clgd.ccemux.init.Launcher'
-
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-eclipse.project {
-	natures 'org.eclipse.buildship.core.gradleprojectnature'
-	natures 'org.springsource.ide.eclipse.gradle.core.nature'
+	group = 'net.clgd'
+	version = '1.0-SNAPSHOT'
+	
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+	
+	eclipse.project {
+		natures 'org.eclipse.buildship.core.gradleprojectnature'
+		natures 'org.springsource.ide.eclipse.gradle.core.nature'
+	}
+	
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+	
+	dependencies {
+		compileOnly files("$rootProject.projectDir/lib/lombok-1.16.19.jar")
+		testCompileOnly files("$rootProject.projectDir/lib/lombok-1.16.19.jar")
+		
+		compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+	}
 }
 
 repositories {
@@ -39,14 +52,8 @@ repositories {
 }
 
 dependencies {
-	compileOnly files("lib/lombok-1.16.19.jar")
-	testCompileOnly files("lib/lombok-1.16.19.jar")
-
-	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
-
-	api 'dan200.computercraft:ComputerCraft:1.80pr1-build0'
-
-	api 'org.slf4j:slf4j-api:1.7.25'
+	implementation project(':plugin-api')
+	
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
 	implementation 'org.apache.logging.log4j:log4j-core:2.8.2'
 
@@ -56,14 +63,10 @@ dependencies {
 
 	implementation 'org.squiddev:cctweaks-lua:1.5.0-pr3'
 
-	implementation 'com.google.guava:guava:22.0'
-	implementation 'com.google.code.gson:gson:2.8.1'
-
 	testCompile 'junit:junit:4.12'
 }
-
-processResources { exclude '**/*.xcf' // GIMP images
-}
+	
+mainClassName = 'net.clgd.ccemux.init.Launcher'
 
 jar {
 	manifest {

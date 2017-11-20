@@ -21,12 +21,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.OperatingSystem;
-import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 import net.clgd.ccemux.rendering.PaletteAdapter;
+import net.clgd.ccemux.util.OperatingSystem;
+import net.clgd.ccemux.util.TerminalUtils;
 
 @Slf4j
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
@@ -68,7 +67,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	 * @return Whether the cursor should be shown
 	 */
 	private boolean cursorBlink() {
-		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
+		return computer.terminal.getCursorBlink() && (TerminalUtils.getGlobalCursorBlink() || blinkLockedTime > 0);
 	}
 
 	public ComputerPane(EmulatedComputer computer, JFXTerminalFont font, ReadOnlyDoubleProperty termScale) {
@@ -219,7 +218,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 		if (e.getCharacter().length() <= 0) return;
 		char c = e.getCharacter().charAt(0);
-		if (Utils.isPrintableChar(c)) computer.pressChar(c);
+		if (TerminalUtils.isPrintableChar(c)) computer.pressChar(c);
 	}
 
 	private void keyPressed(KeyEvent e) {

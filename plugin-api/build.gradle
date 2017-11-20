@@ -1,0 +1,19 @@
+repositories {
+	mavenLocal()
+	mavenCentral()
+
+	maven {
+		name = 'computercraft'
+		url = "https://cc.crzd.me/maven"
+	}
+}
+
+dependencies {
+	api 'dan200.computercraft:ComputerCraft:1.80pr1-build0'
+	
+	api 'org.slf4j:slf4j-api:1.7.25'
+	
+	api 'com.google.guava:guava:23.4-jre'
+	
+	api 'com.google.code.gson:gson:2.8.2'
+}
