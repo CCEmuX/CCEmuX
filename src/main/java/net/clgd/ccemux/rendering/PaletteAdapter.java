@@ -2,7 +2,7 @@ package net.clgd.ccemux.rendering;
 
 import dan200.computercraft.shared.util.Palette;
 import lombok.Value;
-import net.clgd.ccemux.Utils;
+import net.clgd.ccemux.util.TerminalUtils;
 
 /**
  * Wraps a {@link Palette} object with a given {@link ColorAdapter} to make it
@@ -65,7 +65,7 @@ public class PaletteAdapter<C> {
 			col = palette.getColour(0);
 		}
 
-		col = Utils.clampColor(col);
+		col = TerminalUtils.clampColor(col);
 		return getColor(col[0], col[1], col[2]);
 	}
 
@@ -76,6 +76,6 @@ public class PaletteAdapter<C> {
 	 * @return
 	 */
 	public C getColor(char c) {
-		return getColor(Utils.base16ToInt(c));
+		return getColor(TerminalUtils.fromHexChar(c));
 	}
 }

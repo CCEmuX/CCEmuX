@@ -4,9 +4,9 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
-import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.util.TerminalUtils;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.ColorChangeListener {
 	private final EmulatedComputer computer;
@@ -240,17 +240,17 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 	@Override
 	public void setTextColour(int colour) {
-		sendLine("TF", Character.toString(Utils.intToBase16(colour)));
+		sendLine("TF", Character.toString(TerminalUtils.toHexChar(colour)));
 	}
 
 	@Override
 	public void setBackgroundColour(int colour) {
-		sendLine("TK", Character.toString(Utils.intToBase16(colour)));
+		sendLine("TK", Character.toString(TerminalUtils.toHexChar(colour)));
 	}
 
 	@Override
 	public void setColour(int index, double r, double g, double b) {
-		sendLine("TM", String.format("%c,%.4f,%.4f,%.4f", Utils.intToBase16(index), r, g, b));
+		sendLine("TM", String.format("%c,%.4f,%.4f,%.4f", TerminalUtils.toHexChar(index), r, g, b));
 	}
 
 	@Override

@@ -78,7 +78,7 @@ public class VirtualMount implements IMount {
 		if (e instanceof VirtualDirectory) {
 			names.addAll(((VirtualDirectory) e).getEntryNames());
 		} else {
-			throw new IOException("Cannot list children of non-directory");
+			throw new IOException("Only directories can be listed");
 		}
 	}
 

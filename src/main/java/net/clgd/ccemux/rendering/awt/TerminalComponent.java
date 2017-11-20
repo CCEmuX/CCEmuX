@@ -5,10 +5,10 @@ import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.rendering.PaletteAdapter;
 import net.clgd.ccemux.rendering.PaletteAdapter.ColorAdapter;
+import net.clgd.ccemux.util.TerminalUtils;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -116,7 +116,7 @@ class TerminalComponent extends Canvas {
 					char fgChar = (fgLine == null) ? ' ' : fgLine.charAt(x);
 
 					drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin,
-							Utils.base16ToInt(fgChar));
+							TerminalUtils.fromHexChar(fgChar));
 
 					dx += width;
 				}

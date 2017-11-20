@@ -26,7 +26,6 @@ import org.apache.commons.io.IOUtils;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.Utils;
 import lombok.val;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
@@ -34,6 +33,7 @@ import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
+import net.clgd.ccemux.util.TerminalUtils;
 
 @Slf4j
 public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
@@ -285,7 +285,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (Utils.isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
+		if (TerminalUtils.isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}

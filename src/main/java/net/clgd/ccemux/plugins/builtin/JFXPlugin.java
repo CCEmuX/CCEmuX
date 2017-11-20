@@ -4,13 +4,13 @@ import java.util.*;
 
 import com.google.auto.service.AutoService;
 
-import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.javafx.JFXRendererFactory;
+import net.clgd.ccemux.util.OperatingSystem;
 
 @AutoService(Plugin.class)
 public class JFXPlugin extends Plugin {
