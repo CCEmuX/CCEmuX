@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Pools;
 import dan200.computercraft.core.terminal.Terminal;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
 
@@ -16,12 +17,6 @@ import java.awt.event.KeyEvent;
 @Getter
 @Slf4j
 public class GDXInputProcessor implements InputProcessor {
-	private static boolean isPrintableChar(char c) {
-		Character.UnicodeBlock block = Character.UnicodeBlock.of(c);
-		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
-			&& block != Character.UnicodeBlock.SPECIALS;
-	}
-	
 	private final GDXPlugin plugin;
 	private final GDXAdapter adapter;
 	private final EmulatedComputer computer;
@@ -71,7 +66,7 @@ public class GDXInputProcessor implements InputProcessor {
 		
 		lastKey = -1;
 		repeatedCounter = 0;
-		computer.pressKey(KeyTranslator.translateToCC(keycode), true);
+		computer.releaseKey(KeyTranslator.translateToCC(keycode));
 		
 		return true;
 	}
@@ -80,7 +75,7 @@ public class GDXInputProcessor implements InputProcessor {
 	public boolean keyTyped(char c) {
 		if (!adapter.allowKeyEvents()) return false;
 		
-		if (isPrintableChar(c)) {
+		if (Utils.isPrintableChar(c)) {
 			computer.pressChar(c);
 			adapter.setBlinkLockedTime(0.25);
 			
