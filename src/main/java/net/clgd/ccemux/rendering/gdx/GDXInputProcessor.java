@@ -82,7 +82,6 @@ public class GDXInputProcessor implements InputProcessor {
 			return true;
 		} else if (lastKey >= 0 && repeatedCounter++ > 0) {
 			computer.pressKey(KeyTranslator.translateToCC(lastKey), true);
-			computer.pressKey(KeyTranslator.translateToCC(lastKey), false);
 		}
 		
 		return false;
