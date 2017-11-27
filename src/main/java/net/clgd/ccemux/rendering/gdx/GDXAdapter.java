@@ -221,4 +221,17 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		
+		computer.shutdown();
+		listeners.forEach(Listener::onClosed);
+		
+		batch.dispose();
+		terminalRenderer.dispose();
+		
+		plugin.getManager().removeAdapter(this);
+	}
 }

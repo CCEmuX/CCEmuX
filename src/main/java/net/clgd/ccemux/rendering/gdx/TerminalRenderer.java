@@ -63,6 +63,7 @@ public class TerminalRenderer {
 	private void initialiseFont() {
 		font = GDXTerminalFont.getBestFont();
 		fontTexture = font.getTexture();
+		plugin.getManager().getFinalDisposables().add(fontTexture);
 		fontTexWidth = fontTexture.getWidth();
 		fontTexHeight = fontTexture.getHeight();
 	}
@@ -171,5 +172,9 @@ public class TerminalRenderer {
 	void resize(int width, int height) {
 		screenWidth = width;
 		screenHeight = height;
+	}
+	
+	void dispose() {
+		backgroundTexture.dispose();
 	}
 }

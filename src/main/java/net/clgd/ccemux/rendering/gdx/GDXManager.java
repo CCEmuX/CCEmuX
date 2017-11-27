@@ -1,5 +1,7 @@
 package net.clgd.ccemux.rendering.gdx;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Disposable;
 import lombok.Getter;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
@@ -16,6 +18,8 @@ public class GDXManager {
 	@Getter private volatile BaseGDXAdapter mainAdapter;
 	@Getter private volatile List<BaseGDXAdapter> windows = new ArrayList<>();
 	
+	@Getter private volatile List<Disposable> finalDisposables = new ArrayList<>();
+	
 	public GDXManager(GDXPlugin plugin) {
 		this.plugin = plugin;
 	}
@@ -27,6 +31,8 @@ public class GDXManager {
 	}
 	
 	void initialiseAdapter(BaseGDXAdapter adapter) {
+		windows.add(adapter);
+		
 		if (!madeFirstWindow) {
 			madeFirstWindow = true;
 			mainAdapter = adapter;
@@ -39,5 +45,14 @@ public class GDXManager {
 	public void createConfigEditor(EmuConfig config) {
 		ConfigAdapter adapter = new ConfigAdapter(plugin, config);
 		adapter.startInThread();
+	}
+	
+	void removeAdapter(BaseGDXAdapter adapter) {
+		windows.remove(adapter);
+		
+		if (plugin.getManager().getWindows().size() == 0) {
+			finalDisposables.forEach(Disposable::dispose);
+			Gdx.app.exit();
+		}
 	}
 }
