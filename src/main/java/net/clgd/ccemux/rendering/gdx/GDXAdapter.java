@@ -233,8 +233,10 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 		if (disposing) return;
 		disposing = true;
 		
-		computer.shutdown();
-		listeners.forEach(Listener::onClosed);
+		if (computer.isOn()) {
+			computer.shutdown();
+			listeners.forEach(Listener::onClosed);
+		}
 		
 		try {
 			batch.dispose();
