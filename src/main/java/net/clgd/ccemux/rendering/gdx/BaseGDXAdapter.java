@@ -72,7 +72,7 @@ public abstract class BaseGDXAdapter extends ApplicationAdapter {
 			
 			@Override
 			public void filesDropped(String[] files) {
-				filesDropped(files);
+				BaseGDXAdapter.this.filesDropped(files);
 			}
 		});
 	}

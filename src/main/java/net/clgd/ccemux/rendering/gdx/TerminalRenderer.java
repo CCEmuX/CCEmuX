@@ -89,6 +89,7 @@ public class TerminalRenderer {
 	}
 	
 	void render(SpriteBatch batch) {
+		if (adapter.isDisposing()) return;
 		drawTerminal(batch);
 	}
 	
@@ -109,6 +110,8 @@ public class TerminalRenderer {
 	}
 	
 	private void drawBackground(SpriteBatch batch, float x, float y, int width, int height, int colour) {
+		if (adapter.isDisposing()) return;
+		
 		batch.setColor(fontColours.get(colour));
 		batch.draw(
 			backgroundTexture,
@@ -117,6 +120,8 @@ public class TerminalRenderer {
 	}
 	
 	private void drawTerminal(SpriteBatch batch) {
+		if (adapter.isDisposing()) return;
+		
 		synchronized (terminal) {
 			float dx = 0, dy = 0;
 			

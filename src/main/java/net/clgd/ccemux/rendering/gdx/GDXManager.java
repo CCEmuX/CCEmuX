@@ -52,7 +52,6 @@ public class GDXManager {
 		
 		if (plugin.getManager().getWindows().size() == 0) {
 			finalDisposables.forEach(Disposable::dispose);
-			Gdx.app.exit();
 		}
 	}
 }

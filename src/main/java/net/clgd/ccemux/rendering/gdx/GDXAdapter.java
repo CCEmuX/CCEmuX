@@ -49,6 +49,8 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 	
 	private final List<Listener> listeners = new ArrayList<>();
 	
+	@Getter private boolean disposing = false;
+	
 	GDXAdapter(GDXPlugin plugin, EmulatedComputer computer, EmuConfig config) {
 		super(plugin);
 		
@@ -106,6 +108,8 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 		batch.setProjectionMatrix(camera.combined);
 		
 		terminalRenderer.render(batch);
+		
+		if (disposing) return;
 		
 		batch.end();
 	}
@@ -226,11 +230,16 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 	public void dispose() {
 		super.dispose();
 		
+		if (disposing) return;
+		disposing = true;
+		
 		computer.shutdown();
 		listeners.forEach(Listener::onClosed);
 		
-		batch.dispose();
-		terminalRenderer.dispose();
+		try {
+			batch.dispose();
+			terminalRenderer.dispose();
+		} catch (Exception ignored) {}
 		
 		plugin.getManager().removeAdapter(this);
 	}
