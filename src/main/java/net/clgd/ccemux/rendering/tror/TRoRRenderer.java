@@ -1,16 +1,14 @@
 package net.clgd.ccemux.rendering.tror;
 
 import java.io.*;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.TerminalFont;
 
-public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.Listener {
+public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.ColorChangeListener {
 	private final EmulatedComputer computer;
 	private final EmuConfig config;
 
@@ -32,7 +30,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 		}
 
 		computer.terminal.addListener(this);
-		computer.terminal.getEmulatedPalette().addListener(this);
+		computer.terminal.getPalette().addListener(this);
 
 		events = InputProvider.getStdinProvider().getQueue(computer);
 
@@ -47,11 +45,6 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	@Override
 	public void removeListener(Renderer.Listener listener) {
 		listeners.remove(listener);
-	}
-
-	@Override
-	public TerminalFont loadFont(URL url) throws IOException {
-		return null;
 	}
 
 	@Override
@@ -84,7 +77,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 				}
 				sendLine("TV", builder.toString());
 
-				EmulatedPalette palette = terminal.getEmulatedPalette();
+				EmulatedPalette palette = terminal.getPalette();
 				for (int i = 0; i < 16; i++) {
 					double[] colour = palette.getColour(i);
 					setColour(i, colour[0], colour[1], colour[2]);

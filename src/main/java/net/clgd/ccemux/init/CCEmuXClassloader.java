@@ -1,26 +1,25 @@
 package net.clgd.ccemux.init;
 
-import java.net.URL;
-
-import org.squiddev.cctweaks.lua.launch.RewritingLoader;
+import org.squiddev.cctweaks.lua.launch.DelegatingRewritingLoader;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CCEmuXClassloader extends RewritingLoader {
+public class CCEmuXClassloader extends DelegatingRewritingLoader {
 	public static final String CC_PREFIX = "dan200.computercraft";
-	
+
 	private boolean blockCC = true;
-	
-	CCEmuXClassloader(URL[] urls) {
-		super(urls);
+
+	CCEmuXClassloader(ClassLoader delegate) {
+		super(delegate);
 		addClassLoaderExclusion(CCEmuXClassloader.class.getName());
+		addClassLoaderExclusion("javafx.");
 	}
-	
+
 	public void allowCC() {
 		this.blockCC = false;
 	}
-	
+
 	@Override
 	public Class<?> findClass(String name) throws ClassNotFoundException {
 		if (name.startsWith(CC_PREFIX) && blockCC) {

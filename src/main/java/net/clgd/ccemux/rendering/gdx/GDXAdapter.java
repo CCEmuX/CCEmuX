@@ -5,7 +5,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3WindowConfiguration;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.kotcrab.vis.ui.VisUI;
 import dan200.computercraft.core.terminal.Terminal;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,11 +12,9 @@ import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
 import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.TerminalFont;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,7 +56,7 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 		this.terminal = computer.terminal;
 		this.config = config;
 		
-		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> {
+		computer.terminal.getPalette().addListener((i, r, g, b) -> {
 			if (terminalRenderer != null) terminalRenderer.updatePalette(i, r, g, b);
 		});
 		
@@ -138,11 +135,6 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 	@Override
 	public void removeListener(Renderer.Listener listener) {
 		listeners.remove(listener);
-	}
-	
-	@Override
-	public TerminalFont loadFont(URL url) throws IOException {
-		return new GDXTerminalFont(url);
 	}
 	
 	private String getWindowTitle() {
@@ -225,7 +217,7 @@ public class GDXAdapter extends BaseGDXAdapter implements Renderer {
 	void filesDropped(String[] files) {
 		try {
 			computer.copyFiles(Arrays.stream(files).map(File::new).collect(Collectors.toList()), "/");
-		} catch (IOException | ReflectiveOperationException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}

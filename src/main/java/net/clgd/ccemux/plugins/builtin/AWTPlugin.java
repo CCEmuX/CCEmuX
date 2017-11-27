@@ -8,6 +8,8 @@ import java.util.Optional;
 import javax.swing.JFrame;
 
 import com.google.auto.service.AutoService;
+import net.clgd.ccemux.config.ConfigProperty;
+import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.Plugin;
@@ -18,6 +20,8 @@ import net.clgd.ccemux.rendering.awt.config.ConfigView;
 
 @AutoService(Plugin.class)
 public class AWTPlugin extends Plugin {
+	private AWTConfig config;
+
 	@Override
 	public String getName() {
 		return "AWT Renderer";
@@ -44,13 +48,18 @@ public class AWTPlugin extends Plugin {
 	}
 
 	@Override
+	public void configSetup(Group group) {
+		config = new AWTConfig(group);
+	}
+
+	@Override
 	public void setup(EmuConfig cfg) {
 		RendererFactory.implementations.put("AWT", new RendererFactory<Renderer>() {
 			private WeakReference<JFrame> lastFrame = null;
 
 			@Override
 			public Renderer create(EmulatedComputer computer, EmuConfig cfg) {
-				return new AWTRenderer(computer, cfg);
+				return new AWTRenderer(computer, cfg, config);
 			}
 
 			@Override
@@ -70,5 +79,15 @@ public class AWTPlugin extends Plugin {
 				return true;
 			}
 		});
+	}
+
+	public static class AWTConfig {
+		public final ConfigProperty<Boolean> nativePaste;
+
+		AWTConfig(Group group) {
+			nativePaste = group.property("nativePaste", boolean.class, false)
+					.setName("Use native paste")
+					.setDescription("Listen to native paste events instead of Ctrl+V.");
+		}
 	}
 }

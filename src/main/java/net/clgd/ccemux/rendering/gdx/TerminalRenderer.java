@@ -12,7 +12,6 @@ import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.GDXPlugin;
-import net.clgd.ccemux.rendering.TerminalFonts;
 
 import java.awt.*;
 import java.util.HashMap;
@@ -62,7 +61,7 @@ public class TerminalRenderer {
 	}
 	
 	private void initialiseFont() {
-		font = (GDXTerminalFont) TerminalFonts.getFontsFor(GDXAdapter.class).getBest(adapter);
+		font = GDXTerminalFont.getBestFont();
 		fontTexture = font.getTexture();
 		fontTexWidth = fontTexture.getWidth();
 		fontTexHeight = fontTexture.getHeight();

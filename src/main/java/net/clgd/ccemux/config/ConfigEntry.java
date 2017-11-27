@@ -6,7 +6,7 @@ import java.util.Optional;
  * A keyed entry in a config file.
  *
  * @see Group
- * @see Property
+ * @see ConfigProperty
  */
 public abstract class ConfigEntry {
 	ConfigEntry() {}

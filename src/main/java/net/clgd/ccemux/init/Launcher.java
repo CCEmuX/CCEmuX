@@ -2,37 +2,29 @@ package net.clgd.ccemux.init;
 
 import static org.apache.commons.cli.Option.builder;
 
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.SplashScreen;
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.HashSet;
 import java.util.Optional;
 
 import javax.swing.*;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
+import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.AddressPredicate;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
 import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.TerminalFonts;
+import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j
 public class Launcher {
@@ -64,8 +56,8 @@ public class Launcher {
 			log.info("Skipping custom classloader, some features may be unavailable");
 			new Launcher(args).launch();
 		} else {
-			try (final CCEmuXClassloader loader = new CCEmuXClassloader(
-					((URLClassLoader) Launcher.class.getClassLoader()).getURLs())) {
+			try  {
+				val loader = new CCEmuXClassloader(Launcher.class.getClassLoader());
 				@SuppressWarnings("unchecked") final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
 
 				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
@@ -74,6 +66,8 @@ public class Launcher {
 				final Method launch = klass.getDeclaredMethod("launch");
 				launch.setAccessible(true);
 				launch.invoke(constructor.newInstance(new Object[]{args}));
+			} catch (InvocationTargetException e) {
+				log.error("Launcher failed to run", e.getTargetException());
 			} catch (Exception e) {
 				log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
 				new Launcher(args).launch();
@@ -224,7 +218,7 @@ public class Launcher {
 
 			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
 				val loader = (CCEmuXClassloader) getClass().getClassLoader();
-				loader.chain.finalise();
+				loader.chain().finalise();
 				log.warn("ClassLoader chain finalized");
 				loader.allowCC();
 				log.debug("CC access now allowed");
@@ -245,21 +239,25 @@ public class Launcher {
 
 			pluginMgr.setup();
 
+			String renderer;
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
 				log.info("Available rendering methods:");
 				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
 				System.exit(0);
+				return;
 			} else if (cli.hasOption('r')) {
-				// TODO: figure out this
+				renderer = cli.getOptionValue('r');
+			} else {
+				renderer = cfg.renderer.get();
 			}
 
-			RendererFactory renderFactory = RendererFactory.implementations.get(cfg.renderer.get());
+			RendererFactory renderFactory = RendererFactory.implementations.get(renderer);
 			if (renderFactory == null) {
-				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", cfg.renderer.get());
+				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", renderer);
 
 				if (!GraphicsEnvironment.isHeadless()) {
 					JOptionPane.showMessageDialog(null,
-							"Specified renderer '" + cfg.renderer.get() + "' does not exist.\n"
+							"Specified renderer '" + renderer + "' does not exist.\n"
 									+ "Please double check your config file and plugin list.",
 							"Configuration Error", JOptionPane.ERROR_MESSAGE);
 				}
@@ -274,7 +272,7 @@ public class Launcher {
 			if (!GraphicsEnvironment.isHeadless())
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
 
-			TerminalFonts.loadImplicitFonts();
+			TerminalFont.loadImplicitFonts(getClass().getClassLoader());
 
 			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource());
 			emu.createComputer();

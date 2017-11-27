@@ -10,39 +10,43 @@ import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.Character.UnicodeBlock;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.InputMap;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
+import javax.swing.UIManager;
+import javax.swing.text.DefaultEditorKit;
 
 import org.apache.commons.io.IOUtils;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.Utils;
 import lombok.val;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
 import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
-import net.clgd.ccemux.rendering.TerminalFonts;
 
 @Slf4j
-public class AWTRenderer
-		implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
 	private static final double ACTION_TIME = 0.5;
 
-	private static boolean isPrintableChar(char c) {
-		UnicodeBlock block = UnicodeBlock.of(c);
-		return !Character.isISOControl(c) && c != KeyEvent.CHAR_UNDEFINED && block != null
-				&& block != UnicodeBlock.SPECIALS;
+	@Getter(lazy = true)
+	private static final AWTTerminalFont font = loadBestFont();
+
+	private static AWTTerminalFont loadBestFont() {
+		return TerminalFont.getBest(AWTTerminalFont::new);
 	}
 
 	private final List<Renderer.Listener> listeners = new ArrayList<>();
@@ -61,6 +65,7 @@ public class AWTRenderer
 
 	private final EmulatedComputer computer;
 	private final TerminalComponent termComponent;
+	private final AWTConfig rendererConfig;
 
 	private final int pixelWidth;
 	private final int pixelHeight;
@@ -71,19 +76,17 @@ public class AWTRenderer
 
 	private double blinkLockedTime = 0d;
 
-	private boolean paletteChanged = false;
-
 	private double terminateTimer = -1;
 	private double shutdownTimer = -1;
 	private double rebootTimer = -1;
 
 	private final BitSet keysDown = new BitSet(256);
 
-	public AWTRenderer(EmulatedComputer computer, EmuConfig config) {
+	public AWTRenderer(EmulatedComputer computer, EmuConfig config, AWTConfig rendererConfig) {
 		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
-		computer.terminal.getEmulatedPalette().addListener((i, r, g, b) -> paletteChanged = true);
+		this.rendererConfig = rendererConfig;
 
 		pixelWidth = (int) (6 * config.termScale.get());
 		pixelHeight = (int) (9 * config.termScale.get());
@@ -231,11 +234,16 @@ public class AWTRenderer
 				if (terminateTimer >= ACTION_TIME) computer.terminate();
 			}
 
-			boolean doRepaint = paletteChanged;
+			boolean doRepaint = false;
 
 			if (computer.terminal.getChanged()) {
 				doRepaint = true;
 				computer.terminal.clearChanged();
+			}
+			
+			if (computer.terminal.getPalette().isChanged()) {
+				doRepaint = true;
+				computer.terminal.getPalette().setChanged(false);
 			}
 
 			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
@@ -247,15 +255,10 @@ public class AWTRenderer
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
-				AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
-				termComponent.render(font, dt);
+				//AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
+				termComponent.render(getFont(), dt);
 			}
 		}
-	}
-
-	@Override
-	public TerminalFont loadFont(URL url) throws IOException {
-		return new AWTTerminalFont(url);
 	}
 
 	private Point mapPointToCC(Point p) {
@@ -271,8 +274,8 @@ public class AWTRenderer
 	/**
 	 * Determine whether {@code key} and {@code char} events should be queued.
 	 *
-	 * If any of the action keys are pressed (terminate, shutdown, reboot) then such events will
-	 * be blocked.
+	 * If any of the action keys are pressed (terminate, shutdown, reboot) then
+	 * such events will be blocked.
 	 *
 	 * @return Whether such events should be queued.
 	 */
@@ -282,7 +285,7 @@ public class AWTRenderer
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
+		if (Utils.isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
 			computer.pressChar(e.getKeyChar());
 			blinkLockedTime = 0.25d;
 		}
@@ -291,7 +294,12 @@ public class AWTRenderer
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// Pasting should be handled first as it blocks all events
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0 && e.getKeyCode() == KeyEvent.VK_V) {
+		boolean hasModifier = (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+		if (rendererConfig.nativePaste.get()
+			? DefaultEditorKit.pasteAction.equals(
+				((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
+						.get(KeyStroke.getKeyStrokeForEvent(e)))
+			: hasModifier && e.getKeyCode() == KeyEvent.VK_V) {
 			try {
 				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
 			} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
@@ -301,12 +309,12 @@ public class AWTRenderer
 		}
 
 		if (allowKeyEvents()) {
+			computer.pressKey(translateToCC(e.getKeyCode()), keysDown.get(e.getKeyCode()));
 			keysDown.set(e.getKeyCode());
-			computer.pressKey(translateToCC(e.getKeyCode()), false);
 		}
 
 		// Start action timers
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
+		if (hasModifier) {
 			int key = e.getKeyCode();
 			if (key == KeyEvent.VK_S && shutdownTimer < 0) shutdownTimer = 0;
 			if (key == KeyEvent.VK_R && rebootTimer < 0) rebootTimer = 0;
@@ -326,7 +334,7 @@ public class AWTRenderer
 
 		if (keysDown.get(e.getKeyCode())) {
 			keysDown.clear(e.getKeyCode());
-			computer.pressKey(translateToCC(e.getKeyCode()), true);
+			computer.releaseKey(translateToCC(e.getKeyCode()));
 		}
 	}
 

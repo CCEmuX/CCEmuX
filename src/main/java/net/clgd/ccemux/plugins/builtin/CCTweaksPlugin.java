@@ -3,29 +3,28 @@ package net.clgd.ccemux.plugins.builtin;
 import java.awt.GraphicsEnvironment;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
 
 import javax.swing.JOptionPane;
 
+import org.squiddev.cctweaks.lua.ConfigMetadata;
 import org.squiddev.cctweaks.lua.TweaksLogger;
+import org.squiddev.cctweaks.lua.launch.ClassLoaderHelpers;
 import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
 import com.google.auto.service.AutoService;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+import net.clgd.ccemux.config.ConfigEntry;
 import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 
 @Slf4j
 @AutoService(Plugin.class)
 public class CCTweaksPlugin extends Plugin {
-	private Property<Map<String, JsonPrimitive>> options;
+	private Group options;
 
 	@Override
 	public String getName() {
@@ -54,23 +53,30 @@ public class CCTweaksPlugin extends Plugin {
 
 	@Override
 	public void configSetup(Group group) {
-		options = group.property("options", new TypeToken<Map<String, JsonPrimitive>>() {}, Collections.emptyMap())
-				.setName("Options")
-				.setDescription("Key-value configuration options to be passed to CCTweaks");
+		options = group;
+		for (ConfigMetadata.Category category : ConfigMetadata.categories()) {
+			configSetup(group, category);
+		}
 	}
 
-	private void syncConfig() {
-		for (val option : options.get().entrySet()) {
-			System.setProperty("cctweaks." + option.getKey(), option.getValue().getAsString());
+	private void configSetup(Group parent, ConfigMetadata.Category category) {
+		Group group = parent.group(category.name());
+		if (category.description() != null) parent.setDescription(category.description());
+
+		for (ConfigMetadata.Category child : category.children()) {
+			configSetup(group, child);
+		}
+
+		for (ConfigMetadata.Property property : category.properties()) {
+			ConfigProperty<?> groupProp = group.property(property.name(), property.type(), property.defaultValue());
+			if (property.description() != null) groupProp.setName(property.name());
+			groupProp.addAndFireListener((a, b) -> property.set(b));
 		}
 	}
 
 	@Override
 	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {
-		syncConfig();
-
 		if (loader instanceof RewritingLoader) {
-
 			TweaksLogger.instance = org.squiddev.patcher.Logger.instance = new org.squiddev.patcher.Logger() {
 				@Override
 				public void doDebug(String message) {
@@ -89,31 +95,25 @@ public class CCTweaksPlugin extends Plugin {
 			};
 
 			RewritingLoader rwLoader = (RewritingLoader) loader;
+			Optional<ConfigEntry> entry = options.group("testing").child("dumpAsm");
+			if (entry.isPresent() && entry.get() instanceof ConfigProperty) {
+				((ConfigProperty<Boolean>) entry.get()).addAndFireListener((a, b) -> rwLoader.dump(b));
+			}
 
 			try {
-				// Thread.currentThread().setContextClassLoader(loader);
-
-				rwLoader.loadConfig();
-				rwLoader.loadChain();
+				ClassLoaderHelpers.setupChain((ClassLoader & RewritingLoader) loader);
 			} catch (Exception e) {
 				log.warn("Failed to apply classloader tweaks", e);
 			}
-
-			options.addListener((x, y) -> {
-				syncConfig();
-				try {
-					rwLoader.loadConfig();
-				} catch (Exception e) {
-					log.warn("Failed to refresh config", e);
-				}
-			});
 		} else {
 			log.warn("Incompatible ClassLoader in use - CCTweaks functionality unavailable");
 
-			if (!GraphicsEnvironment.isHeadless()) JOptionPane.showMessageDialog(null,
-					"Your configuration is incompatible with the CCTweaks plugin.\n"
-							+ "Please consult the logs for more information.",
-					"CCTweaks unavailable", JOptionPane.WARNING_MESSAGE);
+			if (!GraphicsEnvironment.isHeadless()) {
+				JOptionPane.showMessageDialog(null,
+						"Your configuration is incompatible with the CCTweaks plugin.\n"
+								+ "Please consult the logs for more information.",
+						"CCTweaks unavailable", JOptionPane.WARNING_MESSAGE);
+			}
 		}
 	}
 
@@ -122,5 +122,4 @@ public class CCTweaksPlugin extends Plugin {
 		ApiRegister.init();
 		ApiRegister.loadPlugins();
 	}
-
 }

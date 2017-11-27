@@ -13,6 +13,9 @@ import java.net.URL;
 
 @Slf4j
 public class GDXTerminalFont extends TerminalFont {
+	@Getter(lazy = true)
+	private static final GDXTerminalFont bestFont = TerminalFont.getBest(GDXTerminalFont::new);
+	
 	@Getter private Texture texture;
 	
 	public GDXTerminalFont(URL url) {

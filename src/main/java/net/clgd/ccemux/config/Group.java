@@ -13,7 +13,7 @@ import lombok.val;
  * for greater organisation of config files.
  *
  * @see ConfigEntry
- * @see Property
+ * @see ConfigProperty
  */
 @Accessors(chain = true)
 public class Group extends ConfigEntry {
@@ -45,7 +45,7 @@ public class Group extends ConfigEntry {
 	 * @return The current group ({@code this}).
 	 * @throws IllegalStateException If an entry with the same key already exists.
 	 */
-	public Group addProperty(Property<?> property) {
+	public Group addProperty(ConfigProperty<?> property) {
 		if (children.containsKey(property.getKey())) {
 			throw new IllegalStateException("Already an entry with the given key");
 		}
@@ -102,10 +102,10 @@ public class Group extends ConfigEntry {
 	 * @param defaultValue The default value of this property.
 	 * @return The newly created property.
 	 * @throws IllegalStateException If an entry with the same key exists.
-	 * @see Property#Property(String, TypeToken, Object)
+	 * @see ConfigProperty#Property(String, TypeToken, Object)
 	 */
-	public <T> Property<T> property(String key, TypeToken<T> type, T defaultValue) {
-		Property<T> property = new Property<>(key, type, defaultValue);
+	public <T> ConfigProperty<T> property(String key, TypeToken<T> type, T defaultValue) {
+		ConfigProperty<T> property = new ConfigProperty<>(key, type, defaultValue);
 		addProperty(property);
 		return property;
 	}
@@ -118,10 +118,10 @@ public class Group extends ConfigEntry {
 	 * @param defaultValue The default value of this property.
 	 * @return The newly created property.
 	 * @throws IllegalStateException If an entry with the same key exists.
-	 * @see Property#Property(String, Class, Object)
+	 * @see ConfigProperty#Property(String, Class, Object)
 	 */
-	public <T> Property<T> property(String key, Class<T> type, T defaultValue) {
-		Property<T> property = new Property<>(key, type, defaultValue);
+	public <T> ConfigProperty<T> property(String key, Class<T> type, T defaultValue) {
+		ConfigProperty<T> property = new ConfigProperty<>(key, type, defaultValue);
 		addProperty(property);
 		return property;
 	}

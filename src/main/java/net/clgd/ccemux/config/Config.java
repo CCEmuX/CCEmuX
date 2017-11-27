@@ -23,9 +23,9 @@ public class Config {
 	 * @param defaultValue The default value of this property.
 	 * @return The newly created property.
 	 * @throws IllegalStateException If an entry with the same key exists.
-	 * @see Property#Property(String, TypeToken, Object)
+	 * @see ConfigProperty#Property(String, TypeToken, Object)
 	 */
-	public <T> Property<T> property(String key, TypeToken<T> type, T defaultValue) {
+	public <T> ConfigProperty<T> property(String key, TypeToken<T> type, T defaultValue) {
 		return root.property(key, type, defaultValue);
 	}
 
@@ -37,9 +37,9 @@ public class Config {
 	 * @param defaultValue The default value of this property.
 	 * @return The newly created property.
 	 * @throws IllegalStateException If an entry with the same key exists.
-	 * @see Property#Property(String, Class, Object)
+	 * @see ConfigProperty#Property(String, Class, Object)
 	 */
-	public <T> Property<T> property(String key, Class<T> type, T defaultValue) {
+	public <T> ConfigProperty<T> property(String key, Class<T> type, T defaultValue) {
 		return root.property(key, type, defaultValue);
 	}
 

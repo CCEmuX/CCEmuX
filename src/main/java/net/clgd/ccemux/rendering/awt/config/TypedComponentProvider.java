@@ -9,14 +9,11 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.google.common.primitives.Booleans;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
+import com.google.common.primitives.*;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonPrimitive;
 import lombok.val;
-import net.clgd.ccemux.config.Property;
+import net.clgd.ccemux.config.ConfigProperty;
 
 public class TypedComponentProvider {
 	private static final TypedComponentProvider instance = new TypedComponentProvider();
@@ -31,6 +28,15 @@ public class TypedComponentProvider {
 	public <T> void register(Class<T> type, T defaultValue, Factory<T> property) {
 		types.put(type, property);
 		defaultValues.put(type, defaultValue);
+
+		// Automatically register the wrapped/unwrapped equivalent
+		if (Primitives.isWrapperType(type)) {
+			types.put(Primitives.unwrap(type), property);
+			defaultValues.put(Primitives.unwrap(type), defaultValue);
+		} else if (type.isPrimitive()) {
+			types.put(Primitives.wrap(type), property);
+			defaultValues.put(Primitives.wrap(type), defaultValue);
+		}
 	}
 
 	private static Type extractBase(Type type) {
@@ -54,7 +60,7 @@ public class TypedComponentProvider {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Optional<JComponent> fromProperty(Property property) {
+	public Optional<JComponent> fromProperty(ConfigProperty property) {
 		return getFactory(property.getType())
 				.map((Factory x) -> x.create(property.get(), property::set, property.getType()));
 	}
@@ -65,28 +71,28 @@ public class TypedComponentProvider {
 
 	@SuppressWarnings("unchecked")
 	public TypedComponentProvider() {
-		register(Integer.class, 0, (value, callback, ty) -> {
+		register(int.class, 0, (value, callback, ty) -> {
 			val model = new SpinnerNumberModel((int) value, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
 			val spinner = new JSpinner(model);
 			spinner.addChangeListener(e -> callback.accept(model.getNumber().intValue()));
 			return spinner;
 		});
 
-		register(Long.class, 0L, (value, callback, ty) -> {
+		register(long.class, 0L, (value, callback, ty) -> {
 			val model = new SpinnerNumberModel((long) value, Long.MIN_VALUE, Long.MAX_VALUE, 1);
 			val spinner = new JSpinner(model);
 			spinner.addChangeListener(e -> callback.accept(model.getNumber().longValue()));
 			return spinner;
 		});
 
-		register(Double.class, 0d, (value, callback, ty) -> {
+		register(double.class, 0d, (value, callback, ty) -> {
 			val model = new SpinnerNumberModel(value, null, null, 1);
 			val spinner = new JSpinner(model);
 			spinner.addChangeListener(e -> callback.accept(model.getNumber().doubleValue()));
 			return spinner;
 		});
 
-		register(Boolean.class, false, (value, callback, ty) -> {
+		register(boolean.class, false, (value, callback, ty) -> {
 			val checkbox = new JCheckBox();
 			checkbox.getModel().setSelected(value);
 			checkbox.setBackground(null);

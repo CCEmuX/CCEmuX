@@ -9,6 +9,9 @@ Opens a new emulated computer, with the given ID (if specified) or with the next
 * emu data
 This will open the CCEmuX data dir (where config files and computer save folders are stored) in your default file browser. Can be called from within programs via ccemux.openDataDir(). Note that it may fail on some Linux systems (i.e. if you don't have a DE installed)
 
+* emu config
+Opens an interface to edit the CCEmuX configuration. Note that not all rendering backends support this.
+
 CREDITS
 
 * Lignum - developer
