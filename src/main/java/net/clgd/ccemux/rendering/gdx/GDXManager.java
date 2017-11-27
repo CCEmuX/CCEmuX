@@ -1,6 +1,5 @@
 package net.clgd.ccemux.rendering.gdx;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Disposable;
 import lombok.Getter;
 import net.clgd.ccemux.emulation.EmuConfig;
