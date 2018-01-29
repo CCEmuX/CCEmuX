@@ -39,12 +39,12 @@ repositories {
 }
 
 dependencies {
-	compileOnly files("lib/lombok-1.16.19.jar")
-	testCompileOnly files("lib/lombok-1.16.19.jar")
+	compileOnly 'org.projectlombok:lombok:1.16.20'
+	testCompileOnly 'org.projectlombok:lombok:1.16.20'
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
 
-	api 'dan200.computercraft:ComputerCraft:1.80pr1-build0'
+	api 'dan200.computercraft:ComputerCraft:1.80pr1-build4'
 
 	api 'org.slf4j:slf4j-api:1.7.25'
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
