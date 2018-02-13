@@ -101,6 +101,8 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		setOnMousePressed(this::mousePressed);
 		setOnMouseReleased(this::mouseReleased);
 		setOnMouseDragged(this::mouseDragged);
+		
+		setOnScroll(this::mouseScroll);
 
 		setOnDragOver(this::dragOver);
 		setOnDragDropped(e -> transferContents(e.getDragboard()));
@@ -311,6 +313,11 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			lastDrag = coords;
 			computer.drag(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1]);
 		}
+	}
+	
+	private void mouseScroll(ScrollEvent e) {
+		int[] coords = coordsToCC(e.getX(), e.getY());
+		computer.scroll(-1 * (int) (e.getDeltaY() / e.getMultiplierY()), coords[0], coords[1]);
 	}
 
 	private void dragOver(DragEvent e) {
