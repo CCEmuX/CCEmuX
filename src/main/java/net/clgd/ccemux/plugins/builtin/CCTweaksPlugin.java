@@ -61,7 +61,7 @@ public class CCTweaksPlugin extends Plugin {
 
 	private void configSetup(Group parent, ConfigMetadata.Category category) {
 		Group group = parent.group(category.name());
-		if (category.description() != null) parent.setDescription(category.description());
+		if (category.description() != null) group.setDescription(category.description());
 
 		for (ConfigMetadata.Category child : category.children()) {
 			configSetup(group, child);
