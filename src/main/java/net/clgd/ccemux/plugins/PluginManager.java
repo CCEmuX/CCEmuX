@@ -18,7 +18,6 @@ import net.clgd.ccemux.plugins.hooks.*;
 import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
-@SuppressWarnings("serial")
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated,
 		ComputerRemoved, InitializationCompleted, RendererCreated, Tick {
 	private static class PluginCandidate {

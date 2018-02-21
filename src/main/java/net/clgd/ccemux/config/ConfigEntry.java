@@ -31,4 +31,9 @@ public abstract class ConfigEntry {
 	 * @return A short description.
 	 */
 	public abstract Optional<String> getDescription();
+
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

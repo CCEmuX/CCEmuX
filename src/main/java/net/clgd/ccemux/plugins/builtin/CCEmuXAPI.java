@@ -40,38 +40,38 @@ public class CCEmuXAPI extends Plugin {
 		public API(CCEmuX emu, EmulatedComputer computer, String name) {
 			this.name = name;
 
-			methods.put("getVersion", o -> new Object[]{CCEmuX.getVersion()});
+			methods.put("getVersion", o -> new Object[] { CCEmuX.getVersion() });
 
 			methods.put("closeEmu", o -> {
 				computer.shutdown();
 				emu.removeComputer(computer);
-				return new Object[]{};
+				return new Object[] {};
 			});
 
 			methods.put("openEmu", o -> {
 				int id = ArgumentHelper.optInt(o, 0, -1);
 				EmulatedComputer ec = emu.createComputer(b -> b.id(id));
 
-				return new Object[]{ec.getID()};
+				return new Object[] { ec.getID() };
 			});
 
 			methods.put("openDataDir", o -> {
 				try {
 					Desktop.getDesktop().browse(emu.getCfg().getDataDir().toUri());
-					return new Object[]{true};
+					return new Object[] { true };
 				} catch (Exception e) {
-					return new Object[]{false, e.toString()};
+					return new Object[] { false, e.toString() };
 				}
 			});
 
-			methods.put("milliTime", o -> new Object[]{System.currentTimeMillis()});
-			methods.put("nanoTime", o -> new Object[]{System.nanoTime()});
+			methods.put("milliTime", o -> new Object[] { System.currentTimeMillis() });
+			methods.put("nanoTime", o -> new Object[] { System.nanoTime() });
 
 			methods.put("echo", o -> {
 				String message = ArgumentHelper.getString(o, 0);
 				log.info("[Computer {}] {}", computer.getID(), message);
 
-				return new Object[]{};
+				return new Object[] {};
 			});
 
 			methods.put("setClipboard", o -> {
@@ -80,21 +80,21 @@ public class CCEmuXAPI extends Plugin {
 				Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
 				c.setContents(sel, sel);
 
-				return new Object[]{};
+				return new Object[] {};
 			});
 
 			methods.put("openConfig", o -> {
 				if (emu.getRendererFactory().createConfigEditor(emu.getCfg())) {
-					return new Object[]{true};
+					return new Object[] { true };
 				} else {
-					return new Object[]{false, "Not supported with this renderer"};
+					return new Object[] { false, "Not supported with this renderer" };
 				}
 			});
 		}
 
 		@Override
 		public String[] getMethodNames() {
-			return methods.keySet().toArray(new String[]{});
+			return methods.keySet().toArray(new String[] {});
 		}
 
 		@Override
@@ -108,7 +108,7 @@ public class CCEmuXAPI extends Plugin {
 
 		@Override
 		public String[] getNames() {
-			return new String[]{name};
+			return new String[] { name };
 		}
 
 		@Override
@@ -125,8 +125,8 @@ public class CCEmuXAPI extends Plugin {
 
 	@Override
 	public String getDescription() {
-		return "Adds the 'ccemux' Lua API, which adds methods for interacting with the emulator and real computer.\n"
-				+ "Also adds the `emu` program and help ROM files, which use the API.";
+		return "Adds the 'ccemux' Lua API, which adds methods for interacting with the emulator and real computer. "
+				+ "Also adds the 'emu' program and help ROM files, which use the API.";
 	}
 
 	@Override
