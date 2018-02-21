@@ -4,6 +4,7 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '2.0.1'
 	id 'eclipse'
 	id 'idea'
+	id 'org.ajoberstar.grgit' version '2.1.0'
 }
 
 group = 'net.clgd'
@@ -62,7 +63,12 @@ dependencies {
 	testCompile 'junit:junit:4.12'
 }
 
-processResources { exclude '**/*.xcf' // GIMP images
+processResources {
+	exclude '**/*.xcf' // GIMP images
+	
+	filesMatching("ccemux.version") {
+		expand 'version': version, 'build': org.ajoberstar.grgit.Grgit.open(dir: '.').head().id
+	}
 }
 
 jar {
