@@ -1,18 +1,14 @@
 package net.clgd.ccemux.plugins;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.function.Consumer;
 
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.clgd.ccemux.config.Group;
+import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.config.ConfigProperty;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmuConfig;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.config.Group;
+import net.clgd.ccemux.emulation.*;
 import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.plugins.hooks.*;
 import net.clgd.ccemux.rendering.Renderer;
@@ -40,18 +36,14 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	public void gatherCandidates(ClassLoader loader) {
-		Group cfgPlugins = cfg.group("plugins")
-				.setName("Plugins")
+		Group cfgPlugins = cfg.group("plugins").setName("Plugins")
 				.setDescription("Config options for the various plugins");
 		for (Plugin candidate : ServiceLoader.load(Plugin.class, loader)) {
-			Group cfgCandidate = cfgPlugins.group(candidate.getClass().getName())
-					.setName(candidate.getName())
+			Group cfgCandidate = cfgPlugins.group(candidate.getClass().getName()).setName(candidate.getName())
 					.setDescription(candidate.getDescription());
 
-			candidates.add(new PluginCandidate(
-					candidate,
-					cfgCandidate.property("enabled", Boolean.class, true).setName("Enabled")
-			));
+			candidates.add(new PluginCandidate(candidate,
+					cfgCandidate.property("enabled", Boolean.class, true).setName("Enabled")));
 
 			candidate.configSetup(cfgCandidate);
 		}
@@ -64,7 +56,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 				enabled.add(candidate.plugin);
 				log.info("Loaded plugin [{}] from {}", candidate.plugin, source);
 			} else {
-				log.info("Skipping blacklisted plugin [{}] from {}", candidate.plugin, source);
+				log.info("Skipping disabled plugin [{}] from {}", candidate.plugin, source);
 			}
 		}
 	}
@@ -74,8 +66,11 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 			try {
 				log.debug("Calling loaderSetup for plugin [{}]", p);
 				p.loaderSetup(cfg, loader);
-			} catch (Exception e) {
-				log.warn("Exception while calling loaderSetup for plugin [{}]", p, e);
+			} catch (Throwable t) {
+				log.warn("Exception while calling loaderSetup for plugin [{}]", p, t);
+
+				log.info("Disabling plugin [{}]: loaderSetup failed", p);
+				enabled.remove(p);
 			}
 		}
 	}
@@ -85,8 +80,11 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 			try {
 				log.debug("Calling setup for plugin [{}]", p);
 				p.setup(cfg);
-			} catch (Exception e) {
-				log.warn("Exception while calling setup for plugin [{}]", p, e);
+			} catch (Throwable t) {
+				log.error("Exception while calling setup for plugin [{}]", p, t);
+
+				log.info("Disabling plugin [{}]: setup failed", p);
+				enabled.remove(p);
 			}
 		}
 	}
