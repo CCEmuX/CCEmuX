@@ -26,8 +26,8 @@ import org.apache.commons.io.IOUtils;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.Utils;
 import lombok.val;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
@@ -36,7 +36,7 @@ import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j
-public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
+public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, WindowFocusListener {
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
@@ -111,6 +111,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		frame.addMouseListener(this);
 		frame.addMouseMotionListener(this);
 		frame.addMouseWheelListener(this);
+		frame.addWindowFocusListener(this);
 
 		// properly stop emulator when window is closed
 		frame.addWindowListener(new WindowAdapter() {
@@ -240,7 +241,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				doRepaint = true;
 				computer.terminal.clearChanged();
 			}
-			
+
 			if (computer.terminal.getPalette().isChanged()) {
 				doRepaint = true;
 				computer.terminal.getPalette().setChanged(false);
@@ -396,5 +397,19 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	@Override
 	public void dispose() {
 		frame.dispose();
+	}
+
+	@Override
+	public void windowGainedFocus(WindowEvent e) {
+	}
+
+	@Override
+	public void windowLostFocus(WindowEvent e) {
+		for (int i = keysDown.size(); i >= 0; i--) {
+			if (keysDown.get(i)) {
+				keysDown.clear(i);
+				computer.releaseKey(translateToCC(i));
+			}
+		}
 	}
 }

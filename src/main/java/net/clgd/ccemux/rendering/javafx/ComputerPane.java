@@ -9,6 +9,7 @@ import java.util.Map;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
@@ -19,8 +20,8 @@ import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.OperatingSystem;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
@@ -101,11 +102,13 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		setOnMousePressed(this::mousePressed);
 		setOnMouseReleased(this::mouseReleased);
 		setOnMouseDragged(this::mouseDragged);
-		
+
 		setOnScroll(this::mouseScroll);
 
 		setOnDragOver(this::dragOver);
 		setOnDragDropped(e -> transferContents(e.getDragboard()));
+
+		focusedProperty().addListener(this::focusChanged);
 
 		this.setFocusTraversable(false);
 		canvas.setFocusTraversable(false);
@@ -259,7 +262,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 			// don't send key if pasting text
 			if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) return;
-			
+
 			computer.pressKey(ccCode, false);
 		}
 
@@ -280,7 +283,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 
 		pressedKeys.remove(e.getCode());
-		
+
 		if (e.getCode().equals(KeyCode.V) && e.isShortcutDown()) {
 			transferContents(Clipboard.getSystemClipboard());
 		} else {
@@ -314,10 +317,20 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			computer.drag(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1]);
 		}
 	}
-	
+
 	private void mouseScroll(ScrollEvent e) {
 		int[] coords = coordsToCC(e.getX(), e.getY());
 		computer.scroll(-1 * (int) (e.getDeltaY() / e.getMultiplierY()), coords[0], coords[1]);
+	}
+
+	private void focusChanged(Observable e) {
+		if(!focusedProperty().get()) {
+			for (KeyCode code : pressedKeys.keySet()) {
+				int ccCode = JFXKeyTranslator.translateToCC(code);
+				if (ccCode != 0) computer.releaseKey(ccCode);
+			}
+			pressedKeys.clear();
+		}
 	}
 
 	private void dragOver(DragEvent e) {
