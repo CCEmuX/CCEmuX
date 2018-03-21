@@ -1,6 +1,8 @@
 package net.clgd.ccemux.rendering;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
+import java.util.Map;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -123,37 +125,33 @@ public abstract class TerminalFont {
 	 * The scale of the font, calculated based on base image resolution
 	 */
 	@Getter
-	private final double horizontalScale, verticalScale;
+	private double horizontalScale, verticalScale;
 
 	/**
 	 * The scaled character dimensions
 	 */
 	@Getter
-	private final int charWidth, charHeight;
+	private int charWidth, charHeight;
 
 	/**
 	 * The margin around each character
 	 */
 	@Getter
-	private final int margin;
+	private int margin;
+	
+	private Map<Character, Rectangle> charCoordCache = new HashMap<>();
 
-	/**
-	 * Creates a new terminal font
-	 *
-	 * @param imageWidth
-	 *            The width of the font image.
-	 * @param imageHeight
-	 *            The height of the font image.
-	 */
-	public TerminalFont(int imageWidth, int imageHeight) {
+	public void calculateCharSizes(int imageWidth, int imageHeight) {
 		horizontalScale = imageWidth / (double) BASE_WIDTH;
 		verticalScale = imageHeight / (double) BASE_HEIGHT;
-
+		
 		margin = (int) Math.round(BASE_MARGIN * horizontalScale);
 		charWidth = (int) Math.round(BASE_CHAR_WIDTH * horizontalScale);
 		charHeight = (int) Math.round(BASE_CHAR_HEIGHT * verticalScale);
 	}
-
+	
+	
+	
 	/**
 	 * Gets the scaled coordinates and dimensions for a given character in this
 	 * font
@@ -163,7 +161,10 @@ public abstract class TerminalFont {
 	 * @return The coordinates and dimensions of a given character
 	 */
 	public Rectangle getCharCoords(char c) {
+		if (charCoordCache.containsKey(c)) return charCoordCache.get(c);
+		
 		int charcode = (int) c;
+		
 		return new Rectangle(margin + charcode % COLUMNS * (getCharWidth() + margin * 2),
 				margin + charcode / ROWS * (getCharHeight() + margin * 2), getCharWidth(), getCharHeight());
 	}

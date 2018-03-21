@@ -32,7 +32,7 @@ public class JFXTerminalFont extends TerminalFont {
 			.maximumSize(1000).initialCapacity(200).build();
 
 	public JFXTerminalFont(Image base) {
-		super(base.widthProperty().intValue(), base.heightProperty().intValue());
+		calculateCharSizes(base.widthProperty().intValue(), base.heightProperty().intValue());
 		this.base = base;
 	}
 
