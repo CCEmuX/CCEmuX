@@ -1,12 +1,17 @@
-package net.clgd.ccemux.config;
+package net.clgd.ccemux.api.config;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
+
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import lombok.val;
+import lombok.experimental.Accessors;
 
 /**
  * A group acts as a collection of child properties and groups, allowing

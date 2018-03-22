@@ -4,9 +4,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import com.google.gson.Gson;
-import net.clgd.ccemux.config.Config;
+
+import net.clgd.ccemux.api.config.Config;
+import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.config.JsonAdapter;
-import net.clgd.ccemux.config.ConfigProperty;
 
 public abstract class EmuConfig extends Config {
 	protected final JsonAdapter adapter;

@@ -2,11 +2,15 @@ package net.clgd.ccemux.plugins;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.config.Group;
+import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.hooks.Hook;
 

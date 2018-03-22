@@ -1,4 +1,4 @@
-package net.clgd.ccemux.config;
+package net.clgd.ccemux.api.config;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -7,16 +7,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 
-import com.google.gson.reflect.TypeToken;
+import com.google.common.reflect.TypeToken;
+
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 import lombok.val;
+import lombok.experimental.Accessors;
 
 /**
  * An entry in a config file which stores a value of the given type.
  *
- * @param <T> The type of value to store.
+ * @param <T>
+ *            The type of value to store.
  */
 @Accessors(chain = true)
 public class ConfigProperty<T> extends ConfigEntry {
@@ -61,8 +63,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * Whether this property has not been changed, and so stores the default value.
 	 *
 	 * Note that if a property has been changed and happens to have the same value
-	 * as the default then this will be {@code false}. One must call {@link #resetDefault()}
-	 * in order to mark it as default.
+	 * as the default then this will be {@code false}. One must call
+	 * {@link #resetDefault()} in order to mark it as default.
 	 */
 	@Getter
 	private boolean isDefault;
@@ -80,10 +82,14 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Create a new property with the given key and add it to the group.
 	 *
-	 * @param key          The property's unique key.
-	 * @param type         The type of this property's value.
-	 * @param defaultValue The default value of this property.
-	 * @throws IllegalStateException If an entry with the same key exists.
+	 * @param key
+	 *            The property's unique key.
+	 * @param type
+	 *            The type of this property's value.
+	 * @param defaultValue
+	 *            The default value of this property.
+	 * @throws IllegalStateException
+	 *             If an entry with the same key exists.
 	 * @see Group#property(String, Class, Object)
 	 */
 	public ConfigProperty(String key, Class<T> type, T defaultValue) {
@@ -93,10 +99,14 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Create a new property with the given key and add it to the group.
 	 *
-	 * @param key          The property's unique key.
-	 * @param type         The type of this property's value.
-	 * @param defaultValue The default value of this property.
-	 * @throws IllegalStateException If an entry with the same key exists.
+	 * @param key
+	 *            The property's unique key.
+	 * @param type
+	 *            The type of this property's value.
+	 * @param defaultValue
+	 *            The default value of this property.
+	 * @throws IllegalStateException
+	 *             If an entry with the same key exists.
 	 * @see Group#property(String, TypeToken, Object)
 	 */
 	public ConfigProperty(String key, TypeToken<T> type, T defaultValue) {
@@ -115,7 +125,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Change the value of this property, marking it as dirty and firing listeners.
 	 *
-	 * @param newValue The value to change the property to.
+	 * @param newValue
+	 *            The value to change the property to.
 	 * @see #resetDefault()
 	 */
 	public void set(T newValue) {
@@ -128,7 +139,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 			val oldValue = value;
 			value = newValue;
 
-			for (val listener : listeners) listener.accept(oldValue, newValue);
+			for (val listener : listeners)
+				listener.accept(oldValue, newValue);
 		}
 	}
 
@@ -148,8 +160,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 	}
 
 	/**
-	 * Ensure this property is always written to a config file, irrespective
-	 * of whether it's non-default.
+	 * Ensure this property is always written to a config file, irrespective of
+	 * whether it's non-default.
 	 *
 	 * @return The current property.
 	 * @see #isAlwaysEmit()
@@ -162,7 +174,9 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Add a listener which observes value changes.
 	 *
-	 * @param listener The event listener. This receives the old and new values as arguments.
+	 * @param listener
+	 *            The event listener. This receives the old and new values as
+	 *            arguments.
 	 * @see #addAndFireListener(BiConsumer)
 	 * @see #removeListener(BiConsumer)
 	 */
@@ -181,7 +195,9 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * }
 	 * </pre>
 	 *
-	 * @param listener The event listener. This receives the old and new values as arguments.
+	 * @param listener
+	 *            The event listener. This receives the old and new values as
+	 *            arguments.
 	 * @see #addListener(BiConsumer)
 	 * @see #removeListener(BiConsumer)
 	 */
@@ -193,7 +209,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Remove a property change listener
 	 *
-	 * @param listener The event listener to remove.
+	 * @param listener
+	 *            The event listener to remove.
 	 * @see #addListener(BiConsumer)
 	 * @see #addAndFireListener(BiConsumer)
 	 */

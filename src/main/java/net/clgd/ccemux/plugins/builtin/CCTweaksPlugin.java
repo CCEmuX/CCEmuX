@@ -14,10 +14,11 @@ import org.squiddev.cctweaks.lua.launch.RewritingLoader;
 import org.squiddev.cctweaks.lua.lib.ApiRegister;
 
 import com.google.auto.service.AutoService;
+
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.config.ConfigEntry;
-import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.config.ConfigProperty;
+import net.clgd.ccemux.api.config.ConfigEntry;
+import net.clgd.ccemux.api.config.ConfigProperty;
+import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 

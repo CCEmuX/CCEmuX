@@ -9,9 +9,11 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.experimental.UtilityClass;
-import net.clgd.ccemux.config.ConfigProperty;
+import net.clgd.ccemux.api.config.ConfigProperty;
 
 @UtilityClass
 public class ConfigBindings {

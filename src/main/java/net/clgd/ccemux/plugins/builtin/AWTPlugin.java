@@ -8,8 +8,9 @@ import java.util.Optional;
 import javax.swing.JFrame;
 
 import com.google.auto.service.AutoService;
-import net.clgd.ccemux.config.ConfigProperty;
-import net.clgd.ccemux.config.Group;
+
+import net.clgd.ccemux.api.config.ConfigProperty;
+import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.Plugin;

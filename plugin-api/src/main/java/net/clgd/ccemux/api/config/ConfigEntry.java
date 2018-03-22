@@ -1,4 +1,4 @@
-package net.clgd.ccemux.config;
+package net.clgd.ccemux.api.config;
 
 import java.util.Optional;
 
