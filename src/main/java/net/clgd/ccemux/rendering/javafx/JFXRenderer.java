@@ -42,6 +42,9 @@ public class JFXRenderer implements Renderer {
 		stage.getIcons().add(new Image("/img/icon.png"));
 
 		stage.setOnCloseRequest(e -> listeners.forEach(Listener::onClosed));
+		
+		pane.prefWidthProperty().addListener((s,o,n) -> stage.setWidth((double) n));
+		pane.prefHeightProperty().addListener((s,o,n) -> stage.setHeight((double) n));
 	}
 
 	@Override

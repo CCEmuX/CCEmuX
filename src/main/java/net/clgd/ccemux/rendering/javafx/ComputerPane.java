@@ -11,11 +11,15 @@ import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.geometry.Insets;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.input.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
@@ -82,10 +86,16 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		this.charHeight = termScale.multiply(BASE_CHAR_HEIGHT);
 		this.totalWidth = margin.multiply(2).add(charWidth.multiply(computer.terminal.getWidth()));
 		this.totalHeight = margin.multiply(2).add(charHeight.multiply(computer.terminal.getHeight()));
+		
+//		this.setBackground(new Background(new BackgroundFill(Color.BLACK, CornerRadii.EMPTY, Insets.EMPTY)));
 
 		this.prefWidthProperty().bind(totalWidth);
 		this.prefHeightProperty().bind(totalHeight);
-
+		prefWidthProperty().addListener((s,o,n) -> log.info("Width = {}", n));
+		
+		this.minWidthProperty().bind(totalWidth);
+		this.minHeightProperty().bind(totalHeight);
+		
 		this.canvas = new Canvas(totalWidth.get(), totalHeight.get());
 		canvas.widthProperty().bind(this.widthProperty());
 		canvas.heightProperty().bind(this.heightProperty());
