@@ -1,7 +1,9 @@
 package net.clgd.ccemux.rendering.javafx;
 
 import static com.google.common.primitives.Ints.constrainToRange;
-import static net.clgd.ccemux.rendering.TerminalFont.*;
+import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_HEIGHT;
+import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_WIDTH;
+import static net.clgd.ccemux.rendering.TerminalFont.BASE_MARGIN;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,14 +18,20 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.clgd.ccemux.OperatingSystem;
-import net.clgd.ccemux.Utils;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.OperatingSystem;
+import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;

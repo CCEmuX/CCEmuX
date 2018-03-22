@@ -1,11 +1,19 @@
 package net.clgd.ccemux.rendering.tror;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.BlockingDeque;
 
-import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.*;
+import net.clgd.ccemux.api.Utils;
+import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.emulation.EmulatedPalette;
+import net.clgd.ccemux.emulation.EmulatedTerminal;
 import net.clgd.ccemux.rendering.Renderer;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.ColorChangeListener {
@@ -67,7 +75,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 				StringBuilder builder = new StringBuilder();
 				for (int y = 0; y < terminal.getHeight(); y++) {
-					if (y > 0) builder.append(':');
+					if (y > 0)
+						builder.append(':');
 
 					builder.append(terminal.getTextColourLine(y).m_text);
 					builder.append(',');
@@ -99,7 +108,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 			case "EV": {
 				String payload = packet.payload;
 				int index = payload.indexOf(',');
-				if (index < 0) index = payload.length();
+				if (index < 0)
+					index = payload.length();
 
 				String event = payload.substring(0, index);
 				List<Object> args = new ArrayList<>();
@@ -134,7 +144,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 									builder.append('\\');
 								else if (current == '\'')
 									builder.append('\'');
-								else if (current == '\"') builder.append('\"');
+								else if (current == '\"')
+									builder.append('\"');
 
 								// TODO: Support for numeric escape codes.
 							} else {
@@ -143,10 +154,12 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 						}
 
 						args.add(builder.toString());
-						if (index >= payload.length() - 1 || payload.charAt(index) == ',') index++;
+						if (index >= payload.length() - 1 || payload.charAt(index) == ',')
+							index++;
 					} else {
 						int next = payload.indexOf(',', index);
-						if (next < 0) next = payload.length();
+						if (next < 0)
+							next = payload.length();
 						String arg = payload.substring(index, next);
 						switch (arg) {
 						case "nil":
@@ -193,7 +206,8 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	}
 
 	private void sendLine(String mode, String line) {
-		if (!isVisible) return;
+		if (!isVisible)
+			return;
 
 		try {
 			output.write(mode);

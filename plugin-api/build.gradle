@@ -1,0 +1,12 @@
+repositories {
+	maven {
+		name = 'computercraft'
+		url = "https://cc.crzd.me/maven"
+	}
+}
+
+dependencies {
+	api 'dan200.computercraft:ComputerCraft:1.80pr1-build4'
+
+	api 'org.slf4j:slf4j-api:1.7.25'
+}

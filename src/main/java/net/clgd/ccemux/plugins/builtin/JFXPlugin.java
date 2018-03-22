@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.google.auto.service.AutoService;
 
-import net.clgd.ccemux.OperatingSystem;
+import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.config.ConfigProperty;
 import net.clgd.ccemux.config.Group;
 import net.clgd.ccemux.emulation.EmuConfig;

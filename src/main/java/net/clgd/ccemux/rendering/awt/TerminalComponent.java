@@ -1,22 +1,30 @@
 package net.clgd.ccemux.rendering.awt;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
-import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.rendering.PaletteAdapter;
-import net.clgd.ccemux.rendering.PaletteAdapter.ColorAdapter;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.awt.*;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
+import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
+import dan200.computercraft.core.terminal.Terminal;
+import dan200.computercraft.core.terminal.TextBuffer;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.Utils;
+import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.rendering.PaletteAdapter;
+import net.clgd.ccemux.rendering.PaletteAdapter.ColorAdapter;
 
 @Slf4j
 class TerminalComponent extends Canvas {
@@ -56,7 +64,8 @@ class TerminalComponent extends Canvas {
 	}
 
 	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
-		if (c == '\0' || Character.isSpaceChar(c)) return; // nothing to do here
+		if (c == '\0' || Character.isSpaceChar(c))
+			return; // nothing to do here
 
 		Rectangle r = font.getCharCoords(c);
 		Color colour = paletteCacher.getColor(color);
@@ -133,7 +142,7 @@ class TerminalComponent extends Canvas {
 			}
 
 			g.dispose();
-			//paletteCacher.setCurrentPalette(terminal.getPalette());
+			// paletteCacher.setCurrentPalette(terminal.getPalette());
 		}
 	}
 

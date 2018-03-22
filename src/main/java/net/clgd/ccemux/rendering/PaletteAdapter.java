@@ -2,7 +2,7 @@ package net.clgd.ccemux.rendering;
 
 import dan200.computercraft.shared.util.Palette;
 import lombok.Value;
-import net.clgd.ccemux.Utils;
+import net.clgd.ccemux.api.Utils;
 
 /**
  * Wraps a {@link Palette} object with a given {@link ColorAdapter} to make it
@@ -25,8 +25,7 @@ public class PaletteAdapter<C> {
 	@FunctionalInterface
 	public static interface ColorAdapter<T> {
 		/**
-		 * Creates a color object from the given RGB values, doubles on the
-		 * range [0, 1]
+		 * Creates a color object from the given RGB values, doubles on the range [0, 1]
 		 * 
 		 * @param r
 		 * @param g
