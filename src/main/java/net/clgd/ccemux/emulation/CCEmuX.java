@@ -15,6 +15,7 @@ import dan200.computercraft.core.filesystem.*;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
 import net.clgd.ccemux.plugins.PluginManager;

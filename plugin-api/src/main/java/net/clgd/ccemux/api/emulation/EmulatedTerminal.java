@@ -1,42 +1,36 @@
-package net.clgd.ccemux.emulation;
+package net.clgd.ccemux.api.emulation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dan200.computercraft.core.terminal.Terminal;
 
+/**
+ * A wrapper for {@link Terminal} that allows {@link Listener listeners} to be
+ * added
+ */
 public class EmulatedTerminal extends Terminal {
 
 	public interface Listener {
-		default void resize(int width, int height) {
-		}
+		default void resize(int width, int height) {}
 
-		default void setCursorPos(int x, int y) {
-		}
+		default void setCursorPos(int x, int y) {}
 
-		default void setCursorBlink(boolean blink) {
-		}
+		default void setCursorBlink(boolean blink) {}
 
-		default void setTextColour(int colour) {
-		}
+		default void setTextColour(int colour) {}
 
-		default void setBackgroundColour(int colour) {
-		}
+		default void setBackgroundColour(int colour) {}
 
-		default void blit(String text, String textColour, String backgroundColour) {
-		}
+		default void blit(String text, String textColour, String backgroundColour) {}
 
-		default void write(String text) {
-		}
+		default void write(String text) {}
 
-		default void scroll(int yDiff) {
-		}
+		default void scroll(int yDiff) {}
 
-		default void clear() {
-		}
+		default void clear() {}
 
-		default void clearLine() {
-		}
+		default void clearLine() {}
 	}
 
 	private final EmulatedPalette palette;

@@ -15,6 +15,7 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import lombok.val;
 
 /**
