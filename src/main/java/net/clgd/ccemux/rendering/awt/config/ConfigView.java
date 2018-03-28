@@ -32,7 +32,7 @@ import lombok.val;
 import net.clgd.ccemux.api.config.ConfigEntry;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.init.UserConfig;
 
 public class ConfigView extends JFrame {

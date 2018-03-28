@@ -1,21 +1,18 @@
-package net.clgd.ccemux.emulation;
+package net.clgd.ccemux.api.emulation;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import com.google.gson.Gson;
-
 import net.clgd.ccemux.api.config.Config;
 import net.clgd.ccemux.api.config.ConfigProperty;
-import net.clgd.ccemux.config.JsonAdapter;
 
+/**
+ * A base emulator config
+ */
 public abstract class EmuConfig extends Config {
-	protected final JsonAdapter adapter;
-
-	public EmuConfig(Gson gson) {
-		adapter = new JsonAdapter(gson, this);
-	}
-
+	/**
+	 * The directory to store emulator data in (e.g. configs, plugins, computer data)
+	 */
 	public abstract Path getDataDir();
 
 	public ConfigProperty<Double> termScale = property("termScale", double.class, 2.0)

@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.concurrent.BlockingDeque;
 
 import net.clgd.ccemux.api.Utils;
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.emulation.EmulatedPalette;
 import net.clgd.ccemux.emulation.EmulatedTerminal;

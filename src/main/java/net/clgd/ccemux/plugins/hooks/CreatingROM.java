@@ -2,9 +2,9 @@ package net.clgd.ccemux.plugins.hooks;
 
 import java.nio.file.Path;
 
+import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualMountEntry;
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
-import net.clgd.ccemux.emulation.filesystem.VirtualMountEntry;
 
 /**
  * Called when CCEmuX creates the ROM for computers. This hook allows plugins to

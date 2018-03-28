@@ -10,7 +10,8 @@ import java.nio.file.Path;
 import com.google.gson.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.config.JsonAdapter;
 
 @EqualsAndHashCode(callSuper = true)
 public class UserConfig extends EmuConfig {
@@ -23,8 +24,10 @@ public class UserConfig extends EmuConfig {
 	@Getter
 	private final Path dataDir;
 
+	private final JsonAdapter adapter;
+	
 	public UserConfig(Path dataDir) {
-		super(gson);
+		adapter = new JsonAdapter(gson, this);
 		this.dataDir = dataDir;
 		getRoot().setName("CCEmuX Config");
 	}

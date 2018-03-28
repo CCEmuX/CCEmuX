@@ -1,4 +1,4 @@
-package net.clgd.ccemux.emulation.filesystem;
+package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class VirtualMount implements IMount {
 
 	/**
 	 * Constructs a new <code>VirtualMount</code> with the given
-	 * {@link net.clgd.ccemux.emulation.filesystem.VirtualDirectory
+	 * {@link net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory
 	 * VirtualDirectory} as its root folder.
 	 * 
 	 * @param root
@@ -34,7 +34,7 @@ public class VirtualMount implements IMount {
 
 	/**
 	 * Follows the given path to get a
-	 * {@link net.clgd.ccemux.emulation.filesystem.VirtualMountEntry
+	 * {@link net.clgd.ccemux.api.emulation.filesystem.VirtualMountEntry
 	 * MountEntry}. Returns <code>null</code> if the path is invalid (e.g.
 	 * non-existent entry or trying to get child of a directory)
 	 * 

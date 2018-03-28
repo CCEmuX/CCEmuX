@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.config.ConfigEntry;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 
 @Slf4j

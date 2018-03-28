@@ -1,4 +1,4 @@
-package net.clgd.ccemux.emulation.filesystem;
+package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.nio.charset.StandardCharsets;
 
@@ -12,8 +12,8 @@ import lombok.Getter;
  * @author apemanzilla
  *
  */
-@EqualsAndHashCode
-public final class VirtualFile implements VirtualMountEntry {
+@EqualsAndHashCode(callSuper=false)
+public final class VirtualFile extends VirtualMountEntry {
 	@Getter
 	private final byte[] data;
 

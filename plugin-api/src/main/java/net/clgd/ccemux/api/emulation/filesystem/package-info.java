@@ -5,4 +5,4 @@
  * @see VirtualDirectory
  * @see VirtualFile
  */
-package net.clgd.ccemux.emulation.filesystem;
+package net.clgd.ccemux.api.emulation.filesystem;

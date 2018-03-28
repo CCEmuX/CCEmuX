@@ -3,7 +3,7 @@ package net.clgd.ccemux.rendering;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.emulation.EmulatedComputer;
 
 @FunctionalInterface

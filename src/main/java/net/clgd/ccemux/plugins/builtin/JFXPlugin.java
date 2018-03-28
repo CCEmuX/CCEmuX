@@ -9,7 +9,7 @@ import com.google.auto.service.AutoService;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.javafx.JFXRendererFactory;

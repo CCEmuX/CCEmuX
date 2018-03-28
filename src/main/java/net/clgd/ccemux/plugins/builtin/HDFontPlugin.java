@@ -4,7 +4,7 @@ import java.util.*;
 
 import com.google.auto.service.AutoService;
 
-import net.clgd.ccemux.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.rendering.TerminalFont;
 

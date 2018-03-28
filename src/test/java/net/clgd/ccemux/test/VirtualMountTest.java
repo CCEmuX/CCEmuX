@@ -16,9 +16,9 @@ import org.junit.Test;
 import com.google.common.collect.ImmutableList;
 
 import lombok.val;
-import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
-import net.clgd.ccemux.emulation.filesystem.VirtualFile;
-import net.clgd.ccemux.emulation.filesystem.VirtualMount;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
 
 public class VirtualMountTest {
 	public VirtualMount rom;

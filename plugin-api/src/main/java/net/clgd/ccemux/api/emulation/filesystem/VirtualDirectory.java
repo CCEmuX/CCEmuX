@@ -1,4 +1,4 @@
-package net.clgd.ccemux.emulation.filesystem;
+package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -15,8 +15,8 @@ import lombok.EqualsAndHashCode;
  * @author apemanzilla
  *
  */
-@EqualsAndHashCode
-public final class VirtualDirectory implements VirtualMountEntry {
+@EqualsAndHashCode(callSuper=false)
+public final class VirtualDirectory extends VirtualMountEntry {
 	/**
 	 * A builder for {@link VirtualDirectory} that automatically creates the
 	 * necessary directories for each entry
