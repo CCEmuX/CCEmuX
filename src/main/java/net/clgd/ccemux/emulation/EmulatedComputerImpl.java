@@ -12,20 +12,18 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
  *
- * @author apemanzilla
- *
  */
 @Slf4j
-public class EmulatedComputer extends Computer {
+public class EmulatedComputerImpl extends EmulatedComputer {
 	private static final Field rootMountField;
 
 	static {
@@ -48,7 +46,7 @@ public class EmulatedComputer extends Computer {
 	 * @author apemanzilla
 	 *
 	 */
-	public static class Builder {
+	public static class BuilderImpl implements Builder {
 		private final IComputerEnvironment env;
 		private final EmulatedTerminal term;
 
@@ -60,55 +58,58 @@ public class EmulatedComputer extends Computer {
 
 		private transient boolean built = false;
 
-		private Builder(IComputerEnvironment env, EmulatedTerminal term) {
+		private BuilderImpl(IComputerEnvironment env, EmulatedTerminal term) {
 			this.env = env;
 			this.term = term;
 		}
 
-		/**
-		 * Sets the ID of the computer to construct. Setting the id to
-		 * <code>null</code> (the default value) will result in the ID being
-		 * automatically chosen by the environment.
-		 *
-		 * @return This builder, for chaining
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see net.clgd.ccemux.emulation.Builder#id(java.lang.Integer)
 		 */
-		public Builder id(Integer num) {
+		@Override
+		public BuilderImpl id(Integer num) {
 			id = num;
 			return this;
 		}
 
-		/**
-		 * Sets the root (<code>/</code>) mount of the computer to construct.
-		 * Setting the root mount to <code>null</code> (the default value) will
-		 * result in one being created by the environment.
-		 *
-		 * @param rootMount
-		 *            The writable mount to use as a root mount
-		 * @return This builder, for chaining
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see net.clgd.ccemux.emulation.Builder#rootMount(dan200.computercraft.api.
+		 * filesystem.IWritableMount)
 		 */
+		@Override
 		public Builder rootMount(IWritableMount rootMount) {
 			this.rootMount = rootMount;
 			return this;
 		}
 
-		/**
-		 * Sets the label of the computer to construct. Setting the label to
-		 * <code>null</code> (the default value) will result in no label being
-		 * set.
-		 *
-		 * @return This builder, for chaining
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see net.clgd.ccemux.emulation.Builder#label(java.lang.String)
 		 */
+		@Override
 		public Builder label(String label) {
 			this.label = label;
 			return this;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see net.clgd.ccemux.emulation.Builder#build()
+		 */
+		@Override
 		public EmulatedComputer build() {
 			if (!built) {
-				EmulatedComputer ec = new EmulatedComputer(env, term, Optional.ofNullable(id).orElse(-1));
+				EmulatedComputer ec = new EmulatedComputerImpl(env, term, Optional.ofNullable(id).orElse(-1));
 				ec.assignID();
 
-				if (label != null) ec.setLabel(label);
+				if (label != null)
+					ec.setLabel(label);
 
 				try {
 					if (rootMount != null) {
@@ -133,16 +134,7 @@ public class EmulatedComputer extends Computer {
 	 * @return
 	 */
 	public static Builder builder(IComputerEnvironment env, EmulatedTerminal term) {
-		return new Builder(env, term);
-	}
-
-	public static interface Listener {
-		/**
-		 * Called when the computer is ticked
-		 * 
-		 * @param dt
-		 */
-		public void onAdvance(double dt);
+		return new BuilderImpl(env, term);
 	}
 
 	/**
@@ -152,15 +144,17 @@ public class EmulatedComputer extends Computer {
 
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
-	private EmulatedComputer(IComputerEnvironment environment, EmulatedTerminal terminal, int id) {
+	private EmulatedComputerImpl(IComputerEnvironment environment, EmulatedTerminal terminal, int id) {
 		super(environment, terminal, id);
 		this.terminal = terminal;
 	}
 
+	@Override
 	public boolean addListener(Listener l) {
 		return listeners.add(l);
 	}
 
+	@Override
 	public boolean removeListener(Listener l) {
 		return listeners.remove(l);
 	}
@@ -172,47 +166,7 @@ public class EmulatedComputer extends Computer {
 		listeners.forEach(l -> l.onAdvance(dt));
 	}
 
-	public void pressKey(int keycode, boolean repeat) {
-		queueEvent("key", new Object[] { keycode, repeat });
-	}
-
-	public void releaseKey(int keycode) {
-		queueEvent("key_up", new Object[] { keycode });
-	}
-
-	public void pressChar(char c) {
-		queueEvent("char", new Object[] { "" + c });
-	}
-
-	public void paste(String text) {
-		queueEvent("paste", new Object[] { text });
-	}
-
-	public void terminate() {
-		queueEvent("terminate", new Object[] {});
-	}
-
-	public void click(int button, int x, int y, boolean release) {
-		queueEvent(release ? "mouse_up" : "mouse_click", new Object[] { button, x, y });
-	}
-
-	public void drag(int button, int x, int y) {
-		queueEvent("mouse_drag", new Object[] { button, x, y });
-	}
-
-	public void scroll(int lines, int x, int y) {
-		queueEvent("mouse_scroll", new Object[] { lines, x, y });
-	}
-
-	/**
-	 * Copies the given files into this computer's root mount at the given
-	 * location. All files will be copied into the destination regardless of
-	 * their absolute path, with their original name. Directories will be
-	 * recursively copied into the destination in a similar fashion to files.
-	 *
-	 * @param files
-	 *            The files to copy
-	 */
+	@Override
 	public void copyFiles(Iterable<File> files, String location) throws IOException {
 		val mount = this.getRootMount();
 		val base = Paths.get(location);
@@ -221,7 +175,8 @@ public class EmulatedComputer extends Computer {
 			val path = base.resolve(f.getName()).toString();
 
 			if (f.isFile()) {
-				if (f.length() > mount.getRemainingSpace()) throw new IOException("Not enough space on computer");
+				if (f.length() > mount.getRemainingSpace())
+					throw new IOException("Not enough space on computer");
 
 				val s = mount.openForWrite(path);
 				IOUtils.copy(FileUtils.openInputStream(f), s);

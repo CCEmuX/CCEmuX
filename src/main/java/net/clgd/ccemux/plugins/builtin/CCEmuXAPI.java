@@ -6,21 +6,27 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
+
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.emulation.EmuConfig;
-import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory.Builder;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.CreatingROM;

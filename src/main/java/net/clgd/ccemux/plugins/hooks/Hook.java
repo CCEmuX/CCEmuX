@@ -1,7 +1,7 @@
 package net.clgd.ccemux.plugins.hooks;
 
-import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.rendering.Renderer;
 
 /**
  * CCEmuX plugins can register hooks - callbacks that are called when various
@@ -29,6 +29,4 @@ import net.clgd.ccemux.rendering.Renderer;
  * @author apemanzilla
  *
  */
-public interface Hook {
-
-}
+public interface Hook {}

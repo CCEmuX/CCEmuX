@@ -11,10 +11,10 @@ import java.util.concurrent.BlockingDeque;
 
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedPalette;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
-import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.api.rendering.Renderer;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.ColorChangeListener {
 	private final EmulatedComputer computer;

@@ -47,10 +47,10 @@ import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
-import net.clgd.ccemux.rendering.Renderer;
 import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j

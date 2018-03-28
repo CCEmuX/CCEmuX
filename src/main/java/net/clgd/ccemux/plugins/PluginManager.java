@@ -11,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedComputer.Builder;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmulatedComputer;
 import net.clgd.ccemux.plugins.hooks.Closing;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
@@ -23,7 +25,6 @@ import net.clgd.ccemux.plugins.hooks.Hook;
 import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
 import net.clgd.ccemux.plugins.hooks.RendererCreated;
 import net.clgd.ccemux.plugins.hooks.Tick;
-import net.clgd.ccemux.rendering.Renderer;
 
 @Slf4j
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated, ComputerRemoved,
@@ -139,7 +140,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void onCreatingComputer(CCEmuX emu, EmulatedComputer.Builder builder) {
+	public void onCreatingComputer(CCEmuX emu, Builder builder) {
 		doHooks(CreatingComputer.class, h -> h.onCreatingComputer(emu, builder));
 	}
 

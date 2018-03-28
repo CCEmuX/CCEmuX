@@ -9,11 +9,13 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.stage.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.Value;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
-import net.clgd.ccemux.rendering.Renderer;
 
 @Value
 public class JFXRenderer implements Renderer {

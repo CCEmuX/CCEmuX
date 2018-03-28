@@ -8,8 +8,8 @@ import java.util.Set;
 import com.google.auto.service.AutoService;
 
 import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.tror.TRoRRenderer;
 
 @AutoService(Plugin.class)

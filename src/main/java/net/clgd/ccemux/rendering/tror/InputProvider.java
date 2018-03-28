@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
 
 public class InputProvider {
 	private static InputProvider stdinProvider;
