@@ -40,6 +40,7 @@ public class InputProvider {
 
 				getQueue(computer).add(new InputPacket(code, payload));
 			}
+			scanner.close();
 		});
 		thread.setName("TRoR input provider");
 		thread.setDaemon(true);

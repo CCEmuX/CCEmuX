@@ -30,6 +30,7 @@ import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.plugins.PluginManager;
 
+@Deprecated
 @Slf4j
 @RequiredArgsConstructor
 public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
@@ -41,10 +42,6 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		} catch (IOException e) {
 			return null;
 		}
-	}
-
-	public static boolean getGlobalCursorBlink() {
-		return System.currentTimeMillis() / 400 % 2 == 0;
 	}
 
 	private final EmuConfig cfg;

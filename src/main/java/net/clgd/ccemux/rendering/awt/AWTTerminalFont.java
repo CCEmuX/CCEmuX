@@ -7,10 +7,8 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 
-@Slf4j
 public class AWTTerminalFont extends TerminalFont {
 	private final BufferedImage base;
 

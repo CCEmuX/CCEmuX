@@ -27,7 +27,6 @@ import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory.Builder;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.Plugin;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.CreatingROM;
@@ -47,7 +46,7 @@ public class CCEmuXAPI extends Plugin {
 		public API(Emulator emu, EmulatedComputer computer, String name) {
 			this.name = name;
 
-			methods.put("getVersion", o -> new Object[] { CCEmuX.getVersion() });
+			methods.put("getVersion", o -> new Object[] { emu.getEmulatorVersion() });
 
 			methods.put("closeEmu", o -> {
 				computer.shutdown();

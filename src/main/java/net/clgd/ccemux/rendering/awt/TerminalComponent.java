@@ -24,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
 import net.clgd.ccemux.api.rendering.PaletteAdapter.ColorAdapter;
-import net.clgd.ccemux.emulation.CCEmuX;
 
 @Slf4j
 class TerminalComponent extends Canvas {
@@ -134,7 +133,7 @@ class TerminalComponent extends Canvas {
 				dy += height;
 			}
 
-			boolean blink = terminal.getCursorBlink() && (blinkLocked || CCEmuX.getGlobalCursorBlink());
+			boolean blink = terminal.getCursorBlink() && (blinkLocked || Utils.getGlobalCursorBlink());
 
 			if (blink) {
 				drawChar(font, g, cursorChar, terminal.getCursorX() * pixelWidth + margin,

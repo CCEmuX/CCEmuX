@@ -9,6 +9,15 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class Utils {
+	/**
+	 * Gets the global cursor blink
+	 * 
+	 * @return Whether a blinking cursor should be shown right now
+	 */
+	public static boolean getGlobalCursorBlink() {
+		return System.currentTimeMillis() / 400 % 2 == 0;
+	}
+
 	private static final String BASE_16 = "0123456789abcdef";
 
 	/**

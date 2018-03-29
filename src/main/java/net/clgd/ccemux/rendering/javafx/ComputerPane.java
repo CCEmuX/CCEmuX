@@ -34,7 +34,6 @@ import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 
 @Slf4j
@@ -77,7 +76,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	 * @return Whether the cursor should be shown
 	 */
 	private boolean cursorBlink() {
-		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
+		return computer.terminal.getCursorBlink() && (Utils.getGlobalCursorBlink() || blinkLockedTime > 0);
 	}
 
 	public ComputerPane(EmulatedComputer computer, JFXTerminalFont font, ReadOnlyDoubleProperty termScale) {

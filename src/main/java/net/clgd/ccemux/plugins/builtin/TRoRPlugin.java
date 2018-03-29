@@ -3,7 +3,6 @@ package net.clgd.ccemux.plugins.builtin;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 import com.google.auto.service.AutoService;
 

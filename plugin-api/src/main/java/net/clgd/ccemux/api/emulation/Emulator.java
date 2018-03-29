@@ -3,7 +3,6 @@ package net.clgd.ccemux.api.emulation;
 import java.io.File;
 import java.util.function.Consumer;
 
-import dan200.computercraft.core.computer.IComputerEnvironment;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 

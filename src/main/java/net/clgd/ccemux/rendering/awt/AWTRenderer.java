@@ -50,7 +50,6 @@ import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.TerminalFont;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
 
 @Slf4j
@@ -208,7 +207,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			log.warn("Failed to set taskbar icon", e);
 		}
 
-		lastBlink = CCEmuX.getGlobalCursorBlink();
+		lastBlink = Utils.getGlobalCursorBlink();
 	}
 
 	private String getWindowTitle() {
@@ -265,11 +264,11 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				computer.terminal.getPalette().setChanged(false);
 			}
 
-			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
+			if (Utils.getGlobalCursorBlink() != lastBlink) {
 				doRepaint = true;
 			}
 
-			lastBlink = CCEmuX.getGlobalCursorBlink();
+			lastBlink = Utils.getGlobalCursorBlink();
 
 			if (doRepaint) {
 				// TODO
