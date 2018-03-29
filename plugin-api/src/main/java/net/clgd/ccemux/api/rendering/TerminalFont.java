@@ -1,4 +1,4 @@
-package net.clgd.ccemux.rendering;
+package net.clgd.ccemux.api.rendering;
 
 import java.awt.Rectangle;
 import java.io.IOException;

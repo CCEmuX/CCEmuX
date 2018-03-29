@@ -5,8 +5,8 @@ import java.util.*;
 import com.google.auto.service.AutoService;
 
 import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.rendering.TerminalFont;
 import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.rendering.TerminalFont;
 
 @AutoService(Plugin.class)
 public class HDFontPlugin extends Plugin {

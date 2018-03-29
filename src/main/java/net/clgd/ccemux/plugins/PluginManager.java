@@ -13,9 +13,9 @@ import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedComputer.Builder;
+import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.rendering.Renderer;
-import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.hooks.Closing;
 import net.clgd.ccemux.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
@@ -115,12 +115,12 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void onTick(CCEmuX emu, double dt) {
+	public void onTick(Emulator emu, double dt) {
 		doHooks(Tick.class, h -> h.onTick(emu, dt));
 	}
 
 	@Override
-	public void onRendererCreated(CCEmuX emu, Renderer renderer) {
+	public void onRendererCreated(Emulator emu, Renderer renderer) {
 		doHooks(RendererCreated.class, h -> h.onRendererCreated(emu, renderer));
 	}
 
@@ -130,27 +130,27 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void onComputerRemoved(CCEmuX emu, EmulatedComputer computer) {
+	public void onComputerRemoved(Emulator emu, EmulatedComputer computer) {
 		doHooks(ComputerRemoved.class, h -> h.onComputerRemoved(emu, computer));
 	}
 
 	@Override
-	public void onComputerCreated(CCEmuX emu, EmulatedComputer computer) {
+	public void onComputerCreated(Emulator emu, EmulatedComputer computer) {
 		doHooks(ComputerCreated.class, h -> h.onComputerCreated(emu, computer));
 	}
 
 	@Override
-	public void onCreatingComputer(CCEmuX emu, Builder builder) {
+	public void onCreatingComputer(Emulator emu, Builder builder) {
 		doHooks(CreatingComputer.class, h -> h.onCreatingComputer(emu, builder));
 	}
 
 	@Override
-	public void onClosing(CCEmuX emu) {
+	public void onClosing(Emulator emu) {
 		doHooks(Closing.class, h -> h.onClosing(emu));
 	}
 
 	@Override
-	public void onCreatingROM(CCEmuX emu, VirtualDirectory.Builder romBuilder) {
+	public void onCreatingROM(Emulator emu, VirtualDirectory.Builder romBuilder) {
 		doHooks(CreatingROM.class, h -> h.onCreatingROM(emu, romBuilder));
 	}
 }

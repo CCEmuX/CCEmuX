@@ -1,9 +1,9 @@
 package net.clgd.ccemux.rendering.javafx;
 
 import static com.google.common.primitives.Ints.constrainToRange;
-import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_HEIGHT;
-import static net.clgd.ccemux.rendering.TerminalFont.BASE_CHAR_WIDTH;
-import static net.clgd.ccemux.rendering.TerminalFont.BASE_MARGIN;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_HEIGHT;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_WIDTH;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_MARGIN;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,9 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.rendering.PaletteAdapter;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
-import net.clgd.ccemux.rendering.PaletteAdapter;
 
 @Slf4j
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {

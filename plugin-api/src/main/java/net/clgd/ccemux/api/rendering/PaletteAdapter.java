@@ -1,4 +1,4 @@
-package net.clgd.ccemux.rendering;
+package net.clgd.ccemux.api.rendering;
 
 import dan200.computercraft.shared.util.Palette;
 import lombok.Value;

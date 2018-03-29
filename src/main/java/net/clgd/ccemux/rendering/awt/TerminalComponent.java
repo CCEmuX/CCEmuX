@@ -22,9 +22,9 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.Utils;
+import net.clgd.ccemux.api.rendering.PaletteAdapter;
+import net.clgd.ccemux.api.rendering.PaletteAdapter.ColorAdapter;
 import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.rendering.PaletteAdapter;
-import net.clgd.ccemux.rendering.PaletteAdapter.ColorAdapter;
 
 @Slf4j
 class TerminalComponent extends Canvas {

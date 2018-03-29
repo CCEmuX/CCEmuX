@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
+import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
 import net.clgd.ccemux.api.rendering.Renderer;
@@ -31,7 +32,7 @@ import net.clgd.ccemux.plugins.PluginManager;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CCEmuX implements Runnable, IComputerEnvironment {
+public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	public static String getVersion() {
 		try (val s = CCEmuX.class.getResourceAsStream("/ccemux.version")) {
 			val props = new Properties();
@@ -46,7 +47,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		return System.currentTimeMillis() / 400 % 2 == 0;
 	}
 
-	@Getter
 	private final EmuConfig cfg;
 
 	@Getter
@@ -55,7 +55,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	@Getter
 	private final PluginManager pluginMgr;
 
-	@Getter
 	private final File ccSource;
 
 	private final Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
@@ -64,6 +63,21 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	private long started = -1;
 	private boolean running;
+
+	@Override
+	public EmuConfig getConfig() {
+		return cfg;
+	}
+
+	@Override
+	public File getCCJar() {
+		return ccSource;
+	}
+
+	@Override
+	public String getEmulatorVersion() {
+		return getVersion();
+	}
 
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin

@@ -8,10 +8,15 @@ import java.util.concurrent.ExecutionException;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
-import javafx.scene.image.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import lombok.*;
-import net.clgd.ccemux.rendering.TerminalFont;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.SneakyThrows;
+import lombok.Value;
+import lombok.val;
+import net.clgd.ccemux.api.rendering.TerminalFont;
 
 @Value
 @EqualsAndHashCode(callSuper = false)

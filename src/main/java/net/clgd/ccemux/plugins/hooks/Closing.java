@@ -1,6 +1,6 @@
 package net.clgd.ccemux.plugins.hooks;
 
-import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.api.emulation.Emulator;
 
 /**
  * This hook is called when CCEmuX is closing, after all computers have been
@@ -11,5 +11,5 @@ import net.clgd.ccemux.emulation.CCEmuX;
  */
 @FunctionalInterface
 public interface Closing extends Hook {
-	public void onClosing(CCEmuX emu);
+	public void onClosing(Emulator emu);
 }

@@ -4,15 +4,22 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import dan200.computercraft.core.computer.IComputerEnvironment;
+import net.clgd.ccemux.api.rendering.Renderer;
+import net.clgd.ccemux.api.rendering.RendererFactory;
 
 /**
  * Used to manage running computers
  */
-public interface Emulator extends IComputerEnvironment {
+public interface Emulator {
 	/**
 	 * Gets the version string for this emulator
 	 */
 	public String getEmulatorVersion();
+
+	/**
+	 * Gets the renderer factory in use
+	 */
+	public <T extends Renderer> RendererFactory<T> getRendererFactory();
 
 	/**
 	 * Gets the config used by this config

@@ -1,6 +1,6 @@
 package net.clgd.ccemux.plugins.hooks;
 
-import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.api.emulation.Emulator;
 
 /**
  * This hook is called every single tick while CCEmuX is emulating the computers
@@ -13,5 +13,5 @@ import net.clgd.ccemux.emulation.CCEmuX;
  */
 @FunctionalInterface
 public interface Tick extends Hook {
-	public void onTick(CCEmuX emu, double dt);
+	public void onTick(Emulator emu, double dt);
 }

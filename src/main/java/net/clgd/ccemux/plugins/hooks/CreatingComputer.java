@@ -1,7 +1,7 @@
 package net.clgd.ccemux.plugins.hooks;
 
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
-import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.api.emulation.Emulator;
 
 /**
  * Invoked while an {@link EmulatedComputer} is being created by CCEmuX, but
@@ -17,5 +17,5 @@ import net.clgd.ccemux.emulation.CCEmuX;
  */
 @FunctionalInterface
 public interface CreatingComputer extends Hook {
-	public void onCreatingComputer(CCEmuX emu, EmulatedComputer.Builder builder);
+	public void onCreatingComputer(Emulator emu, EmulatedComputer.Builder builder);
 }
