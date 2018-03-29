@@ -26,10 +26,10 @@ import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory.Builder;
+import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
+import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
-import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.plugins.hooks.ComputerCreated;
-import net.clgd.ccemux.plugins.hooks.CreatingROM;
 
 @Slf4j
 @AutoService(Plugin.class)

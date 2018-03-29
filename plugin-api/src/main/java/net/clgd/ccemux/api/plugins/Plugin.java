@@ -1,4 +1,4 @@
-package net.clgd.ccemux.plugins;
+package net.clgd.ccemux.api.plugins;
 
 import java.io.File;
 import java.net.URISyntaxException;
@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
-import net.clgd.ccemux.plugins.hooks.Hook;
+import net.clgd.ccemux.api.plugins.hooks.Hook;
 
 /**
  * Represents a plugin for CCEmuX. Plugins can add or change behavior, such as
@@ -133,7 +133,7 @@ public abstract class Plugin {
 	 *
 	 * In order to prevent issues, any setup code that needs to interact with CC
 	 * should use the
-	 * {@link net.clgd.ccemux.plugins.hooks.InitializationCompleted
+	 * {@link net.clgd.ccemux.api.plugins.hooks.InitializationCompleted
 	 * InitializationCompleted} hook.
 	 *
 	 * @see Hook

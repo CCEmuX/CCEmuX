@@ -1,4 +1,4 @@
-package net.clgd.ccemux.plugins.hooks;
+package net.clgd.ccemux.api.plugins.hooks;
 
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.Renderer;
@@ -7,7 +7,7 @@ import net.clgd.ccemux.api.rendering.Renderer;
  * CCEmuX plugins can register hooks - callbacks that are called when various
  * events occur. This interface is merely a common super interface and contains
  * no members, instead child interfaces should be used from the
- * {@link net.clgd.ccemux.plugins.hooks} package.<br />
+ * {@link net.clgd.ccemux.api.plugins.hooks} package.<br />
  * <br />
  * In approximate chronological order, here is a list of some common hooks:
  * <ul>

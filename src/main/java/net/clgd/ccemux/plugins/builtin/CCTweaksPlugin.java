@@ -20,7 +20,7 @@ import net.clgd.ccemux.api.config.ConfigEntry;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
-import net.clgd.ccemux.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.Plugin;
 
 @Slf4j
 @AutoService(Plugin.class)

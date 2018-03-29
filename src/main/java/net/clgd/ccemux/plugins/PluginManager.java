@@ -15,16 +15,17 @@ import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedComputer.Builder;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.hooks.Closing;
+import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
+import net.clgd.ccemux.api.plugins.hooks.ComputerRemoved;
+import net.clgd.ccemux.api.plugins.hooks.CreatingComputer;
+import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
+import net.clgd.ccemux.api.plugins.hooks.Hook;
+import net.clgd.ccemux.api.plugins.hooks.InitializationCompleted;
+import net.clgd.ccemux.api.plugins.hooks.RendererCreated;
+import net.clgd.ccemux.api.plugins.hooks.Tick;
 import net.clgd.ccemux.api.rendering.Renderer;
-import net.clgd.ccemux.plugins.hooks.Closing;
-import net.clgd.ccemux.plugins.hooks.ComputerCreated;
-import net.clgd.ccemux.plugins.hooks.ComputerRemoved;
-import net.clgd.ccemux.plugins.hooks.CreatingComputer;
-import net.clgd.ccemux.plugins.hooks.CreatingROM;
-import net.clgd.ccemux.plugins.hooks.Hook;
-import net.clgd.ccemux.plugins.hooks.InitializationCompleted;
-import net.clgd.ccemux.plugins.hooks.RendererCreated;
-import net.clgd.ccemux.plugins.hooks.Tick;
 
 @Slf4j
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated, ComputerRemoved,

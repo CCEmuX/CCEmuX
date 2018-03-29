@@ -1,4 +1,4 @@
-package net.clgd.ccemux.plugins.hooks;
+package net.clgd.ccemux.api.plugins.hooks;
 
 /**
  * This hook is called when CCEmuX has finished initialization - after CC has
@@ -7,7 +7,7 @@ package net.clgd.ccemux.plugins.hooks;
  * 
  * @author apemanzilla
  * @see Closing
- * @see net.clgd.ccemux.plugins.Plugin#setup() Plugin.setup()
+ * @see net.clgd.ccemux.api.plugins.Plugin#setup() Plugin.setup()
  */
 @FunctionalInterface
 public interface InitializationCompleted extends Hook {

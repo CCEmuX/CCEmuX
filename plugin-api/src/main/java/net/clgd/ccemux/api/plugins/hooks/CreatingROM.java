@@ -1,4 +1,4 @@
-package net.clgd.ccemux.plugins.hooks;
+package net.clgd.ccemux.api.plugins.hooks;
 
 import java.nio.file.Path;
 
