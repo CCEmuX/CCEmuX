@@ -30,7 +30,6 @@ import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.plugins.PluginManager;
 
-@Deprecated
 @Slf4j
 @RequiredArgsConstructor
 public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
@@ -214,8 +213,9 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	@Override
 	public IMount createResourceMount(String domain, String subPath) {
 		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
-		if (path.startsWith("\\"))
+		if (path.startsWith("\\")) {
 			path = path.substring(1);
+		}
 
 		try {
 			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
