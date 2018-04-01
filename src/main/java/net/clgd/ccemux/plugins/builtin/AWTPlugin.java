@@ -8,13 +8,14 @@ import java.util.Optional;
 import javax.swing.JFrame;
 
 import com.google.auto.service.AutoService;
-import net.clgd.ccemux.config.ConfigProperty;
-import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.emulation.EmuConfig;
-import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.RendererFactory;
+
+import net.clgd.ccemux.api.config.ConfigProperty;
+import net.clgd.ccemux.api.config.Group;
+import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.rendering.Renderer;
+import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
 import net.clgd.ccemux.rendering.awt.config.ConfigView;
 

@@ -3,11 +3,29 @@ package net.clgd.ccemux.rendering.awt;
 import static net.clgd.ccemux.rendering.awt.KeyTranslator.translateToCC;
 import static net.clgd.ccemux.rendering.awt.MouseTranslator.swingToCC;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Frame;
+import java.awt.HeadlessException;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.*;
-import java.awt.event.*;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,15 +43,14 @@ import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.io.IOUtils;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmuConfig;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.Utils;
+import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.rendering.Renderer;
+import net.clgd.ccemux.api.rendering.TerminalFont;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
-import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j
 public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, WindowFocusListener {
@@ -190,7 +207,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			log.warn("Failed to set taskbar icon", e);
 		}
 
-		lastBlink = CCEmuX.getGlobalCursorBlink();
+		lastBlink = Utils.getGlobalCursorBlink();
 	}
 
 	private String getWindowTitle() {
@@ -247,11 +264,11 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				computer.terminal.getPalette().setChanged(false);
 			}
 
-			if (CCEmuX.getGlobalCursorBlink() != lastBlink) {
+			if (Utils.getGlobalCursorBlink() != lastBlink) {
 				doRepaint = true;
 			}
 
-			lastBlink = CCEmuX.getGlobalCursorBlink();
+			lastBlink = Utils.getGlobalCursorBlink();
 
 			if (doRepaint) {
 				// TODO

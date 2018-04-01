@@ -3,8 +3,17 @@ package net.clgd.ccemux.config;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.config.Config;
+import net.clgd.ccemux.api.config.ConfigEntry;
+import net.clgd.ccemux.api.config.ConfigProperty;
+import net.clgd.ccemux.api.config.Group;
 
 /**
  * A serialiser for {@link Config} instances which converts them to and from

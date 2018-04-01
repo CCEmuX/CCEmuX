@@ -6,24 +6,30 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
 
 import org.apache.commons.io.IOUtils;
 
 import com.google.auto.service.AutoService;
+
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmuConfig;
-import net.clgd.ccemux.emulation.EmulatedComputer;
-import net.clgd.ccemux.emulation.filesystem.VirtualDirectory.Builder;
-import net.clgd.ccemux.emulation.filesystem.VirtualFile;
-import net.clgd.ccemux.plugins.Plugin;
-import net.clgd.ccemux.plugins.hooks.ComputerCreated;
-import net.clgd.ccemux.plugins.hooks.CreatingROM;
+import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.Emulator;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory.Builder;
+import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
+import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
 
 @Slf4j
 @AutoService(Plugin.class)
@@ -37,41 +43,41 @@ public class CCEmuXAPI extends Plugin {
 		private final String name;
 		private final Map<String, APIMethod> methods = new LinkedHashMap<>();
 
-		public API(CCEmuX emu, EmulatedComputer computer, String name) {
+		public API(Emulator emu, EmulatedComputer computer, String name) {
 			this.name = name;
 
-			methods.put("getVersion", o -> new Object[]{CCEmuX.getVersion()});
+			methods.put("getVersion", o -> new Object[] { emu.getEmulatorVersion() });
 
 			methods.put("closeEmu", o -> {
 				computer.shutdown();
 				emu.removeComputer(computer);
-				return new Object[]{};
+				return new Object[] {};
 			});
 
 			methods.put("openEmu", o -> {
 				int id = ArgumentHelper.optInt(o, 0, -1);
 				EmulatedComputer ec = emu.createComputer(b -> b.id(id));
 
-				return new Object[]{ec.getID()};
+				return new Object[] { ec.getID() };
 			});
 
 			methods.put("openDataDir", o -> {
 				try {
-					Desktop.getDesktop().browse(emu.getCfg().getDataDir().toUri());
-					return new Object[]{true};
+					Desktop.getDesktop().browse(emu.getConfig().getDataDir().toUri());
+					return new Object[] { true };
 				} catch (Exception e) {
-					return new Object[]{false, e.toString()};
+					return new Object[] { false, e.toString() };
 				}
 			});
 
-			methods.put("milliTime", o -> new Object[]{System.currentTimeMillis()});
-			methods.put("nanoTime", o -> new Object[]{System.nanoTime()});
+			methods.put("milliTime", o -> new Object[] { System.currentTimeMillis() });
+			methods.put("nanoTime", o -> new Object[] { System.nanoTime() });
 
 			methods.put("echo", o -> {
 				String message = ArgumentHelper.getString(o, 0);
 				log.info("[Computer {}] {}", computer.getID(), message);
 
-				return new Object[]{};
+				return new Object[] {};
 			});
 
 			methods.put("setClipboard", o -> {
@@ -80,21 +86,21 @@ public class CCEmuXAPI extends Plugin {
 				Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
 				c.setContents(sel, sel);
 
-				return new Object[]{};
+				return new Object[] {};
 			});
 
 			methods.put("openConfig", o -> {
-				if (emu.getRendererFactory().createConfigEditor(emu.getCfg())) {
-					return new Object[]{true};
+				if (emu.getRendererFactory().createConfigEditor(emu.getConfig())) {
+					return new Object[] { true };
 				} else {
-					return new Object[]{false, "Not supported with this renderer"};
+					return new Object[] { false, "Not supported with this renderer" };
 				}
 			});
 		}
 
 		@Override
 		public String[] getMethodNames() {
-			return methods.keySet().toArray(new String[]{});
+			return methods.keySet().toArray(new String[] {});
 		}
 
 		@Override
@@ -108,7 +114,7 @@ public class CCEmuXAPI extends Plugin {
 
 		@Override
 		public String[] getNames() {
-			return new String[]{name};
+			return new String[] { name };
 		}
 
 		@Override
@@ -148,14 +154,14 @@ public class CCEmuXAPI extends Plugin {
 	public void setup(EmuConfig cfg) {
 		registerHook(new ComputerCreated() {
 			@Override
-			public void onComputerCreated(CCEmuX emu, EmulatedComputer computer) {
+			public void onComputerCreated(Emulator emu, EmulatedComputer computer) {
 				computer.addAPI(new API(emu, computer, "ccemux"));
 			}
 		});
 
 		registerHook(new CreatingROM() {
 			@Override
-			public void onCreatingROM(CCEmuX emu, Builder romBuilder) {
+			public void onCreatingROM(Emulator emu, Builder romBuilder) {
 				try {
 					romBuilder.addEntry(Paths.get("programs/emu.lua"), new VirtualFile(
 							IOUtils.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_program.lua"))));

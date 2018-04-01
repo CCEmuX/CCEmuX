@@ -1,6 +1,8 @@
 package net.clgd.ccemux.emulation;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
@@ -11,18 +13,26 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import dan200.computercraft.core.filesystem.*;
-import lombok.*;
+import dan200.computercraft.core.filesystem.ComboMount;
+import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.JarMount;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
-import net.clgd.ccemux.emulation.filesystem.VirtualMount;
+import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedTerminal;
+import net.clgd.ccemux.api.emulation.Emulator;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
+import net.clgd.ccemux.api.rendering.Renderer;
+import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.plugins.PluginManager;
-import net.clgd.ccemux.rendering.Renderer;
-import net.clgd.ccemux.rendering.RendererFactory;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CCEmuX implements Runnable, IComputerEnvironment {
+public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	public static String getVersion() {
 		try (val s = CCEmuX.class.getResourceAsStream("/ccemux.version")) {
 			val props = new Properties();
@@ -33,11 +43,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 		}
 	}
 
-	public static boolean getGlobalCursorBlink() {
-		return System.currentTimeMillis() / 400 % 2 == 0;
-	}
-
-	@Getter
 	private final EmuConfig cfg;
 
 	@Getter
@@ -46,7 +51,6 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	@Getter
 	private final PluginManager pluginMgr;
 
-	@Getter
 	private final File ccSource;
 
 	private final Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
@@ -55,6 +59,21 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 
 	private long started = -1;
 	private boolean running;
+
+	@Override
+	public EmuConfig getConfig() {
+		return cfg;
+	}
+
+	@Override
+	public File getCCJar() {
+		return ccSource;
+	}
+
+	@Override
+	public String getEmulatorVersion() {
+		return getVersion();
+	}
 
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
@@ -71,7 +90,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately. Additionally takes a {@link Consumer} which will be
-	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
+	 * called on the {@link EmulatedComputer.BuilderImpl} after plugin hooks, which
 	 * can be used to change the computers ID or other properties.
 	 *
 	 * @param builderMutator
@@ -80,7 +99,7 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	 */
 	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator) {
 		val term = new EmulatedTerminal(cfg.termWidth.get(), cfg.termHeight.get());
-		val builder = EmulatedComputer.builder(this, term).id(-1);
+		val builder = EmulatedComputerImpl.builder(this, term).id(-1);
 
 		pluginMgr.onCreatingComputer(this, builder);
 		builderMutator.accept(builder);
@@ -194,7 +213,9 @@ public class CCEmuX implements Runnable, IComputerEnvironment {
 	@Override
 	public IMount createResourceMount(String domain, String subPath) {
 		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
-		if (path.startsWith("\\")) path = path.substring(1);
+		if (path.startsWith("\\")) {
+			path = path.substring(1);
+		}
 
 		try {
 			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();

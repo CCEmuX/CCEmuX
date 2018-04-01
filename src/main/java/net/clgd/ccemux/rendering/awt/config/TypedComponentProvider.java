@@ -2,18 +2,32 @@ package net.clgd.ccemux.rendering.awt.config;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.google.common.primitives.*;
+import com.google.common.primitives.Booleans;
+import com.google.common.primitives.Doubles;
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
+import com.google.common.primitives.Primitives;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonPrimitive;
+
 import lombok.val;
-import net.clgd.ccemux.config.ConfigProperty;
+import net.clgd.ccemux.api.config.ConfigProperty;
 
 public class TypedComponentProvider {
 	private static final TypedComponentProvider instance = new TypedComponentProvider();

@@ -1,7 +1,9 @@
 package net.clgd.ccemux.rendering.javafx;
 
 import static com.google.common.primitives.Ints.constrainToRange;
-import static net.clgd.ccemux.rendering.TerminalFont.*;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_HEIGHT;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_WIDTH;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_MARGIN;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,18 +18,23 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import net.clgd.ccemux.OperatingSystem;
-import net.clgd.ccemux.Utils;
-import net.clgd.ccemux.emulation.CCEmuX;
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.OperatingSystem;
+import net.clgd.ccemux.api.Utils;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.rendering.PaletteAdapter;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
-import net.clgd.ccemux.rendering.PaletteAdapter;
 
 @Slf4j
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
@@ -69,7 +76,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	 * @return Whether the cursor should be shown
 	 */
 	private boolean cursorBlink() {
-		return computer.terminal.getCursorBlink() && (CCEmuX.getGlobalCursorBlink() || blinkLockedTime > 0);
+		return computer.terminal.getCursorBlink() && (Utils.getGlobalCursorBlink() || blinkLockedTime > 0);
 	}
 
 	public ComputerPane(EmulatedComputer computer, JFXTerminalFont font, ReadOnlyDoubleProperty termScale) {

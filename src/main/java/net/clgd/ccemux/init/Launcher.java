@@ -20,11 +20,11 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.AddressPredicate;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.OperatingSystem;
+import net.clgd.ccemux.api.OperatingSystem;
+import net.clgd.ccemux.api.rendering.RendererFactory;
+import net.clgd.ccemux.api.rendering.TerminalFont;
 import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.plugins.PluginManager;
-import net.clgd.ccemux.rendering.RendererFactory;
-import net.clgd.ccemux.rendering.TerminalFont;
 
 @Slf4j
 public class Launcher {

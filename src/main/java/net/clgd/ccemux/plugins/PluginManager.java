@@ -1,17 +1,31 @@
 package net.clgd.ccemux.plugins;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ServiceLoader;
 import java.util.function.Consumer;
 
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.config.ConfigProperty;
-import net.clgd.ccemux.config.Group;
-import net.clgd.ccemux.emulation.*;
-import net.clgd.ccemux.emulation.filesystem.VirtualDirectory;
-import net.clgd.ccemux.plugins.hooks.*;
-import net.clgd.ccemux.rendering.Renderer;
+import net.clgd.ccemux.api.config.ConfigProperty;
+import net.clgd.ccemux.api.config.Group;
+import net.clgd.ccemux.api.emulation.EmuConfig;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedComputer.Builder;
+import net.clgd.ccemux.api.emulation.Emulator;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.hooks.Closing;
+import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
+import net.clgd.ccemux.api.plugins.hooks.ComputerRemoved;
+import net.clgd.ccemux.api.plugins.hooks.CreatingComputer;
+import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
+import net.clgd.ccemux.api.plugins.hooks.Hook;
+import net.clgd.ccemux.api.plugins.hooks.InitializationCompleted;
+import net.clgd.ccemux.api.plugins.hooks.RendererCreated;
+import net.clgd.ccemux.api.plugins.hooks.Tick;
+import net.clgd.ccemux.api.rendering.Renderer;
 
 @Slf4j
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated, ComputerRemoved,
@@ -102,12 +116,12 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void onTick(CCEmuX emu, double dt) {
+	public void onTick(Emulator emu, double dt) {
 		doHooks(Tick.class, h -> h.onTick(emu, dt));
 	}
 
 	@Override
-	public void onRendererCreated(CCEmuX emu, Renderer renderer) {
+	public void onRendererCreated(Emulator emu, Renderer renderer) {
 		doHooks(RendererCreated.class, h -> h.onRendererCreated(emu, renderer));
 	}
 
@@ -117,27 +131,27 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void onComputerRemoved(CCEmuX emu, EmulatedComputer computer) {
+	public void onComputerRemoved(Emulator emu, EmulatedComputer computer) {
 		doHooks(ComputerRemoved.class, h -> h.onComputerRemoved(emu, computer));
 	}
 
 	@Override
-	public void onComputerCreated(CCEmuX emu, EmulatedComputer computer) {
+	public void onComputerCreated(Emulator emu, EmulatedComputer computer) {
 		doHooks(ComputerCreated.class, h -> h.onComputerCreated(emu, computer));
 	}
 
 	@Override
-	public void onCreatingComputer(CCEmuX emu, EmulatedComputer.Builder builder) {
+	public void onCreatingComputer(Emulator emu, Builder builder) {
 		doHooks(CreatingComputer.class, h -> h.onCreatingComputer(emu, builder));
 	}
 
 	@Override
-	public void onClosing(CCEmuX emu) {
+	public void onClosing(Emulator emu) {
 		doHooks(Closing.class, h -> h.onClosing(emu));
 	}
 
 	@Override
-	public void onCreatingROM(CCEmuX emu, VirtualDirectory.Builder romBuilder) {
+	public void onCreatingROM(Emulator emu, VirtualDirectory.Builder romBuilder) {
 		doHooks(CreatingROM.class, h -> h.onCreatingROM(emu, romBuilder));
 	}
 }

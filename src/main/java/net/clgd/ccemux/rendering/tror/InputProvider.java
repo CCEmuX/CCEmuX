@@ -7,7 +7,7 @@ import java.util.Scanner;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import net.clgd.ccemux.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
 
 public class InputProvider {
 	private static InputProvider stdinProvider;
@@ -18,7 +18,7 @@ public class InputProvider {
 
 	public InputProvider(InputStream stream) {
 		thread = new Thread(() -> {
-			Scanner scanner = new Scanner(stream, "UTF-8");
+			try (Scanner scanner = new Scanner(stream, "UTF-8")) {
 			while (scanner.hasNextLine()) {
 				String line = scanner.nextLine();
 				int metaStart = line.indexOf(':');
@@ -39,6 +39,7 @@ public class InputProvider {
 				}
 
 				getQueue(computer).add(new InputPacket(code, payload));
+			}
 			}
 		});
 		thread.setName("TRoR input provider");

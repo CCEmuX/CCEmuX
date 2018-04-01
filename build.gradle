@@ -4,25 +4,40 @@ plugins {
 	id 'com.github.johnrengelman.shadow' version '2.0.1'
 	id 'eclipse'
 	id 'idea'
-	id 'org.ajoberstar.grgit' version '2.1.0'
 }
 
-group = 'net.clgd'
-version = '1.0-SNAPSHOT'
+allprojects {
+	apply plugin: 'java-library'
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+
+	group = 'net.clgd'
+	version = '1.0.0'
+	
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+	
+	eclipse.project {
+		natures 'org.eclipse.buildship.core.gradleprojectnature'
+		natures 'org.springsource.ide.eclipse.gradle.core.nature'
+	}
+	
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+	
+	dependencies {
+		compileOnly 'org.projectlombok:lombok:1.16.20'
+		testCompileOnly 'org.projectlombok:lombok:1.16.20'
+	
+		compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+	}
+}
 
 mainClassName = 'net.clgd.ccemux.init.Launcher'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-eclipse.project {
-	natures 'org.eclipse.buildship.core.gradleprojectnature'
-	natures 'org.springsource.ide.eclipse.gradle.core.nature'
-}
-
 repositories {
-	mavenCentral()
-
 	maven {
 		name = 'computercraft'
 		url = "https://cc.crzd.me/maven"
@@ -32,22 +47,11 @@ repositories {
 		name = "squiddev"
 		url = "https://dl.bintray.com/squiddev/maven"
 	}
-
-	maven {
-		name = "snapshots"
-		url = "https://oss.sonatype.org/content/repositories/snapshots/"
-	}
 }
 
 dependencies {
-	compileOnly 'org.projectlombok:lombok:1.16.20'
-	testCompileOnly 'org.projectlombok:lombok:1.16.20'
+	api project(':plugin-api')
 
-	compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
-
-	api 'dan200.computercraft:ComputerCraft:1.80pr1-build4'
-
-	api 'org.slf4j:slf4j-api:1.7.25'
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
 	implementation 'org.apache.logging.log4j:log4j-core:2.8.2'
 
@@ -57,7 +61,6 @@ dependencies {
 
 	implementation 'org.squiddev:cctweaks-lua:1.5.0-pr4'
 
-	implementation 'com.google.guava:guava:22.0'
 	implementation 'com.google.code.gson:gson:2.8.1'
 
 	testCompile 'junit:junit:4.12'
@@ -67,7 +70,7 @@ processResources {
 	exclude '**/*.xcf' // GIMP images
 	
 	filesMatching("ccemux.version") {
-		expand 'version': version, 'build': org.ajoberstar.grgit.Grgit.open(dir: '.').head().id
+		expand 'version': version
 	}
 }
 
@@ -103,7 +106,6 @@ task noCCJar (type: ShadowJar) {
 }
 
 run { standardInput = System.in }
-
 runShadow { standardInput = System.in }
 
 build.dependsOn shadowJar
