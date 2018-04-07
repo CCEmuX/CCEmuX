@@ -22,11 +22,11 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import lombok.extern.slf4j.Slf4j;
-import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory.Builder;
 import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
@@ -151,7 +151,7 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	@Override
-	public void setup(EmuConfig cfg) {
+	public void setup(PluginManager manager) {
 		registerHook(new ComputerCreated() {
 			@Override
 			public void onComputerCreated(Emulator emu, EmulatedComputer computer) {

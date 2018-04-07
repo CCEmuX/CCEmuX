@@ -1,13 +1,12 @@
 package net.clgd.ccemux.plugins;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.function.Consumer;
 
-import lombok.val;
+import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
@@ -16,20 +15,13 @@ import net.clgd.ccemux.api.emulation.EmulatedComputer.Builder;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.plugins.Plugin;
-import net.clgd.ccemux.api.plugins.hooks.Closing;
-import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
-import net.clgd.ccemux.api.plugins.hooks.ComputerRemoved;
-import net.clgd.ccemux.api.plugins.hooks.CreatingComputer;
-import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
-import net.clgd.ccemux.api.plugins.hooks.Hook;
-import net.clgd.ccemux.api.plugins.hooks.InitializationCompleted;
-import net.clgd.ccemux.api.plugins.hooks.RendererCreated;
-import net.clgd.ccemux.api.plugins.hooks.Tick;
+import net.clgd.ccemux.api.plugins.hooks.*;
 import net.clgd.ccemux.api.rendering.Renderer;
+import net.clgd.ccemux.api.rendering.RendererFactory;
 
 @Slf4j
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated, ComputerRemoved,
-		InitializationCompleted, RendererCreated, Tick {
+		InitializationCompleted, RendererCreated, Tick, net.clgd.ccemux.api.plugins.PluginManager {
 	private static class PluginCandidate {
 		final Plugin plugin;
 		final ConfigProperty<Boolean> enabled;
@@ -44,6 +36,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 
 	private final List<PluginCandidate> candidates = new ArrayList<>();
 	private final List<Plugin> enabled = new ArrayList<>();
+	private final Map<String, RendererFactory<?>> renderers = new HashMap<>();
 
 	public PluginManager(EmuConfig cfg) {
 		this.cfg = cfg;
@@ -93,7 +86,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 		for (Plugin p : enabled) {
 			try {
 				log.debug("Calling setup for plugin [{}]", p);
-				p.setup(cfg);
+				p.setup(this);
 			} catch (Throwable t) {
 				log.error("Exception while calling setup for plugin [{}]", p, t);
 
@@ -153,5 +146,26 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	@Override
 	public void onCreatingROM(Emulator emu, VirtualDirectory.Builder romBuilder) {
 		doHooks(CreatingROM.class, h -> h.onCreatingROM(emu, romBuilder));
+	}
+
+	@Override
+	public EmuConfig config() {
+		return cfg;
+	}
+
+	@Override
+	public void addRenderer(String name, RendererFactory<?> factory) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+		Preconditions.checkNotNull(factory, "factory cannot be null");
+
+		if (renderers.containsKey(name)) {
+			throw new IllegalStateException("Renderer with name '" + name + "'  already registered.");
+		}
+
+		renderers.put(name, factory);
+	}
+
+	public Map<String, RendererFactory<?>> getRenderers() {
+		return Collections.unmodifiableMap(renderers);
 	}
 }

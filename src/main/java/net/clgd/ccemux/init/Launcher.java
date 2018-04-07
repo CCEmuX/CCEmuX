@@ -242,7 +242,7 @@ public class Launcher {
 			String renderer;
 			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
 				log.info("Available rendering methods:");
-				RendererFactory.implementations.keySet().stream().forEach(k -> log.info(" {}", k));
+				pluginMgr.getRenderers().keySet().forEach(k -> log.info(" {}", k));
 				System.exit(0);
 				return;
 			} else if (cli.hasOption('r')) {
@@ -251,7 +251,7 @@ public class Launcher {
 				renderer = cfg.renderer.get();
 			}
 
-			RendererFactory renderFactory = RendererFactory.implementations.get(renderer);
+			RendererFactory renderFactory = pluginMgr.getRenderers().get(renderer);
 			if (renderFactory == null) {
 				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", renderer);
 

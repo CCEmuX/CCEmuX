@@ -15,11 +15,6 @@ import net.clgd.ccemux.api.emulation.EmulatedComputer;
 @FunctionalInterface
 public interface RendererFactory<T extends Renderer> {
 	/**
-	 * A map of names to renderer factories
-	 */
-	public static final Map<String, RendererFactory<?>> implementations = new HashMap<>();
-
-	/**
 	 * Creates a renderer for the given computer and config
 	 */
 	public T create(EmulatedComputer computer, EmuConfig cfg);
@@ -30,7 +25,7 @@ public interface RendererFactory<T extends Renderer> {
 	 * returned.<br>
 	 * <br>
 	 * The default implementation returns false and has no side effects.
-	 * 
+	 *
 	 * @param config
 	 *            The config to let the user edit
 	 * @return Whether an editor window was opened

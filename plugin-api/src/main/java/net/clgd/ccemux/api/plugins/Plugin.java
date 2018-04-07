@@ -122,7 +122,7 @@ public abstract class Plugin {
 	 * before CC is loaded and should not be used unless you know what you're
 	 * doing!
 	 *
-	 * @see #setup(EmuConfig)
+	 * @see #setup(PluginManager)
 	 * @see #configSetup(Group)
 	 */
 	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {}
@@ -138,7 +138,7 @@ public abstract class Plugin {
 	 *
 	 * @see Hook
 	 */
-	public abstract void setup(EmuConfig cfg);
+	public abstract void setup(PluginManager manager);
 
 	public final String toString() {
 		return getName() + getVersion().map(v -> " v" + v).orElse("");
