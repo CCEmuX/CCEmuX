@@ -1,7 +1,7 @@
 pkgname='ccemux-git'
 pkgver=bb97056
 pkgrel=1
-source=('git+https://github.com/Lignumm/CCEmuX.git#branch=revival'
+source=('git+https://github.com/CCEmuX/CCEmuX.git#branch=revival'
         'ccemux.desktop'
         'ccemux'
         'icon.png')
@@ -11,7 +11,7 @@ md5sums=('SKIP'
          '15875de144d2375766e3cfb2c769c66e')
 pkgdesc="Graphical ComputerCraft emulator"
 arch=('any')
-url="https://github.com/lignumm/ccemux"
+url="https://github.com/ccemux/ccemux"
 license=('MIT')
 
 depends=('java-runtime>=8')
