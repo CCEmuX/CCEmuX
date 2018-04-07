@@ -6,9 +6,8 @@ import java.util.Optional;
 
 import com.google.auto.service.AutoService;
 
-import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.plugins.Plugin;
-import net.clgd.ccemux.api.rendering.RendererFactory;
+import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.rendering.tror.TRoRRenderer;
 
 @AutoService(Plugin.class)
@@ -39,7 +38,7 @@ public class TRoRPlugin extends Plugin {
 	}
 
 	@Override
-	public void setup(EmuConfig cfg) {
-		RendererFactory.implementations.put("TRoR", TRoRRenderer::new);
+	public void setup(PluginManager manager) {
+		manager.addRenderer("TRoR", TRoRRenderer::new);
 	}
 }

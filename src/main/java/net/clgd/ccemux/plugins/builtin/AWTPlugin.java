@@ -14,6 +14,7 @@ import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.rendering.awt.AWTRenderer;
@@ -54,8 +55,8 @@ public class AWTPlugin extends Plugin {
 	}
 
 	@Override
-	public void setup(EmuConfig cfg) {
-		RendererFactory.implementations.put("AWT", new RendererFactory<Renderer>() {
+	public void setup(PluginManager manager) {
+		manager.addRenderer("AWT", new RendererFactory<Renderer>() {
 			private WeakReference<JFrame> lastFrame = null;
 
 			@Override

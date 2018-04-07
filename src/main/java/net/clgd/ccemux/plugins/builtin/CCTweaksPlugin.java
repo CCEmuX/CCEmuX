@@ -21,6 +21,7 @@ import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.PluginManager;
 
 @Slf4j
 @AutoService(Plugin.class)
@@ -119,7 +120,7 @@ public class CCTweaksPlugin extends Plugin {
 	}
 
 	@Override
-	public void setup(EmuConfig cfg) {
+	public void setup(PluginManager cfg) {
 		ApiRegister.init();
 		ApiRegister.loadPlugins();
 	}

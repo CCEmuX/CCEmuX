@@ -1,11 +1,13 @@
 package net.clgd.ccemux.plugins.builtin;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 
 import com.google.auto.service.AutoService;
 
-import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.plugins.Plugin;
+import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 
 @AutoService(Plugin.class)
@@ -37,7 +39,7 @@ public class HDFontPlugin extends Plugin {
 	}
 
 	@Override
-	public void setup(EmuConfig cfg) {
+	public void setup(PluginManager manager) {
 		TerminalFont.registerFont(HDFontPlugin.class.getResource("/img/hdfont.png"));
 	}
 }
