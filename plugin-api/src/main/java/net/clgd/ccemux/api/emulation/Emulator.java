@@ -3,6 +3,7 @@ package net.clgd.ccemux.api.emulation;
 import java.io.File;
 import java.util.function.Consumer;
 
+import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 
@@ -21,6 +22,14 @@ public interface Emulator {
 	public <T extends Renderer> RendererFactory<T> getRendererFactory();
 
 	/**
+	 * Get the peripheral factory with the given name
+	 *
+	 * @param name The peripheral factory to find
+	 * @return The peripheral factory or {@code null} if it cannot be found
+	 */
+	PeripheralFactory<?> getPeripheralFactory(String name);
+
+	/**
 	 * Gets the config used by this config
 	 */
 	public EmuConfig getConfig();
@@ -32,7 +41,7 @@ public interface Emulator {
 
 	/**
 	 * Creates and adds a new computer, returning the created instance
-	 * 
+	 *
 	 * @param builderMutator
 	 *            A mutator that is passed the computer builder to make any
 	 *            necessary changes before the computer is built
@@ -42,7 +51,7 @@ public interface Emulator {
 
 	/**
 	 * Creates and adds a new computer, returning the created instance
-	 * 
+	 *
 	 * @return The computer instance
 	 */
 	public default EmulatedComputer createComputer() {
@@ -51,7 +60,7 @@ public interface Emulator {
 
 	/**
 	 * Removes the given computer
-	 * 
+	 *
 	 * @param computer
 	 *            The computer to remove
 	 * @return Whether the computer was removed

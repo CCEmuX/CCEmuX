@@ -12,9 +12,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.IComputerEnvironment;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 
@@ -65,7 +66,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see net.clgd.ccemux.emulation.Builder#id(java.lang.Integer)
 		 */
 		@Override
@@ -76,7 +77,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see net.clgd.ccemux.emulation.Builder#rootMount(dan200.computercraft.api.
 		 * filesystem.IWritableMount)
 		 */
@@ -88,7 +89,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see net.clgd.ccemux.emulation.Builder#label(java.lang.String)
 		 */
 		@Override
@@ -99,7 +100,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		/*
 		 * (non-Javadoc)
-		 * 
+		 *
 		 * @see net.clgd.ccemux.emulation.Builder#build()
 		 */
 		@Override
@@ -162,6 +163,11 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	@Override
 	public void advance(double dt) {
 		super.advance(dt);
+
+		for(int i = 0; i < 6; i++) {
+			IPeripheral peripheral = getPeripheral(i);
+			if (peripheral instanceof Listener) ((Listener) peripheral).onAdvance(dt);
+		}
 
 		listeners.forEach(l -> l.onAdvance(dt));
 	}
