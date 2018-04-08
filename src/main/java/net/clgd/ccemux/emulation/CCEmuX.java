@@ -26,6 +26,7 @@ import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
+import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.plugins.PluginManager;
@@ -75,6 +76,11 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		return getVersion();
 	}
 
+	@Override
+	public PeripheralFactory<?> getPeripheralFactory(String name) {
+		return pluginMgr.getPeripherals().get(name);
+	}
+
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately.
@@ -90,7 +96,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately. Additionally takes a {@link Consumer} which will be
-	 * called on the {@link EmulatedComputer.BuilderImpl} after plugin hooks, which
+	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
 	 * can be used to change the computers ID or other properties.
 	 *
 	 * @param builderMutator

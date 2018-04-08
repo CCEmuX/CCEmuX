@@ -14,6 +14,7 @@ import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedComputer.Builder;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
+import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.plugins.Plugin;
 import net.clgd.ccemux.api.plugins.hooks.*;
 import net.clgd.ccemux.api.rendering.Renderer;
@@ -37,6 +38,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	private final List<PluginCandidate> candidates = new ArrayList<>();
 	private final List<Plugin> enabled = new ArrayList<>();
 	private final Map<String, RendererFactory<?>> renderers = new HashMap<>();
+	private final Map<String, PeripheralFactory<?>> peripherals = new HashMap<>();
 
 	public PluginManager(EmuConfig cfg) {
 		this.cfg = cfg;
@@ -165,7 +167,23 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 		renderers.put(name, factory);
 	}
 
+	@Override
+	public void addPeripheral(String name, PeripheralFactory<?> factory) {
+		Preconditions.checkNotNull(name, "name cannot be null");
+		Preconditions.checkNotNull(factory, "factory cannot be null");
+
+		if (peripherals.containsKey(name)) {
+			throw new IllegalStateException("Renderer with name '" + name + "'  already registered.");
+		}
+
+		peripherals.put(name, factory);
+	}
+
 	public Map<String, RendererFactory<?>> getRenderers() {
 		return Collections.unmodifiableMap(renderers);
+	}
+
+	public Map<String, PeripheralFactory<?>> getPeripherals() {
+		return Collections.unmodifiableMap(peripherals);
 	}
 }

@@ -6,30 +6,30 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.google.auto.service.AutoService;
-
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
+import dan200.computercraft.core.computer.Computer;
 import lombok.extern.slf4j.Slf4j;
+import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory.Builder;
+import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
+import net.clgd.ccemux.api.peripheral.Peripheral;
+import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.plugins.Plugin;
 import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
-import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
+import net.clgd.ccemux.config.LuaAdapter;
 
 @Slf4j
 @AutoService(Plugin.class)
@@ -95,6 +95,38 @@ public class CCEmuXAPI extends Plugin {
 				} else {
 					return new Object[] { false, "Not supported with this renderer" };
 				}
+			});
+
+			methods.put("attach", o -> {
+				String side = ArgumentHelper.getString(o, 0);
+				String peripheral = ArgumentHelper.getString(o, 1);
+				Object configuration = o.length > 2 ? o[2] : null;
+
+				int sideId = ArrayUtils.indexOf(Computer.s_sideNames, side);
+				if (sideId == -1) throw new LuaException("Invalid side");
+
+				PeripheralFactory<?> factory = emu.getPeripheralFactory(peripheral);
+				if(factory == null) throw new LuaException("Invalid peripheral");
+				Peripheral built = factory.create(computer, emu.getConfig());
+
+				// Setup the config for this peripheral. In the future this could be
+				// persisted to disk.
+				Group group = new Group("peripheral");
+				built.configSetup(group);
+				if (configuration != null) LuaAdapter.fromLua(group, configuration);
+
+				computer.setPeripheral(sideId, built);
+
+				return null;
+			});
+
+			methods.put("detach", o -> {
+				String side = ArgumentHelper.getString(o, 0);
+				int sideId = ArrayUtils.indexOf(Computer.s_sideNames, side);
+				if (sideId == -1) throw new LuaException("Invalid side");
+
+				computer.setPeripheral(sideId, null);
+				return null;
 			});
 		}
 
