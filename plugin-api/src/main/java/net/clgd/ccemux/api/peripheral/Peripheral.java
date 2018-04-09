@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.peripheral;
 
+import javax.annotation.Nullable;
+
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -24,4 +26,9 @@ public interface Peripheral extends IPeripheral, EmulatedComputer.Listener {
 	 */
 	@Override
 	default void onAdvance(double dt) { }
+
+	@Override
+	default boolean equals(@Nullable IPeripheral other) {
+		return this == other;
+	}
 }

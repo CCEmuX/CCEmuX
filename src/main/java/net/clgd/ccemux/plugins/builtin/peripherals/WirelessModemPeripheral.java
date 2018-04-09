@@ -4,17 +4,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.peripheral.Peripheral;
 
+/**
+ * Emulates ComputerCraft's wireless and ender modem
+ *
+ * @see dan200.computercraft.shared.peripheral.modem.WirelessModemPeripheral
+ */
 public class WirelessModemPeripheral implements Peripheral {
 	private static final Set<WirelessModemPeripheral> modems = new HashSet<>();
 
@@ -178,10 +181,5 @@ public class WirelessModemPeripheral implements Peripheral {
 		channels.clear();
 		this.computer = null;
 		if (open) open = false;
-	}
-
-	@Override
-	public boolean equals(@Nullable IPeripheral other) {
-		return this == other;
 	}
 }
