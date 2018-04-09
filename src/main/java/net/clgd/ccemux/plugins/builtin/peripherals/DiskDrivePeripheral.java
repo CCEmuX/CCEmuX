@@ -2,10 +2,9 @@ package net.clgd.ccemux.plugins.builtin.peripherals;
 
 import static dan200.computercraft.core.apis.ArgumentHelper.optString;
 
-import java.io.File;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Nonnull;
 
@@ -25,13 +24,14 @@ import net.clgd.ccemux.api.peripheral.Peripheral;
  * @see dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive
  */
 public class DiskDrivePeripheral implements Peripheral {
-	private static final Map<Integer, String> labels = new ConcurrentHashMap<>();
+	private static final Map<Integer, MountInfo> mounts = new HashMap<>();
 
 	private final Path rootPath;
 	private final ConfigProperty<Long> capacity;
 
 	private IComputerAccess computer;
 
+	private MountInfo mountInfo;
 	private String mountPath;
 	private ConfigProperty<Integer> mountId;
 
@@ -85,15 +85,14 @@ public class DiskDrivePeripheral implements Peripheral {
 			case 0: // isPresent
 				return new Object[] { mountId.get() >= 0 };
 			case 1: { // getDiskLabel
-				int id = mountId.get();
-				return id >= 0 ? new Object[] { labels.get(id) } : null;
+				MountInfo info = mountInfo;
+				return info != null ? new Object[] { info.label } : null;
 			}
-			case 2: {
-				// setDiskLabel
+			case 2: { // setDiskLabel
 				String label = optString(arguments, 0, null);
 
-				int id = mountId.get();
-				if (id >= 0) labels.put(id, label);
+				MountInfo info = mountInfo;
+				if (info != null) info.label = label;
 				return null;
 			}
 			case 3:// hasData
@@ -137,12 +136,23 @@ public class DiskDrivePeripheral implements Peripheral {
 		int id = mountId.get();
 		if (id < 0 || computer == null) return;
 
-		IWritableMount mount = new FileMount(new File(rootPath.toFile(), "computer/disk/" + mountId.get()), capacity.get());
+		MountInfo mountInfo;
+		synchronized (mounts) {
+			mountInfo = mounts.get(id);
+			if (mountInfo == null) {
+				mounts.put(id, mountInfo = new MountInfo(new FileMount(
+					rootPath.resolve("computer").resolve("disk").resolve(Integer.toString(mountId.get())).toFile(),
+					capacity.get()
+				)));
+			}
+		}
 
 		String mountPath = null;
 		for (int n = 1; mountPath == null; ++n) {
-			mountPath = computer.mountWritable("disk" + (n == 1 ? "" : Integer.toString(n)), mount);
+			mountPath = computer.mountWritable("disk" + (n == 1 ? "" : Integer.toString(n)), mountInfo.mount);
 		}
+
+		this.mountInfo = mountInfo;
 		this.mountPath = mountPath;
 
 		computer.queueEvent("disk", new Object[] { computer.getAttachmentName() });
@@ -154,5 +164,19 @@ public class DiskDrivePeripheral implements Peripheral {
 		computer.unmount(mountPath);
 		computer.queueEvent("disk_eject", new Object[] { computer.getAttachmentName() });
 		mountPath = null;
+	}
+
+	/**
+	 * Represents information about a particular disk. This is shared across all
+	 * instances of a given disk ID, ensuring {@link FileMount}'s usage/capacity tracking
+	 * is consistent.
+	 */
+	private static class MountInfo {
+		String label;
+		IWritableMount mount;
+
+		MountInfo(IWritableMount mount) {
+			this.mount = mount;
+		}
 	}
 }
