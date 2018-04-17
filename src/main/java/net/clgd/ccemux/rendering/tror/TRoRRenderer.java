@@ -249,7 +249,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 	@Override
 	public void setCursorBlink(boolean blink) {
-		sendLine("TB", blink ? "true" : "faalse");
+		sendLine("TB", blink ? "true" : "false");
 	}
 
 	@Override
