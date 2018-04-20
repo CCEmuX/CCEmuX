@@ -23,7 +23,6 @@ import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.core.apis.AddressPredicate;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.rendering.RendererFactory;
@@ -186,7 +185,13 @@ public class Launcher {
 			Files.createDirectories(dataDir);
 
 			log.info("Loading user config");
-			UserConfig cfg = new UserConfig(dataDir);
+			UserConfig cfg;
+			try {
+				getClass().getClassLoader().loadClass("dan200.computercraft.core.lua.CobaltLuaMachine");
+				cfg = new UserConfigCCTweaked(dataDir);
+			} catch (ReflectiveOperationException ignored) {
+				cfg = new UserConfig(dataDir);
+			}
 			log.debug("Config: {}", cfg);
 
 			if (cfg.termScale.get() != cfg.termScale.get().intValue())
@@ -199,15 +204,7 @@ public class Launcher {
 			pluginMgr.gatherEnabled();
 
 			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
-
-			// Setup the properties to sync with the original.
-			// computerSpaceLimit isn't technically needed, but we do it for consistency's sake.
-			cfg.maxComputerCapacity.addAndFireListener((o, n) -> ComputerCraft.computerSpaceLimit = n.intValue());
-			cfg.httpEnabled.addAndFireListener((o, n) -> ComputerCraft.http_enable = n);
-			cfg.httpWhitelist.addAndFireListener((o, n) -> ComputerCraft.http_whitelist = new AddressPredicate(n));
-			cfg.httpBlacklist.addAndFireListener((o, n) -> ComputerCraft.http_blacklist = new AddressPredicate(n));
-			cfg.disableLua51Features.addAndFireListener((o, n) -> ComputerCraft.disable_lua51_features = n);
-			cfg.defaultComputerSettings.addAndFireListener((o, n) -> ComputerCraft.default_computer_settings = n);
+			cfg.setup();
 
 			pluginMgr.setup();
 
