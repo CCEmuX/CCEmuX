@@ -117,17 +117,6 @@ public abstract class Plugin {
 	public void configSetup(Group group) {}
 
 	/**
-	 * Called early while CCEmuX is starting, before even CC itself is loaded.
-	 * This method is intended to be used to interact with the classloader
-	 * before CC is loaded and should not be used unless you know what you're
-	 * doing!
-	 *
-	 * @see #setup(PluginManager)
-	 * @see #configSetup(Group)
-	 */
-	public void loaderSetup(EmuConfig cfg, ClassLoader loader) {}
-
-	/**
 	 * Called while CCEmuX is starting. This method should be used to register
 	 * hooks, or renderers.
 	 *

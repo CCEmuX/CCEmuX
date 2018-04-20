@@ -2,23 +2,28 @@ package net.clgd.ccemux.init;
 
 import static org.apache.commons.cli.Option.builder;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.SplashScreen;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.*;
 import java.net.*;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Optional;
 
 import javax.swing.*;
 
-import org.apache.commons.cli.*;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.AddressPredicate;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.rendering.RendererFactory;
@@ -52,28 +57,7 @@ public class Launcher {
 	}
 
 	public static void main(String args[]) {
-		if (System.getProperty("ccemux.forceDirectLaunch") != null) {
-			log.info("Skipping custom classloader, some features may be unavailable");
-			new Launcher(args).launch();
-		} else {
-			try  {
-				val loader = new CCEmuXClassloader(Launcher.class.getClassLoader());
-				@SuppressWarnings("unchecked") final Class<Launcher> klass = (Class<Launcher>) loader.findClass(Launcher.class.getName());
-
-				final Constructor<Launcher> constructor = klass.getDeclaredConstructor(String[].class);
-				constructor.setAccessible(true);
-
-				final Method launch = klass.getDeclaredMethod("launch");
-				launch.setAccessible(true);
-				launch.invoke(constructor.newInstance(new Object[]{args}));
-			} catch (InvocationTargetException e) {
-				log.error("Launcher failed to run", e.getTargetException());
-			} catch (Exception e) {
-				log.warn("Failed to setup rewriting classloader - some features may be unavailable", e);
-				new Launcher(args).launch();
-			}
-		}
-
+		new Launcher(args).launch();
 		System.exit(0);
 	}
 
@@ -213,18 +197,6 @@ public class Launcher {
 			cfg.load();
 			cfg.saveDefault();
 			pluginMgr.gatherEnabled();
-
-			pluginMgr.loaderSetup(getClass().getClassLoader());
-
-			if (getClass().getClassLoader() instanceof CCEmuXClassloader) {
-				val loader = (CCEmuXClassloader) getClass().getClassLoader();
-				loader.chain().finalise();
-				log.warn("ClassLoader chain finalized");
-				loader.allowCC();
-				log.debug("CC access now allowed");
-			} else {
-				log.warn("Incompatible classloader type: {}", getClass().getClassLoader().getClass());
-			}
 
 			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
 

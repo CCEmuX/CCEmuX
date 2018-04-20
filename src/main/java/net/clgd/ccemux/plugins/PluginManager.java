@@ -70,20 +70,6 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 		}
 	}
 
-	public void loaderSetup(ClassLoader loader) {
-		for (Plugin p : enabled) {
-			try {
-				log.debug("Calling loaderSetup for plugin [{}]", p);
-				p.loaderSetup(cfg, loader);
-			} catch (Throwable t) {
-				log.warn("Exception while calling loaderSetup for plugin [{}]", p, t);
-
-				log.info("Disabling plugin [{}]: loaderSetup failed", p);
-				enabled.remove(p);
-			}
-		}
-	}
-
 	public void setup() {
 		for (Plugin p : enabled) {
 			try {
