@@ -13,24 +13,24 @@ allprojects {
 
 	group = 'net.clgd'
 	version = '1.0.0'
-	
+
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
-	
+
 	eclipse.project {
 		natures 'org.eclipse.buildship.core.gradleprojectnature'
 		natures 'org.springsource.ide.eclipse.gradle.core.nature'
 	}
-	
+
 	repositories {
 		mavenLocal()
 		mavenCentral()
 	}
-	
+
 	dependencies {
 		compileOnly 'org.projectlombok:lombok:1.16.20'
 		testCompileOnly 'org.projectlombok:lombok:1.16.20'
-	
+
 		compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
 	}
 }
@@ -39,8 +39,8 @@ mainClassName = 'net.clgd.ccemux.init.Launcher'
 
 repositories {
 	maven {
-		name = 'computercraft'
-		url = "https://cc.crzd.me/maven"
+		name = 'cc-tweaked'
+		url = "http://squiddev.cc/maven/"
 	}
 
 	maven {
@@ -68,7 +68,7 @@ dependencies {
 
 processResources {
 	exclude '**/*.xcf' // GIMP images
-	
+
 	filesMatching("ccemux.version") {
 		expand 'version': version
 	}
