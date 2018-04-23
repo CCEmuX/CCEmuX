@@ -25,7 +25,11 @@ public abstract class EmuConfig extends Config {
 			.setName("Renderer");
 
 	public ConfigProperty<Long> maxComputerCapacity = property("maxComputerCapacity", long.class, 2L * 1024 * 1024)
-			.setName("Max computer capacity");
+			.setName("Computer space limit")
+			.setDescription("The disk space limit for computers in bytes");
+	public ConfigProperty<Integer> maximumFilesOpen = property("maximumFilesOpen", int.class, 128)
+			.setName("Maximum files open per computer")
+			.setDescription("Set how many files a computer can have open at the same time. Set to 0 for unlimited.");
 	public ConfigProperty<Boolean> httpEnabled = property("httpEnable", boolean.class, true)
 			.setName("Enable HTTP API")
 			.setDescription("Enable the \"http\" API on Computers (see \"httpWhitelist\" and \"httpBlacklist\" for more fine grained control than this)");
