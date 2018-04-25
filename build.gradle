@@ -53,6 +53,7 @@ dependencies {
 	implementation 'commons-io:commons-io:2.5'
 	implementation 'commons-cli:commons-cli:1.4'
 	implementation 'org.apache.commons:commons-lang3:3.6'
+	implementation 'io.netty:netty-all:4.1.9.Final'
 
 	implementation 'com.google.code.gson:gson:2.8.1'
 
