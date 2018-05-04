@@ -19,7 +19,7 @@ public abstract class EmuConfig extends Config {
 			.setName("Terminal scale");
 	public ConfigProperty<Integer> termHeight = property("termHeight", int.class, 19)
 			.setName("Terminal height");
-	public ConfigProperty<Integer> termWidth = property("termWidth", int.class, 52)
+	public ConfigProperty<Integer> termWidth = property("termWidth", int.class, 51)
 			.setName("Terminal width");
 	public ConfigProperty<String> renderer = property("renderer", String.class, "AWT")
 			.setName("Renderer");
