@@ -203,6 +203,10 @@ public class Launcher {
 			cfg.saveDefault();
 			pluginMgr.gatherEnabled();
 
+			// Create a stub for the assets directory if needed.
+			//noinspection ResultOfMethodCallIgnored
+			dataDir.resolve("assets").resolve("computercraft").resolve("lua").toFile().mkdirs();
+
 			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
 			cfg.setup();
 

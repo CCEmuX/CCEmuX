@@ -1,8 +1,6 @@
 package net.clgd.ccemux.emulation;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
@@ -18,8 +16,8 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
@@ -219,15 +217,20 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	@Override
 	public IMount createResourceMount(String domain, String subPath) {
 		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
-		if (path.startsWith("\\")) {
-			path = path.substring(1);
-		}
+		if (path.startsWith("/")) path = path.substring(1);
 
 		try {
 			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
 			pluginMgr.onCreatingROM(this, romBuilder);
 
-			return new ComboMount(new IMount[] { new JarMount(ccSource, path), new VirtualMount(romBuilder.build()) });
+			return new ComboMount(new IMount[] {
+				// From ComputerCraft JAR
+				new JarMount(ccSource, path),
+				// From plugin files
+				new VirtualMount(romBuilder.build()),
+				// From data directory
+				new FileMount(cfg.getDataDir().resolve(path).toFile(), 0)
+			});
 		} catch (IOException e) {
 			log.error("Failed to create resource mount", e);
 			return null;
@@ -235,8 +238,20 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	}
 
 	@Override
-	public InputStream createResourceFile(String domain, String path) {
-		return CCEmuX.class.getResourceAsStream("/assets/" + domain + "/" + path);
+	public InputStream createResourceFile(String domain, String subPath) {
+		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
+		if (path.startsWith("/")) path = path.substring(1);
+
+		File assetFile = cfg.getDataDir().resolve(path).toFile();
+		if (assetFile.exists() && assetFile.isFile()) {
+			try {
+				return new FileInputStream(assetFile);
+			} catch (FileNotFoundException e) {
+				log.error("Failed to create resource file", e);
+			}
+		}
+
+		return CCEmuX.class.getClassLoader().getResourceAsStream(path);
 	}
 
 	@Override
