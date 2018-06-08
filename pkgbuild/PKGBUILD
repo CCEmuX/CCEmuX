@@ -36,7 +36,7 @@ package () {
   install -dm755 "${pkgdir}/usr/share/licenses/$pkgname"
   install -dm755 "${pkgdir}/usr/share/pixmaps"
 
-  cp ${srcdir}/CCEmuX/build/libs/CCEmuX*-all.jar "${pkgdir}/usr/share/ccemux.jar"
+  cp ${srcdir}/CCEmuX/build/libs/CCEmuX*-cct.jar "${pkgdir}/usr/share/ccemux.jar"
   cp "${srcdir}/ccemux.desktop" "${pkgdir}/usr/share/applications"
   cp "${srcdir}/ccemux" "${pkgdir}/usr/bin/"
   chmod 755 "${pkgdir}/usr/bin/ccemux"

@@ -39,11 +39,19 @@ mainClassName = 'net.clgd.ccemux.init.Launcher'
 
 repositories {
 	maven {
+		name = "cc.crzd.me"
+		url = "http://cc.crzd.me/maven"
+	}
+
+	maven {
 		name = 'cc-tweaked'
 		url = "http://squiddev.cc/maven/"
 	}
 }
 
+configurations {
+	computercraft
+}
 dependencies {
 	api project(':plugin-api')
 
@@ -58,6 +66,8 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.1'
 
 	testCompile 'junit:junit:4.12'
+
+	computercraft 'dan200.computercraft:ComputerCraft:1.80pr1-build5'
 }
 
 processResources {
@@ -70,37 +80,60 @@ processResources {
 
 jar {
 	manifest {
-		attributes 'SplashScreen-Image': 'img/splash2.gif', 'Implementation-Version': version
+		attributes 'SplashScreen-Image': 'img/splash2.gif'
+		attributes 'Implementation-Version': version
+		attributes 'Main-Class': mainClassName
 	}
-}
-
-shadowJar {
-	classifier = 'all'
-
-	exclude '*.html'
-	exclude 'META-INF/maven/*/*/*.*'
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-task noCCJar (type: ShadowJar) {
-	classifier = 'no-cc'
+shadowJar {
+	classifier = 'base'
+	description "A shadowed jar which bundles all dependencies aside from CC"
 
 	from sourceSets.main.output
-	configurations = [
-		project.configurations.runtimeClasspath
-	]
+	configurations = [project.configurations.runtimeClasspath]
 
 	exclude '*.html'
 	exclude 'META-INF/maven/*/*/*.*'
 
 	dependencies {
-		exclude(dependency('.*:ComputerCraft:.*'))
+		exclude dependency('.*:cc-tweaked:.*')
+	}
+}
+
+task cctweakedJar (type: ShadowJar) {
+	classifier = 'cct'
+	description "A shadowed jar which bundles CC: Tweaked"
+
+	from sourceSets.main.output
+	configurations = [project.configurations.runtimeClasspath]
+	manifest.inheritFrom jar.manifest
+
+	exclude '*.html'
+	exclude 'META-INF/maven/*/*/*.*'
+}
+
+task computercraftJar (type: ShadowJar) {
+	classifier = 'cc'
+	description "A shadowed jar which bundles ComputerCraft"
+
+	from sourceSets.main.output
+	configurations = [project.configurations.runtimeClasspath, project.configurations.computercraft]
+	manifest.inheritFrom jar.manifest
+
+	exclude '*.html'
+	exclude 'META-INF/maven/*/*/*.*'
+
+	dependencies {
+		exclude dependency('.*:cc-tweaked:.*')
 	}
 }
 
 run { standardInput = System.in }
 runShadow { standardInput = System.in }
 
-build.dependsOn shadowJar
-build.dependsOn noCCJar
+assemble.dependsOn shadowJar
+assemble.dependsOn cctweakedJar
+assemble.dependsOn computercraftJar
