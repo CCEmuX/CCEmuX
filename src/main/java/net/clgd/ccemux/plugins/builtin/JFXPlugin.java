@@ -57,6 +57,13 @@ public class JFXPlugin extends Plugin {
 
 	@Override
 	public void setup(PluginManager manager) {
+		try {
+			Class.forName("javafx.application.Application", false, getClass().getClassLoader());
+		} catch (ClassNotFoundException ignored) {
+			// Skip if JFX is not available
+			return;
+		}
+
 		manager.addRenderer("JFX", new JFXRendererFactory());
 	}
 }

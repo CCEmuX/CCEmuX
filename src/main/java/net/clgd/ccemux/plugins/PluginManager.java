@@ -71,15 +71,16 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	public void setup() {
-		for (Plugin p : enabled) {
+		for (Iterator<Plugin> iterator = enabled.iterator(); iterator.hasNext(); ) {
+			Plugin p = iterator.next();
 			try {
 				log.debug("Calling setup for plugin [{}]", p);
 				p.setup(this);
-			} catch (Throwable t) {
+			} catch (Exception t) {
 				log.error("Exception while calling setup for plugin [{}]", p, t);
 
 				log.info("Disabling plugin [{}]: setup failed", p);
-				enabled.remove(p);
+				iterator.remove();
 			}
 		}
 	}
