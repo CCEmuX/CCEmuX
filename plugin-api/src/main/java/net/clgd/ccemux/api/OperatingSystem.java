@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
+import javax.annotation.Nonnull;
+
 /**
  * Used to determine which OS is in use and where application data should be
  * stored
@@ -20,6 +22,7 @@ public enum OperatingSystem {
 	 * 
 	 * @return The directory that application data should be stored in
 	 */
+	@Nonnull
 	public Path getAppDataDir() {
 		return appDataDir;
 	}
@@ -35,6 +38,7 @@ public enum OperatingSystem {
 	 * 
 	 * @return The appropriate value for this OS
 	 */
+	@Nonnull
 	public static OperatingSystem get() {
 		String name = System.getProperty("os.name");
 		if (name.startsWith("Windows"))

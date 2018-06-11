@@ -3,6 +3,9 @@ package net.clgd.ccemux.api.emulation;
 import java.io.File;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
@@ -14,11 +17,13 @@ public interface Emulator {
 	/**
 	 * Gets the version string for this emulator
 	 */
+	@Nonnull
 	public String getEmulatorVersion();
 
 	/**
 	 * Gets the renderer factory in use
 	 */
+	@Nonnull
 	public <T extends Renderer> RendererFactory<T> getRendererFactory();
 
 	/**
@@ -27,16 +32,19 @@ public interface Emulator {
 	 * @param name The peripheral factory to find
 	 * @return The peripheral factory or {@code null} if it cannot be found
 	 */
-	PeripheralFactory<?> getPeripheralFactory(String name);
+	@Nullable
+	PeripheralFactory<?> getPeripheralFactory(@Nonnull String name);
 
 	/**
 	 * Gets the config used by this config
 	 */
+	@Nonnull
 	public EmuConfig getConfig();
 
 	/**
 	 * Gets the CC jar file
 	 */
+	@Nonnull
 	public File getCCJar();
 
 	/**
@@ -47,13 +55,15 @@ public interface Emulator {
 	 *            necessary changes before the computer is built
 	 * @return The computer instance
 	 */
-	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator);
+	@Nonnull
+	public EmulatedComputer createComputer(@Nonnull Consumer<EmulatedComputer.Builder> builderMutator);
 
 	/**
 	 * Creates and adds a new computer, returning the created instance
 	 *
 	 * @return The computer instance
 	 */
+	@Nonnull
 	public default EmulatedComputer createComputer() {
 		return createComputer(b -> {});
 	}
@@ -65,7 +75,7 @@ public interface Emulator {
 	 *            The computer to remove
 	 * @return Whether the computer was removed
 	 */
-	public boolean removeComputer(EmulatedComputer computer);
+	public boolean removeComputer(@Nonnull EmulatedComputer computer);
 
 	/**
 	 * Whether the emulator is running

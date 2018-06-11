@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.plugins;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.rendering.RendererFactory;
@@ -15,6 +17,7 @@ public interface PluginManager {
 	 *
 	 * @return This emulator's config options.
 	 */
+	@Nonnull
 	EmuConfig config();
 
 	/**
@@ -25,7 +28,7 @@ public interface PluginManager {
 	 * @throws NullPointerException  If either argument is {@code null}
 	 * @throws IllegalStateException If there is already a renderer with the same name.
 	 */
-	void addRenderer(String name, RendererFactory<?> factory);
+	void addRenderer(@Nonnull String name, @Nonnull RendererFactory<?> factory);
 
 	/**
 	 * Register a new peripheral factory
@@ -35,5 +38,5 @@ public interface PluginManager {
 	 * @throws NullPointerException  If either argument is {@code null}
 	 * @throws IllegalStateException If there is already a peripheral with the same name.
 	 */
-	void addPeripheral(String name, PeripheralFactory<?> factory);
+	void addPeripheral(@Nonnull String name, @Nonnull PeripheralFactory<?> factory);
 }

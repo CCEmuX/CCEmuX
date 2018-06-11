@@ -3,6 +3,9 @@ package net.clgd.ccemux.api.emulation;
 import java.io.File;
 import java.io.IOException;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
@@ -31,7 +34,8 @@ public abstract class EmulatedComputer extends Computer {
 		 *
 		 * @return This builder, for chaining
 		 */
-		public Builder id(Integer num);
+		@Nonnull
+		public Builder id(@Nullable Integer num);
 
 		/**
 		 * Sets the root (<code>/</code>) mount of the computer to construct. Setting
@@ -42,7 +46,8 @@ public abstract class EmulatedComputer extends Computer {
 		 *            The writable mount to use as a root mount
 		 * @return This builder, for chaining
 		 */
-		public Builder rootMount(IWritableMount rootMount);
+		@Nonnull
+		public Builder rootMount(@Nullable IWritableMount rootMount);
 
 		/**
 		 * Sets the label of the computer to construct. Setting the label to
@@ -50,11 +55,13 @@ public abstract class EmulatedComputer extends Computer {
 		 *
 		 * @return This builder, for chaining
 		 */
-		public Builder label(String label);
+		@Nonnull
+		public Builder label(@Nullable String label);
 
 		/**
 		 * Builds an emulated computer using the given values
 		 */
+		@Nonnull
 		public EmulatedComputer build();
 
 	}
@@ -62,9 +69,10 @@ public abstract class EmulatedComputer extends Computer {
 	/**
 	 * The terminal used by this computer
 	 */
+	@Nonnull
 	public final EmulatedTerminal terminal;
 
-	protected EmulatedComputer(IComputerEnvironment environment, EmulatedTerminal terminal, int id) {
+	protected EmulatedComputer(@Nonnull IComputerEnvironment environment, @Nonnull EmulatedTerminal terminal, int id) {
 		super(environment, terminal, id);
 
 		this.terminal = terminal;
@@ -73,14 +81,14 @@ public abstract class EmulatedComputer extends Computer {
 	/**
 	 * Adds a listener that will be invoked when ticking this computer
 	 */
-	public abstract boolean addListener(Listener l);
+	public abstract boolean addListener(@Nonnull Listener l);
 
 	/**
 	 * Removes a listener
 	 * 
 	 * @see #addListener(Listener)
 	 */
-	public abstract boolean removeListener(Listener l);
+	public abstract boolean removeListener(@Nonnull Listener l);
 
 	/**
 	 * Copies the given files into this computer's root mount at the given location.
@@ -91,7 +99,7 @@ public abstract class EmulatedComputer extends Computer {
 	 * @param files
 	 *            The files to copy
 	 */
-	public abstract void copyFiles(Iterable<File> files, String location) throws IOException;
+	public abstract void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException;
 
 	/**
 	 * Queues a key event

@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.plugins.hooks;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.rendering.Renderer;
@@ -17,5 +19,5 @@ import net.clgd.ccemux.api.rendering.Renderer;
  */
 @FunctionalInterface
 public interface ComputerCreated extends Hook {
-	public void onComputerCreated(Emulator emu, EmulatedComputer computer);
+	public void onComputerCreated(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer);
 }

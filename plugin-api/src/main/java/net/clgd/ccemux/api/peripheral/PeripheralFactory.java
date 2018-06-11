@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.peripheral;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 
@@ -16,5 +18,6 @@ public interface PeripheralFactory<T extends Peripheral> {
 	 * A peripheral may implement {@link EmulatedComputer.Listener} in order to be updated
 	 * every tick.
 	 */
-	T create(EmulatedComputer computer, EmuConfig cfg);
+	@Nonnull
+	T create(@Nonnull EmulatedComputer computer, @Nonnull EmuConfig cfg);
 }

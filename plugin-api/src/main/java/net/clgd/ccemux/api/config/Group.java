@@ -1,17 +1,9 @@
 package net.clgd.ccemux.api.config;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-
+import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.google.common.reflect.TypeToken;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.val;
-import lombok.experimental.Accessors;
 
 /**
  * A group acts as a collection of child properties and groups, allowing
@@ -20,21 +12,38 @@ import lombok.experimental.Accessors;
  * @see ConfigEntry
  * @see ConfigProperty
  */
-@Accessors(chain = true)
 public class Group extends ConfigEntry {
-	@Getter
 	private final String key;
 
-	@Getter
-	@Setter
+	@Nonnull
+	public String getKey() {
+		return key;
+	}
+
 	private String name;
 
-	@Setter
+	@Nonnull
+	public String getName() {
+		return name;
+	}
+
+	@Nonnull
+	public Group setName(@Nonnull String name) {
+		this.name = name;
+		return this;
+	}
+
 	private String description;
+
+	@Nonnull
+	public Group setDescription(@Nullable String description) {
+		this.description = description;
+		return this;
+	}
 
 	private final Map<String, ConfigEntry> children = new LinkedHashMap<>();
 
-	public Group(String key) {
+	public Group(@Nonnull String key) {
 		this.key = key;
 		this.name = key;
 	}
@@ -50,11 +59,11 @@ public class Group extends ConfigEntry {
 	 * @return The current group ({@code this}).
 	 * @throws IllegalStateException If an entry with the same key already exists.
 	 */
-	public Group addProperty(ConfigProperty<?> property) {
+	@Nonnull
+	public Group addProperty(@Nonnull ConfigProperty<?> property) {
 		if (children.containsKey(property.getKey())) {
 			throw new IllegalStateException("Already an entry with the given key");
 		}
-
 		children.put(property.getKey(), property);
 		return this;
 	}
@@ -66,11 +75,11 @@ public class Group extends ConfigEntry {
 	 * @return The current group ({@code this}).
 	 * @throws IllegalStateException If an entry with the same key already exists.
 	 */
-	public Group addGroup(Group group) {
+	@Nonnull
+	public Group addGroup(@Nonnull Group group) {
 		if (children.containsKey(group.getKey())) {
 			throw new IllegalStateException("Already an entry with the given key");
 		}
-
 		children.put(group.getKey(), group);
 		return this;
 	}
@@ -80,6 +89,7 @@ public class Group extends ConfigEntry {
 	 *
 	 * @return An unmodifiable collection of children.
 	 */
+	@Nonnull
 	public Collection<ConfigEntry> children() {
 		return Collections.unmodifiableCollection(children.values());
 	}
@@ -90,11 +100,13 @@ public class Group extends ConfigEntry {
 	 * @param key The key for the corresponding child.
 	 * @return The child entry if it exists.
 	 */
-	public Optional<ConfigEntry> child(String key) {
+	@Nonnull
+	public Optional<ConfigEntry> child(@Nonnull String key) {
 		return Optional.ofNullable(children.get(key));
 	}
 
 	@Override
+	@Nonnull
 	public Optional<String> getDescription() {
 		return Optional.ofNullable(description);
 	}
@@ -109,7 +121,8 @@ public class Group extends ConfigEntry {
 	 * @throws IllegalStateException If an entry with the same key exists.
 	 * @see ConfigProperty#Property(String, TypeToken, Object)
 	 */
-	public <T> ConfigProperty<T> property(String key, TypeToken<T> type, T defaultValue) {
+	@Nonnull
+	public <T> ConfigProperty<T> property(@Nonnull String key, @Nonnull TypeToken<T> type, T defaultValue) {
 		ConfigProperty<T> property = new ConfigProperty<>(key, type, defaultValue);
 		addProperty(property);
 		return property;
@@ -125,7 +138,8 @@ public class Group extends ConfigEntry {
 	 * @throws IllegalStateException If an entry with the same key exists.
 	 * @see ConfigProperty#Property(String, Class, Object)
 	 */
-	public <T> ConfigProperty<T> property(String key, Class<T> type, T defaultValue) {
+	@Nonnull
+	public <T> ConfigProperty<T> property(@Nonnull String key, @Nonnull Class<T> type, T defaultValue) {
 		ConfigProperty<T> property = new ConfigProperty<>(key, type, defaultValue);
 		addProperty(property);
 		return property;
@@ -138,10 +152,11 @@ public class Group extends ConfigEntry {
 	 * @return A group with the given key.
 	 * @throws IllegalStateException If a _property_ with the same name exists.
 	 */
-	public Group group(String key) {
-		val entry = children.get(key);
+	@Nonnull
+	public Group group(@Nonnull String key) {
+		final net.clgd.ccemux.api.config.ConfigEntry entry = children.get(key);
 		if (entry == null) {
-			val group = new Group(key);
+			final net.clgd.ccemux.api.config.Group group = new Group(key);
 			addGroup(group);
 			return group;
 		} else if (entry instanceof Group) {

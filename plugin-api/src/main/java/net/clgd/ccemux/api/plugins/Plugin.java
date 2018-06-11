@@ -2,16 +2,15 @@ package net.clgd.ccemux.api.plugins;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import net.clgd.ccemux.api.config.Group;
-import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.plugins.hooks.Hook;
 
 /**
@@ -22,8 +21,8 @@ import net.clgd.ccemux.api.plugins.hooks.Hook;
  * @author apemanzilla
  * @see Hook
  */
-@Slf4j
 public abstract class Plugin {
+	private static final Logger log = LoggerFactory.getLogger(Plugin.class);
 	private final Set<Hook> hooks = new HashSet<>();
 
 	/**
@@ -42,9 +41,9 @@ public abstract class Plugin {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public final <T extends Hook> Set<T> getHooks(Class<T> cls) {
-		return Collections.unmodifiableSet(Collections.unmodifiableSet(hooks.stream()
-				.filter(h -> cls.isAssignableFrom(h.getClass())).map(h -> (T) h).collect(Collectors.toSet())));
+	@Nonnull
+	public final <T extends Hook> Set<T> getHooks(@Nonnull Class<T> cls) {
+		return Collections.unmodifiableSet(Collections.unmodifiableSet(hooks.stream().filter(h -> cls.isAssignableFrom(h.getClass())).map(h -> (T) h).collect(Collectors.toSet())));
 	}
 
 	/**
@@ -53,7 +52,7 @@ public abstract class Plugin {
 	 * @see Hook
 	 * @see #registerHook(Class, Hook)
 	 */
-	protected final void registerHook(Hook hook) {
+	protected final void registerHook(@Nonnull Hook hook) {
 		hooks.add(hook);
 	}
 
@@ -72,30 +71,34 @@ public abstract class Plugin {
 	 * likely be removed in the future.
 	 */
 	@Deprecated
-	protected final <T extends Hook> void registerHook(Class<T> cls, T hook) {
+	protected final <T extends Hook> void registerHook(@Nonnull Class<T> cls, @Nonnull T hook) {
 		registerHook(hook);
 	}
 
 	/**
 	 * The name of the plugin. Should be short and concise - e.g. My Plugin.
 	 */
+	@Nonnull
 	public abstract String getName();
 
 	/**
 	 * A brief description of the plugin and what it does.
 	 */
+	@Nonnull
 	public abstract String getDescription();
 
 	/**
 	 * The version of the plugin. Format does not matter, but semantic
 	 * versioning is recommended - e.g. <code>"1.2.3-alpha"</code>
 	 */
+	@Nonnull
 	public abstract Optional<String> getVersion();
 
 	/**
 	 * The authors of the plugin. If an empty <code>Collection</code> is returned,
 	 * no authors will be shown to end-users.
 	 */
+	@Nonnull
 	public abstract Collection<String> getAuthors();
 
 	/**
@@ -104,6 +107,7 @@ public abstract class Plugin {
 	 * an empty <code>Optional</code> is returned, no website will be shown to
 	 * end-users.
 	 */
+	@Nonnull
 	public abstract Optional<String> getWebsite();
 
 	/**
@@ -114,7 +118,7 @@ public abstract class Plugin {
 	 *
 	 * @param group The group to load config elements from.
 	 */
-	public void configSetup(Group group) {}
+	public void configSetup(@Nonnull Group group) {}
 
 	/**
 	 * Called while CCEmuX is starting. This method should be used to register
@@ -127,8 +131,9 @@ public abstract class Plugin {
 	 *
 	 * @see Hook
 	 */
-	public abstract void setup(PluginManager manager);
+	public abstract void setup(@Nonnull PluginManager manager);
 
+	@Nonnull
 	public final String toString() {
 		return getName() + getVersion().map(v -> " v" + v).orElse("");
 	}
@@ -138,6 +143,7 @@ public abstract class Plugin {
 	 *
 	 * @return
 	 */
+	@Nonnull
 	public final Optional<File> getSource() {
 		try {
 			return Optional.of(new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI()));

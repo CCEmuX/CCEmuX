@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.rendering;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 
 /**
@@ -32,12 +34,12 @@ public interface Renderer extends EmulatedComputer.Listener {
 	/**
 	 * Adds a listener to this renderer
 	 */
-	void addListener(Listener l);
+	void addListener(@Nonnull Listener l);
 
 	/**
 	 * Removes a listener from this renderer
 	 */
-	void removeListener(Listener l);
+	void removeListener(@Nonnull Listener l);
 
 	@Override
 	public default void onAdvance(double dt) {}

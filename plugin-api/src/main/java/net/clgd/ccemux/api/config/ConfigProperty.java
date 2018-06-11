@@ -2,17 +2,13 @@ package net.clgd.ccemux.api.config;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.BiConsumer;
 
-import com.google.common.reflect.TypeToken;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.val;
-import lombok.experimental.Accessors;
+import com.google.common.reflect.TypeToken;
 
 /**
  * An entry in a config file which stores a value of the given type.
@@ -20,32 +16,58 @@ import lombok.experimental.Accessors;
  * @param <T>
  *            The type of value to store.
  */
-@Accessors(chain = true)
 public class ConfigProperty<T> extends ConfigEntry {
 	private final List<BiConsumer<T, T>> listeners = new ArrayList<>(0);
 
-	@Getter
 	private final String key;
+	
+	@Nonnull
+	public String getKey() {
+		return key;
+	}
 
-	@Getter
-	@Setter
 	private String name;
 
-	@Setter
+	@Nonnull
+	public String getName() {
+		return name;
+	}
+	
+	@Nonnull
+	public ConfigProperty<T> setName(@Nonnull String name) {
+		this.name = name;
+		return this;
+	}
+	
 	private String description;
+	
+	@Nonnull
+	public ConfigProperty<T> setDescription(@Nullable String description) {
+		this.description = description;
+		return this;
+	}
+
+	private final Type type;
 
 	/**
 	 * The type this property stores. This is likely to be a {@link Class} or
 	 * {@link ParameterizedType}.
 	 */
-	@Getter
-	private final Type type;
+	@Nonnull
+	public Type getType() {
+		return type;
+	}
+
+	private final T defaultValue;
 
 	/**
 	 * The default value for this property.
 	 */
-	@Getter
-	private final T defaultValue;
+	public T getDefaultValue() {
+		return defaultValue;
+	}
+
+	private boolean alwaysEmit = false;
 
 	/**
 	 * Whether this property should always be written to a config file, irrespective
@@ -53,11 +75,25 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 *
 	 * @see #isDefault()
 	 */
-	@Getter
-	@Setter
-	private boolean alwaysEmit = false;
+	public boolean isAlwaysEmit() {
+		return alwaysEmit;
+	}
+
+	/**
+	 * Whether this property should always be written to a config file, irrespective
+	 * of whether it's non-default.
+	 *
+	 * @see #isDefault()
+	 */
+	@Nonnull
+	public ConfigProperty<T> setAlwaysEmit(boolean alwaysEmit) {
+		this.alwaysEmit = alwaysEmit;
+		return this;
+	}
 
 	private T value;
+
+	private boolean isDefault;
 
 	/**
 	 * Whether this property has not been changed, and so stores the default value.
@@ -66,8 +102,9 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * as the default then this will be {@code false}. One must call
 	 * {@link #resetDefault()} in order to mark it as default.
 	 */
-	@Getter
-	private boolean isDefault;
+	public boolean isDefault() {
+		return this.isDefault;
+	}
 
 	private ConfigProperty(String key, Type type, T defaultValue) {
 		this.key = key;
@@ -92,7 +129,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 *             If an entry with the same key exists.
 	 * @see Group#property(String, Class, Object)
 	 */
-	public ConfigProperty(String key, Class<T> type, T defaultValue) {
+	public ConfigProperty(@Nonnull String key, @Nonnull Class<T> type, T defaultValue) {
 		this(key, (Type) type, defaultValue);
 	}
 
@@ -109,7 +146,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 *             If an entry with the same key exists.
 	 * @see Group#property(String, TypeToken, Object)
 	 */
-	public ConfigProperty(String key, TypeToken<T> type, T defaultValue) {
+	public ConfigProperty(@Nonnull String key, @Nonnull TypeToken<T> type, T defaultValue) {
 		this(key, type.getType(), defaultValue);
 	}
 
@@ -136,10 +173,10 @@ public class ConfigProperty<T> extends ConfigEntry {
 	private void set(T newValue, boolean isDefault) {
 		this.isDefault = isDefault;
 		if (!newValue.equals(value)) {
-			val oldValue = value;
+			T oldValue = value;
 			value = newValue;
 
-			for (val listener : listeners)
+			for (BiConsumer<T, T> listener : listeners)
 				listener.accept(oldValue, newValue);
 		}
 	}
@@ -155,6 +192,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	}
 
 	@Override
+	@Nonnull
 	public Optional<String> getDescription() {
 		return Optional.ofNullable(description);
 	}
@@ -167,6 +205,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * @see #isAlwaysEmit()
 	 * @see #setAlwaysEmit(boolean)
 	 */
+	@Nonnull
 	public ConfigProperty<T> setAlwaysEmit() {
 		return setAlwaysEmit(true);
 	}
@@ -180,7 +219,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * @see #addAndFireListener(BiConsumer)
 	 * @see #removeListener(BiConsumer)
 	 */
-	public void addListener(BiConsumer<T, T> listener) {
+	public void addListener(@Nonnull BiConsumer<T, T> listener) {
 		listeners.add(listener);
 	}
 
@@ -201,7 +240,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * @see #addListener(BiConsumer)
 	 * @see #removeListener(BiConsumer)
 	 */
-	public void addAndFireListener(BiConsumer<T, T> listener) {
+	public void addAndFireListener(@Nonnull BiConsumer<T, T> listener) {
 		addListener(listener);
 		listener.accept(value, value);
 	}
@@ -214,7 +253,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * @see #addListener(BiConsumer)
 	 * @see #addAndFireListener(BiConsumer)
 	 */
-	public void removeListener(BiConsumer<T, T> listener) {
+	public void removeListener(@Nonnull BiConsumer<T, T> listener) {
 		listeners.remove(listener);
 	}
 }

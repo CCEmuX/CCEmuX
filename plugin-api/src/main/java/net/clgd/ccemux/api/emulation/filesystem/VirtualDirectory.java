@@ -1,28 +1,24 @@
 package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-import lombok.EqualsAndHashCode;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents an immutable, in-memory directory for use with
  * {@link VirtualMount}
- * 
- * @author apemanzilla
  *
+ * @author apemanzilla
  */
-@EqualsAndHashCode(callSuper=false)
 public final class VirtualDirectory extends VirtualMountEntry {
+
 	/**
 	 * A builder for {@link VirtualDirectory} that automatically creates the
 	 * necessary directories for each entry
-	 * 
-	 * @author apemanzilla
 	 *
+	 * @author apemanzilla
 	 */
 	public static class Builder {
 		private VirtualDirectory dir = new VirtualDirectory();
@@ -30,20 +26,18 @@ public final class VirtualDirectory extends VirtualMountEntry {
 		/**
 		 * Adds an entry to the directory being built, creating directories and
 		 * overwriting existing entries as necessary.
-		 * 
+		 *
 		 * @throws IllegalArgumentException
 		 *             Thrown if the given path is invalid
 		 */
-		public void addEntry(Path path, VirtualMountEntry entry) {
+		public void addEntry(@Nonnull Path path, @Nonnull VirtualMountEntry entry) {
 			path = path.normalize();
-
 			if (path.getNameCount() == 0) {
 				throw new IllegalArgumentException("Invalid path");
 			} else if (path.getNameCount() == 1) {
 				dir.children.put(path.getFileName().toString(), entry);
 			} else {
 				VirtualDirectory current = dir;
-
 				Iterator<Path> i = path.iterator();
 				Path p;
 				while ((p = i.next()) != null) {
@@ -64,6 +58,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 			}
 		}
 
+		@Nonnull
 		public VirtualDirectory build() {
 			if (dir == null) throw new IllegalStateException("Builder has already been used!");
 			VirtualDirectory out = dir;
@@ -76,11 +71,11 @@ public final class VirtualDirectory extends VirtualMountEntry {
 
 	/**
 	 * Creates a new directory
-	 * 
+	 *
 	 * @param children
 	 *            The entries contained in this directory
 	 */
-	public VirtualDirectory(Map<String, VirtualMountEntry> children) {
+	public VirtualDirectory(@Nonnull Map<String, VirtualMountEntry> children) {
 		this.children = children;
 	}
 
@@ -91,15 +86,29 @@ public final class VirtualDirectory extends VirtualMountEntry {
 		this.children = new HashMap<>();
 	}
 
-	public boolean hasEntry(String name) {
+	public boolean hasEntry(@Nonnull String name) {
 		return children.containsKey(name);
 	}
 
-	public VirtualMountEntry getEntry(String name) {
+	@Nullable
+	public VirtualMountEntry getEntry(@Nonnull String name) {
 		return children.get(name);
 	}
 
+	@Nonnull
 	public Set<String> getEntryNames() {
 		return children.keySet();
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		return children.equals(((VirtualDirectory) o).children);
+	}
+
+	@Override
+	public int hashCode() {
+		return children.hashCode();
 	}
 }

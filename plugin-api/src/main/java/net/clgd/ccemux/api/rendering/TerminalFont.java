@@ -8,37 +8,35 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
+import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a font that can be used when rendering CC terminals
  *
  * @author apemanzilla
- *
  */
-@Slf4j
 public abstract class TerminalFont {
+	private static final Logger log = LoggerFactory.getLogger(TerminalFont.class);
 	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
-
-	public static final int BASE_WIDTH = 256, BASE_HEIGHT = 256;
-
-	public static final int BASE_CHAR_WIDTH = 6, BASE_CHAR_HEIGHT = 9;
+	public static final int BASE_WIDTH = 256;
+	public static final int BASE_HEIGHT = 256;
+	public static final int BASE_CHAR_WIDTH = 6;
+	public static final int BASE_CHAR_HEIGHT = 9;
 	public static final int BASE_MARGIN = 1;
-	public static final int COLUMNS = 16, ROWS = 16;
-
+	public static final int COLUMNS = 16;
+	public static final int ROWS = 16;
 	private static final Set<URL> registeredFonts = ConcurrentHashMap.newKeySet();
 
-	public static void registerFont(URL url) {
+	public static void registerFont(@Nonnull URL url) {
 		registeredFonts.add(url);
 	}
 
-	public static void loadImplicitFonts(ClassLoader loader) throws IOException {
+	public static void loadImplicitFonts(@Nonnull ClassLoader loader) throws IOException {
 		log.debug("Loading implicit fonts (from classloader {}", loader);
-
-		val res = loader.getResources(FONT_RESOURCE_PATH);
-
+		final java.util.Enumeration<java.net.URL> res = loader.getResources(FONT_RESOURCE_PATH);
 		while (res.hasMoreElements()) {
 			URL u = res.nextElement();
 			log.info("Registering implicit font from {}", u);
@@ -59,11 +57,9 @@ public abstract class TerminalFont {
 	 *             Thrown when no fonts can be loaded (either none are
 	 *             registered or all throw exceptions when loaded)
 	 */
-	public static <T extends TerminalFont> T getBest(Loader<T> loader, Comparator<? super T> comparator) {
-		return registeredFonts.stream()
-				.map(u -> loader.loadFontSafe(u, e -> log.error("Error loading font from {}", u, e)))
-				.flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)).sorted(comparator).findFirst()
-				.orElseThrow(() -> new IllegalStateException("No fonts available"));
+	@Nonnull
+	public static <T extends TerminalFont> T getBest(@Nonnull Loader<T> loader, @Nonnull Comparator<? super T> comparator) {
+		return registeredFonts.stream().map(u -> loader.loadFontSafe(u, e -> log.error("Error loading font from {}", u, e))).flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)).sorted(comparator).findFirst().orElseThrow(() -> new IllegalStateException("No fonts available"));
 	}
 
 	/**
@@ -77,9 +73,11 @@ public abstract class TerminalFont {
 	 *             Thrown when no fonts can be loaded (either none are
 	 *             registered or all throw exceptions when loaded)
 	 */
-	public static <T extends TerminalFont> T getBest(Loader<T> loader) {
+	@Nonnull
+	public static <T extends TerminalFont> T getBest(@Nonnull Loader<T> loader) {
 		return getBest(loader, Comparator.comparingDouble(f -> -(f.getHorizontalScale() + f.getVerticalScale())));
 	}
+
 
 	/**
 	 * A loader that can load a generic {@link TerminalFont} from a given
@@ -98,7 +96,8 @@ public abstract class TerminalFont {
 		 * @return
 		 * @throws Exception
 		 */
-		public T loadFont(URL url) throws Exception;
+		@Nonnull
+		T loadFont(@Nonnull URL url) throws Exception;
 
 		/**
 		 * Loads the font from the given URL, with a consumer to handle thrown
@@ -109,7 +108,8 @@ public abstract class TerminalFont {
 		 * @return The loaded font, or an empty optional if an exception was
 		 *         thrown
 		 */
-		public default Optional<T> loadFontSafe(URL url, Consumer<? super Exception> catcher) {
+		@Nonnull
+		default Optional<T> loadFontSafe(@Nonnull URL url, @Nonnull Consumer<? super Exception> catcher) {
 			try {
 				return Optional.of(loadFont(url));
 			} catch (Exception e) {
@@ -122,19 +122,16 @@ public abstract class TerminalFont {
 	/**
 	 * The scale of the font, calculated based on base image resolution
 	 */
-	@Getter
-	private final double horizontalScale, verticalScale;
-
+	private final double horizontalScale;
+	private final double verticalScale;
 	/**
 	 * The scaled character dimensions
 	 */
-	@Getter
-	private final int charWidth, charHeight;
-
+	private final int charWidth;
+	private final int charHeight;
 	/**
 	 * The margin around each character
 	 */
-	@Getter
 	private final int margin;
 
 	/**
@@ -148,7 +145,6 @@ public abstract class TerminalFont {
 	public TerminalFont(int imageWidth, int imageHeight) {
 		horizontalScale = imageWidth / (double) BASE_WIDTH;
 		verticalScale = imageHeight / (double) BASE_HEIGHT;
-
 		margin = (int) Math.round(BASE_MARGIN * horizontalScale);
 		charWidth = (int) Math.round(BASE_CHAR_WIDTH * horizontalScale);
 		charHeight = (int) Math.round(BASE_CHAR_HEIGHT * verticalScale);
@@ -162,9 +158,44 @@ public abstract class TerminalFont {
 	 *            The character
 	 * @return The coordinates and dimensions of a given character
 	 */
+	@Nonnull
 	public Rectangle getCharCoords(char c) {
 		int charcode = (int) c;
-		return new Rectangle(margin + charcode % COLUMNS * (getCharWidth() + margin * 2),
-				margin + charcode / ROWS * (getCharHeight() + margin * 2), getCharWidth(), getCharHeight());
+		return new Rectangle(margin + charcode % COLUMNS * (getCharWidth() + margin * 2), margin + charcode / ROWS * (getCharHeight() + margin * 2), getCharWidth(), getCharHeight());
+	}
+
+	/**
+	 * The horizontal scale of the font, calculated based on base image resolution
+	 */
+	public double getHorizontalScale() {
+		return this.horizontalScale;
+	}
+
+	/**
+	 * The horizontal scale of the font, calculated based on base image resolution
+	 */
+	public double getVerticalScale() {
+		return this.verticalScale;
+	}
+
+	/**
+	 * The scaled character width
+	 */
+	public int getCharWidth() {
+		return this.charWidth;
+	}
+
+	/**
+	 * The scaled character height
+	 */
+	public int getCharHeight() {
+		return this.charHeight;
+	}
+
+	/**
+	 * The margin around each character
+	 */
+	public int getMargin() {
+		return this.margin;
 	}
 }

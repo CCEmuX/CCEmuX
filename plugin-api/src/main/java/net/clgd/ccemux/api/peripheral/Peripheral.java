@@ -1,5 +1,6 @@
 package net.clgd.ccemux.api.peripheral;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import dan200.computercraft.api.peripheral.IPeripheral;
@@ -15,7 +16,7 @@ public interface Peripheral extends IPeripheral, EmulatedComputer.Listener {
 	 *
 	 * @param group The group to load config elements from.
 	 */
-	default void configSetup(Group group) { }
+	default void configSetup(@Nonnull Group group) { }
 
 	/**
 	 * Called when the owning computer is ticked in order to perform any processing
