@@ -13,57 +13,54 @@ import dan200.computercraft.core.computer.IComputerEnvironment;
 public abstract class EmulatedComputer extends Computer {
 	/**
 	 * A listener that's triggered every time the computer is ticked
-	 *
 	 */
-	public static interface Listener {
+	public interface Listener {
 		/**
 		 * Called when the computer is ticked
 		 */
-		public void onAdvance(double dt);
+		void onAdvance(double dt);
 	}
 
 	/**
 	 * A builder used to specify values for an emulated computer before it's created
 	 */
-	public static interface Builder {
+	public interface Builder {
 
 		/**
-		 * Sets the ID of the computer to construct. Setting the id to <code>null</code>
+		 * Sets the ID of the computer to construct. Setting the id to {@code null}
 		 * (the default value) will result in the ID being automatically chosen by the
 		 * environment.
 		 *
 		 * @return This builder, for chaining
 		 */
 		@Nonnull
-		public Builder id(@Nullable Integer num);
+		Builder id(@Nullable Integer num);
 
 		/**
-		 * Sets the root (<code>/</code>) mount of the computer to construct. Setting
-		 * the root mount to <code>null</code> (the default value) will result in one
+		 * Sets the root ({@code /}) mount of the computer to construct. Setting
+		 * the root mount to {@code null} (the default value) will result in one
 		 * being created by the environment.
 		 *
-		 * @param rootMount
-		 *            The writable mount to use as a root mount
+		 * @param rootMount The writable mount to use as a root mount
 		 * @return This builder, for chaining
 		 */
 		@Nonnull
-		public Builder rootMount(@Nullable IWritableMount rootMount);
+		Builder rootMount(@Nullable IWritableMount rootMount);
 
 		/**
 		 * Sets the label of the computer to construct. Setting the label to
-		 * <code>null</code> (the default value) will result in no label being set.
+		 * {@code null} (the default value) will result in no label being set.
 		 *
 		 * @return This builder, for chaining
 		 */
 		@Nonnull
-		public Builder label(@Nullable String label);
+		Builder label(@Nullable String label);
 
 		/**
 		 * Builds an emulated computer using the given values
 		 */
 		@Nonnull
-		public EmulatedComputer build();
-
+		EmulatedComputer build();
 	}
 
 	/**
@@ -74,7 +71,6 @@ public abstract class EmulatedComputer extends Computer {
 
 	protected EmulatedComputer(@Nonnull IComputerEnvironment environment, @Nonnull EmulatedTerminal terminal, int id) {
 		super(environment, terminal, id);
-
 		this.terminal = terminal;
 	}
 
@@ -85,7 +81,7 @@ public abstract class EmulatedComputer extends Computer {
 
 	/**
 	 * Removes a listener
-	 * 
+	 *
 	 * @see #addListener(Listener)
 	 */
 	public abstract boolean removeListener(@Nonnull Listener l);
@@ -96,8 +92,7 @@ public abstract class EmulatedComputer extends Computer {
 	 * path, with their original name. Directories will be recursively copied into
 	 * the destination in a similar fashion to files.
 	 *
-	 * @param files
-	 *            The files to copy
+	 * @param files The files to copy
 	 */
 	public abstract void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException;
 

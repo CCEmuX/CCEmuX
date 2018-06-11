@@ -19,7 +19,6 @@ public abstract class CollectionPropertyComponent<T, TEntry extends CollectionPr
 	private final Consumer<T> valueChanged;
 
 	protected final JPanel components;
-	private final GridBagLayout layout;
 
 	public CollectionPropertyComponent(Consumer<T> valueChanged) {
 		this.entries = new ArrayList<>();
@@ -37,6 +36,7 @@ public abstract class CollectionPropertyComponent<T, TEntry extends CollectionPr
 			constraints.weighty = 1;
 			constraints.fill = GridBagConstraints.BOTH;
 
+			GridBagLayout layout;
 			components = new JPanel(layout = new GridBagLayout());
 			SwingHelpers.hideBackground(components);
 			add(components, constraints);

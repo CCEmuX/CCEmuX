@@ -7,6 +7,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -59,23 +61,26 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	private long started = -1;
 	private boolean running;
 
+	@Nonnull
 	@Override
 	public EmuConfig getConfig() {
 		return cfg;
 	}
 
+	@Nonnull
 	@Override
 	public File getCCJar() {
 		return ccSource;
 	}
 
+	@Nonnull
 	@Override
 	public String getEmulatorVersion() {
 		return getVersion();
 	}
 
 	@Override
-	public PeripheralFactory<?> getPeripheralFactory(String name) {
+	public PeripheralFactory<?> getPeripheralFactory(@Nonnull String name) {
 		return pluginMgr.getPeripherals().get(name);
 	}
 
@@ -87,6 +92,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 *
 	 * @return The new computer
 	 */
+	@Nonnull
 	public EmulatedComputer createComputer() {
 		return createComputer(b -> {});
 	}
@@ -101,7 +107,8 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 *            Will be called after plugin hooks with the builder
 	 * @return The new computer
 	 */
-	public EmulatedComputer createComputer(Consumer<EmulatedComputer.Builder> builderMutator) {
+	@Nonnull
+	public EmulatedComputer createComputer(@Nonnull Consumer<EmulatedComputer.Builder> builderMutator) {
 		val term = new EmulatedTerminal(cfg.termWidth.get(), cfg.termHeight.get());
 		val builder = EmulatedComputerImpl.builder(this, term).id(-1);
 
@@ -133,7 +140,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		ec.turnOn();
 	}
 
-	public boolean removeComputer(EmulatedComputer computer) {
+	public boolean removeComputer(@Nonnull EmulatedComputer computer) {
 		synchronized (computers) {
 			try {
 				log.info("Removing computer ID {}", computer.getID());
@@ -190,7 +197,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 
 			try {
 				Thread.sleep(Math.max(0, 50 - (System.currentTimeMillis() - now)));
-			} catch (InterruptedException e) {}
+			} catch (InterruptedException ignored) {}
 		}
 
 		log.info("Emulation stopped");

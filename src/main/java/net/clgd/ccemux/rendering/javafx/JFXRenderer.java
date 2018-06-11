@@ -3,6 +3,8 @@ package net.clgd.ccemux.rendering.javafx;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.base.Strings;
 
 import javafx.application.Platform;
@@ -86,12 +88,12 @@ public class JFXRenderer implements Renderer {
 	private final Set<Listener> listeners = ConcurrentHashMap.newKeySet();
 
 	@Override
-	public void addListener(Listener l) {
+	public void addListener(@Nonnull Listener l) {
 		listeners.add(l);
 	}
 
 	@Override
-	public void removeListener(Listener l) {
+	public void removeListener(@Nonnull Listener l) {
 		listeners.remove(l);
 	}
 }

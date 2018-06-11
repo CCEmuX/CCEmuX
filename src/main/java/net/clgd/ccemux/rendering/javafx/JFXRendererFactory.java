@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nonnull;
+
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.stage.Stage;
@@ -23,7 +25,7 @@ public class JFXRendererFactory implements RendererFactory<JFXRenderer> {
 		public static final CountDownLatch latch = new CountDownLatch(1);
 
 		@Override
-		public void start(Stage stage) throws Exception {
+		public void start(Stage stage) {
 			latch.countDown();
 		}
 	}
@@ -37,7 +39,7 @@ public class JFXRendererFactory implements RendererFactory<JFXRenderer> {
 	}
 
 	@Override
-	public JFXRenderer create(EmulatedComputer computer, EmuConfig cfg) {
+	public JFXRenderer create(@Nonnull EmulatedComputer computer, @Nonnull EmuConfig cfg) {
 		try {
 			if (!jfxStarted.getAndSet(true)) {
 				Platform.setImplicitExit(false);

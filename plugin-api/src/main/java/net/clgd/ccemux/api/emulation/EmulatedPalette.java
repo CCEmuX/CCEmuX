@@ -34,15 +34,11 @@ public class EmulatedPalette extends Palette {
 
 	/**
 	 * Change a color
-	 * 
-	 * @param i
-	 *            The index of the color
-	 * @param r
-	 *            The red component of the color
-	 * @param g
-	 *            The green component of the color
-	 * @param b
-	 *            The blue component of the color
+	 *
+	 * @param i The index of the color
+	 * @param r The red component of the color
+	 * @param g The green component of the color
+	 * @param b The blue component of the color
 	 */
 	@Override
 	public void setColour(int i, double r, double g, double b) {

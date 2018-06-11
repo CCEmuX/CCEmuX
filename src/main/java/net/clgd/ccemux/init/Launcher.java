@@ -39,16 +39,16 @@ public class Launcher {
 		opts.addOption(builder("h").longOpt("help").desc("Shows this help information").build());
 
 		opts.addOption(builder("d").longOpt("data-dir")
-				.desc("Sets the data directory where plugins, configs, and other data are stored.").hasArg()
-				.argName("path").build());
+			.desc("Sets the data directory where plugins, configs, and other data are stored.").hasArg()
+			.argName("path").build());
 
 		opts.addOption(builder("r").longOpt("renderer")
-				.desc("Sets the renderer to use. Run without a value to list all available renderers.").hasArg()
-				.optionalArg(true).argName("renderer").build());
+			.desc("Sets the renderer to use. Run without a value to list all available renderers.").hasArg()
+			.optionalArg(true).argName("renderer").build());
 
 		opts.addOption(builder().longOpt("plugin").desc(
-				"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
-				.hasArg().argName("file").build());
+			"Used to load additional plugins not present in the default plugin directory. Value should be a path to a .jar file.")
+			.hasArg().argName("file").build());
 	}
 
 	private static void printHelp() {
@@ -107,9 +107,9 @@ public class Launcher {
 			scrollPane.setMaximumSize(new Dimension(600, 400));
 
 			int result = JOptionPane.showConfirmDialog(null,
-					new Object[]{"CCEmuX has crashed!", scrollPane,
-							"Would you like to create a bug report on GitHub?"},
-					"CCEmuX Crash", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+				new Object[] { "CCEmuX has crashed!", scrollPane,
+					"Would you like to create a bug report on GitHub?" },
+				"CCEmuX Crash", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
 
 			if (result == JOptionPane.YES_OPTION) {
 				try {
@@ -124,19 +124,16 @@ public class Launcher {
 	private void setSystemLAF() {
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
-				| UnsupportedLookAndFeelException e) {
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
 			log.warn("Failed to set system look and feel", e);
 		}
 	}
 
-	private ClassLoader buildLoader() throws ReflectiveOperationException {
+	private ClassLoader buildLoader() {
 		File pd = dataDir.resolve("plugins").toFile();
 
-		if (pd.isFile())
-			pd.delete();
-		if (!pd.exists())
-			pd.mkdirs();
+		if (pd.isFile()) pd.delete();
+		if (!pd.exists()) pd.mkdirs();
 
 		HashSet<URL> urls = new HashSet<>();
 
@@ -168,12 +165,13 @@ public class Launcher {
 
 	private File getCCSource() throws URISyntaxException {
 		URI source = Optional.ofNullable(ComputerCraft.class.getProtectionDomain().getCodeSource())
-				.orElseThrow(() -> new IllegalStateException("Cannot locate CC")).getLocation().toURI();
+			.orElseThrow(() -> new IllegalStateException("Cannot locate CC")).getLocation().toURI();
 
 		log.debug("CC is loaded from {}", source);
 
-		if (!source.getScheme().equals("file"))
+		if (!source.getScheme().equals("file")) {
 			throw new IllegalStateException("Incompatible CC location: " + source.toString());
+		}
 
 		return new File(source);
 	}
@@ -194,8 +192,9 @@ public class Launcher {
 			}
 			log.debug("Config: {}", cfg);
 
-			if (cfg.termScale.get() != cfg.termScale.get().intValue())
+			if (cfg.termScale.get() != cfg.termScale.get().intValue()) {
 				log.warn("Terminal scale is not an integer - stuff might look bad! Don't blame us!");
+			}
 
 			PluginManager pluginMgr = new PluginManager(cfg);
 			pluginMgr.gatherCandidates(buildLoader());
@@ -230,9 +229,9 @@ public class Launcher {
 
 				if (!GraphicsEnvironment.isHeadless()) {
 					JOptionPane.showMessageDialog(null,
-							"Specified renderer '" + renderer + "' does not exist.\n"
-									+ "Please double check your config file and plugin list.",
-							"Configuration Error", JOptionPane.ERROR_MESSAGE);
+						"Specified renderer '" + renderer + "' does not exist.\n"
+							+ "Please double check your config file and plugin list.",
+						"Configuration Error", JOptionPane.ERROR_MESSAGE);
 				}
 
 				System.exit(1);
@@ -242,8 +241,9 @@ public class Launcher {
 
 			log.info("Setting up emulation environment");
 
-			if (!GraphicsEnvironment.isHeadless())
+			if (!GraphicsEnvironment.isHeadless()) {
 				Optional.ofNullable(SplashScreen.getSplashScreen()).ifPresent(SplashScreen::close);
+			}
 
 			TerminalFont.loadImplicitFonts(getClass().getClassLoader());
 

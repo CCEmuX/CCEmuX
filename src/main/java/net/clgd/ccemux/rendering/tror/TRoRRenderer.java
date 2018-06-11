@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.BlockingDeque;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -46,12 +48,12 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	}
 
 	@Override
-	public void addListener(Renderer.Listener listener) {
+	public void addListener(@Nonnull Renderer.Listener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Renderer.Listener listener) {
+	public void removeListener(@Nonnull Renderer.Listener listener) {
 		listeners.remove(listener);
 	}
 
@@ -75,8 +77,9 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 
 				StringBuilder builder = new StringBuilder();
 				for (int y = 0; y < terminal.getHeight(); y++) {
-					if (y > 0)
+					if (y > 0) {
 						builder.append(':');
+					}
 
 					builder.append(terminal.getTextColourLine(y).m_text);
 					builder.append(',');
@@ -105,109 +108,114 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 		InputProvider.InputPacket packet;
 		while ((packet = events.poll()) != null) {
 			switch (packet.code) {
-			case "EV": {
-				String payload = packet.payload;
-				int index = payload.indexOf(',');
-				if (index < 0)
-					index = payload.length();
-
-				String event = payload.substring(0, index);
-				List<Object> args = new ArrayList<>();
-				index++;
-				while (index < payload.length()) {
-					char startChar = payload.charAt(index);
-					if (startChar == '"' || startChar == '\'') {
-						StringBuilder builder = new StringBuilder();
-						index++;
-						while (index < payload.length() - 1) {
-							char current = payload.charAt(index++);
-
-							if (current == startChar) {
-								break;
-							} else if (current == '\\') {
-								current = payload.charAt(index++);
-								if (current == 'a')
-									builder.append((char) 0x7);
-								else if (current == 'b')
-									builder.append('\b');
-								else if (current == 'f')
-									builder.append('\f');
-								else if (current == 'n')
-									builder.append('\n');
-								else if (current == 'r')
-									builder.append('\r');
-								else if (current == 't')
-									builder.append('\t');
-								else if (current == 'v')
-									builder.append((char) 0xB);
-								else if (current == '\\')
-									builder.append('\\');
-								else if (current == '\'')
-									builder.append('\'');
-								else if (current == '\"')
-									builder.append('\"');
-
-								// TODO: Support for numeric escape codes.
-							} else {
-								builder.append(current);
-							}
-						}
-
-						args.add(builder.toString());
-						if (index >= payload.length() - 1 || payload.charAt(index) == ',')
-							index++;
-					} else {
-						int next = payload.indexOf(',', index);
-						if (next < 0)
-							next = payload.length();
-						String arg = payload.substring(index, next);
-						switch (arg) {
-						case "nil":
-							args.add(null);
-							break;
-						case "true":
-							args.add(true);
-							break;
-						case "false":
-							args.add(false);
-							break;
-						default:
-							try {
-								args.add(Double.parseDouble(arg));
-							} catch (NumberFormatException e) {
-								args.add(null);
-							}
-							break;
-						}
-
-						index = next + 1;
+				case "EV": {
+					String payload = packet.payload;
+					int index = payload.indexOf(',');
+					if (index < 0) {
+						index = payload.length();
 					}
-				}
 
-				computer.queueEvent(event, args.toArray());
-				break;
-			}
-			case "XA":
-				switch (packet.payload.toLowerCase(Locale.ENGLISH)) {
-				case "shutdown":
-					computer.shutdown();
-					break;
-				case "reboot":
-					computer.reboot();
-					break;
-				case "close":
-					for (Listener listener : listeners)
-						listener.onClosed();
+					String event = payload.substring(0, index);
+					List<Object> args = new ArrayList<>();
+					index++;
+					while (index < payload.length()) {
+						char startChar = payload.charAt(index);
+						if (startChar == '"' || startChar == '\'') {
+							StringBuilder builder = new StringBuilder();
+							index++;
+							while (index < payload.length() - 1) {
+								char current = payload.charAt(index++);
+
+								if (current == startChar) {
+									break;
+								} else if (current == '\\') {
+									current = payload.charAt(index++);
+									if (current == 'a') {
+										builder.append((char) 0x7);
+									} else if (current == 'b') {
+										builder.append('\b');
+									} else if (current == 'f') {
+										builder.append('\f');
+									} else if (current == 'n') {
+										builder.append('\n');
+									} else if (current == 'r') {
+										builder.append('\r');
+									} else if (current == 't') {
+										builder.append('\t');
+									} else if (current == 'v') {
+										builder.append((char) 0xB);
+									} else if (current == '\\') {
+										builder.append('\\');
+									} else if (current == '\'') {
+										builder.append('\'');
+									} else if (current == '\"') {
+										builder.append('\"');
+									}
+									// TODO: Support for numeric escape codes.
+								} else {
+									builder.append(current);
+								}
+							}
+
+							args.add(builder.toString());
+							if (index >= payload.length() - 1 || payload.charAt(index) == ',') {
+								index++;
+							}
+						} else {
+							int next = payload.indexOf(',', index);
+							if (next < 0) {
+								next = payload.length();
+							}
+							String arg = payload.substring(index, next);
+							switch (arg) {
+								case "nil":
+									args.add(null);
+									break;
+								case "true":
+									args.add(true);
+									break;
+								case "false":
+									args.add(false);
+									break;
+								default:
+									try {
+										args.add(Double.parseDouble(arg));
+									} catch (NumberFormatException e) {
+										args.add(null);
+									}
+									break;
+							}
+
+							index = next + 1;
+						}
+					}
+
+					computer.queueEvent(event, args.toArray());
 					break;
 				}
-				break;
+				case "XA":
+					switch (packet.payload.toLowerCase(Locale.ENGLISH)) {
+						case "shutdown":
+							computer.shutdown();
+							break;
+						case "reboot":
+							computer.reboot();
+							break;
+						case "close":
+							for (Listener listener : listeners) {
+								listener.onClosed();
+							}
+							break;
+					}
+					break;
 			}
 		}
 	}
 
 	private void sendLine(String mode, String line) {
-		if (!isVisible)
+		if (!isVisible) {
 			return;
+		}
 
 		try {
 			output.write(mode);
@@ -223,7 +231,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	}
 
 	@Override
-	public void write(String text) {
+	public void write(@Nonnull String text) {
 		sendLine("TW", text.replace('\r', ' ').replace('\n', ' '));
 	}
 
@@ -273,7 +281,7 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	}
 
 	@Override
-	public void blit(String text, String textColour, String backgroundColour) {
+	public void blit(@Nonnull String text, @Nonnull String textColour, @Nonnull String backgroundColour) {
 		sendLine("TY", textColour + "," + backgroundColour + "," + text.replace('\r', ' ').replace('\n', ' '));
 	}
 }

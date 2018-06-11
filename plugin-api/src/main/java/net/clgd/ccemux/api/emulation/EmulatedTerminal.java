@@ -46,71 +46,81 @@ public class EmulatedTerminal extends Terminal {
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.resize(width, height);
+		}
 	}
 
 	@Override
 	public void setCursorPos(int x, int y) {
 		super.setCursorPos(x, y);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.setCursorPos(x, y);
+		}
 	}
 
 	@Override
 	public void setCursorBlink(boolean blink) {
 		super.setCursorBlink(blink);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.setCursorBlink(blink);
+		}
 	}
 
 	@Override
 	public void setTextColour(int colour) {
 		super.setTextColour(colour);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.setTextColour(colour);
+		}
 	}
 
 	@Override
 	public void setBackgroundColour(int colour) {
 		super.setBackgroundColour(colour);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.setBackgroundColour(colour);
+		}
 	}
 
 	@Override
 	public void blit(@Nonnull String text, @Nonnull String textColour, @Nonnull String backgroundColour) {
 		super.blit(text, textColour, backgroundColour);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.blit(text, textColour, backgroundColour);
+		}
 	}
 
 	@Override
 	public void write(@Nonnull String text) {
 		super.write(text);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.write(text);
+		}
 	}
 
 	@Override
 	public void scroll(int yDiff) {
 		super.scroll(yDiff);
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.scroll(yDiff);
+		}
 	}
 
 	@Override
 	public void clear() {
 		super.clear();
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.clear();
+		}
 	}
 
 	@Override
 	public void clearLine() {
 		super.clearLine();
-		for (Listener listener : listeners)
+		for (Listener listener : listeners) {
 			listener.clearLine();
+		}
 	}
 
 	@Override

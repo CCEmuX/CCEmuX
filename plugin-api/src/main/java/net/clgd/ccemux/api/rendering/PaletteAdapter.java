@@ -9,29 +9,26 @@ import net.clgd.ccemux.api.Utils;
  * Wraps a {@link Palette} object with a given {@link ColorAdapter} to make it
  * easier to get color objects from the palette
  *
- * @author apemanzilla
- *
  * @param <C>
+ * @author apemanzilla
  */
 public final class PaletteAdapter<C> {
 
 	/**
 	 * An adapter used to generate a color object from RGB values
 	 *
+	 * @param <T> The type of object created
 	 * @author apemanzilla
-	 *
-	 * @param <T>
-	 *            The type of object created
 	 */
 	@FunctionalInterface
-	public static interface ColorAdapter<T> {
+	public interface ColorAdapter<T> {
 		/**
 		 * Creates a color object from the given RGB values, doubles on the range [0, 1]
 		 *
-		 * @param r
-		 * @param g
-		 * @param b
-		 * @return
+		 * @param r The intensity of the red channel, between 0 and 1.
+		 * @param g The intensity of the green channel, between 0 and 1.
+		 * @param b The intensity of the blue channel, between 0 and 1.
+		 * @return The converted color.
 		 */
 		T rgb(double r, double g, double b);
 	}
@@ -40,13 +37,12 @@ public final class PaletteAdapter<C> {
 	private final ColorAdapter<C> adapter;
 
 	/**
-	 * Creates a color object using the given RGB values (Equivalent to
-	 * <code>getAdapter().rgb(r,g,b)</code>)
+	 * Creates a color object using the given RGB values (Equivalent to {@code getAdapter().rgb(r,g,b)}
 	 *
-	 * @param r
-	 * @param g
-	 * @param b
-	 * @return
+	 * @param r The intensity of the red channel, between 0 and 1.
+	 * @param g The intensity of the green channel, between 0 and 1.
+	 * @param b The intensity of the clue channel, between 0 and 1.
+	 * @return The converted color.
 	 */
 	public C getColor(double r, double g, double b) {
 		return adapter.rgb(r, g, b);
@@ -55,8 +51,8 @@ public final class PaletteAdapter<C> {
 	/**
 	 * Creates a color object using the given color from the palette
 	 *
-	 * @param c
-	 * @return
+	 * @param c The numeric index of the terminal color
+	 * @return The converted color
 	 */
 	public C getColor(int c) {
 		double[] col;
@@ -70,8 +66,8 @@ public final class PaletteAdapter<C> {
 	/**
 	 * Creates a color object using the given color from the palette
 	 *
-	 * @param c
-	 * @return
+	 * @param c A hexadecimal terminal color
+	 * @return The converted color
 	 */
 	public C getColor(char c) {
 		return getColor(Utils.base16ToInt(c));

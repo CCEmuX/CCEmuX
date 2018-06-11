@@ -19,7 +19,7 @@ public enum OperatingSystem {
 	/**
 	 * Gets the directory that should be used for storing application data for this
 	 * OS
-	 * 
+	 *
 	 * @return The directory that application data should be stored in
 	 */
 	@Nonnull
@@ -35,19 +35,20 @@ public enum OperatingSystem {
 
 	/**
 	 * Gets the OS this program is running on
-	 * 
+	 *
 	 * @return The appropriate value for this OS
 	 */
 	@Nonnull
 	public static OperatingSystem get() {
 		String name = System.getProperty("os.name");
-		if (name.startsWith("Windows"))
+		if (name.startsWith("Windows")) {
 			return Windows;
-		else if (name.startsWith("Linux"))
+		} else if (name.startsWith("Linux")) {
 			return Linux;
-		else if (name.startsWith("Mac"))
+		} else if (name.startsWith("Mac")) {
 			return MacOSX;
-		else
+		} else {
 			return Other;
+		}
 	}
 }

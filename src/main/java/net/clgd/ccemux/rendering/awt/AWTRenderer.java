@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import javax.swing.InputMap;
 import javax.swing.JOptionPane;
@@ -71,12 +72,12 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private final Frame frame;
 
 	@Override
-	public void addListener(Renderer.Listener listener) {
+	public void addListener(@Nonnull Renderer.Listener listener) {
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeListener(Renderer.Listener listener) {
+	public void removeListener(@Nonnull Renderer.Listener listener) {
 		listeners.remove(listener);
 	}
 

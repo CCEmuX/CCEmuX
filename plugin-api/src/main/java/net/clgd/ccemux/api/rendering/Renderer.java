@@ -42,5 +42,5 @@ public interface Renderer extends EmulatedComputer.Listener {
 	void removeListener(@Nonnull Listener l);
 
 	@Override
-	public default void onAdvance(double dt) {}
+	default void onAdvance(double dt) {}
 }

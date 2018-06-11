@@ -41,7 +41,7 @@ public class DiskDrivePeripheral implements Peripheral {
 	}
 
 	@Override
-	public void configSetup(Group group) {
+	public void configSetup(@Nonnull Group group) {
 		mountId = group.property("id", Integer.class, -1)
 			.setName("Disk ID")
 			.setDescription("The ID of the currently inserted disk, set to -1 to eject");

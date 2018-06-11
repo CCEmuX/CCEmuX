@@ -1,6 +1,8 @@
 package net.clgd.ccemux.api.emulation.filesystem;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -13,18 +15,18 @@ import dan200.computercraft.api.filesystem.IMount;
 /**
  * An immutable, in-memory {@link dan200.computercraft.api.filesystem.IMount
  * IMount} implementation.
- * 
+ *
  * @author apemanzilla
  */
 public class VirtualMount implements IMount {
 	private final VirtualDirectory root;
 
 	/**
-	 * Constructs a new <code>VirtualMount</code> with the given
+	 * Constructs a new {@link VirtualMount} with the given
 	 * {@link net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory
 	 * VirtualDirectory} as its root folder.
-	 * 
-	 * @param root
+	 *
+	 * @param root The root directory for this virtual mount
 	 */
 	public VirtualMount(@Nonnull VirtualDirectory root) {
 		this.root = root;
@@ -33,13 +35,12 @@ public class VirtualMount implements IMount {
 	/**
 	 * Follows the given path to get a
 	 * {@link net.clgd.ccemux.api.emulation.filesystem.VirtualMountEntry
-	 * MountEntry}. Returns <code>null</code> if the path is invalid (e.g.
+	 * MountEntry}. Returns {@code null} if the path is invalid (e.g.
 	 * non-existent entry or trying to get child of a directory)
-	 * 
-	 * @param path
-	 *            The path to follow
-	 * @return The entry at the given path, or <code>null</code> if the path is
-	 *         invalid
+	 *
+	 * @param path The path to follow
+	 * @return The entry at the given path, or {@code null} if the path is
+	 * invalid
 	 */
 	@Nullable
 	public VirtualMountEntry follow(@Nonnull Path path) {
