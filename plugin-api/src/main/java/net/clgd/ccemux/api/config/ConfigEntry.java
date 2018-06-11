@@ -2,6 +2,8 @@ package net.clgd.ccemux.api.config;
 
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
+
 /**
  * A keyed entry in a config file.
  *
@@ -16,6 +18,7 @@ public abstract class ConfigEntry {
 	 *
 	 * @return The entry's key.
 	 */
+	@Nonnull
 	public abstract String getKey();
 
 	/**
@@ -23,6 +26,7 @@ public abstract class ConfigEntry {
 	 *
 	 * @return A friendly name, defaulting to {@link #getKey()} if none is set.
 	 */
+	@Nonnull
 	public abstract String getName();
 
 	/**
@@ -30,5 +34,6 @@ public abstract class ConfigEntry {
 	 *
 	 * @return A short description.
 	 */
+	@Nonnull
 	public abstract Optional<String> getDescription();
 }

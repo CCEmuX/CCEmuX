@@ -3,6 +3,8 @@ package net.clgd.ccemux.api.emulation;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import dan200.computercraft.core.terminal.Terminal;
 
 /**
@@ -22,9 +24,9 @@ public class EmulatedTerminal extends Terminal {
 
 		default void setBackgroundColour(int colour) {}
 
-		default void blit(String text, String textColour, String backgroundColour) {}
+		default void blit(@Nonnull String text, @Nonnull String textColour, @Nonnull String backgroundColour) {}
 
-		default void write(String text) {}
+		default void write(@Nonnull String text) {}
 
 		default void scroll(int yDiff) {}
 
@@ -77,14 +79,14 @@ public class EmulatedTerminal extends Terminal {
 	}
 
 	@Override
-	public void blit(String text, String textColour, String backgroundColour) {
+	public void blit(@Nonnull String text, @Nonnull String textColour, @Nonnull String backgroundColour) {
 		super.blit(text, textColour, backgroundColour);
 		for (Listener listener : listeners)
 			listener.blit(text, textColour, backgroundColour);
 	}
 
 	@Override
-	public void write(String text) {
+	public void write(@Nonnull String text) {
 		super.write(text);
 		for (Listener listener : listeners)
 			listener.write(text);
@@ -112,15 +114,16 @@ public class EmulatedTerminal extends Terminal {
 	}
 
 	@Override
+	@Nonnull
 	public EmulatedPalette getPalette() {
 		return palette;
 	}
 
-	public void addListener(Listener listener) {
+	public void addListener(@Nonnull Listener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(Listener listener) {
+	public void removeListener(@Nonnull Listener listener) {
 		listeners.remove(listener);
 	}
 }

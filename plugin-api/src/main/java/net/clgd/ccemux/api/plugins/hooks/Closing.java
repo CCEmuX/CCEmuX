@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.plugins.hooks;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.Emulator;
 
 /**
@@ -11,5 +13,5 @@ import net.clgd.ccemux.api.emulation.Emulator;
  */
 @FunctionalInterface
 public interface Closing extends Hook {
-	public void onClosing(Emulator emu);
+	public void onClosing(@Nonnull Emulator emu);
 }

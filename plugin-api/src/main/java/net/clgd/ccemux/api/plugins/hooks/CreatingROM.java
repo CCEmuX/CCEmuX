@@ -2,6 +2,8 @@ package net.clgd.ccemux.api.plugins.hooks;
 
 import java.nio.file.Path;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualMountEntry;
@@ -15,5 +17,5 @@ import net.clgd.ccemux.api.emulation.filesystem.VirtualMountEntry;
  */
 @FunctionalInterface
 public interface CreatingROM extends Hook {
-	public void onCreatingROM(Emulator emu, VirtualDirectory.Builder romBuilder);
+	public void onCreatingROM(@Nonnull Emulator emu, @Nonnull VirtualDirectory.Builder romBuilder);
 }

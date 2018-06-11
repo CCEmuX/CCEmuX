@@ -1,7 +1,6 @@
 package net.clgd.ccemux.api.rendering;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Nonnull;
 
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -17,7 +16,7 @@ public interface RendererFactory<T extends Renderer> {
 	/**
 	 * Creates a renderer for the given computer and config
 	 */
-	public T create(EmulatedComputer computer, EmuConfig cfg);
+	public T create(@Nonnull EmulatedComputer computer, @Nonnull EmuConfig cfg);
 
 	/**
 	 * Creates a config editor window for the given config. Returns true if
@@ -30,7 +29,7 @@ public interface RendererFactory<T extends Renderer> {
 	 *            The config to let the user edit
 	 * @return Whether an editor window was opened
 	 */
-	default boolean createConfigEditor(EmuConfig config) {
+	default boolean createConfigEditor(@Nonnull EmuConfig config) {
 		return false;
 	}
 }

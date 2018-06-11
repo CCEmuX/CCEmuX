@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.plugins.hooks;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.Emulator;
 
 /**
@@ -13,5 +15,5 @@ import net.clgd.ccemux.api.emulation.Emulator;
  */
 @FunctionalInterface
 public interface Tick extends Hook {
-	public void onTick(Emulator emu, double dt);
+	public void onTick(@Nonnull Emulator emu, double dt);
 }

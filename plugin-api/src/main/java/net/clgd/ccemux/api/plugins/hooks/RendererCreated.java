@@ -1,5 +1,7 @@
 package net.clgd.ccemux.api.plugins.hooks;
 
+import javax.annotation.Nonnull;
+
 import net.clgd.ccemux.api.emulation.Emulator;
 import net.clgd.ccemux.api.rendering.Renderer;
 
@@ -13,5 +15,5 @@ import net.clgd.ccemux.api.rendering.Renderer;
  */
 @FunctionalInterface
 public interface RendererCreated extends Hook {
-	public void onRendererCreated(Emulator emu, Renderer renderer);
+	public void onRendererCreated(@Nonnull Emulator emu, @Nonnull Renderer renderer);
 }

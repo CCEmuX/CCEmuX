@@ -2,13 +2,12 @@ package net.clgd.ccemux.api;
 
 import java.lang.Character.UnicodeBlock;
 
-import lombok.experimental.UtilityClass;
+import javax.annotation.Nonnull;
 
 /**
  * A set of general-purpose CC-related utilities
  */
-@UtilityClass
-public class Utils {
+public final class Utils {
 	/**
 	 * Gets the global cursor blink
 	 * 
@@ -66,9 +65,9 @@ public class Utils {
 	 *            The three values
 	 * @return A new array with the constrained values
 	 */
-	public static double[] clampColor(double[] col) {
-		return new double[] { constrainToRange(col[0], 0, 1), constrainToRange(col[1], 0, 1),
-				constrainToRange(col[2], 0, 1) };
+	@Nonnull
+	public static double[] clampColor(@Nonnull double[] col) {
+		return new double[] {constrainToRange(col[0], 0, 1), constrainToRange(col[1], 0, 1), constrainToRange(col[2], 0, 1)};
 	}
 
 	/**
@@ -81,5 +80,9 @@ public class Utils {
 	public static boolean isPrintableChar(char c) {
 		UnicodeBlock block = UnicodeBlock.of(c);
 		return !Character.isISOControl(c) && block != null && block != UnicodeBlock.SPECIALS;
+	}
+
+	private Utils() {
+		throw new java.lang.UnsupportedOperationException("This is a utility class and cannot be instantiated");
 	}
 }
