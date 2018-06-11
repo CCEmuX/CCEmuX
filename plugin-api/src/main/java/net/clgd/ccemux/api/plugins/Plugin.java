@@ -2,14 +2,13 @@ package net.clgd.ccemux.api.plugins;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.plugins.hooks.Hook;
@@ -23,7 +22,7 @@ import net.clgd.ccemux.api.plugins.hooks.Hook;
  * @see Hook
  */
 public abstract class Plugin {
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(Plugin.class);
+	private static final Logger log = LoggerFactory.getLogger(Plugin.class);
 	private final Set<Hook> hooks = new HashSet<>();
 
 	/**

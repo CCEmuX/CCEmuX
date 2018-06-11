@@ -100,7 +100,6 @@ public class EmulatedPalette extends Palette {
 	/**
 	 * Whether a color in this palette has been changed
 	 */
-	@SuppressWarnings("all")
 	public boolean isChanged() {
 		return this.changed;
 	}
@@ -108,7 +107,6 @@ public class EmulatedPalette extends Palette {
 	/**
 	 * Whether a color in this palette has been changed
 	 */
-	@SuppressWarnings("all")
 	public void setChanged(boolean changed) {
 		this.changed = changed;
 	}

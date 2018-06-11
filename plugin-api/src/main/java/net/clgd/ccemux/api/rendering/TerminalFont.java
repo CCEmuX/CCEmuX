@@ -10,13 +10,16 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Represents a font that can be used when rendering CC terminals
  *
  * @author apemanzilla
  */
 public abstract class TerminalFont {
-	private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(TerminalFont.class);
+	private static final Logger log = LoggerFactory.getLogger(TerminalFont.class);
 	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
 	public static final int BASE_WIDTH = 256;
 	public static final int BASE_HEIGHT = 256;
