@@ -383,6 +383,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
+		e.consume();
 		int amt = e.getUnitsToScroll();
 		int dir = amt > 0 ? 1 : -1;
 		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
