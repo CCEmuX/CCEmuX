@@ -2,7 +2,9 @@ package net.clgd.ccemux.api.config;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
@@ -13,14 +15,13 @@ import com.google.common.reflect.TypeToken;
 /**
  * An entry in a config file which stores a value of the given type.
  *
- * @param <T>
- *            The type of value to store.
+ * @param <T> The type of value to store.
  */
 public class ConfigProperty<T> extends ConfigEntry {
 	private final List<BiConsumer<T, T>> listeners = new ArrayList<>(0);
 
 	private final String key;
-	
+
 	@Nonnull
 	public String getKey() {
 		return key;
@@ -32,15 +33,15 @@ public class ConfigProperty<T> extends ConfigEntry {
 	public String getName() {
 		return name;
 	}
-	
+
 	@Nonnull
 	public ConfigProperty<T> setName(@Nonnull String name) {
 		this.name = name;
 		return this;
 	}
-	
+
 	private String description;
-	
+
 	@Nonnull
 	public ConfigProperty<T> setDescription(@Nullable String description) {
 		this.description = description;
@@ -119,14 +120,10 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Create a new property with the given key and add it to the group.
 	 *
-	 * @param key
-	 *            The property's unique key.
-	 * @param type
-	 *            The type of this property's value.
-	 * @param defaultValue
-	 *            The default value of this property.
-	 * @throws IllegalStateException
-	 *             If an entry with the same key exists.
+	 * @param key          The property's unique key.
+	 * @param type         The type of this property's value.
+	 * @param defaultValue The default value of this property.
+	 * @throws IllegalStateException If an entry with the same key exists.
 	 * @see Group#property(String, Class, Object)
 	 */
 	public ConfigProperty(@Nonnull String key, @Nonnull Class<T> type, T defaultValue) {
@@ -136,14 +133,10 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Create a new property with the given key and add it to the group.
 	 *
-	 * @param key
-	 *            The property's unique key.
-	 * @param type
-	 *            The type of this property's value.
-	 * @param defaultValue
-	 *            The default value of this property.
-	 * @throws IllegalStateException
-	 *             If an entry with the same key exists.
+	 * @param key          The property's unique key.
+	 * @param type         The type of this property's value.
+	 * @param defaultValue The default value of this property.
+	 * @throws IllegalStateException If an entry with the same key exists.
 	 * @see Group#property(String, TypeToken, Object)
 	 */
 	public ConfigProperty(@Nonnull String key, @Nonnull TypeToken<T> type, T defaultValue) {
@@ -162,8 +155,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Change the value of this property, marking it as dirty and firing listeners.
 	 *
-	 * @param newValue
-	 *            The value to change the property to.
+	 * @param newValue The value to change the property to.
 	 * @see #resetDefault()
 	 */
 	public void set(T newValue) {
@@ -176,8 +168,9 @@ public class ConfigProperty<T> extends ConfigEntry {
 			T oldValue = value;
 			value = newValue;
 
-			for (BiConsumer<T, T> listener : listeners)
+			for (BiConsumer<T, T> listener : listeners) {
 				listener.accept(oldValue, newValue);
+			}
 		}
 	}
 
@@ -213,9 +206,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Add a listener which observes value changes.
 	 *
-	 * @param listener
-	 *            The event listener. This receives the old and new values as
-	 *            arguments.
+	 * @param listener The event listener. This receives the old and new values as
+	 *                 arguments.
 	 * @see #addAndFireListener(BiConsumer)
 	 * @see #removeListener(BiConsumer)
 	 */
@@ -234,9 +226,8 @@ public class ConfigProperty<T> extends ConfigEntry {
 	 * }
 	 * </pre>
 	 *
-	 * @param listener
-	 *            The event listener. This receives the old and new values as
-	 *            arguments.
+	 * @param listener The event listener. This receives the old and new values as
+	 *                 arguments.
 	 * @see #addListener(BiConsumer)
 	 * @see #removeListener(BiConsumer)
 	 */
@@ -248,8 +239,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 	/**
 	 * Remove a property change listener
 	 *
-	 * @param listener
-	 *            The event listener to remove.
+	 * @param listener The event listener to remove.
 	 * @see #addListener(BiConsumer)
 	 * @see #addAndFireListener(BiConsumer)
 	 */

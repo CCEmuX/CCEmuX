@@ -38,7 +38,7 @@ public abstract class Plugin {
 	 * Gets all the hooks this plugin has registered of a specific type
 	 *
 	 * @param cls The type
-	 * @return
+	 * @return A set of all hooks of the given type
 	 */
 	@SuppressWarnings("unchecked")
 	@Nonnull
@@ -57,10 +57,9 @@ public abstract class Plugin {
 	}
 
 	/**
-	 * Registers a new hook which may be called later. The <code>cls</code>
+	 * Registers a new hook which may be called later. The {@code cls}
 	 * parameter is only used to help out with type inference so that lambdas
-	 * can be used.<br />
-	 * <br />
+	 * can be used.
 	 *
 	 * @deprecated Using this method with lambdas as opposed to
 	 * {@link #registerHook(Hook)} with anonymous classes may cause
@@ -89,13 +88,13 @@ public abstract class Plugin {
 
 	/**
 	 * The version of the plugin. Format does not matter, but semantic
-	 * versioning is recommended - e.g. <code>"1.2.3-alpha"</code>
+	 * versioning is recommended - e.g. {@code "1.2.3-alpha"}.
 	 */
 	@Nonnull
 	public abstract Optional<String> getVersion();
 
 	/**
-	 * The authors of the plugin. If an empty <code>Collection</code> is returned,
+	 * The authors of the plugin. If an empty {@link Collection} is returned,
 	 * no authors will be shown to end-users.
 	 */
 	@Nonnull
@@ -104,7 +103,7 @@ public abstract class Plugin {
 	/**
 	 * Gets the website for this plugin. This can be a link to a forum thread, a
 	 * wiki, source code, or anything else that may be helpful to end-users. If
-	 * an empty <code>Optional</code> is returned, no website will be shown to
+	 * an empty {@link Optional} is returned, no website will be shown to
 	 * end-users.
 	 */
 	@Nonnull
@@ -141,7 +140,7 @@ public abstract class Plugin {
 	/**
 	 * Attempts to locate the file that this plugin was loaded from
 	 *
-	 * @return
+	 * @return The file that this plugin is declared in
 	 */
 	@Nonnull
 	public final Optional<File> getSource() {

@@ -63,8 +63,8 @@ public class VirtualMountTest {
 
 	@Test
 	public void testFollowInvalidPath() {
-		assertEquals(null, rom.follow(get("nonexistent")));
-		assertEquals(null, rom.follow(get("file/child")));
+		assertNull(rom.follow(get("nonexistent")));
+		assertNull(rom.follow(get("file/child")));
 	}
 
 	@Test

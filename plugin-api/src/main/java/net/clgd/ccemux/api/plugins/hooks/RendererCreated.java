@@ -7,7 +7,7 @@ import net.clgd.ccemux.api.rendering.Renderer;
 
 /**
  * Called immediately after a {@link Renderer} is created.
- * 
+ *
  * @author apemanzilla
  * @see CreatingComputer
  * @see ComputerCreated
@@ -15,5 +15,5 @@ import net.clgd.ccemux.api.rendering.Renderer;
  */
 @FunctionalInterface
 public interface RendererCreated extends Hook {
-	public void onRendererCreated(@Nonnull Emulator emu, @Nonnull Renderer renderer);
+	void onRendererCreated(@Nonnull Emulator emu, @Nonnull Renderer renderer);
 }

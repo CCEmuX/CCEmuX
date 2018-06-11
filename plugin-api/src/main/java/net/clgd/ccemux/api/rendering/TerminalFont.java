@@ -3,7 +3,9 @@ package net.clgd.ccemux.api.rendering;
 import java.awt.Rectangle;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -48,30 +50,25 @@ public abstract class TerminalFont {
 	 * Loads and returns the best registered font, as determined by a given
 	 * comparator.
 	 *
-	 * @param loader
-	 *            The loader to load fonts with
-	 * @param comparator
-	 *            The comparator to determine which font is best
+	 * @param loader     The loader to load fonts with
+	 * @param comparator The comparator to determine which font is best
 	 * @return The best registered font
-	 * @throws IllegalStateException
-	 *             Thrown when no fonts can be loaded (either none are
-	 *             registered or all throw exceptions when loaded)
+	 * @throws IllegalStateException Thrown when no fonts can be loaded (either none are
+	 *                               registered or all throw exceptions when loaded)
 	 */
 	@Nonnull
 	public static <T extends TerminalFont> T getBest(@Nonnull Loader<T> loader, @Nonnull Comparator<? super T> comparator) {
-		return registeredFonts.stream().map(u -> loader.loadFontSafe(u, e -> log.error("Error loading font from {}", u, e))).flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)).sorted(comparator).findFirst().orElseThrow(() -> new IllegalStateException("No fonts available"));
+		return registeredFonts.stream().map(u -> loader.loadFontSafe(u, e -> log.error("Error loading font from {}", u, e))).flatMap(o -> o.map(Stream::of).orElseGet(Stream::empty)).min(comparator).orElseThrow(() -> new IllegalStateException("No fonts available"));
 	}
 
 	/**
 	 * Loads and returns the best registered font, as determined by the
 	 * resolution (highest combined vertical/horizontal resolution is best)
 	 *
-	 * @param loader
-	 *            The loader to load fonts with
+	 * @param loader The loader to load fonts with
 	 * @return The best registered font
-	 * @throws IllegalStateException
-	 *             Thrown when no fonts can be loaded (either none are
-	 *             registered or all throw exceptions when loaded)
+	 * @throws IllegalStateException Thrown when no fonts can be loaded (either none are
+	 *                               registered or all throw exceptions when loaded)
 	 */
 	@Nonnull
 	public static <T extends TerminalFont> T getBest(@Nonnull Loader<T> loader) {
@@ -83,30 +80,29 @@ public abstract class TerminalFont {
 	 * A loader that can load a generic {@link TerminalFont} from a given
 	 * {@link URL}
 	 *
-	 * @author apemanzilla
-	 *
 	 * @param <T>
+	 * @author apemanzilla
 	 */
 	@FunctionalInterface
-	public static interface Loader<T extends TerminalFont> {
+	public interface Loader<T extends TerminalFont> {
 		/**
 		 * Loads the font from the given URL
 		 *
-		 * @param url
-		 * @return
-		 * @throws Exception
+		 * @param url The URL of the font
+		 * @return The loaded font
+		 * @throws IOException If the font could not be loaded
 		 */
 		@Nonnull
-		T loadFont(@Nonnull URL url) throws Exception;
+		T loadFont(@Nonnull URL url) throws IOException;
 
 		/**
 		 * Loads the font from the given URL, with a consumer to handle thrown
 		 * exceptions
 		 *
-		 * @param url
-		 * @param catcher
+		 * @param url     The URL of the font to load
+		 * @param catcher The function to call if an exception is thrown
 		 * @return The loaded font, or an empty optional if an exception was
-		 *         thrown
+		 * thrown
 		 */
 		@Nonnull
 		default Optional<T> loadFontSafe(@Nonnull URL url, @Nonnull Consumer<? super Exception> catcher) {
@@ -137,10 +133,8 @@ public abstract class TerminalFont {
 	/**
 	 * Creates a new terminal font
 	 *
-	 * @param imageWidth
-	 *            The width of the font image.
-	 * @param imageHeight
-	 *            The height of the font image.
+	 * @param imageWidth  The width of the font image.
+	 * @param imageHeight The height of the font image.
 	 */
 	public TerminalFont(int imageWidth, int imageHeight) {
 		horizontalScale = imageWidth / (double) BASE_WIDTH;
@@ -154,8 +148,7 @@ public abstract class TerminalFont {
 	 * Gets the scaled coordinates and dimensions for a given character in this
 	 * font
 	 *
-	 * @param c
-	 *            The character
+	 * @param c The character
 	 * @return The coordinates and dimensions of a given character
 	 */
 	@Nonnull

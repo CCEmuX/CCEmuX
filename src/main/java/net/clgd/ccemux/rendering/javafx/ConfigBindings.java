@@ -20,10 +20,9 @@ public class ConfigBindings {
 	/**
 	 * A JavaFX {@link Property} implementation that wraps a
 	 * {@link ConfigProperty}
-	 * 
-	 * @author apemanzilla
 	 *
 	 * @param <T>
+	 * @author apemanzilla
 	 */
 	@RequiredArgsConstructor
 	public static class WrappedConfigProperty<T> extends ObjectProperty<T> {
@@ -124,9 +123,9 @@ public class ConfigBindings {
 
 	/**
 	 * Wraps a given {@link ConfigProperty} as a JavaFX {@link Property}
-	 * 
-	 * @param cfgProp
-	 * @return
+	 *
+	 * @param cfgProp The config property to wrap
+	 * @return The wrapped property
 	 */
 	public static <T> Property<T> wrap(ConfigProperty<T> cfgProp) {
 		return new WrappedConfigProperty<>(cfgProp);

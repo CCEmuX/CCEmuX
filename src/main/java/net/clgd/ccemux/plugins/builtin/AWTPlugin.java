@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
+import javax.annotation.Nonnull;
 import javax.swing.JFrame;
 
 import com.google.auto.service.AutoService;
@@ -24,48 +25,53 @@ import net.clgd.ccemux.rendering.awt.config.ConfigView;
 public class AWTPlugin extends Plugin {
 	private AWTConfig config;
 
+	@Nonnull
 	@Override
 	public String getName() {
 		return "AWT Renderer";
 	}
 
+	@Nonnull
 	@Override
 	public String getDescription() {
 		return "A CPU-based renderer using Java AWT.";
 	}
 
+	@Nonnull
 	@Override
 	public Optional<String> getVersion() {
 		return Optional.empty();
 	}
 
+	@Nonnull
 	@Override
 	public Collection<String> getAuthors() {
 		return Collections.singleton("CLGD");
 	}
 
+	@Nonnull
 	@Override
 	public Optional<String> getWebsite() {
 		return Optional.empty();
 	}
 
 	@Override
-	public void configSetup(Group group) {
+	public void configSetup(@Nonnull Group group) {
 		config = new AWTConfig(group);
 	}
 
 	@Override
-	public void setup(PluginManager manager) {
+	public void setup(@Nonnull PluginManager manager) {
 		manager.addRenderer("AWT", new RendererFactory<Renderer>() {
 			private WeakReference<JFrame> lastFrame = null;
 
 			@Override
-			public Renderer create(EmulatedComputer computer, EmuConfig cfg) {
+			public Renderer create(@Nonnull EmulatedComputer computer, @Nonnull EmuConfig cfg) {
 				return new AWTRenderer(computer, cfg, config);
 			}
 
 			@Override
-			public synchronized boolean createConfigEditor(EmuConfig config) {
+			public synchronized boolean createConfigEditor(@Nonnull EmuConfig config) {
 				if (lastFrame != null) {
 					JFrame frame = lastFrame.get();
 					if (frame != null && frame.isVisible()) {

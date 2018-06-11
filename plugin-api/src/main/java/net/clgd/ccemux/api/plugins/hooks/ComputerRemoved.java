@@ -7,7 +7,7 @@ import net.clgd.ccemux.api.emulation.Emulator;
 
 /**
  * This hook is called after a computer has been removed from emulation.
- * 
+ *
  * @author apemanzilla
  * @see CreatingComputer
  * @see ComputerCreated
@@ -15,5 +15,5 @@ import net.clgd.ccemux.api.emulation.Emulator;
  */
 @FunctionalInterface
 public interface ComputerRemoved extends Hook {
-	public void onComputerRemoved(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer);
+	void onComputerRemoved(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer);
 }

@@ -11,7 +11,7 @@ import net.clgd.ccemux.api.rendering.Renderer;
  * but before it is started or emulated. This hook is invoked before any
  * {@link Renderer} instances are created. This hook can be used to add Lua
  * APIs, for example.
- * 
+ *
  * @author apemanzilla
  * @see CreatingComputer
  * @see RendererCreated
@@ -19,5 +19,5 @@ import net.clgd.ccemux.api.rendering.Renderer;
  */
 @FunctionalInterface
 public interface ComputerCreated extends Hook {
-	public void onComputerCreated(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer);
+	void onComputerCreated(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer);
 }

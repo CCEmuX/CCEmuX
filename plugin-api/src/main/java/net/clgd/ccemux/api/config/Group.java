@@ -1,8 +1,10 @@
 package net.clgd.ccemux.api.config;
 
 import java.util.*;
+
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
 import com.google.common.reflect.TypeToken;
 
 /**
@@ -119,7 +121,7 @@ public class Group extends ConfigEntry {
 	 * @param defaultValue The default value of this property.
 	 * @return The newly created property.
 	 * @throws IllegalStateException If an entry with the same key exists.
-	 * @see ConfigProperty#Property(String, TypeToken, Object)
+	 * @see ConfigProperty(String, TypeToken, Object)
 	 */
 	@Nonnull
 	public <T> ConfigProperty<T> property(@Nonnull String key, @Nonnull TypeToken<T> type, T defaultValue) {
@@ -136,7 +138,7 @@ public class Group extends ConfigEntry {
 	 * @param defaultValue The default value of this property.
 	 * @return The newly created property.
 	 * @throws IllegalStateException If an entry with the same key exists.
-	 * @see ConfigProperty#Property(String, Class, Object)
+	 * @see ConfigProperty(String, Class, Object)
 	 */
 	@Nonnull
 	public <T> ConfigProperty<T> property(@Nonnull String key, @Nonnull Class<T> type, T defaultValue) {

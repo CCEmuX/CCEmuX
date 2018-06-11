@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.*;
 import java.util.function.Consumer;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.base.Preconditions;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -98,52 +100,53 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void onTick(Emulator emu, double dt) {
+	public void onTick(@Nonnull Emulator emu, double dt) {
 		doHooks(Tick.class, h -> h.onTick(emu, dt));
 	}
 
 	@Override
-	public void onRendererCreated(Emulator emu, Renderer renderer) {
+	public void onRendererCreated(@Nonnull Emulator emu, @Nonnull Renderer renderer) {
 		doHooks(RendererCreated.class, h -> h.onRendererCreated(emu, renderer));
 	}
 
 	@Override
 	public void onInitializationCompleted() {
-		doHooks(InitializationCompleted.class, h -> h.onInitializationCompleted());
+		doHooks(InitializationCompleted.class, InitializationCompleted::onInitializationCompleted);
 	}
 
 	@Override
-	public void onComputerRemoved(Emulator emu, EmulatedComputer computer) {
+	public void onComputerRemoved(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer) {
 		doHooks(ComputerRemoved.class, h -> h.onComputerRemoved(emu, computer));
 	}
 
 	@Override
-	public void onComputerCreated(Emulator emu, EmulatedComputer computer) {
+	public void onComputerCreated(@Nonnull Emulator emu, @Nonnull EmulatedComputer computer) {
 		doHooks(ComputerCreated.class, h -> h.onComputerCreated(emu, computer));
 	}
 
 	@Override
-	public void onCreatingComputer(Emulator emu, Builder builder) {
+	public void onCreatingComputer(@Nonnull Emulator emu, @Nonnull Builder builder) {
 		doHooks(CreatingComputer.class, h -> h.onCreatingComputer(emu, builder));
 	}
 
 	@Override
-	public void onClosing(Emulator emu) {
+	public void onClosing(@Nonnull Emulator emu) {
 		doHooks(Closing.class, h -> h.onClosing(emu));
 	}
 
 	@Override
-	public void onCreatingROM(Emulator emu, VirtualDirectory.Builder romBuilder) {
+	public void onCreatingROM(@Nonnull Emulator emu, @Nonnull VirtualDirectory.Builder romBuilder) {
 		doHooks(CreatingROM.class, h -> h.onCreatingROM(emu, romBuilder));
 	}
 
+	@Nonnull
 	@Override
 	public EmuConfig config() {
 		return cfg;
 	}
 
 	@Override
-	public void addRenderer(String name, RendererFactory<?> factory) {
+	public void addRenderer(@Nonnull String name, @Nonnull RendererFactory<?> factory) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(factory, "factory cannot be null");
 
@@ -155,7 +158,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 	}
 
 	@Override
-	public void addPeripheral(String name, PeripheralFactory<?> factory) {
+	public void addPeripheral(@Nonnull String name, @Nonnull PeripheralFactory<?> factory) {
 		Preconditions.checkNotNull(name, "name cannot be null");
 		Preconditions.checkNotNull(factory, "factory cannot be null");
 

@@ -1,7 +1,10 @@
 package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,8 +30,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 		 * Adds an entry to the directory being built, creating directories and
 		 * overwriting existing entries as necessary.
 		 *
-		 * @throws IllegalArgumentException
-		 *             Thrown if the given path is invalid
+		 * @throws IllegalArgumentException Thrown if the given path is invalid
 		 */
 		public void addEntry(@Nonnull Path path, @Nonnull VirtualMountEntry entry) {
 			path = path.normalize();
@@ -72,8 +74,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 	/**
 	 * Creates a new directory
 	 *
-	 * @param children
-	 *            The entries contained in this directory
+	 * @param children The entries contained in this directory
 	 */
 	public VirtualDirectory(@Nonnull Map<String, VirtualMountEntry> children) {
 		this.children = children;

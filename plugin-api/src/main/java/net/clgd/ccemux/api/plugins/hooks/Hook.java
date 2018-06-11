@@ -7,8 +7,8 @@ import net.clgd.ccemux.api.rendering.Renderer;
  * CCEmuX plugins can register hooks - callbacks that are called when various
  * events occur. This interface is merely a common super interface and contains
  * no members, instead child interfaces should be used from the
- * {@link net.clgd.ccemux.api.plugins.hooks} package.<br />
- * <br />
+ * {@link net.clgd.ccemux.api.plugins.hooks} package.
+ *
  * In approximate chronological order, here is a list of some common hooks:
  * <ul>
  * <li>{@link InitializationCompleted} - CCEmuX has finished startup tasks</li>
@@ -25,8 +25,7 @@ import net.clgd.ccemux.api.rendering.Renderer;
  * <li>{@link Closing} - All {@link EmulatedComputer} instances have been
  * removed and CCEmuX is closing</li>
  * </ul>
- * 
- * @author apemanzilla
  *
+ * @author apemanzilla
  */
 public interface Hook {}

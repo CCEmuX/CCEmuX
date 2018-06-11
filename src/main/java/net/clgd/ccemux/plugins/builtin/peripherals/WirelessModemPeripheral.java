@@ -33,7 +33,7 @@ public class WirelessModemPeripheral implements Peripheral {
 	private ConfigProperty<Integer> posZ;
 
 	@Override
-	public void configSetup(Group group) {
+	public void configSetup(@Nonnull Group group) {
 		range = group.property("range", Integer.class, 64);
 		interdimensional = group.property("interdimensional", Boolean.class, false);
 
@@ -89,7 +89,7 @@ public class WirelessModemPeripheral implements Peripheral {
 		}
 	}
 
-	public Object[] callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException, InterruptedException {
+	public Object[] callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException {
 		switch (method) {
 			case 0: { // open
 				int channel = parseChannel(arguments, 0);

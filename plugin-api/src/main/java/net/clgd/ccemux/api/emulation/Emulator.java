@@ -18,13 +18,13 @@ public interface Emulator {
 	 * Gets the version string for this emulator
 	 */
 	@Nonnull
-	public String getEmulatorVersion();
+	String getEmulatorVersion();
 
 	/**
 	 * Gets the renderer factory in use
 	 */
 	@Nonnull
-	public <T extends Renderer> RendererFactory<T> getRendererFactory();
+	<T extends Renderer> RendererFactory<T> getRendererFactory();
 
 	/**
 	 * Get the peripheral factory with the given name
@@ -39,24 +39,23 @@ public interface Emulator {
 	 * Gets the config used by this config
 	 */
 	@Nonnull
-	public EmuConfig getConfig();
+	EmuConfig getConfig();
 
 	/**
 	 * Gets the CC jar file
 	 */
 	@Nonnull
-	public File getCCJar();
+	File getCCJar();
 
 	/**
 	 * Creates and adds a new computer, returning the created instance
 	 *
-	 * @param builderMutator
-	 *            A mutator that is passed the computer builder to make any
-	 *            necessary changes before the computer is built
+	 * @param builderMutator A mutator that is passed the computer builder to make any
+	 *                       necessary changes before the computer is built
 	 * @return The computer instance
 	 */
 	@Nonnull
-	public EmulatedComputer createComputer(@Nonnull Consumer<EmulatedComputer.Builder> builderMutator);
+	EmulatedComputer createComputer(@Nonnull Consumer<EmulatedComputer.Builder> builderMutator);
 
 	/**
 	 * Creates and adds a new computer, returning the created instance
@@ -64,26 +63,26 @@ public interface Emulator {
 	 * @return The computer instance
 	 */
 	@Nonnull
-	public default EmulatedComputer createComputer() {
-		return createComputer(b -> {});
+	default EmulatedComputer createComputer() {
+		return createComputer(b -> {
+		});
 	}
 
 	/**
 	 * Removes the given computer
 	 *
-	 * @param computer
-	 *            The computer to remove
+	 * @param computer The computer to remove
 	 * @return Whether the computer was removed
 	 */
-	public boolean removeComputer(@Nonnull EmulatedComputer computer);
+	boolean removeComputer(@Nonnull EmulatedComputer computer);
 
 	/**
 	 * Whether the emulator is running
 	 */
-	public boolean isRunning();
+	boolean isRunning();
 
 	/**
 	 * Stops the emulator if it's currently running
 	 */
-	public void stop();
+	void stop();
 }

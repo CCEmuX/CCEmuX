@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.annotation.Nonnull;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
@@ -21,7 +23,6 @@ import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
- *
  */
 @Slf4j
 public class EmulatedComputerImpl extends EmulatedComputer {
@@ -42,10 +43,9 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	/**
-	 * A class used to create new <code>EmulatedComputer</code> instances
+	 * A class used to create new {@link EmulatedComputer} instances
 	 *
 	 * @author apemanzilla
-	 *
 	 */
 	public static class BuilderImpl implements Builder {
 		private final IComputerEnvironment env;
@@ -69,6 +69,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		 *
 		 * @see net.clgd.ccemux.emulation.Builder#id(java.lang.Integer)
 		 */
+		@Nonnull
 		@Override
 		public BuilderImpl id(Integer num) {
 			id = num;
@@ -81,6 +82,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		 * @see net.clgd.ccemux.emulation.Builder#rootMount(dan200.computercraft.api.
 		 * filesystem.IWritableMount)
 		 */
+		@Nonnull
 		@Override
 		public Builder rootMount(IWritableMount rootMount) {
 			this.rootMount = rootMount;
@@ -92,6 +94,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		 *
 		 * @see net.clgd.ccemux.emulation.Builder#label(java.lang.String)
 		 */
+		@Nonnull
 		@Override
 		public Builder label(String label) {
 			this.label = label;
@@ -103,14 +106,16 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		 *
 		 * @see net.clgd.ccemux.emulation.Builder#build()
 		 */
+		@Nonnull
 		@Override
 		public EmulatedComputer build() {
 			if (!built) {
 				EmulatedComputer ec = new EmulatedComputerImpl(env, term, Optional.ofNullable(id).orElse(-1));
 				ec.assignID();
 
-				if (label != null)
+				if (label != null) {
 					ec.setLabel(label);
+				}
 
 				try {
 					if (rootMount != null) {
@@ -130,18 +135,18 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	/**
-	 * Gets a new builder to create an <code>EmulatedComputer</code> instance
+	 * Gets a new builder to create an {@link EmulatedComputer} instance.
 	 *
-	 * @return
+	 * @return The new builder
 	 */
 	public static Builder builder(IComputerEnvironment env, EmulatedTerminal term) {
 		return new BuilderImpl(env, term);
 	}
 
 	/**
-	 * The <code>EmulatedTerminal</code> that this computer draws to
+	 * The terminal that this computer draws to
 	 */
-	public final EmulatedTerminal terminal;
+	private final EmulatedTerminal terminal;
 
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
@@ -151,12 +156,12 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	@Override
-	public boolean addListener(Listener l) {
+	public boolean addListener(@Nonnull Listener l) {
 		return listeners.add(l);
 	}
 
 	@Override
-	public boolean removeListener(Listener l) {
+	public boolean removeListener(@Nonnull Listener l) {
 		return listeners.remove(l);
 	}
 
@@ -164,7 +169,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	public void advance(double dt) {
 		super.advance(dt);
 
-		for(int i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; i++) {
 			IPeripheral peripheral = getPeripheral(i);
 			if (peripheral instanceof Listener) ((Listener) peripheral).onAdvance(dt);
 		}
@@ -173,7 +178,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	@Override
-	public void copyFiles(Iterable<File> files, String location) throws IOException {
+	public void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException {
 		val mount = this.getRootMount();
 		val base = Paths.get(location);
 
@@ -181,8 +186,9 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 			val path = base.resolve(f.getName()).toString();
 
 			if (f.isFile()) {
-				if (f.length() > mount.getRemainingSpace())
+				if (f.length() > mount.getRemainingSpace()) {
 					throw new IOException("Not enough space on computer");
+				}
 
 				val s = mount.openForWrite(path);
 				IOUtils.copy(FileUtils.openInputStream(f), s);

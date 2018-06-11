@@ -11,7 +11,7 @@ import net.clgd.ccemux.api.emulation.Emulator;
  * construction of the emulated computer, so the {@link EmulatedComputer.Builder
  * Builder} will not be modified by CCEmuX - but it may be modified by other
  * plugins which also use this hook.
- * 
+ *
  * @author apemanzilla
  * @see ComputerCreated
  * @see RendererCreated
@@ -19,5 +19,5 @@ import net.clgd.ccemux.api.emulation.Emulator;
  */
 @FunctionalInterface
 public interface CreatingComputer extends Hook {
-	public void onCreatingComputer(@Nonnull Emulator emu, @Nonnull EmulatedComputer.Builder builder);
+	void onCreatingComputer(@Nonnull Emulator emu, @Nonnull EmulatedComputer.Builder builder);
 }
