@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 /**
  * Represents an immutable, in-memory file for use with
  * {@link VirtualMount}
- * 
+ *
  * @author apemanzilla
  */
 public final class VirtualFile extends VirtualMountEntry {
@@ -31,23 +31,19 @@ public final class VirtualFile extends VirtualMountEntry {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		VirtualFile other = (VirtualFile) obj;
-		if (!Arrays.equals(data, other.data)) return false;
-		return true;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		VirtualFile that = (VirtualFile) o;
+		return Arrays.equals(data, that.data);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(data);
-		return result;
+		return Arrays.hashCode(data);
 	}
 
+	@Nonnull
 	public byte[] getData() {
 		return this.data;
 	}

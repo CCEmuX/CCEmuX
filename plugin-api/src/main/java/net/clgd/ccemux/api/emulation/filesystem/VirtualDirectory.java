@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 /**
  * Represents an immutable, in-memory directory for use with
  * {@link VirtualMount}
- * 
+ *
  * @author apemanzilla
  */
 public final class VirtualDirectory extends VirtualMountEntry {
@@ -17,7 +17,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 	/**
 	 * A builder for {@link VirtualDirectory} that automatically creates the
 	 * necessary directories for each entry
-	 * 
+	 *
 	 * @author apemanzilla
 	 */
 	public static class Builder {
@@ -26,7 +26,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 		/**
 		 * Adds an entry to the directory being built, creating directories and
 		 * overwriting existing entries as necessary.
-		 * 
+		 *
 		 * @throws IllegalArgumentException
 		 *             Thrown if the given path is invalid
 		 */
@@ -71,7 +71,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 
 	/**
 	 * Creates a new directory
-	 * 
+	 *
 	 * @param children
 	 *            The entries contained in this directory
 	 */
@@ -101,22 +101,14 @@ public final class VirtualDirectory extends VirtualMountEntry {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		VirtualDirectory other = (VirtualDirectory) obj;
-		if (children == null) {
-			if (other.children != null) return false;
-		} else if (!children.equals(other.children)) return false;
-		return true;
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		return children.equals(((VirtualDirectory) o).children);
 	}
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((children == null) ? 0 : children.hashCode());
-		return result;
+		return children.hashCode();
 	}
 }
