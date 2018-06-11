@@ -92,28 +92,27 @@ public final class PaletteAdapter<C> {
 		return this.adapter;
 	}
 
-	@java.lang.Override
-	public boolean equals(@Nonnull Object o) {
-		if (o == this) return true;
-		if (!(o instanceof PaletteAdapter)) return false;
-		final PaletteAdapter<?> other = (PaletteAdapter<?>) o;
-		final java.lang.Object this$palette = this.getPalette();
-		final java.lang.Object other$palette = other.getPalette();
-		if (this$palette == null ? other$palette != null : !this$palette.equals(other$palette)) return false;
-		final java.lang.Object this$adapter = this.getAdapter();
-		final java.lang.Object other$adapter = other.getAdapter();
-		if (this$adapter == null ? other$adapter != null : !this$adapter.equals(other$adapter)) return false;
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		PaletteAdapter other = (PaletteAdapter) obj;
+		if (adapter == null) {
+			if (other.adapter != null) return false;
+		} else if (!adapter.equals(other.adapter)) return false;
+		if (palette == null) {
+			if (other.palette != null) return false;
+		} else if (!palette.equals(other.palette)) return false;
 		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		final int PRIME = 59;
+		final int prime = 31;
 		int result = 1;
-		final java.lang.Object $palette = this.getPalette();
-		result = result * PRIME + ($palette == null ? 43 : $palette.hashCode());
-		final java.lang.Object $adapter = this.getAdapter();
-		result = result * PRIME + ($adapter == null ? 43 : $adapter.hashCode());
+		result = prime * result + ((adapter == null) ? 0 : adapter.hashCode());
+		result = prime * result + ((palette == null) ? 0 : palette.hashCode());
 		return result;
 	}
 

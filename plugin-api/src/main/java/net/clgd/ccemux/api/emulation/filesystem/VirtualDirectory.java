@@ -101,30 +101,22 @@ public final class VirtualDirectory extends VirtualMountEntry {
 	}
 
 	@Override
-	@SuppressWarnings("all")
-	public boolean equals(final java.lang.Object o) {
-		if (o == this) return true;
-		if (!(o instanceof VirtualDirectory)) return false;
-		final VirtualDirectory other = (VirtualDirectory) o;
-		if (!other.canEqual((java.lang.Object) this)) return false;
-		final java.lang.Object this$children = this.children;
-		final java.lang.Object other$children = other.children;
-		if (this$children == null ? other$children != null : !this$children.equals(other$children)) return false;
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		VirtualDirectory other = (VirtualDirectory) obj;
+		if (children == null) {
+			if (other.children != null) return false;
+		} else if (!children.equals(other.children)) return false;
 		return true;
 	}
 
-	@SuppressWarnings("all")
-	protected boolean canEqual(final java.lang.Object other) {
-		return other instanceof VirtualDirectory;
-	}
-
 	@Override
-	@SuppressWarnings("all")
 	public int hashCode() {
-		final int PRIME = 59;
+		final int prime = 31;
 		int result = 1;
-		final java.lang.Object $children = this.children;
-		result = result * PRIME + ($children == null ? 43 : $children.hashCode());
+		result = prime * result + ((children == null) ? 0 : children.hashCode());
 		return result;
 	}
 }

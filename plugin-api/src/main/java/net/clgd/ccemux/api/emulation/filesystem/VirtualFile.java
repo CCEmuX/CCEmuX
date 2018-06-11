@@ -31,24 +31,20 @@ public final class VirtualFile extends VirtualMountEntry {
 	}
 
 	@Override
-	public boolean equals(final java.lang.Object o) {
-		if (o == this) return true;
-		if (!(o instanceof VirtualFile)) return false;
-		final VirtualFile other = (VirtualFile) o;
-		if (!other.canEqual((Object) this)) return false;
-		if (!Arrays.equals(this.getData(), other.getData())) return false;
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		VirtualFile other = (VirtualFile) obj;
+		if (!Arrays.equals(data, other.data)) return false;
 		return true;
-	}
-
-	protected boolean canEqual(final Object other) {
-		return other instanceof VirtualFile;
 	}
 
 	@Override
 	public int hashCode() {
-		final int PRIME = 59;
+		final int prime = 31;
 		int result = 1;
-		result = result * PRIME + Arrays.hashCode(this.getData());
+		result = prime * result + Arrays.hashCode(data);
 		return result;
 	}
 
