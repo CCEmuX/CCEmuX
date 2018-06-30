@@ -27,19 +27,24 @@ import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 @Slf4j
 public class EmulatedComputerImpl extends EmulatedComputer {
 	private static final Field rootMountField;
+	private static final Field stateField;
+	private static final Field startRequestedField;
 
 	static {
-		Field f;
+		rootMountField = getField("m_rootMount", "root mount");
+		stateField = getField("m_state", "state");
+		startRequestedField = getField("m_startRequested", "start requested");
+	}
 
+	private static Field getField(String name, String description) {
 		try {
-			f = EmulatedComputer.class.getSuperclass().getDeclaredField("m_rootMount");
-			f.setAccessible(true);
-		} catch (NoSuchFieldException | SecurityException e) {
-			f = null;
-			log.error("Failed to get computer root mount field", e);
+			Field field = EmulatedComputer.class.getSuperclass().getDeclaredField(name);
+			field.setAccessible(true);
+			return field;
+		} catch (ReflectiveOperationException e) {
+			log.error("Failed to get computer " + description + " field", e);
+			return null;
 		}
-
-		rootMountField = f;
 	}
 
 	/**
@@ -197,5 +202,18 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 				copyFiles(Arrays.asList(f.listFiles()), path);
 			}
 		}
+	}
+
+	@Override
+	public boolean isShutdown() {
+		if (stateField != null && startRequestedField != null) {
+			try {
+				// Is the computer off and no start has been requested
+				return stateField.get(this).toString().equals("Off") && !startRequestedField.getBoolean(this);
+			} catch (IllegalAccessException ignored) {
+			}
+		}
+
+		return !isOn();
 	}
 }

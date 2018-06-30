@@ -1,13 +1,6 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.concurrent.ExecutionException;
@@ -17,9 +10,9 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+import dan200.computercraft.shared.util.Colour;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
@@ -30,6 +23,7 @@ class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
 
 	public static final ColorAdapter<Color> AWT_COLOR_ADAPTER = (r, g, b) -> new Color((float) r, (float) g, (float) b);
+	private static final char[] SHUTDOWN_MESSAGE = "Computer is shutdown. Press Ctrl+r to reboot".toCharArray();
 
 	private final PaletteAdapter<Color> paletteCacher;
 
@@ -43,7 +37,7 @@ class TerminalComponent extends Canvas {
 	public boolean blinkLocked = false;
 
 	private final Cache<Pair<Character, Color>, BufferedImage> charImgCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(10, TimeUnit.SECONDS).build();
+		.expireAfterAccess(10, TimeUnit.SECONDS).build();
 
 	public TerminalComponent(Terminal terminal, double termScale) {
 		this.pixelWidth = (int) (6 * termScale);
@@ -63,8 +57,9 @@ class TerminalComponent extends Canvas {
 	}
 
 	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
-		if (c == '\0' || Character.isSpaceChar(c))
+		if (c == '\0' || Character.isSpaceChar(c)) {
 			return; // nothing to do here
+		}
 
 		Rectangle r = font.getCharCoords(c);
 		Color colour = paletteCacher.getColor(color);
@@ -81,7 +76,7 @@ class TerminalComponent extends Canvas {
 				RescaleOp rop = new RescaleOp(rgb, zero, null);
 
 				GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-						.getDefaultConfiguration();
+					.getDefaultConfiguration();
 
 				BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.width, r.height);
 				BufferedImage pixel = gc.createCompatibleImage(r.width, r.height, Transparency.TRANSLUCENT);
@@ -100,7 +95,7 @@ class TerminalComponent extends Canvas {
 		g.drawImage(charImg, x, y, pixelWidth, pixelHeight, null);
 	}
 
-	private void renderTerminal(AWTTerminalFont font, double dt) {
+	private void renderTerminal(AWTTerminalFont font, double dt, boolean shutdownOverlay) {
 		synchronized (terminal) {
 			Graphics g = getBufferStrategy().getDrawGraphics();
 
@@ -124,7 +119,7 @@ class TerminalComponent extends Canvas {
 					char fgChar = (fgLine == null) ? ' ' : fgLine.charAt(x);
 
 					drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin,
-							Utils.base16ToInt(fgChar));
+						Utils.base16ToInt(fgChar));
 
 					dx += width;
 				}
@@ -137,7 +132,27 @@ class TerminalComponent extends Canvas {
 
 			if (blink) {
 				drawChar(font, g, cursorChar, terminal.getCursorX() * pixelWidth + margin,
-						terminal.getCursorY() * pixelHeight + margin, terminal.getTextColour());
+					terminal.getCursorY() * pixelHeight + margin, terminal.getTextColour());
+			}
+
+			if (shutdownOverlay) {
+				int remaining = terminal.getWidth() - SHUTDOWN_MESSAGE.length;
+				if (remaining >= 0) {
+					int startX = margin + remaining * pixelWidth / 2;
+					int startY = margin + pixelHeight * (terminal.getHeight() - 1);
+
+					g.setColor(new Color(0x4c4c4c));
+					g.fillRect(startX, startY - margin * 2, SHUTDOWN_MESSAGE.length * pixelWidth + margin * 2, pixelHeight + margin * 2);
+
+					g.setColor(new Color(0x888888));
+					g.fillRect(startX - margin, startY - margin, SHUTDOWN_MESSAGE.length * pixelWidth + margin * 2, pixelHeight + margin * 2);
+
+					for (int i = 0; i < SHUTDOWN_MESSAGE.length; i++) {
+						drawChar(font, g, SHUTDOWN_MESSAGE[i], i * pixelWidth + startX, startY, 15 - Colour.White.ordinal());
+					}
+				} else {
+					// TODO: Word wrap or something
+				}
 			}
 
 			g.dispose();
@@ -145,14 +160,14 @@ class TerminalComponent extends Canvas {
 		}
 	}
 
-	public void render(AWTTerminalFont font, double dt) {
+	public void render(AWTTerminalFont font, double dt, boolean shutdownOverlay) {
 		if (getBufferStrategy() == null) {
 			createBufferStrategy(2);
 		}
 
 		do {
 			do {
-				renderTerminal(font, dt);
+				renderTerminal(font, dt, shutdownOverlay);
 			} while (getBufferStrategy().contentsRestored());
 
 			getBufferStrategy().show();
