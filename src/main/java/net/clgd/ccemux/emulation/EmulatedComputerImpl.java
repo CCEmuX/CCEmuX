@@ -1,7 +1,6 @@
 package net.clgd.ccemux.emulation;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -10,9 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-
+import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.IComputerEnvironment;
@@ -190,8 +187,10 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 					throw new IOException("Not enough space on computer");
 				}
 
-				val s = mount.openForWrite(path);
-				IOUtils.copy(FileUtils.openInputStream(f), s);
+				try (OutputStream s = mount.openForWrite(path);
+					 InputStream o = new FileInputStream(f)) {
+					ByteStreams.copy(o, s);
+				}
 			} else {
 				mount.makeDirectory(path);
 				copyFiles(Arrays.asList(f.listFiles()), path);

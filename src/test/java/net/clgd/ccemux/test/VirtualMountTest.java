@@ -4,17 +4,17 @@ import static java.nio.file.Paths.get;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-
+import com.google.common.io.CharStreams;
 import lombok.val;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
@@ -102,7 +102,7 @@ public class VirtualMountTest {
 
 	@Test
 	public void testRead() throws IOException {
-		assertEquals("hello", IOUtils.toString(rom.openForRead("file"), StandardCharsets.UTF_8));
-		assertEquals("hello2", IOUtils.toString(rom.openForRead("folder/file2"), StandardCharsets.UTF_8));
+		assertEquals("hello", CharStreams.toString(new InputStreamReader(rom.openForRead("file"), StandardCharsets.UTF_8)));
+		assertEquals("hello2", CharStreams.toString(new InputStreamReader(rom.openForRead("folder/file2"), StandardCharsets.UTF_8)));
 	}
 }

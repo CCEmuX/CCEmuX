@@ -13,13 +13,11 @@ import java.awt.image.RescaleOp;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
@@ -42,7 +40,13 @@ class TerminalComponent extends Canvas {
 
 	public boolean blinkLocked = false;
 
-	private final Cache<Pair<Character, Color>, BufferedImage> charImgCache = CacheBuilder.newBuilder()
+	@Value
+	public static class CharImageRequest {
+		private char character;
+		private Color color;
+	}
+
+	private final Cache<CharImageRequest, BufferedImage> charImgCache = CacheBuilder.newBuilder()
 			.expireAfterAccess(10, TimeUnit.SECONDS).build();
 
 	public TerminalComponent(Terminal terminal, double termScale) {
@@ -74,7 +78,7 @@ class TerminalComponent extends Canvas {
 		float[] zero = new float[4];
 
 		try {
-			charImg = charImgCache.get(Pair.of(c, colour), () -> {
+			charImg = charImgCache.get(new CharImageRequest(c, colour), () -> {
 				float[] rgb = new float[4];
 				colour.getRGBComponents(rgb);
 

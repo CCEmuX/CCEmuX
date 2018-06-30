@@ -10,10 +10,8 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.google.auto.service.AutoService;
+import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
@@ -41,6 +39,8 @@ public class CCEmuXAPI extends Plugin {
 	}
 
 	private static class API implements ILuaAPI {
+		private static final List<String> sideNames = Arrays.asList(Computer.s_sideNames);
+
 		private final String name;
 		private final Map<String, APIMethod> methods = new LinkedHashMap<>();
 
@@ -103,7 +103,7 @@ public class CCEmuXAPI extends Plugin {
 				String peripheral = ArgumentHelper.getString(o, 1);
 				Object configuration = o.length > 2 ? o[2] : null;
 
-				int sideId = ArrayUtils.indexOf(Computer.s_sideNames, side);
+				int sideId = sideNames.indexOf(side);
 				if (sideId == -1) throw new LuaException("Invalid side");
 
 				PeripheralFactory<?> factory = emu.getPeripheralFactory(peripheral);
@@ -123,7 +123,7 @@ public class CCEmuXAPI extends Plugin {
 
 			methods.put("detach", o -> {
 				String side = ArgumentHelper.getString(o, 0);
-				int sideId = ArrayUtils.indexOf(Computer.s_sideNames, side);
+				int sideId = sideNames.indexOf(side);
 				if (sideId == -1) throw new LuaException("Invalid side");
 
 				computer.setPeripheral(sideId, null);
@@ -195,13 +195,13 @@ public class CCEmuXAPI extends Plugin {
 		registerHook((CreatingROM) (emu, romBuilder) -> {
 			try {
 				romBuilder.addEntry(Paths.get("programs/emu.lua"), new VirtualFile(
-					IOUtils.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_program.lua"))));
+					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_program.lua"))));
 
 				romBuilder.addEntry(Paths.get("help/emu.txt"), new VirtualFile(
-					IOUtils.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_help.txt"))));
+					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_help.txt"))));
 
 				romBuilder.addEntry(Paths.get("autorun/emu.lua"), new VirtualFile(
-					IOUtils.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_completion.lua"))));
+					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_completion.lua"))));
 			} catch (IOException e) {
 				log.error("Failed to register ROM entries", e);
 			}

@@ -28,6 +28,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
@@ -41,11 +42,10 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
-import org.apache.commons.io.IOUtils;
-
+import com.google.common.io.CharStreams;
 import lombok.Getter;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -160,8 +160,9 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 						log.debug("Accepting text drag and drop for computer #{}", computer.getID());
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
-						val r = f.getReaderForText(dtde.getTransferable());
-						computer.paste(IOUtils.toString(r));
+						try (Reader r = f.getReaderForText(dtde.getTransferable())) {
+							computer.paste(CharStreams.toString(r));
+						}
 					}
 				} catch (Exception e) {
 					log.error("Error processing drag and drop", e);
