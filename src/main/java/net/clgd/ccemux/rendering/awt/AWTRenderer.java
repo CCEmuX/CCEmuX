@@ -3,29 +3,11 @@ package net.clgd.ccemux.rendering.awt;
 import static net.clgd.ccemux.rendering.awt.KeyTranslator.translateToCC;
 import static net.clgd.ccemux.rendering.awt.MouseTranslator.swingToCC;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.HeadlessException;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.awt.dnd.DropTargetEvent;
-import java.awt.dnd.DropTargetListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
+import java.awt.dnd.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,8 +26,8 @@ import javax.swing.text.DefaultEditorKit;
 import org.apache.commons.io.IOUtils;
 
 import lombok.Getter;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -89,6 +71,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private final int pixelHeight;
 
 	private boolean lastBlink = false;
+	private boolean lastShutdown = false;
 	private int dragButton = 4;
 	private Point lastDragSpot = null;
 
@@ -154,7 +137,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 						val data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 						computer.copyFiles(data, "/");
 						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.",
-								"Files copied", JOptionPane.INFORMATION_MESSAGE);
+							"Files copied", JOptionPane.INFORMATION_MESSAGE);
 					} else if (DataFlavor.selectBestTextFlavor(flavors) != null) {
 						val f = DataFlavor.selectBestTextFlavor(flavors);
 
@@ -267,15 +250,19 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 			if (Utils.getGlobalCursorBlink() != lastBlink) {
 				doRepaint = true;
+				lastBlink = Utils.getGlobalCursorBlink();
 			}
 
-			lastBlink = Utils.getGlobalCursorBlink();
+			if (computer.isShutdown() != lastShutdown) {
+				doRepaint = true;
+				lastShutdown = computer.isShutdown();
+			}
 
 			if (doRepaint) {
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
 				//AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
-				termComponent.render(getFont(), dt);
+				termComponent.render(getFont(), dt, lastShutdown);
 			}
 		}
 	}
@@ -316,8 +303,8 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		boolean hasModifier = (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
 		if (rendererConfig.nativePaste.get()
 			? DefaultEditorKit.pasteAction.equals(
-				((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
-						.get(KeyStroke.getKeyStrokeForEvent(e)))
+			((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
+				.get(KeyStroke.getKeyStrokeForEvent(e)))
 			: hasModifier && e.getKeyCode() == KeyEvent.VK_V) {
 			try {
 				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));

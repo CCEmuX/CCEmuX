@@ -151,4 +151,14 @@ public abstract class EmulatedComputer extends Computer {
 	public void scroll(int lines, int x, int y) {
 		queueEvent("mouse_scroll", new Object[] { lines, x, y });
 	}
+
+	/**
+	 * Determine if this computer is entirely shutdown.
+	 *
+	 * Note that this is not the opposite of {@link #isOn()}}, as considers computers
+	 * in the process of starting up or shutting down as "on".
+	 *
+	 * @return If this computer is shut down.
+	 */
+	public abstract boolean isShutdown();
 }
