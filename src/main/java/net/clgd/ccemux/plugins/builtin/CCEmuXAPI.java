@@ -200,6 +200,9 @@ public class CCEmuXAPI extends Plugin {
 				romBuilder.addEntry(Paths.get("help/emu.txt"), new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_help.txt"))));
 
+				romBuilder.addEntry(Paths.get("help/credits-emu.txt"), new VirtualFile(
+					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/credits_help.txt"))));
+
 				romBuilder.addEntry(Paths.get("autorun/emu.lua"), new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_completion.lua"))));
 			} catch (IOException e) {

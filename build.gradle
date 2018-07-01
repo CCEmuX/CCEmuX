@@ -59,6 +59,7 @@ dependencies {
 	implementation 'org.apache.logging.log4j:log4j-core:2.8.2'
 
 	implementation 'commons-cli:commons-cli:1.4'
+	implementation 'org.apache.commons:commons-lang3:3.6'
 	implementation 'io.netty:netty-all:4.1.9.Final'
 
 	implementation 'com.google.code.gson:gson:2.8.1'
@@ -126,6 +127,24 @@ task computercraftJar(type: ShadowJar) {
 
 	dependencies {
 		exclude dependency('.*:cc-tweaked:.*')
+	}
+}
+
+gradle.projectsEvaluated {
+	tasks.withType(ShadowJar) {
+		// Append the base license files
+		append 'META-INF/LICENSE'
+		append 'META-INF/LICENSE.txt'
+		append 'META-INF/NOTICE'
+		append 'META-INF/NOTICE.txt'
+
+		// Exclude random junk
+		exclude '*.html'
+		exclude 'META-INF/maven/*/*/*.*'
+
+		// Prune arbitrary stuff from the CC jar
+		exclude(['api/dan200/**', 'docs/dan200/**' ])
+		exclude([ 'assets/computercraft/**/*.json' ])
 	}
 }
 
