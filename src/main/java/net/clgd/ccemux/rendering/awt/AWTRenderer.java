@@ -344,17 +344,18 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		// Reset action timers
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0) {
-			int key = e.getKeyCode();
-			if (key == KeyEvent.VK_S) shutdownTimer = -1;
-			if (key == KeyEvent.VK_R) rebootTimer = -1;
-			if (key == KeyEvent.VK_T) terminateTimer = -1;
+		// Reset the action timers if either the letter or command keys are released.
+		int key = e.getKeyCode();
+		if (key == KeyEvent.VK_S) shutdownTimer = -1;
+		if (key == KeyEvent.VK_R) rebootTimer = -1;
+		if (key == KeyEvent.VK_T) terminateTimer = -1;
+		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) == 0) {
+			shutdownTimer = rebootTimer = terminateTimer = -1;
 		}
 
-		if (keysDown.get(e.getKeyCode())) {
-			keysDown.clear(e.getKeyCode());
-			computer.releaseKey(translateToCC(e.getKeyCode()));
+		if (keysDown.get(key)) {
+			keysDown.clear(key);
+			computer.releaseKey(translateToCC(key));
 		}
 	}
 
@@ -433,5 +434,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				computer.releaseKey(translateToCC(i));
 			}
 		}
+
+		rebootTimer = shutdownTimer = terminateTimer = -1;
 	}
 }
