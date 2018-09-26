@@ -308,18 +308,20 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 	private void mousePressed(MouseEvent e) {
 		int[] coords = coordsToCC(e.getX(), e.getY());
-		computer.click(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1], false);
+		int button = JFXMouseTranslator.toCC(e.getButton());
+		if (button != -1) computer.click(button, coords[0], coords[1], false);
 	}
 
 	private void mouseReleased(MouseEvent e) {
 		int[] coords = coordsToCC(e.getX(), e.getY());
-		computer.click(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1], true);
+		int button = JFXMouseTranslator.toCC(e.getButton());
+		if (button != -1) computer.click(button, coords[0], coords[1], true);
 	}
 
 	private void mouseDragged(MouseEvent e) {
 		int[] coords = coordsToCC(e.getX(), e.getY());
-
-		if (lastDrag == null || lastDrag[0] != coords[0] || lastDrag[1] != coords[1]) {
+		int button = JFXMouseTranslator.toCC(e.getButton());
+		if (button != -1 && (lastDrag == null || lastDrag[0] != coords[0] || lastDrag[1] != coords[1])) {
 			lastDrag = coords;
 			computer.drag(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1]);
 		}

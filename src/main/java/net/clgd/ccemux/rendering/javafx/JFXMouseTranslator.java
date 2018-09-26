@@ -12,7 +12,7 @@ public class JFXMouseTranslator {
 			case MIDDLE:
 				return 3;
 			default:
-				return 0;
+				return -1;
 		}
 	}
 }

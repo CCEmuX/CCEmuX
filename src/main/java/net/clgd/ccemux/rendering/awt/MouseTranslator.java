@@ -12,10 +12,10 @@ public class MouseTranslator {
 			case BUTTON3:
 				return 2;
 			default:
-				return button;
+				return -1;
 		}
 	}
-	
+
 	public static int ccToSwing(int button) {
 		switch (button) {
 			case 1:
@@ -25,7 +25,7 @@ public class MouseTranslator {
 			case 3:
 				return BUTTON2;
 			default:
-				return button;
+				return -1;
 		}
 	}
 }

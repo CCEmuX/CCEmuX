@@ -89,7 +89,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private final int pixelHeight;
 
 	private boolean lastBlink = false;
-	private int dragButton = 4;
+	private int dragButton = -1;
 	private Point lastDragSpot = null;
 
 	private double blinkLockedTime = 0d;
@@ -361,13 +361,14 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	private void fireMouseEvent(MouseEvent e, boolean press) {
 		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
-		computer.click(swingToCC(e.getButton()), p.x, p.y, !press);
+		int button = swingToCC(e.getButton());
+		if(button != -1) computer.click(button, p.x, p.y, !press);
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
-		if (p.equals(lastDragSpot)) return;
+		if (p.equals(lastDragSpot) || dragButton == -1) return;
 
 		computer.drag(dragButton, p.x, p.y);
 		lastDragSpot = p;
@@ -376,7 +377,8 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	@Override
 	public void mousePressed(MouseEvent e) {
 		fireMouseEvent(e, true);
-		dragButton = swingToCC(e.getButton());
+		int button = swingToCC(e.getButton());
+		if (button != -1) dragButton = button;
 	}
 
 	@Override
