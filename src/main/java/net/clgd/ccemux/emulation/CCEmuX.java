@@ -1,9 +1,13 @@
 package net.clgd.ccemux.emulation;
 
 import java.io.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Paths;
+import java.nio.file.ProviderNotFoundException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ServiceConfigurationError;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -15,7 +19,6 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
-import dan200.computercraft.core.filesystem.JarMount;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,13 +91,13 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately.
 	 *
-	 * @see #createComputer(Consumer)
-	 *
 	 * @return The new computer
+	 * @see #createComputer(Consumer)
 	 */
 	@Nonnull
 	public EmulatedComputer createComputer() {
-		return createComputer(b -> {});
+		return createComputer(b -> {
+		});
 	}
 
 	/**
@@ -103,8 +106,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
 	 * can be used to change the computers ID or other properties.
 	 *
-	 * @param builderMutator
-	 *            Will be called after plugin hooks with the builder
+	 * @param builderMutator Will be called after plugin hooks with the builder
 	 * @return The new computer
 	 */
 	@Nonnull
@@ -197,7 +199,8 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 
 			try {
 				Thread.sleep(Math.max(0, 50 - (System.currentTimeMillis() - now)));
-			} catch (InterruptedException ignored) {}
+			} catch (InterruptedException ignored) {
+			}
 		}
 
 		log.info("Emulation stopped");
@@ -226,22 +229,20 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
 		if (path.startsWith("/")) path = path.substring(1);
 
-		try {
-			VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
-			pluginMgr.onCreatingROM(this, romBuilder);
+		IMount jarMount = createJarMount(path);
+		if (jarMount == null) return null;
 
-			return new ComboMount(new IMount[] {
-				// From ComputerCraft JAR
-				new JarMount(ccSource, path),
-				// From plugin files
-				new VirtualMount(romBuilder.build()),
-				// From data directory
-				new FileMount(cfg.getDataDir().resolve(path).toFile(), 0)
-			});
-		} catch (IOException e) {
-			log.error("Failed to create resource mount", e);
-			return null;
-		}
+		VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
+		pluginMgr.onCreatingROM(this, romBuilder);
+
+		return new ComboMount(new IMount[] {
+			// From ComputerCraft JAR
+			jarMount,
+			// From plugin files
+			new VirtualMount(romBuilder.build()),
+			// From data directory
+			new FileMount(cfg.getDataDir().resolve(path).toFile(), 0)
+		});
 	}
 
 	@Override
@@ -293,5 +294,30 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	@Override
 	public boolean isColour() {
 		return true;
+	}
+
+	/**
+	 * Construct a {@code JarMount} or {@code FileSystemMount} depending on whether we're running under CC or CC:T.
+	 *
+	 * @param path The path to construct the mount for
+	 * @return The constructed mount, or {@code null} if none could be constructed.
+	 */
+	@SuppressWarnings("unchecked")
+	private IMount createJarMount(String path) {
+		try {
+			ClassLoader loader = CCEmuX.class.getClassLoader();
+			try {
+				Class<? extends IMount> klass = (Class<? extends IMount>) Class.forName("dan200.computercraft.core.filesystem.JarMount", true, loader);
+				return klass.getConstructor(File.class, String.class).newInstance(ccSource, path);
+			} catch (ClassNotFoundException e) {
+				FileSystem fs = FileSystems.newFileSystem(ccSource.toPath(), ComputerCraft.class.getClassLoader());
+
+				Class<? extends IMount> klass = (Class<? extends IMount>) Class.forName("dan200.computercraft.core.filesystem.FileSystemMount", true, loader);
+				return klass.getConstructor(FileSystem.class, String.class).newInstance(fs, path);
+			}
+		} catch (IOException | ProviderNotFoundException | ServiceConfigurationError | ReflectiveOperationException e) {
+			log.error("Could not load mount from mod jar", e);
+			return null;
+		}
 	}
 }

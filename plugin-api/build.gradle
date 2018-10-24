@@ -6,7 +6,7 @@ repositories {
 }
 
 dependencies {
-	api 'org.squiddev:cc-tweaked:1.80pr1.8'
+	api 'org.squiddev:cc-tweaked:1.80pr1.9'
 
 	api 'org.slf4j:slf4j-api:1.7.25'
 
