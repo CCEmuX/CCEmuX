@@ -73,6 +73,10 @@ public abstract class EmuConfig extends Config {
 		.setName("Default computer settings")
 		.setDescription("A comma seperated list of default system settings to set on new computers. Example: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion");
 
+	public ConfigProperty<Boolean> restoreSession = property("restoreSession", Boolean.class, false)
+		.setName("Restore session")
+		.setDescription("Restore computers from the previous session when starting the emulator");
+
 	public abstract void save() throws IOException;
 
 	public abstract void load() throws IOException;
