@@ -23,6 +23,7 @@ public class SessionState {
 	 * The list of active computers in the session
 	 */
 	public List<ComputerState> computers = Collections.emptyList();
+
 	public SessionState() {
 	}
 
@@ -54,11 +55,9 @@ public class SessionState {
 	}
 
 	public void save(Path destination) {
-		try {
-			log.info("Saving session to " + destination);
-			try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8)) {
-				gson.toJson(this, writer);
-			}
+		log.info("Saving session to " + destination);
+		try (BufferedWriter writer = Files.newBufferedWriter(destination, StandardCharsets.UTF_8)) {
+			gson.toJson(this, writer);
 		} catch (IOException e) {
 			log.error("Cannot save session state", e);
 		}
@@ -68,10 +67,8 @@ public class SessionState {
 	public static SessionState load(Path destination) {
 		if (!Files.isRegularFile(destination)) return null;
 
-		try {
-			try (BufferedReader reader = Files.newBufferedReader(destination, StandardCharsets.UTF_8)) {
-				return gson.fromJson(reader, SessionState.class);
-			}
+		try (BufferedReader reader = Files.newBufferedReader(destination, StandardCharsets.UTF_8)) {
+			return gson.fromJson(reader, SessionState.class);
 		} catch (IOException e) {
 			log.error("Cannot load session state", e);
 			return null;
