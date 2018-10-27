@@ -9,10 +9,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.IComputerEnvironment;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -45,7 +45,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	 * @author apemanzilla
 	 */
 	public static class BuilderImpl implements Builder {
-		private final IComputerEnvironment env;
+		private final CCEmuX emu;
 		private final EmulatedTerminal term;
 
 		private Integer id = null;
@@ -56,8 +56,8 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		private transient boolean built = false;
 
-		private BuilderImpl(IComputerEnvironment env, EmulatedTerminal term) {
-			this.env = env;
+		private BuilderImpl(CCEmuX emu, EmulatedTerminal term) {
+			this.emu = emu;
 			this.term = term;
 		}
 
@@ -107,7 +107,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		@Override
 		public EmulatedComputer build() {
 			if (!built) {
-				EmulatedComputer ec = new EmulatedComputerImpl(env, term, Optional.ofNullable(id).orElse(-1));
+				EmulatedComputer ec = new EmulatedComputerImpl(emu, term, Optional.ofNullable(id).orElse(-1));
 				ec.assignID();
 
 				if (label != null) {
@@ -118,7 +118,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 					if (rootMount != null) {
 						rootMountField.set(ec, rootMount);
 					} else {
-						rootMountField.set(ec, env.createSaveDirMount(Integer.toString(ec.getID()), 2 * 1024 * 1024));
+						rootMountField.set(ec, emu.createSaveDirMount(Integer.toString(ec.getID()), 2 * 1024 * 1024));
 					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					throw new RuntimeException("Failed to set root mount while building computer ID " + ec.getID(), e);
@@ -136,8 +136,8 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	 *
 	 * @return The new builder
 	 */
-	public static Builder builder(IComputerEnvironment env, EmulatedTerminal term) {
-		return new BuilderImpl(env, term);
+	public static Builder builder(CCEmuX emu, EmulatedTerminal term) {
+		return new BuilderImpl(emu, term);
 	}
 
 	/**
@@ -145,11 +145,17 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	 */
 	private final EmulatedTerminal terminal;
 
+	/**
+	 * The emulator this computer belongs to
+	 */
+	private final CCEmuX emulator;
+
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
-	private EmulatedComputerImpl(IComputerEnvironment environment, EmulatedTerminal terminal, int id) {
-		super(environment, terminal, id);
+	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id) {
+		super(emulator, terminal, id);
 		this.terminal = terminal;
+		this.emulator = emulator;
 	}
 
 	@Override
@@ -195,6 +201,14 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 				mount.makeDirectory(path);
 				copyFiles(Arrays.asList(f.listFiles()), path);
 			}
+		}
+	}
+
+	@Override
+	public void setLabel(String label) {
+		if (!Objects.equal(label, getLabel())) {
+			super.setLabel(label);
+			emulator.sessionStateChanged();
 		}
 	}
 }

@@ -2,14 +2,14 @@ package net.clgd.ccemux.emulation;
 
 import java.io.*;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Paths;
-import java.nio.file.ProviderNotFoundException;
+import java.nio.file.*;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ServiceConfigurationError;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
@@ -56,6 +56,8 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	private final PluginManager pluginMgr;
 
 	private final File ccSource;
+
+	private final Path sessionPath;
 
 	private final Map<EmulatedComputer, Renderer> computers = new ConcurrentHashMap<>();
 
@@ -140,6 +142,8 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 
 		log.info("Created new computer ID {}", ec.getID());
 		ec.turnOn();
+
+		sessionStateChanged();
 	}
 
 	public boolean removeComputer(@Nonnull EmulatedComputer computer) {
@@ -156,11 +160,23 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 					return false;
 				}
 			} finally {
-				if (computers.size() < 1 && running) {
+				if (computers.isEmpty() && running) {
 					log.info("All computers removed, stopping emulation");
 					running = false;
+				} else {
+					sessionStateChanged();
 				}
 			}
+		}
+	}
+
+	void sessionStateChanged() {
+		if (cfg.restoreSession.get() && running) {
+			new SessionState(
+				computers.keySet().stream()
+					.map(x -> new SessionState.ComputerState(x.getID(), x.getLabel()))
+					.collect(Collectors.toList())
+			).save(sessionPath);
 		}
 	}
 
@@ -180,6 +196,10 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	public void run() {
 		running = true;
 		started = System.currentTimeMillis();
+
+		// Save the state if we turn on session persistence
+		BiConsumer<Boolean, Boolean> persistSessionListener = (from, to) -> sessionStateChanged();
+		cfg.restoreSession.addListener(persistSessionListener);
 
 		long lastTime = started;
 		double computerTickTimer = 0d;
@@ -204,6 +224,9 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		}
 
 		log.info("Emulation stopped");
+
+		// Clean up anything we no longer need
+		cfg.restoreSession.removeListener(persistSessionListener);
 		started = -1;
 	}
 

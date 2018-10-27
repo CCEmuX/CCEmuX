@@ -28,6 +28,7 @@ import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 import net.clgd.ccemux.emulation.CCEmuX;
+import net.clgd.ccemux.emulation.SessionState;
 import net.clgd.ccemux.plugins.PluginManager;
 
 @Slf4j
@@ -247,8 +248,19 @@ public class Launcher {
 
 			TerminalFont.loadImplicitFonts(getClass().getClassLoader());
 
-			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource());
-			emu.createComputer();
+			Path sessionPath = dataDir.resolve("session.json");
+			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource(), sessionPath);
+
+			// Either restore the session or add a new computer
+			SessionState session = cfg.restoreSession.get() ? SessionState.load(sessionPath) : null;
+			if (session == null || session.computers.isEmpty()) {
+				emu.createComputer();
+			} else {
+				for (SessionState.ComputerState computer : session.computers) {
+					emu.createComputer(b -> b.id(computer.id).label(computer.label));
+				}
+			}
+
 			emu.run();
 
 			pluginMgr.onClosing(emu);
