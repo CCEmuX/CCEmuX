@@ -3,6 +3,7 @@ package net.clgd.ccemux.api.emulation.filesystem;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Streams;
 import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
 /**
  * An immutable, in-memory {@link dan200.computercraft.api.filesystem.IMount
@@ -112,6 +114,17 @@ public class VirtualMount implements IMount {
 		VirtualMountEntry e = follow(path);
 		if (e instanceof VirtualFile) {
 			return new ByteArrayInputStream(((VirtualFile) e).getData());
+		} else {
+			throw new IOException("Only files can be read");
+		}
+	}
+
+	@Nonnull
+	@Override
+	public ReadableByteChannel openChannelForRead(@Nonnull String path) throws IOException {
+		VirtualMountEntry e = follow(path);
+		if (e instanceof VirtualFile) {
+			return new ArrayByteChannel(((VirtualFile) e).getData());
 		} else {
 			throw new IOException("Only files can be read");
 		}
