@@ -2,12 +2,14 @@ package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Streams;
 
 /**
  * Represents an immutable, in-memory directory for use with
@@ -31,31 +33,42 @@ public final class VirtualDirectory extends VirtualMountEntry {
 		 * overwriting existing entries as necessary.
 		 *
 		 * @throws IllegalArgumentException Thrown if the given path is invalid
+		 * @deprecated Use the {@link #addEntry(String, VirtualMountEntry)} version instead.
 		 */
+		@Deprecated
 		public void addEntry(@Nonnull Path path, @Nonnull VirtualMountEntry entry) {
-			path = path.normalize();
-			if (path.getNameCount() == 0) {
-				throw new IllegalArgumentException("Invalid path");
-			} else if (path.getNameCount() == 1) {
-				dir.children.put(path.getFileName().toString(), entry);
-			} else {
-				VirtualDirectory current = dir;
-				Iterator<Path> i = path.iterator();
-				Path p;
-				while ((p = i.next()) != null) {
-					String name = p.getFileName().toString();
-					if (i.hasNext()) {
-						if (current.hasEntry(name) && current.getEntry(name) instanceof VirtualDirectory) {
-							current = (VirtualDirectory) current.getEntry(name);
-						} else {
-							VirtualDirectory next = new VirtualDirectory();
-							current.children.put(name, next);
-							current = next;
-						}
-					} else {
-						current.children.put(name, entry);
-						break;
+			addEntry(Streams.stream(path.normalize().iterator())
+				.map(x -> x.getFileName().toString())
+				.collect(Collectors.joining("/")), entry);
+		}
+		/**
+		 * Adds an entry to the directory being built, creating directories and
+		 * overwriting existing entries as necessary.
+		 *
+		 * @throws IllegalArgumentException Thrown if the given path is invalid
+		 */
+		public void addEntry(@Nonnull String path, @Nonnull VirtualMountEntry entry) {
+			if (dir == null) throw new IllegalStateException("Cannot extend already built directory");
+
+			while (path.startsWith("/")) path = path.substring(1);
+			if (path.isEmpty()) throw new IllegalArgumentException("Cannot add an entry with an empty path");
+
+			VirtualDirectory current = dir;
+			int lastIndex = 0;
+			while (true) {
+				int nextIndex = path.indexOf('/', lastIndex);
+				if (nextIndex >= 0) {
+					String name = path.substring(lastIndex, nextIndex);
+					VirtualMountEntry next = current.getEntry(name);
+
+					if (!(next instanceof VirtualDirectory)) {
+						current.children.put(name, next = new VirtualDirectory());
 					}
+					current = (VirtualDirectory) next;
+					lastIndex = nextIndex + 1;
+				} else {
+					current.children.put(path.substring(lastIndex), entry);
+					return;
 				}
 			}
 		}

@@ -194,16 +194,16 @@ public class CCEmuXAPI extends Plugin {
 
 		registerHook((CreatingROM) (emu, romBuilder) -> {
 			try {
-				romBuilder.addEntry(Paths.get("programs/emu.lua"), new VirtualFile(
+				romBuilder.addEntry("programs/emu.lua", new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_program.lua"))));
 
-				romBuilder.addEntry(Paths.get("help/emu.txt"), new VirtualFile(
+				romBuilder.addEntry("help/emu.txt", new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_help.txt"))));
 
-				romBuilder.addEntry(Paths.get("help/credits-emu.txt"), new VirtualFile(
+				romBuilder.addEntry("help/credits-emu.txt", new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/credits_help.txt"))));
 
-				romBuilder.addEntry(Paths.get("autorun/emu.lua"), new VirtualFile(
+				romBuilder.addEntry("autorun/emu.lua", new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_completion.lua"))));
 			} catch (IOException e) {
 				log.error("Failed to register ROM entries", e);

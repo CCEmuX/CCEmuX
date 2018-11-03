@@ -63,6 +63,7 @@ public class UserConfig extends EmuConfig {
 	public void setup() {
 		// Setup the properties to sync with the original.
 		// computerSpaceLimit isn't technically needed, but we do it for consistency's sake.
+		ComputerCraft.logPeripheralErrors = true;
 		maxComputerCapacity.addAndFireListener((o, n) -> ComputerCraft.computerSpaceLimit = n.intValue());
 		maximumFilesOpen.addAndFireListener((o, n) -> ComputerCraft.maximumFilesOpen = n);
 		httpEnabled.addAndFireListener((o, n) -> ComputerCraft.http_enable = n);
