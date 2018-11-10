@@ -329,8 +329,11 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		}
 
 		if (allowKeyEvents()) {
-			computer.pressKey(translateToCC(e.getKeyCode()), keysDown.get(e.getKeyCode()));
-			keysDown.set(e.getKeyCode());
+			int code = translateToCC(e.getKeyCode(), e.getKeyLocation());
+			if (code >= 0) {
+				computer.pressKey(code, keysDown.get(code));
+				keysDown.set(code);
+			}
 		}
 
 		// Start action timers
@@ -353,9 +356,10 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			shutdownTimer = rebootTimer = terminateTimer = -1;
 		}
 
-		if (keysDown.get(key)) {
-			keysDown.clear(key);
-			computer.releaseKey(translateToCC(key));
+		int code = translateToCC(key, e.getKeyLocation());
+		if (code >= 0 && keysDown.get(code)) {
+			keysDown.clear(code);
+			computer.releaseKey(code);
 		}
 	}
 
@@ -433,7 +437,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		for (int i = keysDown.size(); i >= 0; i--) {
 			if (keysDown.get(i)) {
 				keysDown.clear(i);
-				computer.releaseKey(translateToCC(i));
+				computer.releaseKey(i);
 			}
 		}
 

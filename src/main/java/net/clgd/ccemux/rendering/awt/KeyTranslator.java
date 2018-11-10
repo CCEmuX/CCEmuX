@@ -2,6 +2,7 @@ package net.clgd.ccemux.rendering.awt;
 
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.google.common.collect.ImmutableBiMap;
 
@@ -106,8 +107,24 @@ public class KeyTranslator {
 		put(KeyEvent.VK_DELETE, 211);
 	}});
 
-	public static int translateToCC(int keycode) {
-		return swingToCCMap.getOrDefault(keycode, 0);
+	private static final ImmutableBiMap<Integer, Integer> swingRightToCC;
+
+	static {
+		Map<Integer, Integer> sw = new HashMap<>();
+		sw.put(KeyEvent.VK_SHIFT, 54);
+		sw.put(KeyEvent.VK_CONTROL, 157);
+		sw.put(KeyEvent.VK_ALT, 184);
+
+		swingRightToCC = ImmutableBiMap.copyOf(sw);
+	}
+
+	public static int translateToCC(int keycode, int location) {
+		if (location == KeyEvent.KEY_LOCATION_RIGHT) {
+			Integer code = swingRightToCC.get(keycode);
+			if (code != null) return code;
+		}
+
+		return swingToCCMap.getOrDefault(keycode, -1);
 	}
 
 	public static int translateToSwing(int keycode) {
