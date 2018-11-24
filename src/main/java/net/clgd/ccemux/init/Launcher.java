@@ -20,6 +20,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 
 import dan200.computercraft.ComputerCraft;
@@ -69,7 +70,7 @@ public class Launcher {
 		CommandLine _cli = null;
 		try {
 			_cli = new DefaultParser().parse(opts, args);
-		} catch (org.apache.commons.cli.ParseException e) {
+		} catch (ParseException e) {
 			System.err.println(e.getLocalizedMessage());
 			printHelp();
 			System.exit(1);

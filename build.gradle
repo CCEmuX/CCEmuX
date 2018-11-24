@@ -1,3 +1,10 @@
+buildscript {
+	dependencies {
+		classpath 'net.sf.proguard:proguard-gradle:6.1.0beta1'
+		classpath 'com.google.code.gson:gson:2.8.1'
+	}
+}
+
 plugins {
 	id 'java-library'
 	id 'application'
@@ -91,6 +98,7 @@ jar {
 }
 
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import proguard.gradle.ProGuardTask
 
 shadowJar {
 	classifier = 'base'
@@ -98,9 +106,6 @@ shadowJar {
 
 	from sourceSets.main.output
 	configurations = [project.configurations.runtimeClasspath]
-
-	exclude '*.html'
-	exclude 'META-INF/maven/*/*/*.*'
 
 	dependencies {
 		exclude dependency('.*:cc-tweaked:.*')
@@ -114,9 +119,6 @@ task cctweakedJar(type: ShadowJar) {
 	from sourceSets.main.output
 	configurations = [project.configurations.runtimeClasspath]
 	manifest.inheritFrom jar.manifest
-
-	exclude '*.html'
-	exclude 'META-INF/maven/*/*/*.*'
 }
 
 task computercraftJar(type: ShadowJar) {
@@ -127,12 +129,23 @@ task computercraftJar(type: ShadowJar) {
 	configurations = [project.configurations.runtimeClasspath, project.configurations.computercraft]
 	manifest.inheritFrom jar.manifest
 
-	exclude '*.html'
-	exclude 'META-INF/maven/*/*/*.*'
-
 	dependencies {
 		exclude dependency('.*:cc-tweaked:.*')
 	}
+}
+
+task cctweakedMin(type: ProGuardTask) {
+	injars cctweakedJar.archivePath
+	outjars "${cctweakedJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
+}
+
+task computercraftMin(type: ProGuardTask) {
+	injars computercraftJar.archivePath
+	outjars "${computercraftJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
+
+	// Ignore some CC:T specific code
+	dontwarn "dan200.computercraft.core.apis.handles.ArrayByteChannel"
+	dontwarn "net.clgd.ccemux.init.UserConfigCCTweaked"
 }
 
 gradle.projectsEvaluated {
@@ -148,14 +161,50 @@ gradle.projectsEvaluated {
 		exclude 'META-INF/maven/*/*/*.*'
 
 		// Prune arbitrary stuff from the CC jar
-		exclude(['api/dan200/**', 'docs/dan200/**' ])
-		exclude([ 'assets/computercraft/**/*.json' ])
+		exclude(['api/dan200/**', 'docs/**'])
+		exclude(['assets/computercraft/**/*.json', 'assets/computercraft/textures/blocks/*', 'assets/computercraft/textures/items/*'])
+	}
+
+	tasks.withType(ProGuardTask) {
+		libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+		libraryjars "${System.getProperty('java.home')}/lib/jce.jar"
+		libraryjars "${System.getProperty('java.home')}/lib/ext/jfxrt.jar"
+
+		// Ignore references to these packages
+		["net.minecraft", "net.minecraftforge", "org.apache.bcel"].each { dontwarn "${it}.**" }
+		// Ignore any warnings in these packages. They have a lot of soft dependencies.
+		["io.netty", "org.apache.logging", "org.slf4j"].each { dontwarn "${it}.**" }
+		// It appears in the constant table, but not in the actual code, hence we need to ignore it.
+		dontwarn "lombok.val"
+		// Exclude the non-core portions of CC. These end up referencing a lot of MC stuff indirectly.
+		["client", "shared", "server"].each { dontwarn "dan200.computercraft.${it}.**" }
+		dontwarn "dan200.computercraft.core.tracking.ComputerTracker"
+		dontwarn "dan200.computercraft.api.turtle.**"
+		dontwarn "org.apache.commons.io.IOUtils"
+
+		// We want to avoid as much obfuscation as possible. We're only doing this to shrink code size
+		dontobfuscate; dontoptimize; keepattributes; keepparameternames
+		keepdirectories "assets/computercraft/lua**"
+		keepdirectories "rom/**"
+
+		// Keep all members of an enum. Otherwise things like EnumSet start complaining
+		keep "enum ** { *; }"
+		// Keep all MBean interfaces.
+		keep "interface **MBean { public *; }"
+
+		[
+			// Preserve all dependencies of the plugin-api
+			"net.clgd.ccemux", "dan200.computercraft", "com.google.common", "org.slf4j",
+			// We use reflection to create library functions, so we need to be a little basic.
+			"org.squiddev.cobalt.lib", "org.luaj.vm2.lib",
+			// Ideally we could strip more from here, but this'll do for now
+			"org.apache.logging.log4j",
+		].each { keep "class ${it}.** { *; }" }
 	}
 }
 
 run { standardInput = System.in }
 runShadow { standardInput = System.in }
 
-assemble.dependsOn shadowJar
-assemble.dependsOn cctweakedJar
-assemble.dependsOn computercraftJar
+assemble.dependsOn tasks.withType(ShadowJar)
+assemble.dependsOn tasks.withType(ProGuardTask)

@@ -1,7 +1,5 @@
 package net.clgd.ccemux.emulation;
 
-import static dan200.computercraft.ComputerCraft.log;
-
 import java.io.*;
 import java.nio.file.FileSystem;
 import java.nio.file.*;

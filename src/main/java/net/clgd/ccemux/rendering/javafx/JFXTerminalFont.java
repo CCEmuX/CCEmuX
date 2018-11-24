@@ -7,13 +7,11 @@ import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.SneakyThrows;
 import lombok.Value;
 import lombok.val;
 import net.clgd.ccemux.api.rendering.TerminalFont;
@@ -75,9 +73,15 @@ public class JFXTerminalFont extends TerminalFont {
 		return ImageRescaler.rescale(base, termScale / this.getHorizontalScale(), termScale / this.getVerticalScale());
 	}
 
-	@SneakyThrows(ExecutionException.class)
 	public Image getCharImage(char c, Color color, double termScale) {
-		return charCache.get(new CharImageRequest(c, color, termScale),
+		try {
+			return charCache.get(new CharImageRequest(c, color, termScale),
 				() -> generateScaledCharImage(c, color, termScale));
+		} catch (ExecutionException e) {
+			Throwable inner = e.getCause();
+			if (inner instanceof RuntimeException) throw (RuntimeException) inner;
+			if (inner instanceof Error) throw (Error) inner;
+			throw new RuntimeException(e);
+		}
 	}
 }
