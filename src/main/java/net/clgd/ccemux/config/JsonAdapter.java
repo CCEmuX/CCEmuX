@@ -3,13 +3,10 @@ package net.clgd.ccemux.config;
 import java.util.Map;
 import java.util.Optional;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import lombok.extern.slf4j.Slf4j;
+import com.google.gson.*;
 import net.clgd.ccemux.api.config.Config;
 import net.clgd.ccemux.api.config.ConfigEntry;
 import net.clgd.ccemux.api.config.ConfigProperty;
@@ -19,8 +16,9 @@ import net.clgd.ccemux.api.config.Group;
  * A serialiser for {@link Config} instances which converts them to and from
  * {@link JsonElement}s.
  */
-@Slf4j
 public class JsonAdapter {
+	private static final Logger log = LoggerFactory.getLogger(JsonAdapter.class);
+
 	private static final Gson defaultGson = new GsonBuilder()
 			.setPrettyPrinting()
 			.setLenient()
@@ -115,6 +113,7 @@ public class JsonAdapter {
 		return object;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void fromJson(Group group, JsonElement element) {
 		if (!(element instanceof JsonObject)) {
 			log.error("Expected object for property group {}, got {}", group.getKey(), element);
@@ -133,7 +132,6 @@ public class JsonAdapter {
 					ConfigProperty property = (ConfigProperty<?>) configEntry.get();
 
 					try {
-						//noinspection unchecked
 						property.set(gson.fromJson(jsonEntry.getValue(), property.getType()));
 					} catch (JsonSyntaxException e) {
 						log.error("Cannot parse property '{}' in group '{}' ({})", jsonEntry.getKey(), group.getKey(), e.getMessage());

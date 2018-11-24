@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
 
 import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
+import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import lombok.extern.slf4j.Slf4j;
@@ -181,6 +182,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	@Override
+	@SuppressWarnings("deprecation")
 	public void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException {
 		val mount = this.getRootMount();
 		val base = Paths.get(location);

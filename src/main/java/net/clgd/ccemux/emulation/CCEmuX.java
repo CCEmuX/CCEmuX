@@ -1,5 +1,7 @@
 package net.clgd.ccemux.emulation;
 
+import static dan200.computercraft.ComputerCraft.log;
+
 import java.io.*;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
@@ -325,21 +327,23 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 * @param path The path to construct the mount for
 	 * @return The constructed mount, or {@code null} if none could be constructed.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "deprecation" })
 	private IMount createJarMount(String path) {
 		try {
-			ClassLoader loader = CCEmuX.class.getClassLoader();
 			try {
-				Class<? extends IMount> klass = (Class<? extends IMount>) Class.forName("dan200.computercraft.core.filesystem.JarMount", true, loader);
-				return klass.getConstructor(File.class, String.class).newInstance(ccSource, path);
-			} catch (ClassNotFoundException e) {
-				FileSystem fs = FileSystems.newFileSystem(ccSource.toPath(), ComputerCraft.class.getClassLoader());
-
+				ClassLoader loader = CCEmuX.class.getClassLoader();
 				Class<? extends IMount> klass = (Class<? extends IMount>) Class.forName("dan200.computercraft.core.filesystem.FileSystemMount", true, loader);
+				FileSystem fs = FileSystems.newFileSystem(ccSource.toPath(), ComputerCraft.class.getClassLoader());
 				return klass.getConstructor(FileSystem.class, String.class).newInstance(fs, path);
+			} catch (ClassNotFoundException ignored) {
+				// We ignore the case when the class doesn't exist, as that means we're on ComputerCraft.
+			} catch (ProviderNotFoundException | ServiceConfigurationError | ReflectiveOperationException e) {
+				log.error("Could not create FileSystemMount from mod jar", e);
 			}
-		} catch (IOException | ProviderNotFoundException | ServiceConfigurationError | ReflectiveOperationException e) {
-			log.error("Could not load mount from mod jar", e);
+
+			return new dan200.computercraft.core.filesystem.JarMount(ccSource, path);
+		} catch (IOException e) {
+			log.error("Could not create mount from mod jar", e);
 			return null;
 		}
 	}

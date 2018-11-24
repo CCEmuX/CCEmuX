@@ -108,8 +108,9 @@ public class VirtualMount implements IMount {
 		}
 	}
 
-	@Override
 	@Nonnull
+	@Override
+	@Deprecated
 	public InputStream openForRead(@Nonnull String path) throws IOException {
 		VirtualMountEntry e = follow(path);
 		if (e instanceof VirtualFile) {
@@ -130,7 +131,6 @@ public class VirtualMount implements IMount {
 		}
 	}
 
-	@SuppressWarnings("all")
 	@Nonnull
 	public VirtualDirectory getRoot() {
 		return this.root;

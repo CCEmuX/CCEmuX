@@ -23,7 +23,6 @@ allprojects {
 	}
 
 	repositories {
-		mavenLocal()
 		mavenCentral()
 	}
 
@@ -32,6 +31,12 @@ allprojects {
 		testCompileOnly 'org.projectlombok:lombok:1.16.20'
 
 		compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+	}
+
+	gradle.projectsEvaluated {
+		tasks.withType(JavaCompile) {
+			options.compilerArgs << "-Xlint" << "-Xlint:-processing" << "-Xlint:-rawtypes" << "-Xlint:-classfile"
+		}
 	}
 }
 

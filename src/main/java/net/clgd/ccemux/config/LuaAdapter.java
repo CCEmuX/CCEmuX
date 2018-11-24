@@ -21,8 +21,9 @@ import net.clgd.ccemux.api.config.Group;
 public final class LuaAdapter {
 	private LuaAdapter() {}
 
-	public static Map<String, Object> toLua(Group group, Object existing) {
-		Map<String, Object> object = existing instanceof Map ? (Map) existing : new HashMap<>();
+	@SuppressWarnings("unchecked")
+	public static Map<?, ?> toLua(Group group, Object existing) {
+		Map<Object, Object> object = existing instanceof Map ? (Map) existing : new HashMap<>();
 
 		for (ConfigEntry entry : group.children()) {
 			if (entry instanceof ConfigProperty<?>) {
@@ -33,7 +34,7 @@ public final class LuaAdapter {
 					object.put(entry.getKey(), toLua(property.get()));
 				}
 			} else if (entry instanceof Group) {
-				Map<String, Object> element = toLua((Group) entry, object.get(entry.getKey()));
+				Map<?, ?> element = toLua((Group) entry, object.get(entry.getKey()));
 
 				// Don't emit empty groups
 				if (element.size() > 0) object.put(entry.getKey(), element);
@@ -43,7 +44,7 @@ public final class LuaAdapter {
 		return object;
 	}
 
-	public static Map<String, Object> toDefaultJson(Group group) {
+	public static Map<?, ?> toDefaultJson(Group group) {
 		Map<String, Object> object = new HashMap<>();
 		for (ConfigEntry entry : group.children()) {
 			if (entry instanceof ConfigProperty<?>) {
@@ -57,6 +58,7 @@ public final class LuaAdapter {
 		return object;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static void fromLua(Group group, Object element) throws LuaException {
 		if (!(element instanceof Map)) {
 			throw new LuaException(String.format("bad key '%s' for property group (table expected, got %s)",
@@ -81,7 +83,6 @@ public final class LuaAdapter {
 					ConfigProperty property = (ConfigProperty<?>) configEntry.get();
 
 					try {
-						// noinspection unchecked
 						property.set(fromValue(entry.getValue(), property.getType()));
 					} catch (IllegalArgumentException e) {
 						throw new LuaException(String.format(

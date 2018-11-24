@@ -33,6 +33,7 @@ public class VirtualMountTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testFollowRoot() {
 		assertEquals(rom.getRoot(), rom.follow(""));
 
@@ -44,6 +45,7 @@ public class VirtualMountTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testFollowEntries() {
 		assertEquals(rom.getRoot().getEntry("folder"), rom.follow(get("/folder")));
 		assertEquals(rom.getRoot().getEntry("folder"), rom.follow("folder"));
@@ -101,6 +103,7 @@ public class VirtualMountTest {
 	}
 
 	@Test
+	@SuppressWarnings("deprecation")
 	public void testRead() throws IOException {
 		assertEquals("hello", CharStreams.toString(new InputStreamReader(rom.openForRead("file"), StandardCharsets.UTF_8)));
 		assertEquals("hello2", CharStreams.toString(new InputStreamReader(rom.openForRead("folder/file2"), StandardCharsets.UTF_8)));
