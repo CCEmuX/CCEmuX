@@ -5,7 +5,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ServiceConfigurationError;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -19,6 +18,7 @@ import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.IComputerEnvironment;
 import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.JarMount;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -252,8 +252,13 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
 		if (path.startsWith("/")) path = path.substring(1);
 
-		IMount jarMount = createJarMount(path);
-		if (jarMount == null) return null;
+		JarMount jarMount;
+		try {
+			jarMount = new JarMount(ccSource, path);
+		} catch (IOException e) {
+			log.error("Could not create mount from mod jar", e);
+			return null;
+		}
 
 		VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
 		pluginMgr.onCreatingROM(this, romBuilder);
@@ -317,32 +322,5 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	@Override
 	public boolean isColour() {
 		return true;
-	}
-
-	/**
-	 * Construct a {@code JarMount} or {@code FileSystemMount} depending on whether we're running under CC or CC:T.
-	 *
-	 * @param path The path to construct the mount for
-	 * @return The constructed mount, or {@code null} if none could be constructed.
-	 */
-	@SuppressWarnings({ "unchecked", "deprecation" })
-	private IMount createJarMount(String path) {
-		try {
-			try {
-				ClassLoader loader = CCEmuX.class.getClassLoader();
-				Class<? extends IMount> klass = (Class<? extends IMount>) Class.forName("dan200.computercraft.core.filesystem.FileSystemMount", true, loader);
-				FileSystem fs = FileSystems.newFileSystem(ccSource.toPath(), ComputerCraft.class.getClassLoader());
-				return klass.getConstructor(FileSystem.class, String.class).newInstance(fs, path);
-			} catch (ClassNotFoundException ignored) {
-				// We ignore the case when the class doesn't exist, as that means we're on ComputerCraft.
-			} catch (ProviderNotFoundException | ServiceConfigurationError | ReflectiveOperationException e) {
-				log.error("Could not create FileSystemMount from mod jar", e);
-			}
-
-			return new dan200.computercraft.core.filesystem.JarMount(ccSource, path);
-		} catch (IOException e) {
-			log.error("Could not create mount from mod jar", e);
-			return null;
-		}
 	}
 }
