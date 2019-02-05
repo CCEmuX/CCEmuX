@@ -135,20 +135,24 @@ public abstract class EmulatedComputer extends Computer {
 	 * Queues a mouse click event
 	 */
 	public void click(int button, int x, int y, boolean release) {
-		queueEvent(release ? "mouse_up" : "mouse_click", new Object[] { button, x, y });
+		if (inTerminal(x, y)) queueEvent(release ? "mouse_up" : "mouse_click", new Object[] { button, x, y });
 	}
 
 	/**
 	 * Queues a mouse drag event
 	 */
 	public void drag(int button, int x, int y) {
-		queueEvent("mouse_drag", new Object[] { button, x, y });
+		if (inTerminal(x, y)) queueEvent("mouse_drag", new Object[] { button, x, y });
 	}
 
 	/**
 	 * Queues a mouse scroll event
 	 */
 	public void scroll(int lines, int x, int y) {
-		queueEvent("mouse_scroll", new Object[] { lines, x, y });
+		if (inTerminal(x, y)) queueEvent("mouse_scroll", new Object[] { lines, x, y });
+	}
+
+	private boolean inTerminal(int x, int y) {
+		return x >= 1 && x <= terminal.getWidth() && y >= 1 && y <= terminal.getHeight();
 	}
 }
