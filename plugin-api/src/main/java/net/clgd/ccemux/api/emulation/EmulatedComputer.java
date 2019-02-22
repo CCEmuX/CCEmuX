@@ -119,9 +119,31 @@ public abstract class EmulatedComputer extends Computer {
 
 	/**
 	 * Queues a paste event
+	 *
+	 * Note, this uses the same restrictions that CC imposes on pasting: it strips the string to the first
+	 * line of input and remove several invalid characters. Use {@link #queueEvent(String, Object[])} if you
+	 * need to paste arbitrary text.
 	 */
-	public void paste(String text) {
-		queueEvent("paste", new Object[] { text });
+	public void paste(String clipboard) {
+		// Clip to the first occurrence of \r or \n.
+		int newLineIndex = clipboard.indexOf('\r');
+		int returnIndex = clipboard.indexOf('\n');
+		if (newLineIndex >= 0 && returnIndex >= 0) {
+			clipboard = clipboard.substring(0, Math.min(newLineIndex, returnIndex));
+		} else if (newLineIndex >= 0) {
+			clipboard = clipboard.substring(0, newLineIndex);
+		} else if (returnIndex >= 0) {
+			clipboard = clipboard.substring(0, returnIndex);
+		}
+
+		// Filter the string: We allow everything greater than a space except the section signal (00a7) and
+		// delete (007f).
+		clipboard = clipboard.replaceAll("[\0-\31\u00a7\u007F]", "");
+		if (clipboard.isEmpty()) return;
+
+		// Clip to 512 characters and queue.
+		if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
+		queueEvent("paste", new Object[] { clipboard });
 	}
 
 	/**
