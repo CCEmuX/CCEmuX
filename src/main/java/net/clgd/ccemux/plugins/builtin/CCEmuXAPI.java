@@ -2,10 +2,8 @@ package net.clgd.ccemux.plugins.builtin;
 
 import java.awt.Desktop;
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 
 import javax.annotation.Nonnull;
@@ -17,6 +15,8 @@ import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.core.computer.Computer;
+import dan200.computercraft.core.computer.ComputerThread;
+import dan200.computercraft.core.computer.ITask;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -35,7 +35,7 @@ import net.clgd.ccemux.config.LuaAdapter;
 public class CCEmuXAPI extends Plugin {
 	@FunctionalInterface
 	private interface APIMethod {
-		Object[] accept(Object[] o) throws LuaException;
+		Object[] accept(ILuaContext c, Object[] o) throws LuaException, InterruptedException;
 	}
 
 	private static class API implements ILuaAPI {
@@ -47,22 +47,22 @@ public class CCEmuXAPI extends Plugin {
 		public API(Emulator emu, EmulatedComputer computer, String name) {
 			this.name = name;
 
-			methods.put("getVersion", o -> new Object[] { emu.getEmulatorVersion() });
+			methods.put("getVersion", (c, o) -> new Object[] { emu.getEmulatorVersion() });
 
-			methods.put("closeEmu", o -> {
+			methods.put("closeEmu", (c, o) -> {
 				computer.shutdown();
 				emu.removeComputer(computer);
 				return new Object[] {};
 			});
 
-			methods.put("openEmu", o -> {
+			methods.put("openEmu", (c, o) -> {
 				int id = ArgumentHelper.optInt(o, 0, -1);
 				EmulatedComputer ec = emu.createComputer(b -> b.id(id));
 
 				return new Object[] { ec.getID() };
 			});
 
-			methods.put("openDataDir", o -> {
+			methods.put("openDataDir", (c, o) -> {
 				try {
 					Desktop.getDesktop().browse(emu.getConfig().getDataDir().toUri());
 					return new Object[] { true };
@@ -71,26 +71,25 @@ public class CCEmuXAPI extends Plugin {
 				}
 			});
 
-			methods.put("milliTime", o -> new Object[] { System.currentTimeMillis() });
-			methods.put("nanoTime", o -> new Object[] { System.nanoTime() });
+			methods.put("milliTime", (c, o) -> new Object[] { System.currentTimeMillis() });
+			methods.put("nanoTime", (c, o) -> new Object[] { System.nanoTime() });
 
-			methods.put("echo", o -> {
+			methods.put("echo", (c, o) -> {
 				String message = ArgumentHelper.getString(o, 0);
 				log.info("[Computer {}] {}", computer.getID(), message);
 
 				return new Object[] {};
 			});
 
-			methods.put("setClipboard", o -> {
+			methods.put("setClipboard", (c, o) -> {
 				String contents = ArgumentHelper.getString(o, 0);
 				StringSelection sel = new StringSelection(contents);
-				Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
-				c.setContents(sel, sel);
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(sel, sel);
 
 				return new Object[] {};
 			});
 
-			methods.put("openConfig", o -> {
+			methods.put("openConfig", (c, o) -> {
 				if (emu.getRendererFactory().createConfigEditor(emu.getConfig())) {
 					return new Object[] { true };
 				} else {
@@ -98,7 +97,7 @@ public class CCEmuXAPI extends Plugin {
 				}
 			});
 
-			methods.put("attach", o -> {
+			methods.put("attach", (c, o) -> {
 				String side = ArgumentHelper.getString(o, 0);
 				String peripheral = ArgumentHelper.getString(o, 1);
 				Object configuration = o.length > 2 ? o[2] : null;
@@ -117,16 +116,19 @@ public class CCEmuXAPI extends Plugin {
 				if (configuration != null) LuaAdapter.fromLua(group, configuration);
 
 				computer.setPeripheral(sideId, built);
+				awaitPeripheralChange(computer, c);
 
 				return null;
 			});
 
-			methods.put("detach", o -> {
+			methods.put("detach", (c, o) -> {
 				String side = ArgumentHelper.getString(o, 0);
 				int sideId = sideNames.indexOf(side);
 				if (sideId == -1) throw new LuaException("Invalid side");
 
 				computer.setPeripheral(sideId, null);
+				awaitPeripheralChange(computer, c);
+
 				return null;
 			});
 		}
@@ -138,8 +140,8 @@ public class CCEmuXAPI extends Plugin {
 		}
 
 		@Override
-		public Object[] callMethod(@Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException {
-			return new ArrayList<>(methods.values()).get(method).accept(arguments);
+		public Object[] callMethod(@Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException, InterruptedException {
+			return new ArrayList<>(methods.values()).get(method).accept(context, arguments);
 		}
 
 		@Override
@@ -155,6 +157,32 @@ public class CCEmuXAPI extends Plugin {
 
 		@Override
 		public void startup() {}
+
+		/**
+		 * Waits for peripherals to finish attaching/detaching.
+		 *
+		 * Peripherals are attached/detached on the {@link ComputerThread}, which means they won't have been properly
+		 * changed after {@code ccemux.attach}/{@code ccemux.detach} has been called. Instead, we queue an event on the
+		 * computer thread after peripherals have actually been attached.
+		 *
+		 * @param computer The computer to queue an event on
+		 * @param context  The context to pull an event from
+		 * @throws InterruptedException If pulling an event failed
+		 */
+		static void awaitPeripheralChange(EmulatedComputer computer, ILuaContext context) throws InterruptedException {
+			ComputerThread.queueTask(new ITask() {
+				@Override
+				public Computer getOwner() {
+					return computer;
+				}
+
+				@Override
+				public void execute() {
+					computer.queueEvent("ccemux_peripheral_update", null);
+				}
+			}, null);
+			context.pullEventRaw("ccemux_peripheral_update");
+		}
 	}
 
 	@Nonnull
