@@ -171,11 +171,11 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 					width = cw + ((x == 0 || x == tw - 1) ? m : 0);
 
 					// draw background
-					g.setFill(paletteAdapter.getColor(bg.charAt(x)));
+					g.setFill(paletteAdapter.getColor(bg.charAt(x), PaletteAdapter.DEFAULT_BACKGROUND));
 					g.fillRect(ox, oy, width, height);
 
 					// draw character
-					charImg = font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x)), fontScale);
+					charImg = font.getCharImage(text.charAt(x), paletteAdapter.getColor(fg.charAt(x), PaletteAdapter.DEFAULT_FOREGROUND), fontScale);
 					g.drawImage(charImg, ox + (x == 0 ? m : 0), oy + (y == 0 ? m : 0), cw, ch);
 
 					ox += width;
@@ -188,7 +188,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			// draw cursor
 			if (cursorBlink()) {
 				g.drawImage(
-						font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour()), fontScale),
+						font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour(), PaletteAdapter.DEFAULT_FOREGROUND), fontScale),
 						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()), cw, ch);
 			}
 

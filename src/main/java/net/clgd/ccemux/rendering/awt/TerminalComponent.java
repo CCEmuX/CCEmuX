@@ -27,21 +27,21 @@ import net.clgd.ccemux.api.rendering.PaletteAdapter.ColorAdapter;
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
 
-	public static final ColorAdapter<Color> AWT_COLOR_ADAPTER = (r, g, b) -> new Color((float) r, (float) g, (float) b);
+	private static final ColorAdapter<Color> AWT_COLOR_ADAPTER = (r, g, b) -> new Color((float) r, (float) g, (float) b);
 
 	private final PaletteAdapter<Color> paletteCacher;
 
-	public final Terminal terminal;
-	public final int pixelWidth;
-	public final int pixelHeight;
-	public final int margin;
+	private final Terminal terminal;
+	private final int pixelWidth;
+	private final int pixelHeight;
+	final int margin;
 
-	public char cursorChar = '_';
+	private static final char cursorChar = '_';
 
-	public boolean blinkLocked = false;
+	boolean blinkLocked = false;
 
 	@Value
-	public static class CharImageRequest {
+	private static class CharImageRequest {
 		private char character;
 		private Color color;
 	}
@@ -67,11 +67,12 @@ class TerminalComponent extends Canvas {
 	}
 
 	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
-		if (c == '\0' || Character.isSpaceChar(c))
+		if (c == '\0' || Character.isSpaceChar(c)) {
 			return; // nothing to do here
+		}
 
 		Rectangle r = font.getCharCoords(c);
-		Color colour = paletteCacher.getColor(color);
+		Color colour = paletteCacher.getColor(color, PaletteAdapter.DEFAULT_FOREGROUND);
 
 		BufferedImage charImg = null;
 
@@ -104,7 +105,7 @@ class TerminalComponent extends Canvas {
 		g.drawImage(charImg, x, y, pixelWidth, pixelHeight, null);
 	}
 
-	private void renderTerminal(AWTTerminalFont font, double dt) {
+	private void renderTerminal(AWTTerminalFont font) {
 		synchronized (terminal) {
 			Graphics g = getBufferStrategy().getDrawGraphics();
 
@@ -121,7 +122,7 @@ class TerminalComponent extends Canvas {
 				for (int x = 0; x < terminal.getWidth(); x++) {
 					int width = (x == 0 || x == terminal.getWidth() - 1) ? pixelWidth + margin : pixelWidth;
 
-					g.setColor(paletteCacher.getColor((bgLine == null) ? 'f' : bgLine.charAt(x)));
+					g.setColor(paletteCacher.getColor(bgLine == null ? 'f' : bgLine.charAt(x), PaletteAdapter.DEFAULT_BACKGROUND));
 					g.fillRect(dx, dy, width, height);
 
 					char character = (textLine == null) ? ' ' : textLine.charAt(x);
@@ -156,7 +157,7 @@ class TerminalComponent extends Canvas {
 
 		do {
 			do {
-				renderTerminal(font, dt);
+				renderTerminal(font);
 			} while (getBufferStrategy().contentsRestored());
 
 			getBufferStrategy().show();

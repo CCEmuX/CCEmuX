@@ -13,6 +13,19 @@ import net.clgd.ccemux.api.Utils;
  * @author apemanzilla
  */
 public final class PaletteAdapter<C> {
+	/**
+	 * The default color index for backgrounds
+	 *
+	 * @see dan200.computercraft.shared.util.Colour#Black
+	 */
+	public static final int DEFAULT_BACKGROUND = 0;
+
+	/**
+	 * The default color index for foregrounds
+	 *
+	 * @see dan200.computercraft.shared.util.Colour#White
+	 */
+	public static final int DEFAULT_FOREGROUND = 15;
 
 	/**
 	 * An adapter used to generate a color object from RGB values
@@ -55,9 +68,20 @@ public final class PaletteAdapter<C> {
 	 * @return The converted color
 	 */
 	public C getColor(int c) {
+		return getColor(c, DEFAULT_FOREGROUND);
+	}
+
+	/**
+	 * Creates a color object using the given color from the palette
+	 *
+	 * @param c   The numeric index of the terminal color
+	 * @param def The default color index if none exists for {@code c}.
+	 * @return The converted color
+	 */
+	public C getColor(int c, int def) {
 		double[] col;
 		if ((col = palette.getColour(15 - c)) == null) {
-			col = palette.getColour(0);
+			col = palette.getColour(def);
 		}
 		col = Utils.clampColor(col);
 		return getColor(col[0], col[1], col[2]);
@@ -71,6 +95,17 @@ public final class PaletteAdapter<C> {
 	 */
 	public C getColor(char c) {
 		return getColor(Utils.base16ToInt(c));
+	}
+
+	/**
+	 * Creates a color object using the given color from the palette
+	 *
+	 * @param c   A hexadecimal terminal color
+	 * @param def The default color index if none exists for {@code c}.
+	 * @return The converted color
+	 */
+	public C getColor(char c, int def) {
+		return getColor(Utils.base16ToInt(c), def);
 	}
 
 	public PaletteAdapter(@Nonnull Palette palette, @Nonnull ColorAdapter<C> adapter) {
