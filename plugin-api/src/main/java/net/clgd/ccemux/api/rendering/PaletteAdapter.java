@@ -68,7 +68,7 @@ public final class PaletteAdapter<C> {
 	 * @return The converted color
 	 */
 	public C getColor(int c) {
-		return getColor(c, DEFAULT_FOREGROUND);
+		return getColor(c, DEFAULT_BACKGROUND);
 	}
 
 	/**
