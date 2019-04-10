@@ -5,6 +5,7 @@ import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_HEIGHT;
 import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_WIDTH;
 import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_MARGIN;
 
+import java.awt.Point;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +29,8 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -67,10 +68,14 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private Map<KeyCode, Long> pressedKeys = new HashMap<>();
 
 	/**
-	 * int[2] containing the last CC X and Y coordinates of a mouse drag, to
-	 * prevent duplicate events
+	 * The last CC X and Y coordinates of a mouse drag, to prevent duplicate events.
 	 */
-	private int[] lastDrag;
+	private Point lastDragPosition;
+
+	/**
+	 * The button of the last drag/press event.
+	 */
+	private int lastDragButton;
 
 	/**
 	 * @return Whether the cursor should be shown
@@ -188,8 +193,8 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			// draw cursor
 			if (cursorBlink()) {
 				g.drawImage(
-						font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour(), PaletteAdapter.DEFAULT_FOREGROUND), fontScale),
-						m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()), cw, ch);
+					font.getCharImage('_', paletteAdapter.getColor(computer.terminal.getTextColour(), PaletteAdapter.DEFAULT_FOREGROUND), fontScale),
+					m + (cw * computer.terminal.getCursorX()), m + (ch * computer.terminal.getCursorY()), cw, ch);
 			}
 
 			lastBlink = cursorBlink();
@@ -222,7 +227,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	 */
 	private boolean isComboInProgress() {
 		return pressedKeys.containsKey(KeyCode.CONTROL) && (pressedKeys.containsKey(KeyCode.T)
-				|| pressedKeys.containsKey(KeyCode.R) || pressedKeys.containsKey(KeyCode.S));
+			|| pressedKeys.containsKey(KeyCode.R) || pressedKeys.containsKey(KeyCode.S));
 	}
 
 	private void keyTyped(KeyEvent e) {
@@ -298,42 +303,49 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 	}
 
-	private int[] coordsToCC(double x, double y) {
-		return new int[] {
-				1 + constrainToRange((int) Math.floor((x - margin.get()) / charWidth.get()), 0,
-						computer.terminal.getWidth()),
-				1 + constrainToRange((int) Math.floor((y - margin.get()) / charHeight.get()), 0,
-						computer.terminal.getHeight()) };
+	private Point coordsToCC(double x, double y) {
+		return new Point(
+			1 + constrainToRange((int) Math.floor((x - margin.get()) / charWidth.get()), 0,
+				computer.terminal.getWidth()),
+			1 + constrainToRange((int) Math.floor((y - margin.get()) / charHeight.get()), 0,
+				computer.terminal.getHeight())
+		);
 	}
 
 	private void mousePressed(MouseEvent e) {
-		int[] coords = coordsToCC(e.getX(), e.getY());
+		Point p = coordsToCC(e.getX(), e.getY());
 		int button = JFXMouseTranslator.toCC(e.getButton());
-		if (button != -1) computer.click(button, coords[0], coords[1], false);
+		if (button == -1) return;
+
+		computer.click(button, p.x, p.y, false);
+		lastDragButton = button;
+		lastDragPosition = p;
 	}
 
 	private void mouseReleased(MouseEvent e) {
-		int[] coords = coordsToCC(e.getX(), e.getY());
+		Point p = coordsToCC(e.getX(), e.getY());
 		int button = JFXMouseTranslator.toCC(e.getButton());
-		if (button != -1) computer.click(button, coords[0], coords[1], true);
+		if (button == -1 || button != lastDragButton) return;
+
+		computer.click(button, p.x, p.y, true);
+		lastDragButton = -1;
 	}
 
 	private void mouseDragged(MouseEvent e) {
-		int[] coords = coordsToCC(e.getX(), e.getY());
-		int button = JFXMouseTranslator.toCC(e.getButton());
-		if (button != -1 && (lastDrag == null || lastDrag[0] != coords[0] || lastDrag[1] != coords[1])) {
-			lastDrag = coords;
-			computer.drag(JFXMouseTranslator.toCC(e.getButton()), coords[0], coords[1]);
-		}
+		Point p = coordsToCC(e.getX(), e.getY());
+		if (lastDragButton == -1 || p.equals(lastDragPosition)) return;
+
+		computer.drag(lastDragButton, p.x, p.y);
+		lastDragPosition = p;
 	}
 
 	private void mouseScroll(ScrollEvent e) {
-		int[] coords = coordsToCC(e.getX(), e.getY());
-		computer.scroll(-1 * (int) (e.getDeltaY() / e.getMultiplierY()), coords[0], coords[1]);
+		Point p = coordsToCC(e.getX(), e.getY());
+		computer.scroll(-1 * (int) (e.getDeltaY() / e.getMultiplierY()), p.x, p.y);
 	}
 
 	private void focusChanged(Observable e) {
-		if(!focusedProperty().get()) {
+		if (!focusedProperty().get()) {
 			for (KeyCode code : pressedKeys.keySet()) {
 				int ccCode = JFXKeyTranslator.translateToCC(code);
 				if (ccCode != 0) computer.releaseKey(ccCode);
@@ -367,7 +379,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 				a.setTitle("File copy error");
 				a.setHeaderText("File copy error");
 				a.setContentText("There was an error copying file to computer ID " + computer.getID() + ":\n"
-						+ e1.getLocalizedMessage() + "\n\nSee logs for more information");
+					+ e1.getLocalizedMessage() + "\n\nSee logs for more information");
 				a.initStyle(StageStyle.UTILITY);
 				a.show();
 				return false;

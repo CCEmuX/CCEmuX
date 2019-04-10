@@ -89,8 +89,8 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private final int pixelHeight;
 
 	private boolean lastBlink = false;
-	private int dragButton = -1;
-	private Point lastDragSpot = null;
+	private int lastDragButton = -1;
+	private Point lastDragPosition = null;
 
 	private double blinkLockedTime = 0d;
 
@@ -154,7 +154,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 						val data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 						computer.copyFiles(data, "/");
 						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.",
-								"Files copied", JOptionPane.INFORMATION_MESSAGE);
+							"Files copied", JOptionPane.INFORMATION_MESSAGE);
 					} else if (DataFlavor.selectBestTextFlavor(flavors) != null) {
 						val f = DataFlavor.selectBestTextFlavor(flavors);
 
@@ -317,8 +317,8 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		boolean hasModifier = (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
 		if (rendererConfig.nativePaste.get()
 			? DefaultEditorKit.pasteAction.equals(
-				((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
-						.get(KeyStroke.getKeyStrokeForEvent(e)))
+			((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
+				.get(KeyStroke.getKeyStrokeForEvent(e)))
 			: hasModifier && e.getKeyCode() == KeyEvent.VK_V) {
 			try {
 				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
@@ -363,31 +363,34 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		}
 	}
 
-	private void fireMouseEvent(MouseEvent e, boolean press) {
-		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
-		int button = swingToCC(e.getButton());
-		if(button != -1) computer.click(button, p.x, p.y, !press);
-	}
-
 	@Override
 	public void mouseDragged(MouseEvent e) {
 		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
-		if (p.equals(lastDragSpot) || dragButton == -1) return;
+		if (lastDragButton == -1 || p.equals(lastDragPosition)) return;
 
-		computer.drag(dragButton, p.x, p.y);
-		lastDragSpot = p;
+		computer.drag(lastDragButton, p.x, p.y);
+		lastDragPosition = p;
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		fireMouseEvent(e, true);
+		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
 		int button = swingToCC(e.getButton());
-		if (button != -1) dragButton = button;
+		if (button == -1) return;
+
+		computer.click(button, p.x, p.y, false);
+		lastDragButton = button;
+		lastDragPosition = p;
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		fireMouseEvent(e, false);
+		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
+		int button = swingToCC(e.getButton());
+		if (button == -1 || button != lastDragButton) return;
+
+		computer.click(button, p.x, p.y, true);
+		lastDragButton = -1;
 	}
 
 	@Override
