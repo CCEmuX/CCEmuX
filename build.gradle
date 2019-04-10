@@ -108,7 +108,7 @@ shadowJar {
 	configurations = [project.configurations.runtimeClasspath]
 
 	dependencies {
-		exclude dependency('.*:cc-tweaked:.*')
+		exclude dependency('.*:cc-tweaked-1.12.2:.*')
 	}
 }
 
@@ -130,7 +130,7 @@ task computercraftJar(type: ShadowJar) {
 	manifest.inheritFrom jar.manifest
 
 	dependencies {
-		exclude dependency('.*:cc-tweaked:.*')
+		exclude dependency('.*:cc-tweaked-1.12.2:.*')
 	}
 }
 

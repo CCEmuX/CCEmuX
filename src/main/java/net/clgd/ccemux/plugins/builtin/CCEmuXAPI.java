@@ -16,7 +16,6 @@ import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
-import dan200.computercraft.core.computer.ITask;
 import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -163,24 +162,14 @@ public class CCEmuXAPI extends Plugin {
 		 *
 		 * Peripherals are attached/detached on the {@link ComputerThread}, which means they won't have been properly
 		 * changed after {@code ccemux.attach}/{@code ccemux.detach} has been called. Instead, we queue an event on the
-		 * computer thread after peripherals have actually been attached.
+		 * computer thread, so we are resumed after peripherals have actually been attached.
 		 *
 		 * @param computer The computer to queue an event on
 		 * @param context  The context to pull an event from
 		 * @throws InterruptedException If pulling an event failed
 		 */
 		static void awaitPeripheralChange(EmulatedComputer computer, ILuaContext context) throws InterruptedException {
-			ComputerThread.queueTask(new ITask() {
-				@Override
-				public Computer getOwner() {
-					return computer;
-				}
-
-				@Override
-				public void execute() {
-					computer.queueEvent("ccemux_peripheral_update", null);
-				}
-			}, null);
+			computer.queueEvent("ccemux_peripheral_update", null);
 			context.pullEventRaw("ccemux_peripheral_update");
 		}
 	}

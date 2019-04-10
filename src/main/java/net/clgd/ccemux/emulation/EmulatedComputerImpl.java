@@ -3,17 +3,22 @@ package net.clgd.ccemux.emulation;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 
 import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.computer.Computer;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -24,20 +29,54 @@ import net.clgd.ccemux.api.emulation.EmulatedTerminal;
  */
 @Slf4j
 public class EmulatedComputerImpl extends EmulatedComputer {
-	private static final Field rootMountField;
+	private static final BiConsumer<EmulatedComputer, IWritableMount> setRootMount;
 
 	static {
-		Field f;
+		setRootMount = createSetter();
+	}
 
+	private static BiConsumer<EmulatedComputer, IWritableMount> createSetter() {
+		List<Exception> errors = new ArrayList<>();
 		try {
-			f = EmulatedComputer.class.getSuperclass().getDeclaredField("m_rootMount");
-			f.setAccessible(true);
+			Field mountField = Computer.class.getDeclaredField("m_rootMount");
+			mountField.setAccessible(true);
+			return (computer, mount) -> {
+				try {
+					mountField.set(computer, mount);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					throw new RuntimeException("Failed to set root mount while building computer ID " + computer.getID(), e);
+				}
+			};
 		} catch (NoSuchFieldException | SecurityException e) {
-			f = null;
-			log.error("Failed to get computer root mount field", e);
+			errors.add(e);
 		}
 
-		rootMountField = f;
+		try {
+			Field executorField = Computer.class.getDeclaredField("executor");
+			executorField.setAccessible(true);
+
+			Field mountField = executorField.getType().getDeclaredField("rootMount");
+			mountField.setAccessible(true);
+			return (computer, mount) -> {
+				try {
+					mountField.set(executorField.get(computer), mount);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					throw new RuntimeException("Failed to set root mount while building computer ID " + computer.getID(), e);
+				}
+			};
+		} catch (NoSuchFieldException | SecurityException e) {
+			errors.add(e);
+		}
+
+		if (errors.isEmpty()) {
+			log.error("Failed to get computer root mount field");
+		} else {
+			Exception error = errors.get(0);
+			for (int i = 1; i < errors.size(); i++) error.addSuppressed(errors.get(i));
+			log.error("Failed to get computer root mount field", error);
+		}
+
+		return null;
 	}
 
 	/**
@@ -55,7 +94,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		private String label = null;
 
-		private transient boolean built = false;
+		private transient AtomicBoolean built = new AtomicBoolean();
 
 		private BuilderImpl(CCEmuX emu, EmulatedTerminal term) {
 			this.emu = emu;
@@ -107,28 +146,24 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		@Nonnull
 		@Override
 		public EmulatedComputer build() {
-			if (!built) {
-				EmulatedComputer ec = new EmulatedComputerImpl(emu, term, Optional.ofNullable(id).orElse(-1));
-				ec.assignID();
+			if (built.getAndSet(true)) throw new IllegalStateException("This computer has already been built!");
 
-				if (label != null) {
-					ec.setLabel(label);
-				}
+			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, Optional.ofNullable(id).orElse(-1));
+			ec.assignID();
 
-				try {
-					if (rootMount != null) {
-						rootMountField.set(ec, rootMount);
-					} else {
-						rootMountField.set(ec, emu.createSaveDirMount(Integer.toString(ec.getID()), 2 * 1024 * 1024));
-					}
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					throw new RuntimeException("Failed to set root mount while building computer ID " + ec.getID(), e);
-				}
+			if (label != null) ec.setLabel(label);
 
-				return ec;
-			} else {
-				throw new IllegalStateException("This computer has already been built!");
+			if (setRootMount == null) {
+				throw new RuntimeException("Failed to set root mount while building computer ID " + ec.getID() + ". No mount setter available.");
 			}
+
+			if (rootMount != null) {
+				setRootMount.accept(ec, rootMount);
+			} else {
+				setRootMount.accept(ec, emu.createSaveDirMount(Integer.toString(ec.getID()), ComputerCraft.computerSpaceLimit));
+			}
+
+			return ec;
 		}
 	}
 
@@ -195,8 +230,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 					throw new IOException("Not enough space on computer");
 				}
 
-				try (OutputStream s = mount.openForWrite(path);
-					 InputStream o = new FileInputStream(f)) {
+				try (OutputStream s = mount.openForWrite(path); InputStream o = new FileInputStream(f)) {
 					ByteStreams.copy(o, s);
 				}
 			} else {
