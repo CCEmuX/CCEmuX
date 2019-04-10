@@ -67,8 +67,8 @@ configurations {
 dependencies {
 	api project(':plugin-api')
 
-	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.8.2'
-	implementation 'org.apache.logging.log4j:log4j-core:2.8.2'
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.2'
+	implementation 'org.apache.logging.log4j:log4j-core:2.11.2'
 
 	implementation 'commons-cli:commons-cli:1.4'
 	implementation 'org.apache.commons:commons-lang3:3.6'
@@ -191,6 +191,9 @@ gradle.projectsEvaluated {
 		keep "enum ** { *; }"
 		// Keep all MBean interfaces.
 		keep "interface **MBean { public *; }"
+
+		// Log4j bundles Java 9 versions, which is great, but rather breaks Proguard
+		dontwarn 'module-info'
 
 		[
 			// Preserve all dependencies of the plugin-api
