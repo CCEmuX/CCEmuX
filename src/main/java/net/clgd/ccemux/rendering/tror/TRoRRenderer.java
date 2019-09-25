@@ -81,11 +81,11 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 						builder.append(':');
 					}
 
-					builder.append(terminal.getTextColourLine(y).m_text);
+					builder.append(terminal.getTextColourLine(y));
 					builder.append(',');
-					builder.append(terminal.getBackgroundColourLine(y).m_text);
+					builder.append(terminal.getBackgroundColourLine(y));
 					builder.append(',');
-					builder.append(terminal.getLine(y).m_text);
+					builder.append(terminal.getLine(y));
 				}
 				sendLine("TV", builder.toString());
 
