@@ -1,14 +1,11 @@
-repositories {
-	maven {
-		name = 'cc-tweaked'
-		url = "http://squiddev.cc/maven/"
-	}
+plugins {
+	id 'java-library'
+	id 'eclipse'
+	id 'maven-publish'
 }
 
 dependencies {
 	api 'org.squiddev:cc-tweaked-1.12.2:1.84.0'
-
 	api 'org.slf4j:slf4j-api:1.7.25'
-
 	api 'com.google.guava:guava:22.0'
 }

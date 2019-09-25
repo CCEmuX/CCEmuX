@@ -6,20 +6,15 @@ buildscript {
 }
 
 plugins {
-	id 'java-library'
 	id 'application'
-	id 'com.github.johnrengelman.shadow' version '2.0.1'
+	id 'com.github.johnrengelman.shadow' version '5.1.0'
 	id 'eclipse'
-	id 'idea'
+	id 'maven-publish'
 }
 
-allprojects {
-	apply plugin: 'java-library'
-	apply plugin: 'eclipse'
-	apply plugin: 'idea'
-
+allprojects { it ->
 	group = 'net.clgd'
-	version = '1.0.0'
+	version = '1.0.0' + (System.getenv("GITHUB_SHA") == null ? '' : "-${System.getenv("GITHUB_SHA")}")
 
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
@@ -31,13 +26,11 @@ allprojects {
 
 	repositories {
 		mavenCentral()
-	}
 
-	dependencies {
-		compileOnly 'org.projectlombok:lombok:1.16.20'
-		testCompileOnly 'org.projectlombok:lombok:1.16.20'
-
-		compileOnly 'com.google.auto.service:auto-service:1.0-rc3'
+		maven {
+			name = 'cc-tweaked'
+			url = "http://squiddev.cc/maven/"
+		}
 	}
 
 	gradle.projectsEvaluated {
@@ -54,18 +47,15 @@ repositories {
 		name = "cc.crzd.me"
 		url = "http://cc.crzd.me/maven"
 	}
-
-	maven {
-		name = 'cc-tweaked'
-		url = "http://squiddev.cc/maven/"
-	}
 }
 
 configurations {
 	computercraft
+	dist
 }
+
 dependencies {
-	api project(':plugin-api')
+	implementation project(':plugin-api')
 
 	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.11.2'
 	implementation 'org.apache.logging.log4j:log4j-core:2.11.2'
@@ -76,7 +66,13 @@ dependencies {
 
 	implementation 'com.google.code.gson:gson:2.8.1'
 
+	compileOnly 'org.projectlombok:lombok:1.18.10'
+	annotationProcessor 'org.projectlombok:lombok:1.18.10'
+
+	compileOnly 'com.google.auto.service:auto-service:1.0-rc6'
+
 	testCompile 'junit:junit:4.12'
+	testCompileOnly 'org.projectlombok:lombok:1.18.10'
 
 	computercraft 'dan200.computercraft:ComputerCraft:1.80pr1-build5'
 }
@@ -135,11 +131,13 @@ task computercraftJar(type: ShadowJar) {
 }
 
 task cctweakedMin(type: ProGuardTask) {
+	dependsOn(cctweakedJar)
 	injars cctweakedJar.archivePath
 	outjars "${cctweakedJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
 }
 
 task computercraftMin(type: ProGuardTask) {
+	dependsOn(computercraftJar)
 	injars computercraftJar.archivePath
 	outjars "${computercraftJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
 
@@ -211,3 +209,46 @@ runShadow { standardInput = System.in }
 
 assemble.dependsOn tasks.withType(ShadowJar)
 assemble.dependsOn tasks.withType(ProGuardTask)
+
+artifacts {
+	computercraftMin.outputs.files.each {
+		add("dist", it) {
+			builtBy computercraftMin
+			classifier "cc"
+		}
+	}
+
+	cctweakedMin.outputs.files.each {
+		add("dist", it) {
+			builtBy cctweakedMin
+			classifier "cct"
+		}
+	}
+}
+
+publishing {
+	publications {
+		dist(MavenPublication) {
+			configurations.dist.allArtifacts.each { artifact it }
+		}
+	}
+
+	repositories {
+		maven {
+			name = 'Local'
+			url = "file://${buildDir}/repo"
+		}
+
+		if(System.getenv("GITHUB_TOKEN") != null) {
+			maven {
+				name = 'GitHub'
+				url = 'https://maven.pkg.github.com/CCEmuX'
+
+				credentials {
+					username = System.getenv("GITHUB_ACTOR")
+					password = System.getenv("GITHUB_TOKEN")
+				}
+			}
+		}
+	}
+}
