@@ -9,7 +9,6 @@ plugins {
 	id 'application'
 	id 'com.github.johnrengelman.shadow' version '5.1.0'
 	id 'eclipse'
-	id 'maven-publish'
 }
 
 allprojects { it ->
@@ -51,7 +50,6 @@ repositories {
 
 configurations {
 	computercraft
-	dist
 }
 
 dependencies {
@@ -210,45 +208,3 @@ runShadow { standardInput = System.in }
 assemble.dependsOn tasks.withType(ShadowJar)
 assemble.dependsOn tasks.withType(ProGuardTask)
 
-artifacts {
-	computercraftMin.outputs.files.each {
-		add("dist", it) {
-			builtBy computercraftMin
-			classifier "cc"
-		}
-	}
-
-	cctweakedMin.outputs.files.each {
-		add("dist", it) {
-			builtBy cctweakedMin
-			classifier "cct"
-		}
-	}
-}
-
-publishing {
-	publications {
-		dist(MavenPublication) {
-			configurations.dist.allArtifacts.each { artifact it }
-		}
-	}
-
-	repositories {
-		maven {
-			name = 'Local'
-			url = "file://${buildDir}/repo"
-		}
-
-		if(System.getenv("GITHUB_TOKEN") != null) {
-			maven {
-				name = 'GitHub'
-				url = 'https://maven.pkg.github.com/CCEmuX'
-
-				credentials {
-					username = System.getenv("GITHUB_ACTOR")
-					password = System.getenv("GITHUB_TOKEN")
-				}
-			}
-		}
-	}
-}
