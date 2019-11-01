@@ -68,6 +68,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc6'
+	annotationProcessor 'com.google.auto.service:auto-service:1.0-rc6'
 
 	testCompile 'junit:junit:4.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.10'
@@ -207,4 +208,3 @@ runShadow { standardInput = System.in }
 
 assemble.dependsOn tasks.withType(ShadowJar)
 assemble.dependsOn tasks.withType(ProGuardTask)
-
