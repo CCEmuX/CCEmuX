@@ -8,6 +8,9 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.lua.ILuaContext;
@@ -16,7 +19,6 @@ import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
-import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
@@ -29,9 +31,10 @@ import net.clgd.ccemux.api.plugins.hooks.ComputerCreated;
 import net.clgd.ccemux.api.plugins.hooks.CreatingROM;
 import net.clgd.ccemux.config.LuaAdapter;
 
-@Slf4j
 @AutoService(Plugin.class)
 public class CCEmuXAPI extends Plugin {
+	private static final Logger log = LoggerFactory.getLogger(CCEmuXAPI.class);
+
 	@FunctionalInterface
 	private interface APIMethod {
 		Object[] accept(ILuaContext c, Object[] o) throws LuaException, InterruptedException;

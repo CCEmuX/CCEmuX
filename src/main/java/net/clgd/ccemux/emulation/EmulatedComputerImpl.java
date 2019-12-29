@@ -2,6 +2,7 @@ package net.clgd.ccemux.emulation;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,22 +14,24 @@ import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
  */
-@Slf4j
 public class EmulatedComputerImpl extends EmulatedComputer {
+	private static final Logger log = LoggerFactory.getLogger(EmulatedComputerImpl.class);
+
 	private static final BiConsumer<EmulatedComputer, IWritableMount> setRootMount;
 
 	static {
@@ -177,11 +180,6 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	/**
-	 * The terminal that this computer draws to
-	 */
-	private final EmulatedTerminal terminal;
-
-	/**
 	 * The emulator this computer belongs to
 	 */
 	private final CCEmuX emulator;
@@ -190,7 +188,6 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id) {
 		super(emulator, terminal, id);
-		this.terminal = terminal;
 		this.emulator = emulator;
 	}
 
@@ -219,11 +216,11 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	@Override
 	@SuppressWarnings("deprecation")
 	public void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException {
-		val mount = this.getRootMount();
-		val base = Paths.get(location);
+		IWritableMount mount = this.getRootMount();
+		Path base = Paths.get(location);
 
-		for (val f : files) {
-			val path = base.resolve(f.getName()).toString();
+		for (File f : files) {
+			String path = base.resolve(f.getName()).toString();
 
 			if (f.isFile()) {
 				if (f.length() > mount.getRemainingSpace()) {

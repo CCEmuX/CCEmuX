@@ -2,18 +2,20 @@ package net.clgd.ccemux.rendering.javafx;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.awt.Rectangle;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Value;
-import lombok.val;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 
 @Value
@@ -48,11 +50,11 @@ public class JFXTerminalFont extends TerminalFont {
 	}
 
 	public Image generateCharImage(char c, Color color) {
-		val coords = getCharCoords(c);
-		val out = new WritableImage(coords.width, coords.height);
+		Rectangle coords = getCharCoords(c);
+		WritableImage out = new WritableImage(coords.width, coords.height);
 
-		val reader = base.getPixelReader();
-		val writer = out.getPixelWriter();
+		PixelReader reader = base.getPixelReader();
+		PixelWriter writer = out.getPixelWriter();
 
 		// TODO: probably faster to use a PixelFormat
 		for (int x = 0; x < coords.width; x++) {
@@ -68,8 +70,7 @@ public class JFXTerminalFont extends TerminalFont {
 	}
 
 	public Image generateScaledCharImage(char c, Color color, double termScale) {
-		val base = generateCharImage(c, color);
-
+		Image base = generateCharImage(c, color);
 		return ImageRescaler.rescale(base, termScale / this.getHorizontalScale(), termScale / this.getVerticalScale());
 	}
 

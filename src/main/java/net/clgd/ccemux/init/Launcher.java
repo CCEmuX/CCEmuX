@@ -18,9 +18,10 @@ import javax.swing.*;
 
 import org.apache.commons.cli.*;
 import org.apache.logging.log4j.LogManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import dan200.computercraft.ComputerCraft;
-import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.api.rendering.TerminalFont;
@@ -28,8 +29,8 @@ import net.clgd.ccemux.emulation.CCEmuX;
 import net.clgd.ccemux.emulation.SessionState;
 import net.clgd.ccemux.plugins.PluginManager;
 
-@Slf4j
 public class Launcher {
+	private static final Logger log = LoggerFactory.getLogger(Launcher.class);
 	private static final Options opts = new Options();
 
 	// initialize cli options

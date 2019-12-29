@@ -11,12 +11,15 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
 
-@Slf4j
 public class SessionState {
+	private static final Logger log = LoggerFactory.getLogger(SessionState.class);
+
 	private static final Gson gson = new GsonBuilder().create();
 
 	/**

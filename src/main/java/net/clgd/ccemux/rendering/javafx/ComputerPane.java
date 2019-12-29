@@ -8,12 +8,16 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.binding.DoubleExpression;
 import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
@@ -21,16 +25,14 @@ import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 
-@Slf4j
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
+	private static final Logger log = LoggerFactory.getLogger(ComputerPane.class);
 	private static final boolean osx = OperatingSystem.get().equals(OperatingSystem.MacOSX);
 
 	/**
@@ -137,7 +139,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		}
 
 		synchronized (computer.terminal) {
-			val g = canvas.getGraphicsContext2D();
+			GraphicsContext g = canvas.getGraphicsContext2D();
 
 			// cache some important values as primitives
 			double fontScale = termScale.get();
@@ -357,7 +359,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			try {
 				computer.copyFiles(cb.getFiles(), "/");
 
-				val a = new Alert(AlertType.INFORMATION);
+				Alert a = new Alert(AlertType.INFORMATION);
 				a.setTitle("Files copied");
 				a.setHeaderText("Files copied");
 				a.setContentText("Files were successfully copied to computer ID " + computer.getID());
@@ -367,7 +369,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 			} catch (IOException e1) {
 				log.error("Error copying files {}", cb.getFiles(), e1);
 
-				val a = new Alert(AlertType.ERROR);
+				Alert a = new Alert(AlertType.ERROR);
 				a.setTitle("File copy error");
 				a.setHeaderText("File copy error");
 				a.setContentText("There was an error copying file to computer ID " + computer.getID() + ":\n"

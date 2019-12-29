@@ -6,19 +6,21 @@ import java.awt.image.RescaleOp;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import lombok.Value;
-import lombok.extern.slf4j.Slf4j;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
 import net.clgd.ccemux.api.rendering.PaletteAdapter.ColorAdapter;
 
-@Slf4j
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
+	private static final Logger log = LoggerFactory.getLogger(TerminalComponent.class);
 
 	private static final ColorAdapter<Color> AWT_COLOR_ADAPTER = (r, g, b) -> new Color((float) r, (float) g, (float) b);
 

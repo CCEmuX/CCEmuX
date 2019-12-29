@@ -12,10 +12,8 @@ import javafx.beans.value.ObservableValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
-import lombok.experimental.UtilityClass;
 import net.clgd.ccemux.api.config.ConfigProperty;
 
-@UtilityClass
 public class ConfigBindings {
 	/**
 	 * A JavaFX {@link Property} implementation that wraps a

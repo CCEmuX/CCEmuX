@@ -12,8 +12,8 @@ import javax.annotation.Nonnull;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
 import javafx.stage.Stage;
-import lombok.val;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
@@ -31,7 +31,7 @@ public class JFXRendererFactory implements RendererFactory<JFXRenderer> {
 	}
 
 	public static void startJFX() throws InterruptedException {
-		val t = new Thread(() -> Application.launch(JFXStarter.class));
+		Thread t = new Thread(() -> Application.launch(JFXStarter.class));
 		t.setDaemon(true);
 		t.start();
 
@@ -46,8 +46,8 @@ public class JFXRendererFactory implements RendererFactory<JFXRenderer> {
 				startJFX();
 			}
 
-			val termScale = doubleProperty(wrap(cfg.termScale));
-			val task = new FutureTask<>(() -> new JFXRenderer(new Stage(), computer, termScale));
+			DoubleProperty termScale = doubleProperty(wrap(cfg.termScale));
+			FutureTask<JFXRenderer> task = new FutureTask<>(() -> new JFXRenderer(new Stage(), computer, termScale));
 			Platform.runLater(task);
 
 			return task.get();

@@ -12,8 +12,6 @@ import java.util.Map;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Throwables;
-import lombok.Data;
-import lombok.val;
 import net.clgd.ccemux.emulation.CCEmuX;
 
 /**
@@ -22,12 +20,19 @@ import net.clgd.ccemux.emulation.CCEmuX;
  *
  * @author apemanzilla
  */
-@Data
-public class CrashReport {
+public final class CrashReport {
 	private final Throwable throwable;
 
+	public CrashReport(Throwable throwable) {
+		this.throwable = throwable;
+	}
+
+	public Throwable getThrowable() {
+		return throwable;
+	}
+
 	public static Map<String, String> collectInfo() {
-		val info = new LinkedHashMap<String, String>();
+		Map<String, String> info = new LinkedHashMap<>();
 
 		try {
 			info.put("CCEmuX version", MoreObjects.firstNonNull(CCEmuX.getVersion(), "unknown"));

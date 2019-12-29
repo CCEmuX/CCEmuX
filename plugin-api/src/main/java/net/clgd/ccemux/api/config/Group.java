@@ -17,6 +17,7 @@ import com.google.common.reflect.TypeToken;
 public class Group extends ConfigEntry {
 	private final String key;
 
+	@Override
 	@Nonnull
 	public String getKey() {
 		return key;
@@ -24,6 +25,7 @@ public class Group extends ConfigEntry {
 
 	private String name;
 
+	@Override
 	@Nonnull
 	public String getName() {
 		return name;

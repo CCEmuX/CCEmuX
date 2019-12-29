@@ -1,11 +1,10 @@
 package net.clgd.ccemux.rendering.javafx;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
-import lombok.experimental.UtilityClass;
-import lombok.val;
 
-@UtilityClass
 public class ImageRescaler {
 	/**
 	 * Creates a scaled copy of the given image using nearest-neighbor scaling
@@ -19,10 +18,10 @@ public class ImageRescaler {
 		int w = (int) Math.round(base.getWidth() * hscale);
 		int h = (int) Math.round(base.getHeight() * vscale);
 
-		val out = new WritableImage(w, h);
+		WritableImage out = new WritableImage(w, h);
 
-		val reader = base.getPixelReader();
-		val writer = out.getPixelWriter();
+		PixelReader reader = base.getPixelReader();
+		PixelWriter writer = out.getPixelWriter();
 
 		int nx, ny;
 

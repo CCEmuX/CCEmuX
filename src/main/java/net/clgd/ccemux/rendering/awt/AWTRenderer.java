@@ -24,10 +24,11 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.io.CharStreams;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -35,8 +36,8 @@ import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
 
-@Slf4j
 public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, WindowFocusListener {
+	private static final Logger log = LoggerFactory.getLogger(AWTRenderer.class);
 
 	public static final String EMU_WINDOW_TITLE = "CCEmuX";
 
@@ -127,18 +128,18 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			@Override
 			public void drop(DropTargetDropEvent dtde) {
 				try {
-					val flavors = dtde.getCurrentDataFlavors();
+					DataFlavor[] flavors = dtde.getCurrentDataFlavors();
 					if (Arrays.stream(flavors).anyMatch(DataFlavor::isFlavorJavaFileListType)) {
 						log.debug("Accepting file drag and drop for computer #{}", computer.getID());
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
 
 						@SuppressWarnings("unchecked")
-						val data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+						List<File> data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 						computer.copyFiles(data, "/");
 						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.",
 							"Files copied", JOptionPane.INFORMATION_MESSAGE);
 					} else if (DataFlavor.selectBestTextFlavor(flavors) != null) {
-						val f = DataFlavor.selectBestTextFlavor(flavors);
+						DataFlavor f = DataFlavor.selectBestTextFlavor(flavors);
 
 						log.debug("Accepting text drag and drop for computer #{}", computer.getID());
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
@@ -153,7 +154,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 			}
 
 			private void handleDragEvent(DropTargetDragEvent dtde) {
-				val flavors = dtde.getCurrentDataFlavorsAsList();
+				List<DataFlavor> flavors = dtde.getCurrentDataFlavorsAsList();
 				if (flavors.stream().anyMatch(f -> f.isFlavorJavaFileListType() || f.isFlavorTextType())) {
 					dtde.acceptDrag(DnDConstants.ACTION_COPY);
 				}

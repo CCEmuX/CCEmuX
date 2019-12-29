@@ -6,9 +6,10 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
@@ -22,9 +23,10 @@ import net.clgd.ccemux.api.plugins.hooks.*;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 
-@Slf4j
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated, ComputerRemoved,
 	InitializationCompleted, RendererCreated, Tick, net.clgd.ccemux.api.plugins.PluginManager {
+	private static final Logger log = LoggerFactory.getLogger(PluginManager.class);
+
 	private static class PluginCandidate {
 		final Plugin plugin;
 		final ConfigProperty<Boolean> enabled;
@@ -62,7 +64,7 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 
 	public void gatherEnabled() {
 		for (PluginCandidate candidate : candidates) {
-			val source = candidate.plugin.getSource().map(File::getAbsolutePath).orElse("(unknown)");
+			String source = candidate.plugin.getSource().map(File::getAbsolutePath).orElse("(unknown)");
 			if (candidate.enabled.get()) {
 				enabled.add(candidate.plugin);
 				log.info("Loaded plugin [{}] from {}", candidate.plugin, source);

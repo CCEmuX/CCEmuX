@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
+import java.util.Optional;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,7 +14,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import lombok.val;
 import net.clgd.ccemux.api.config.ConfigEntry;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
@@ -150,7 +150,7 @@ public class ConfigView extends JFrame {
 		scrollBody.removeAll();
 
 		int row = 0;
-		for (val entry : configGroup.children()) {
+		for (ConfigEntry entry : configGroup.children()) {
 			if (entry instanceof ConfigProperty) {
 				GridBagConstraints labelConstraints = new GridBagConstraints();
 				labelConstraints.gridx = 0;
@@ -163,7 +163,7 @@ public class ConfigView extends JFrame {
 				scrollBody.add(label, labelConstraints);
 
 				ConfigProperty property = (ConfigProperty) entry;
-				val component = TypedComponentProvider.instance().fromProperty(property);
+				Optional<JComponent> component = TypedComponentProvider.instance().fromProperty(property);
 				if (component.isPresent()) {
 					GridBagConstraints componentConstraints = new GridBagConstraints();
 					componentConstraints.gridx = 1;

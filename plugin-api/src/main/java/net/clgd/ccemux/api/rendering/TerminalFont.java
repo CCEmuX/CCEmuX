@@ -153,7 +153,7 @@ public abstract class TerminalFont {
 	 */
 	@Nonnull
 	public Rectangle getCharCoords(char c) {
-		int charcode = (int) c;
+		int charcode = c;
 		return new Rectangle(margin + charcode % COLUMNS * (getCharWidth() + margin * 2), margin + charcode / ROWS * (getCharHeight() + margin * 2), getCharWidth(), getCharHeight());
 	}
 

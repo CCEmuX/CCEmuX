@@ -63,11 +63,13 @@ public class WirelessModemPeripheral implements Peripheral {
 		}
 	}
 
+	@Override
 	@Nonnull
 	public String getType() {
 		return "modem";
 	}
 
+	@Override
 	@Nonnull
 	public String[] getMethodNames() {
 		return new String[] {
@@ -89,6 +91,7 @@ public class WirelessModemPeripheral implements Peripheral {
 		}
 	}
 
+	@Override
 	public Object[] callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException {
 		switch (method) {
 			case 0: { // open
@@ -166,6 +169,7 @@ public class WirelessModemPeripheral implements Peripheral {
 		}
 	}
 
+	@Override
 	public synchronized void attach(@Nonnull IComputerAccess computer) {
 		this.computer = computer;
 		open = !channels.isEmpty();
@@ -174,6 +178,7 @@ public class WirelessModemPeripheral implements Peripheral {
 		}
 	}
 
+	@Override
 	public synchronized void detach(@Nonnull IComputerAccess computer) {
 		synchronized (modems) {
 			modems.remove(this);

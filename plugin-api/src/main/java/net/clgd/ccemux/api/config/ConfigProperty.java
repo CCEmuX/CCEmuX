@@ -22,6 +22,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 
 	private final String key;
 
+	@Override
 	@Nonnull
 	public String getKey() {
 		return key;
@@ -29,6 +30,7 @@ public class ConfigProperty<T> extends ConfigEntry {
 
 	private String name;
 
+	@Override
 	@Nonnull
 	public String getName() {
 		return name;

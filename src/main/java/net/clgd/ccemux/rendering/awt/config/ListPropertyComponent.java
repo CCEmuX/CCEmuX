@@ -10,7 +10,6 @@ import javax.accessibility.Accessible;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
-import lombok.val;
 import net.clgd.ccemux.rendering.awt.config.TypedComponentProvider.Factory;
 
 public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T>, ListPropertyComponent.Entry> implements Accessible {
@@ -29,11 +28,12 @@ public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T
 		this.factory = factory.getFactory(type).orElse(null);
 		this.defaultValue = factory.getDefault(type).orElse(null);
 
-		for (val mapEntry : value) {
+		for (T mapEntry : value) {
 			addEntry(new Entry(mapEntry));
 		}
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	protected void addEntry(Entry entry) {
 		super.addEntry(entry);
@@ -72,7 +72,7 @@ public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T
 	@SuppressWarnings("unchecked")
 	protected List<T> toValue(List<Entry> entries) {
 		List<T> result = new ArrayList<>(entries.size());
-		for (val entry : entries) result.add((T) entry.value);
+		for (Entry entry : entries) result.add((T) entry.value);
 		return result;
 	}
 

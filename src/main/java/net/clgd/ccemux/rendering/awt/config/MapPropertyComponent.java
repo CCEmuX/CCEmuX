@@ -11,7 +11,6 @@ import javax.accessibility.Accessible;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
-import lombok.val;
 import net.clgd.ccemux.rendering.awt.config.TypedComponentProvider.Factory;
 
 public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<K, V>, MapPropertyComponent.Entry> implements Accessible {
@@ -33,11 +32,12 @@ public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<
 		this.keyDefault = factory.getDefault(keyType).orElse(null);
 		this.valueDefault = factory.getDefault(valueType).orElse(null);
 
-		for (val mapEntry : value.entrySet()) {
+		for (Map.Entry<K, V> mapEntry : value.entrySet()) {
 			addEntry(new Entry(mapEntry.getKey(), mapEntry.getValue()));
 		}
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	protected void addEntry(Entry entry) {
 		super.addEntry(entry);
@@ -84,7 +84,7 @@ public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<
 	@SuppressWarnings("unchecked")
 	protected Map<K, V> toValue(List<Entry> entries) {
 		Map<K, V> result = new LinkedHashMap<>(entries.size());
-		for (val entry : entries) result.put((K) entry.key, (V) entry.value);
+		for (Entry entry : entries) result.put((K) entry.key, (V) entry.value);
 		return result;
 	}
 

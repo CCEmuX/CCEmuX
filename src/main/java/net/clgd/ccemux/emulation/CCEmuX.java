@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.api.filesystem.IWritableMount;
@@ -21,8 +24,6 @@ import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
@@ -34,12 +35,13 @@ import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.plugins.PluginManager;
 
-@Slf4j
 @RequiredArgsConstructor
 public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
+	private static final Logger log = LoggerFactory.getLogger(CCEmuX.class);
+
 	public static String getVersion() {
-		try (val s = CCEmuX.class.getResourceAsStream("/ccemux.version")) {
-			val props = new Properties();
+		try (InputStream s = CCEmuX.class.getResourceAsStream("/ccemux.version")) {
+			Properties props = new Properties();
 			props.load(s);
 			return props.getProperty("version");
 		} catch (IOException e) {
@@ -96,6 +98,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 * @return The new computer
 	 * @see #createComputer(Consumer)
 	 */
+	@Override
 	@Nonnull
 	public EmulatedComputer createComputer() {
 		return createComputer(b -> {
@@ -111,15 +114,16 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 	 * @param builderMutator Will be called after plugin hooks with the builder
 	 * @return The new computer
 	 */
+	@Override
 	@Nonnull
 	public EmulatedComputer createComputer(@Nonnull Consumer<EmulatedComputer.Builder> builderMutator) {
-		val term = new EmulatedTerminal(cfg.termWidth.get(), cfg.termHeight.get());
-		val builder = EmulatedComputerImpl.builder(this, term).id(-1);
+		EmulatedTerminal term = new EmulatedTerminal(cfg.termWidth.get(), cfg.termHeight.get());
+		EmulatedComputer.Builder builder = EmulatedComputerImpl.builder(this, term).id(-1);
 
 		pluginMgr.onCreatingComputer(this, builder);
 		builderMutator.accept(builder);
 
-		val computer = builder.build();
+		EmulatedComputer computer = builder.build();
 
 		pluginMgr.onComputerCreated(this, computer);
 
@@ -146,6 +150,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		sessionStateChanged();
 	}
 
+	@Override
 	public boolean removeComputer(@Nonnull EmulatedComputer computer) {
 		synchronized (computers) {
 			try {
@@ -230,10 +235,12 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		started = -1;
 	}
 
+	@Override
 	public boolean isRunning() {
 		return running;
 	}
 
+	@Override
 	public void stop() {
 		running = false;
 	}

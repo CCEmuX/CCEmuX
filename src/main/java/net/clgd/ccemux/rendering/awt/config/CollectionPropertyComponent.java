@@ -10,8 +10,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import lombok.val;
-
 public abstract class CollectionPropertyComponent<T, TEntry extends CollectionPropertyEntry> extends JComponent {
 	private static final long serialVersionUID = 2221453079243528113L;
 
@@ -29,27 +27,26 @@ public abstract class CollectionPropertyComponent<T, TEntry extends CollectionPr
 		// We create a child grid view as otherwise the add button
 		// gets all messed up when moving elements around.
 		{
-			val constraints = new GridBagConstraints();
+			GridBagConstraints constraints = new GridBagConstraints();
 			constraints.gridx = 0;
 			constraints.gridy = 0;
 			constraints.weightx = 1;
 			constraints.weighty = 1;
 			constraints.fill = GridBagConstraints.BOTH;
 
-			GridBagLayout layout;
-			components = new JPanel(layout = new GridBagLayout());
+			components = new JPanel(new GridBagLayout());
 			SwingHelpers.hideBackground(components);
 			add(components, constraints);
 		}
 
 		{
-			val constraints = new GridBagConstraints();
+			GridBagConstraints constraints = new GridBagConstraints();
 			constraints.gridx = 0;
 			constraints.gridy = 1;
 			constraints.insets = SwingHelpers.SMALL_PADDING;
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 
-			val addButton = new JButton("Add");
+			JButton addButton = new JButton("Add");
 			addButton.setToolTipText("Add a new entry");
 			addButton.addActionListener(e -> {
 				addEntry(createBlank());

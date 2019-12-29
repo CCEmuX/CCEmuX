@@ -12,7 +12,6 @@ import javax.swing.event.DocumentListener;
 import com.google.common.primitives.*;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonPrimitive;
-import lombok.val;
 import net.clgd.ccemux.api.config.ConfigProperty;
 
 public class TypedComponentProvider {
@@ -72,28 +71,28 @@ public class TypedComponentProvider {
 	@SuppressWarnings("unchecked")
 	public TypedComponentProvider() {
 		register(int.class, 0, (value, callback, ty) -> {
-			val model = new SpinnerNumberModel((int) value, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
-			val spinner = new JSpinner(model);
+			SpinnerNumberModel model = new SpinnerNumberModel((int) value, Integer.MIN_VALUE, Integer.MAX_VALUE, 1);
+			JSpinner spinner = new JSpinner(model);
 			spinner.addChangeListener(e -> callback.accept(model.getNumber().intValue()));
 			return spinner;
 		});
 
 		register(long.class, 0L, (value, callback, ty) -> {
-			val model = new SpinnerNumberModel((long) value, Long.MIN_VALUE, Long.MAX_VALUE, 1);
-			val spinner = new JSpinner(model);
+			SpinnerNumberModel model = new SpinnerNumberModel((long) value, Long.MIN_VALUE, Long.MAX_VALUE, 1);
+			JSpinner spinner = new JSpinner(model);
 			spinner.addChangeListener(e -> callback.accept(model.getNumber().longValue()));
 			return spinner;
 		});
 
 		register(double.class, 0d, (value, callback, ty) -> {
-			val model = new SpinnerNumberModel(value, null, null, 1);
-			val spinner = new JSpinner(model);
+			SpinnerNumberModel model = new SpinnerNumberModel(value, null, null, 1);
+			JSpinner spinner = new JSpinner(model);
 			spinner.addChangeListener(e -> callback.accept(model.getNumber().doubleValue()));
 			return spinner;
 		});
 
 		register(boolean.class, false, (value, callback, ty) -> {
-			val checkbox = new JCheckBox();
+			JCheckBox checkbox = new JCheckBox();
 			checkbox.getModel().setSelected(value);
 			checkbox.setBackground(null);
 			checkbox.addItemListener(e -> callback.accept(checkbox.getModel().isSelected()));
@@ -101,14 +100,14 @@ public class TypedComponentProvider {
 		});
 
 		register(String.class, "", (value, callback, ty) -> {
-			val text = new JTextField();
+			JTextField text = new JTextField();
 			text.setText(value);
 			text.getDocument().addDocumentListener(new ChangeListener(() -> callback.accept(text.getText())));
 			return text;
 		});
 
 		register(JsonPrimitive.class, new JsonPrimitive(""), (value, callback, ty) -> {
-			val text = new JTextField();
+			JTextField text = new JTextField();
 			text.setText(value == null ? "" : value.getAsString());
 			text.getDocument().addDocumentListener(new ChangeListener(() ->
 				callback.accept(new JsonPrimitive(text.getText()))));

@@ -7,15 +7,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.annotation.Nonnull;
+
 import com.google.gson.*;
 import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.core.apis.AddressPredicate;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.config.JsonAdapter;
 
-@EqualsAndHashCode(callSuper = true)
 public class UserConfig extends EmuConfig {
 	public static final String CONFIG_FILE_NAME = "ccemux.json";
 
@@ -23,7 +22,6 @@ public class UserConfig extends EmuConfig {
 
 	private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-	@Getter
 	private final Path dataDir;
 
 	private final JsonAdapter adapter;
@@ -34,6 +32,13 @@ public class UserConfig extends EmuConfig {
 		getRoot().setName("CCEmuX Config");
 	}
 
+	@Nonnull
+	@Override
+	public Path getDataDir() {
+		return dataDir;
+	}
+
+	@Override
 	public void load() throws IOException {
 		Path configPath = dataDir.resolve(CONFIG_FILE_NAME);
 		if (Files.exists(configPath)) {
@@ -48,6 +53,7 @@ public class UserConfig extends EmuConfig {
 		}
 	}
 
+	@Override
 	public void save() throws IOException {
 		try (Writer writer = Files.newBufferedWriter(dataDir.resolve(CONFIG_FILE_NAME), StandardCharsets.UTF_8)) {
 			gson.toJson(adapter.toJson(), writer);
