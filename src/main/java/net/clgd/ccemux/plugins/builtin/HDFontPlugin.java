@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.google.auto.service.AutoService;
-
 import net.clgd.ccemux.api.plugins.Plugin;
 import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.api.rendering.TerminalFont;
@@ -42,7 +41,7 @@ public class HDFontPlugin extends Plugin {
 	@Override
 	public Optional<String> getWebsite() {
 		return Optional
-				.of("http://www.computercraft.info/forums2/index.php?/topic/25429-cc-176-enlarged-terminal-font/");
+			.of("http://www.computercraft.info/forums2/index.php?/topic/25429-cc-176-enlarged-terminal-font/");
 	}
 
 	@Override

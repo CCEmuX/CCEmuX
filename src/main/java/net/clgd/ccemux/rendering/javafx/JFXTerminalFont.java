@@ -32,7 +32,7 @@ public class JFXTerminalFont extends TerminalFont {
 	}
 
 	private final Cache<CharImageRequest, Image> charCache = CacheBuilder.newBuilder().expireAfterAccess(30, SECONDS)
-			.maximumSize(1000).initialCapacity(200).build();
+		.maximumSize(1000).initialCapacity(200).build();
 
 	public JFXTerminalFont(Image base) {
 		super(base.widthProperty().intValue(), base.heightProperty().intValue());
@@ -60,7 +60,7 @@ public class JFXTerminalFont extends TerminalFont {
 				Color oc = reader.getColor(coords.x + x, coords.y + y);
 
 				writer.setColor(x, y, Color.color(oc.getRed() * color.getRed(), oc.getGreen() * color.getGreen(),
-						oc.getBlue() * color.getBlue(), oc.getOpacity()));
+					oc.getBlue() * color.getBlue(), oc.getOpacity()));
 			}
 		}
 

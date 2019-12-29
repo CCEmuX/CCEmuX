@@ -7,7 +7,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import com.google.auto.service.AutoService;
-
 import net.clgd.ccemux.api.plugins.Plugin;
 import net.clgd.ccemux.api.plugins.PluginManager;
 import net.clgd.ccemux.rendering.tror.TRoRRenderer;

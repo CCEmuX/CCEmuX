@@ -1,9 +1,7 @@
 package net.clgd.ccemux.rendering.javafx;
 
 import static com.google.common.primitives.Ints.constrainToRange;
-import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_HEIGHT;
-import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_WIDTH;
-import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_MARGIN;
+import static net.clgd.ccemux.api.rendering.TerminalFont.*;
 
 import java.awt.Point;
 import java.io.IOException;
@@ -19,13 +17,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;

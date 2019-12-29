@@ -72,7 +72,7 @@ public class VirtualMount implements IMount {
 		while (true) {
 			int nextIndex = path.indexOf('/', lastIndex);
 			if (!(current instanceof VirtualDirectory)) return null;
-			if(nextIndex == -1) {
+			if (nextIndex == -1) {
 				return ((VirtualDirectory) current).getEntry(path.substring(lastIndex));
 			} else {
 				current = ((VirtualDirectory) current).getEntry(path.substring(lastIndex, nextIndex));

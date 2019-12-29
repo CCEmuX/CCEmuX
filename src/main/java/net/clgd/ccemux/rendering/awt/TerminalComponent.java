@@ -1,13 +1,6 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
 import java.util.concurrent.ExecutionException;
@@ -47,7 +40,7 @@ class TerminalComponent extends Canvas {
 	}
 
 	private final Cache<CharImageRequest, BufferedImage> charImgCache = CacheBuilder.newBuilder()
-			.expireAfterAccess(10, TimeUnit.SECONDS).build();
+		.expireAfterAccess(10, TimeUnit.SECONDS).build();
 
 	public TerminalComponent(Terminal terminal, double termScale) {
 		this.pixelWidth = (int) (6 * termScale);
@@ -86,7 +79,7 @@ class TerminalComponent extends Canvas {
 				RescaleOp rop = new RescaleOp(rgb, zero, null);
 
 				GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-						.getDefaultConfiguration();
+					.getDefaultConfiguration();
 
 				BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.width, r.height);
 				BufferedImage pixel = gc.createCompatibleImage(r.width, r.height, Transparency.TRANSLUCENT);
@@ -129,7 +122,7 @@ class TerminalComponent extends Canvas {
 					char fgChar = (fgLine == null) ? ' ' : fgLine.charAt(x);
 
 					drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin,
-							Utils.base16ToInt(fgChar));
+						Utils.base16ToInt(fgChar));
 
 					dx += width;
 				}
@@ -142,7 +135,7 @@ class TerminalComponent extends Canvas {
 
 			if (blink) {
 				drawChar(font, g, cursorChar, terminal.getCursorX() * pixelWidth + margin,
-						terminal.getCursorY() * pixelHeight + margin, terminal.getTextColour());
+					terminal.getCursorY() * pixelHeight + margin, terminal.getTextColour());
 			}
 
 			g.dispose();

@@ -9,7 +9,6 @@ import javax.annotation.Nonnull;
 import javax.swing.JFrame;
 
 import com.google.auto.service.AutoService;
-
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmuConfig;
@@ -94,8 +93,8 @@ public class AWTPlugin extends Plugin {
 
 		AWTConfig(Group group) {
 			nativePaste = group.property("nativePaste", boolean.class, false)
-					.setName("Use native paste")
-					.setDescription("Listen to native paste events instead of Ctrl+V.");
+				.setName("Use native paste")
+				.setDescription("Listen to native paste events instead of Ctrl+V.");
 		}
 	}
 }

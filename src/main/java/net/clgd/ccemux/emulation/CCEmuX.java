@@ -1,8 +1,8 @@
 package net.clgd.ccemux.emulation;
 
 import java.io.*;
-import java.nio.file.FileSystem;
-import java.nio.file.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;

@@ -20,9 +20,9 @@ public class JsonAdapter {
 	private static final Logger log = LoggerFactory.getLogger(JsonAdapter.class);
 
 	private static final Gson defaultGson = new GsonBuilder()
-			.setPrettyPrinting()
-			.setLenient()
-			.create();
+		.setPrettyPrinting()
+		.setLenient()
+		.create();
 
 	private final Gson gson;
 	private final Config config;

@@ -2,30 +2,16 @@ package net.clgd.ccemux.rendering.awt.config;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import com.google.common.primitives.Booleans;
-import com.google.common.primitives.Doubles;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
-import com.google.common.primitives.Primitives;
+import com.google.common.primitives.*;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonPrimitive;
-
 import lombok.val;
 import net.clgd.ccemux.api.config.ConfigProperty;
 
@@ -76,7 +62,7 @@ public class TypedComponentProvider {
 	@SuppressWarnings("unchecked")
 	public Optional<JComponent> fromProperty(ConfigProperty property) {
 		return getFactory(property.getType())
-				.map((Factory x) -> x.create(property.get(), property::set, property.getType()));
+			.map((Factory x) -> x.create(property.get(), property::set, property.getType()));
 	}
 
 	public static TypedComponentProvider instance() {
@@ -125,7 +111,7 @@ public class TypedComponentProvider {
 			val text = new JTextField();
 			text.setText(value == null ? "" : value.getAsString());
 			text.getDocument().addDocumentListener(new ChangeListener(() ->
-					callback.accept(new JsonPrimitive(text.getText()))));
+				callback.accept(new JsonPrimitive(text.getText()))));
 			return text;
 		});
 
@@ -144,19 +130,19 @@ public class TypedComponentProvider {
 		});
 
 		register(int[].class, new int[0], (value, callback, ty) ->
-				new ListPropertyComponent<>(Ints.asList(value), c -> callback.accept(Ints.toArray(c)), this, Integer.class));
+			new ListPropertyComponent<>(Ints.asList(value), c -> callback.accept(Ints.toArray(c)), this, Integer.class));
 
 		register(long[].class, new long[0], (value, callback, ty) ->
-				new ListPropertyComponent<>(Longs.asList(value), c -> callback.accept(Longs.toArray(c)), this, Long.class));
+			new ListPropertyComponent<>(Longs.asList(value), c -> callback.accept(Longs.toArray(c)), this, Long.class));
 
 		register(double[].class, new double[0], (value, callback, ty) ->
-				new ListPropertyComponent<>(Doubles.asList(value), c -> callback.accept(Doubles.toArray(c)), this, Double.class));
+			new ListPropertyComponent<>(Doubles.asList(value), c -> callback.accept(Doubles.toArray(c)), this, Double.class));
 
 		register(boolean[].class, new boolean[0], (value, callback, ty) ->
-				new ListPropertyComponent<>(Booleans.asList(value), c -> callback.accept(Booleans.toArray(c)), this, Booleans.class));
+			new ListPropertyComponent<>(Booleans.asList(value), c -> callback.accept(Booleans.toArray(c)), this, Booleans.class));
 
 		register(String[].class, new String[0], (value, callback, ty) ->
-				new ListPropertyComponent<>(Arrays.asList(value), c -> callback.accept(c.toArray(new String[c.size()])), this, String.class));
+			new ListPropertyComponent<>(Arrays.asList(value), c -> callback.accept(c.toArray(new String[c.size()])), this, String.class));
 	}
 
 	private static class ChangeListener implements DocumentListener {

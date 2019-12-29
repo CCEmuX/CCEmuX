@@ -19,27 +19,27 @@ public class InputProvider {
 	public InputProvider(InputStream stream) {
 		thread = new Thread(() -> {
 			try (Scanner scanner = new Scanner(stream, "UTF-8")) {
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				int metaStart = line.indexOf(':');
-				int metaEnd = line.indexOf(';');
+				while (scanner.hasNextLine()) {
+					String line = scanner.nextLine();
+					int metaStart = line.indexOf(':');
+					int metaEnd = line.indexOf(';');
 
-				if (metaStart < 0 || metaEnd < 0 || metaEnd < metaStart) continue;
+					if (metaStart < 0 || metaEnd < 0 || metaEnd < metaStart) continue;
 
-				String code = line.substring(0, metaStart);
-				String meta = line.substring(metaStart + 1, metaEnd);
-				String payload = line.substring(metaEnd + 1);
+					String code = line.substring(0, metaStart);
+					String meta = line.substring(metaStart + 1, metaEnd);
+					String payload = line.substring(metaEnd + 1);
 
-				int computer;
-				try {
-					computer = Integer.parseInt(meta);
-				} catch (NumberFormatException e) {
-					e.printStackTrace();
-					continue;
+					int computer;
+					try {
+						computer = Integer.parseInt(meta);
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+						continue;
+					}
+
+					getQueue(computer).add(new InputPacket(code, payload));
 				}
-
-				getQueue(computer).add(new InputPacket(code, payload));
-			}
 			}
 		});
 		thread.setName("TRoR input provider");

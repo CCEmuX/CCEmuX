@@ -1,26 +1,11 @@
 package net.clgd.ccemux.rendering.awt.config;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.JTree;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.ToolTipManager;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.EventListenerList;
 import javax.swing.event.TreeModelListener;
@@ -132,8 +117,8 @@ public class ConfigView extends JFrame {
 						config.save();
 					} catch (IOException e) {
 						JOptionPane.showMessageDialog(ConfigView.this,
-								"Cannot save config file: " + e.getMessage(),
-								"Error saving config", JOptionPane.ERROR_MESSAGE);
+							"Cannot save config file: " + e.getMessage(),
+							"Error saving config", JOptionPane.ERROR_MESSAGE);
 					}
 				}
 
@@ -301,8 +286,8 @@ public class ConfigView extends JFrame {
 
 		@Override
 		public Component getTreeCellRendererComponent(
-				JTree tree, Object value,
-				boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus
+			JTree tree, Object value,
+			boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus
 		) {
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 			setIcon(null);

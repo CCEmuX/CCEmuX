@@ -41,6 +41,7 @@ public final class VirtualDirectory extends VirtualMountEntry {
 				.map(x -> x.getFileName().toString())
 				.collect(Collectors.joining("/")), entry);
 		}
+
 		/**
 		 * Adds an entry to the directory being built, creating directories and
 		 * overwriting existing entries as necessary.

@@ -24,7 +24,7 @@ import net.clgd.ccemux.api.rendering.RendererFactory;
 
 @Slf4j
 public class PluginManager implements Closing, CreatingComputer, CreatingROM, ComputerCreated, ComputerRemoved,
-		InitializationCompleted, RendererCreated, Tick, net.clgd.ccemux.api.plugins.PluginManager {
+	InitializationCompleted, RendererCreated, Tick, net.clgd.ccemux.api.plugins.PluginManager {
 	private static class PluginCandidate {
 		final Plugin plugin;
 		final ConfigProperty<Boolean> enabled;
@@ -48,13 +48,13 @@ public class PluginManager implements Closing, CreatingComputer, CreatingROM, Co
 
 	public void gatherCandidates(ClassLoader loader) {
 		Group cfgPlugins = cfg.group("plugins").setName("Plugins")
-				.setDescription("Config options for the various plugins");
+			.setDescription("Config options for the various plugins");
 		for (Plugin candidate : ServiceLoader.load(Plugin.class, loader)) {
 			Group cfgCandidate = cfgPlugins.group(candidate.getClass().getName()).setName(candidate.getName())
-					.setDescription(candidate.getDescription());
+				.setDescription(candidate.getDescription());
 
 			candidates.add(new PluginCandidate(candidate,
-					cfgCandidate.property("enabled", Boolean.class, true).setName("Enabled")));
+				cfgCandidate.property("enabled", Boolean.class, true).setName("Enabled")));
 
 			candidate.configSetup(cfgCandidate);
 		}

@@ -22,8 +22,8 @@ public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<
 	private final Object keyDefault, valueDefault;
 
 	public MapPropertyComponent(
-			Map<K, V> value, Consumer<Map<K, V>> valueChanged,
-			TypedComponentProvider factory, Type keyType, Type valueType
+		Map<K, V> value, Consumer<Map<K, V>> valueChanged,
+		TypedComponentProvider factory, Type keyType, Type valueType
 	) {
 		super(valueChanged);
 		this.keyType = keyType;

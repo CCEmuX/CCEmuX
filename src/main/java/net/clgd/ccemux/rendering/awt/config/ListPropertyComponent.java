@@ -21,8 +21,8 @@ public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T
 	private final Object defaultValue;
 
 	public ListPropertyComponent(
-			List<T> value, Consumer<List<T>> valueChanged,
-			TypedComponentProvider factory, Type type
+		List<T> value, Consumer<List<T>> valueChanged,
+		TypedComponentProvider factory, Type type
 	) {
 		super(valueChanged);
 		this.type = type;
