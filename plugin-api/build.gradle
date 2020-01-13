@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-	api 'org.squiddev:cc-tweaked-1.12.2:1.86.0'
+	api 'org.squiddev:cc-tweaked-1.12.2:1.86.1'
 	api 'org.slf4j:slf4j-api:1.7.25'
 	api 'com.google.guava:guava:22.0'
 }
