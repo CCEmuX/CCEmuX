@@ -11,8 +11,8 @@ import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.swing.*;
 
@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.filesystem.FileMount;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.api.rendering.TerminalFont;
@@ -41,6 +42,14 @@ public class Launcher {
 			.desc("Sets the data directory where plugins, configs, and other data are stored.").hasArg()
 			.argName("path").build());
 
+		opts.addOption(builder("C").longOpt("computers-dir")
+			.desc("Sets the directory where computer files are stored").hasArg()
+			.argName("path").build());
+
+		opts.addOption(builder("c").longOpt("start-dir")
+			.desc("Start a computer whose root is this directory").hasArg()
+			.argName("path").build());
+
 		opts.addOption(builder("r").longOpt("renderer")
 			.desc("Sets the renderer to use. Run without a value to list all available renderers.").hasArg()
 			.optionalArg(true).argName("renderer").build());
@@ -55,25 +64,16 @@ public class Launcher {
 	}
 
 	public static void main(String args[]) {
-		new Launcher(args).launch();
-		System.exit(0);
-	}
-
-	private final CommandLine cli;
-	private final Path dataDir;
-
-	private Launcher(String args[]) {
 		// parse cli options
-		CommandLine _cli = null;
+		CommandLine cli;
 		try {
-			_cli = new DefaultParser().parse(opts, args);
+			cli = new DefaultParser().parse(opts, args);
 		} catch (ParseException e) {
 			System.err.println(e.getLocalizedMessage());
 			printHelp();
 			System.exit(1);
+			return;
 		}
-
-		cli = _cli;
 
 		if (cli.hasOption('h')) {
 			printHelp();
@@ -81,15 +81,44 @@ public class Launcher {
 		}
 
 		log.info("Starting CCEmuX");
-		log.debug("ClassLoader in use: {}", this.getClass().getClassLoader().getClass().getName());
+		log.debug("ClassLoader in use: {}", Launcher.class.getClassLoader().getClass().getName());
 
-		// set data dir
-		if (cli.hasOption('d')) {
-			dataDir = Paths.get(cli.getOptionValue('d'));
-		} else {
-			dataDir = OperatingSystem.get().getAppDataDir().resolve("ccemux");
-		}
-		log.info("Data directory is {}", dataDir.toString());
+		// Parse options
+		Path dataDir = cli.hasOption("data-dir")
+			? Paths.get(cli.getOptionValue("data-dir"))
+			: OperatingSystem.get().getAppDataDir().resolve("ccemux");
+
+		Path computerDir = cli.hasOption('C') ? Paths.get(cli.getOptionValue('C')) : dataDir.resolve("computer");
+
+		List<Path> startIn = cli.hasOption("start-dir")
+			? Arrays.stream(cli.getOptionValues("start-dir")).map(Paths::get).collect(Collectors.toList())
+			: Collections.emptyList();
+
+		List<Path> plugins = cli.hasOption("plugin")
+			? Arrays.stream(cli.getOptionValues("plugin")).map(Paths::get).collect(Collectors.toList())
+			: Collections.emptyList();
+
+		boolean listRenderers = cli.hasOption('r') && cli.getOptionValue('r') == null;
+		String renderer = cli.getOptionValue('r');
+
+		new Launcher(dataDir, computerDir, startIn, listRenderers, renderer, plugins).launch();
+		System.exit(0);
+	}
+
+	private final Path dataDir;
+	private final Path computerDir;
+	private final List<Path> startDirs;
+	private final boolean listRenderers;
+	private final String renderer;
+	private final List<Path> plugins;
+
+	public Launcher(Path dataDir, Path computerDir, List<Path> startDirs, boolean listRenderers, String renderer, List<Path> plugins) {
+		this.dataDir = dataDir;
+		this.computerDir = computerDir;
+		this.startDirs = startDirs;
+		this.listRenderers = listRenderers;
+		this.renderer = renderer;
+		this.plugins = plugins;
 	}
 
 	private void crashMessage(Throwable e) {
@@ -147,15 +176,13 @@ public class Launcher {
 			}
 		}
 
-		if (cli.hasOption("plugin")) {
-			for (String s : cli.getOptionValues("plugin")) {
-				File f = Paths.get(s).toFile();
-				log.debug("Adding external plugin source '{}'", f.getName());
-				try {
-					urls.add(f.toURI().toURL());
-				} catch (MalformedURLException e) {
-					log.warn("Failed to add plugin source '{}'", f.getName());
-				}
+		for (Path plugin : plugins) {
+			File f = plugin.toFile();
+			log.debug("Adding external plugin source '{}'", f.getName());
+			try {
+				urls.add(f.toURI().toURL());
+			} catch (MalformedURLException e) {
+				log.warn("Failed to add plugin source '{}'", f.getName());
 			}
 		}
 
@@ -176,18 +203,21 @@ public class Launcher {
 	}
 
 	private void launch() {
+		log.info("Data directory is {}", dataDir.toString());
+
 		try {
 			setSystemLAF();
 
 			Files.createDirectories(dataDir);
+			Files.createDirectories(computerDir);
 
 			log.info("Loading user config");
 			UserConfig cfg;
 			try {
 				getClass().getClassLoader().loadClass("dan200.computercraft.core.lua.CobaltLuaMachine");
-				cfg = new UserConfigCCTweaked(dataDir);
+				cfg = new UserConfigCCTweaked(dataDir, computerDir);
 			} catch (ReflectiveOperationException ignored) {
-				cfg = new UserConfig(dataDir);
+				cfg = new UserConfig(dataDir, computerDir);
 			}
 			log.debug("Config: {}", cfg);
 
@@ -211,13 +241,13 @@ public class Launcher {
 			pluginMgr.setup();
 
 			String renderer;
-			if (cli.hasOption('r') && cli.getOptionValue('r') == null) {
+			if (listRenderers) {
 				log.info("Available rendering methods:");
 				pluginMgr.getRenderers().keySet().forEach(k -> log.info(" {}", k));
 				System.exit(0);
 				return;
-			} else if (cli.hasOption('r')) {
-				renderer = cli.getOptionValue('r');
+			} else if (this.renderer != null) {
+				renderer = this.renderer;
 			} else {
 				renderer = cfg.renderer.get();
 			}
@@ -249,13 +279,19 @@ public class Launcher {
 			Path sessionPath = dataDir.resolve("session.json");
 			CCEmuX emu = new CCEmuX(cfg, renderFactory, pluginMgr, getCCSource(), sessionPath);
 
-			// Either restore the session or add a new computer
-			SessionState session = cfg.restoreSession.get() ? SessionState.load(sessionPath) : null;
-			if (session == null || session.computers.isEmpty()) {
-				emu.createComputer();
+			// Either load the requested computers, restore the session or add a new computer
+			if (startDirs.size() > 0) {
+				for (Path dir : startDirs) {
+					emu.createComputer(b -> b.rootMount(new FileMount(dir.toFile(), ComputerCraft.computerSpaceLimit)));
+				}
 			} else {
-				for (SessionState.ComputerState computer : session.computers) {
-					emu.createComputer(b -> b.id(computer.id).label(computer.label));
+				SessionState session = cfg.restoreSession.get() ? SessionState.load(sessionPath) : null;
+				if (session == null || session.computers.isEmpty()) {
+					emu.createComputer();
+				} else {
+					for (SessionState.ComputerState computer : session.computers) {
+						emu.createComputer(b -> b.id(computer.id).label(computer.label));
+					}
 				}
 			}
 

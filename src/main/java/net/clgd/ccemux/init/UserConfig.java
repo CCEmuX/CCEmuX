@@ -24,18 +24,25 @@ public class UserConfig extends EmuConfig {
 
 	private final Path dataDir;
 
+	private final Path computerDir;
+
 	private final JsonAdapter adapter;
 
-	public UserConfig(Path dataDir) {
-		adapter = new JsonAdapter(gson, this);
+	public UserConfig(Path dataDir, Path computerDir) {
 		this.dataDir = dataDir;
-		getRoot().setName("CCEmuX Config");
+		this.computerDir = computerDir;
+		this.adapter = new JsonAdapter(gson, this);
 	}
 
 	@Nonnull
 	@Override
 	public Path getDataDir() {
 		return dataDir;
+	}
+
+	@Nonnull
+	public Path getComputerDir() {
+		return computerDir;
 	}
 
 	@Override

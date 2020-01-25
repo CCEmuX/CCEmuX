@@ -33,6 +33,7 @@ import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
 import net.clgd.ccemux.api.peripheral.PeripheralFactory;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
+import net.clgd.ccemux.init.UserConfig;
 import net.clgd.ccemux.plugins.PluginManager;
 
 @RequiredArgsConstructor
@@ -45,11 +46,11 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 			props.load(s);
 			return props.getProperty("version");
 		} catch (IOException e) {
-			return null;
+			return "UNKNOWN";
 		}
 	}
 
-	private final EmuConfig cfg;
+	private final UserConfig cfg;
 
 	@Getter
 	private final RendererFactory<?> rendererFactory;
@@ -299,7 +300,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 
 	@Override
 	public IWritableMount createSaveDirMount(String path, long capacity) {
-		return new FileMount(cfg.getDataDir().resolve("computer").resolve(path).toFile(), getComputerSpaceLimit());
+		return new FileMount(cfg.getComputerDir().resolve(path).toFile(), getComputerSpaceLimit());
 	}
 
 	@Override
