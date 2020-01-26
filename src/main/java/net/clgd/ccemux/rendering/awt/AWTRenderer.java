@@ -259,14 +259,14 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				// TODO
 				// termComponent.cursorChar = computer.cursorChar;
 				//AWTTerminalFont font = (AWTTerminalFont) TerminalFonts.getFontsFor(getClass()).getBest(this);
-				termComponent.render(getFont(), dt);
+				termComponent.render(getFont());
 			}
 		}
 	}
 
 	private Point mapPointToCC(Point p) {
-		int px = p.x - termComponent.margin;
-		int py = p.y - termComponent.margin;
+		int px = p.x - termComponent.getMargin();
+		int py = p.y - termComponent.getMargin();
 
 		int x = px / pixelWidth;
 		int y = py / pixelHeight;
@@ -307,6 +307,15 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				computer.paste((String) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DataFlavor.stringFlavor));
 			} catch (HeadlessException | UnsupportedFlavorException | IOException er) {
 				log.error("Could not read clipboard", er);
+			}
+			return;
+		}
+
+		if (!hasModifier && e.getKeyCode() == KeyEvent.VK_F2) {
+			try {
+				computer.screenshot();
+			} catch (IOException ex) {
+				log.error("Cannot take screenshot", ex);
 			}
 			return;
 		}

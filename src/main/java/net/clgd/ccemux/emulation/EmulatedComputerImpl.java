@@ -1,9 +1,15 @@
 package net.clgd.ccemux.emulation;
 
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 import javax.annotation.Nonnull;
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +30,11 @@ import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.computer.Computer;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
+import net.clgd.ccemux.rendering.awt.AWTTerminalFont;
+import net.clgd.ccemux.rendering.awt.TerminalRenderer;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
@@ -234,6 +244,41 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 				mount.makeDirectory(path);
 				copyFiles(Arrays.asList(f.listFiles()), path);
 			}
+		}
+	}
+
+	@Nonnull
+	@Override
+	public File screenshot() throws IOException {
+		Path screenshotDir = emulator.getConfig().getDataDir().resolve("screenshots");
+		Files.createDirectories(screenshotDir);
+
+		LocalDateTime instant = LocalDateTime.now();
+		File file = Utils.createUniqueFile(screenshotDir.toFile(), String.format("%04d-%02d-%02d-%02d_%02d_%02d",
+			instant.get(ChronoField.YEAR), instant.get(ChronoField.MONTH_OF_YEAR), instant.get(ChronoField.DAY_OF_MONTH),
+			instant.get(ChronoField.HOUR_OF_DAY), instant.get(ChronoField.MINUTE_OF_HOUR), instant.get(ChronoField.SECOND_OF_MINUTE)
+		), ".png");
+
+		AWTTerminalFont font = AWTTerminalFont.getBest(AWTTerminalFont::new);
+		TerminalRenderer renderer = new TerminalRenderer(terminal, emulator.getConfig().termScale.get());
+		try {
+			synchronized (terminal) {
+				Dimension dimension = renderer.getSize();
+				BufferedImage image = new BufferedImage(dimension.width, dimension.height, BufferedImage.TYPE_3BYTE_BGR);
+
+				Graphics graphics = image.getGraphics();
+				renderer.render(font, graphics);
+				graphics.dispose();
+
+				ImageIO.write(image, "png", file);
+			}
+
+			log.info("Saved screenshot to {}", file.getAbsolutePath());
+
+			return file;
+		} catch (IOException e) {
+			file.delete();
+			throw e;
 		}
 	}
 

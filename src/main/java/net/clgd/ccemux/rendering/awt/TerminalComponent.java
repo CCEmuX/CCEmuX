@@ -1,151 +1,45 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.Graphics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import dan200.computercraft.core.terminal.Terminal;
-import dan200.computercraft.core.terminal.TextBuffer;
-import lombok.Value;
-import net.clgd.ccemux.api.Utils;
-import net.clgd.ccemux.api.rendering.PaletteAdapter;
-import net.clgd.ccemux.api.rendering.PaletteAdapter.ColorAdapter;
 
 class TerminalComponent extends Canvas {
 	private static final long serialVersionUID = -5043543826280613143L;
-	private static final Logger log = LoggerFactory.getLogger(TerminalComponent.class);
-
-	private static final ColorAdapter<Color> AWT_COLOR_ADAPTER = (r, g, b) -> new Color((float) r, (float) g, (float) b);
-
-	private final PaletteAdapter<Color> paletteCacher;
 
 	private final Terminal terminal;
-	private final int pixelWidth;
-	private final int pixelHeight;
-	final int margin;
-
-	private static final char cursorChar = '_';
+	private final TerminalRenderer renderer;
 
 	boolean blinkLocked = false;
 
-	@Value
-	private static class CharImageRequest {
-		private char character;
-		private Color color;
-	}
-
-	private final Cache<CharImageRequest, BufferedImage> charImgCache = CacheBuilder.newBuilder()
-		.expireAfterAccess(10, TimeUnit.SECONDS).build();
-
 	public TerminalComponent(Terminal terminal, double termScale) {
-		this.pixelWidth = (int) (6 * termScale);
-		this.pixelHeight = (int) (9 * termScale);
-		this.margin = (int) (2 * termScale);
 		this.terminal = terminal;
-		this.paletteCacher = new PaletteAdapter<>(terminal.getPalette(), AWT_COLOR_ADAPTER);
-
-		resizeTerminal(terminal.getWidth(), terminal.getHeight());
+		this.renderer = new TerminalRenderer(terminal, termScale);
+		resizeTerminal();
 	}
 
-	public void resizeTerminal(int width, int height) {
-		Dimension termDimensions = new Dimension(width * pixelWidth + margin * 2, height * pixelHeight + margin * 2);
+	public int getMargin() {
+		return this.renderer.getMargin();
+	}
+
+	void resizeTerminal() {
+		Dimension termDimensions = renderer.getSize();
 
 		setSize(termDimensions);
 		setPreferredSize(termDimensions);
 	}
 
-	private void drawChar(AWTTerminalFont font, Graphics g, char c, int x, int y, int color) {
-		if (c == '\0' || Character.isSpaceChar(c)) {
-			return; // nothing to do here
-		}
-
-		Rectangle r = font.getCharCoords(c);
-		Color colour = paletteCacher.getColor(color, PaletteAdapter.DEFAULT_FOREGROUND);
-
-		BufferedImage charImg = null;
-
-		float[] zero = new float[4];
-
-		try {
-			charImg = charImgCache.get(new CharImageRequest(c, colour), () -> {
-				float[] rgb = new float[4];
-				colour.getRGBComponents(rgb);
-
-				RescaleOp rop = new RescaleOp(rgb, zero, null);
-
-				GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
-					.getDefaultConfiguration();
-
-				BufferedImage img = font.getBitmap().getSubimage(r.x, r.y, r.width, r.height);
-				BufferedImage pixel = gc.createCompatibleImage(r.width, r.height, Transparency.TRANSLUCENT);
-
-				Graphics ig = pixel.getGraphics();
-				ig.drawImage(img, 0, 0, null);
-				ig.dispose();
-
-				rop.filter(pixel, pixel);
-				return pixel;
-			});
-		} catch (ExecutionException e) {
-			log.error("Could not retrieve char image from cache!", e);
-		}
-
-		g.drawImage(charImg, x, y, pixelWidth, pixelHeight, null);
-	}
-
 	private void renderTerminal(AWTTerminalFont font) {
 		synchronized (terminal) {
 			Graphics g = getBufferStrategy().getDrawGraphics();
-
-			int dx = 0;
-			int dy = 0;
-
-			for (int y = 0; y < terminal.getHeight(); y++) {
-				TextBuffer textLine = terminal.getLine(y);
-				TextBuffer bgLine = terminal.getBackgroundColourLine(y);
-				TextBuffer fgLine = terminal.getTextColourLine(y);
-
-				int height = (y == 0 || y == terminal.getHeight() - 1) ? pixelHeight + margin : pixelHeight;
-
-				for (int x = 0; x < terminal.getWidth(); x++) {
-					int width = (x == 0 || x == terminal.getWidth() - 1) ? pixelWidth + margin : pixelWidth;
-
-					g.setColor(paletteCacher.getColor(bgLine == null ? 'f' : bgLine.charAt(x), PaletteAdapter.DEFAULT_BACKGROUND));
-					g.fillRect(dx, dy, width, height);
-
-					char character = (textLine == null) ? ' ' : textLine.charAt(x);
-					char fgChar = (fgLine == null) ? ' ' : fgLine.charAt(x);
-
-					drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin,
-						Utils.base16ToInt(fgChar));
-
-					dx += width;
-				}
-
-				dx = 0;
-				dy += height;
-			}
-
-			boolean blink = terminal.getCursorBlink() && (blinkLocked || Utils.getGlobalCursorBlink());
-
-			if (blink) {
-				drawChar(font, g, cursorChar, terminal.getCursorX() * pixelWidth + margin,
-					terminal.getCursorY() * pixelHeight + margin, terminal.getTextColour());
-			}
-
+			renderer.render(font, g);
 			g.dispose();
-			// paletteCacher.setCurrentPalette(terminal.getPalette());
 		}
 	}
 
-	public void render(AWTTerminalFont font, double dt) {
+	public void render(AWTTerminalFont font) {
 		if (getBufferStrategy() == null) {
 			createBufferStrategy(2);
 		}

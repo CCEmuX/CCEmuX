@@ -3,6 +3,7 @@ package net.clgd.ccemux.plugins.builtin;
 import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -132,6 +133,16 @@ public class CCEmuXAPI extends Plugin {
 				awaitPeripheralChange(computer, c);
 
 				return null;
+			});
+
+			methods.put("screenshot", (c, o) -> {
+				try {
+					File file = computer.screenshot();
+					return new Object[] { file.getName() };
+				} catch (IOException e) {
+					log.error("Cannot create screenshot", e);
+					return new Object[] { null, "Cannot create screenshot." };
+				}
 			});
 		}
 

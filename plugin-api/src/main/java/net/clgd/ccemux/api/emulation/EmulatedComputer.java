@@ -97,6 +97,15 @@ public abstract class EmulatedComputer extends Computer {
 	public abstract void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException;
 
 	/**
+	 * Take a screenshot of the current terminal, saving it to a file.
+	 *
+	 * @return The path to the saved screenshot. This will be a {@code .png} file.
+	 * @throws IOException If the file cannot be saved.
+	 */
+	@Nonnull
+	public abstract File screenshot() throws IOException;
+
+	/**
 	 * Queues a key event
 	 */
 	public void pressKey(int keycode, boolean repeat) {
