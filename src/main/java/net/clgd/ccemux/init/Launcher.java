@@ -78,6 +78,7 @@ public class Launcher {
 		if (cli.hasOption('h')) {
 			printHelp();
 			System.exit(0);
+			return;
 		}
 
 		log.info("Starting CCEmuX");
