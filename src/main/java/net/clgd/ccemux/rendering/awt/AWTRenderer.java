@@ -28,6 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.io.CharStreams;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import lombok.Getter;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
@@ -312,11 +314,14 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		}
 
 		if (!hasModifier && e.getKeyCode() == KeyEvent.VK_F2) {
-			try {
-				computer.screenshot();
-			} catch (IOException ex) {
-				log.error("Cannot take screenshot", ex);
-			}
+			ListenableFuture<File> file = computer.screenshot();
+			file.addListener(() -> {
+				try {
+					file.get();
+				} catch (Throwable ex) {
+					log.error("Cannot take screenshot", ex);
+				}
+			}, MoreExecutors.directExecutor());
 			return;
 		}
 
