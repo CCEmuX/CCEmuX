@@ -77,6 +77,10 @@ public abstract class EmuConfig extends Config {
 			.setName("Restore session")
 			.setDescription("Restore computers from the previous session when starting the emulator");
 
+	public EmuConfig() {
+		getRoot().setName("CCEmuX Config");
+	}
+
 	public abstract void save() throws IOException;
 
 	public abstract void load() throws IOException;
