@@ -20,17 +20,19 @@ public final class Utils {
 	private Utils() {
 	}
 
+	/**
+	 * Create a unique file with a prefix and suffix, appending random digits if the file already exists.
+	 *
+	 * @param directory The directory to create the file in.
+	 * @param name      The prefix of the name.
+	 * @param extension The suffix of the file, including the ".".
+	 * @return The generated file
+	 * @throws IOException If we cannot create a random file
+	 */
 	public static synchronized File createUniqueFile(File directory, String name, String extension) throws IOException {
 		File file = new File(directory, name + extension);
 		if (file.createNewFile()) return file;
-
-		for (int i = 0; i < RETRIES; i++) {
-			int id = Math.abs(random.nextInt());
-			file = new File(directory, name + "." + id + extension);
-			if (file.createNewFile()) return file;
-		}
-
-		throw new IOException("Unable to create temporary file");
+		return File.createTempFile(name + ".", extension, directory);
 	}
 
 	private static class Box {
