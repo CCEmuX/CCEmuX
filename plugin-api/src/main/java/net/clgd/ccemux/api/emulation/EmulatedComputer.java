@@ -6,6 +6,7 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.IComputerEnvironment;
@@ -95,6 +96,15 @@ public abstract class EmulatedComputer extends Computer {
 	 * @param files The files to copy
 	 */
 	public abstract void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException;
+
+	/**
+	 * Take a screenshot of the current terminal, saving it to a file.
+	 *
+	 * @return A future which contains the path to the saved screenshot, or throws an {@link IOException}. The files is
+	 * guranteed to be a {@code .png} file.
+	 */
+	@Nonnull
+	public abstract ListenableFuture<File> screenshot();
 
 	/**
 	 * Queues a key event

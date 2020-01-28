@@ -19,6 +19,7 @@ import dan200.computercraft.core.apis.ArgumentHelper;
 import dan200.computercraft.core.apis.ILuaAPI;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerThread;
+import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.Emulator;
@@ -133,6 +134,13 @@ public class CCEmuXAPI extends Plugin {
 
 				return null;
 			});
+
+			methods.put("screenshot", (c, o) -> Utils.awaitFuture(computer, c, computer.screenshot(),
+				f -> new Object[] { f.getName() },
+				e -> {
+					log.error("Cannot create screenshot", e);
+					return new Object[] { null, "Cannot create screenshot." };
+				}));
 		}
 
 		@Nonnull
