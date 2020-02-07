@@ -7,7 +7,7 @@ import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 
 public class UserConfigCCTweaked extends UserConfig {
-	private final ConfigProperty<Boolean> debugEnabled = property("debugEnable", boolean.class, false)
+	private final ConfigProperty<Boolean> debugEnabled = property("debugEnable", boolean.class, true)
 		.setName("Enable debug library")
 		.setDescription("Enable Lua's debug library.");
 
