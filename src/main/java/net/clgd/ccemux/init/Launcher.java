@@ -42,6 +42,10 @@ public class Launcher {
 			.desc("Sets the data directory where plugins, configs, and other data are stored.").hasArg()
 			.argName("path").build());
 
+		opts.addOption(builder("a").longOpt("assets-dir")
+			.desc("Sets the directory where assets are located. This should contain an 'assets/computercraft/lua' folder.").hasArg()
+			.argName("path").build());
+
 		opts.addOption(builder("C").longOpt("computers-dir")
 			.desc("Sets the directory where computer files are stored").hasArg()
 			.argName("path").build());
@@ -89,6 +93,7 @@ public class Launcher {
 			? Paths.get(cli.getOptionValue("data-dir"))
 			: OperatingSystem.get().getAppDataDir().resolve("ccemux");
 
+		Path assetDir = cli.hasOption('a') ? Paths.get(cli.getOptionValue('a')) : dataDir;
 		Path computerDir = cli.hasOption('C') ? Paths.get(cli.getOptionValue('C')) : dataDir.resolve("computer");
 
 		List<Path> startIn = cli.hasOption("start-dir")
@@ -102,19 +107,21 @@ public class Launcher {
 		boolean listRenderers = cli.hasOption('r') && cli.getOptionValue('r') == null;
 		String renderer = cli.getOptionValue('r');
 
-		new Launcher(dataDir, computerDir, startIn, listRenderers, renderer, plugins).launch();
+		new Launcher(dataDir, assetDir, computerDir, startIn, listRenderers, renderer, plugins).launch();
 		System.exit(0);
 	}
 
 	private final Path dataDir;
+	private final Path assetDir;
 	private final Path computerDir;
 	private final List<Path> startDirs;
 	private final boolean listRenderers;
 	private final String renderer;
 	private final List<Path> plugins;
 
-	public Launcher(Path dataDir, Path computerDir, List<Path> startDirs, boolean listRenderers, String renderer, List<Path> plugins) {
+	public Launcher(Path dataDir, Path assetDir, Path computerDir, List<Path> startDirs, boolean listRenderers, String renderer, List<Path> plugins) {
 		this.dataDir = dataDir;
+		this.assetDir = assetDir;
 		this.computerDir = computerDir;
 		this.startDirs = startDirs;
 		this.listRenderers = listRenderers;
@@ -194,7 +201,7 @@ public class Launcher {
 		URI source = Optional.ofNullable(ComputerCraft.class.getProtectionDomain().getCodeSource())
 			.orElseThrow(() -> new IllegalStateException("Cannot locate CC")).getLocation().toURI();
 
-		log.debug("CC is loaded from {}", source);
+		log.debug("Loaded ComputerCraft from {}", source);
 
 		if (!source.getScheme().equals("file")) {
 			throw new IllegalStateException("Incompatible CC location: " + source.toString());
@@ -204,7 +211,9 @@ public class Launcher {
 	}
 
 	private void launch() {
-		log.info("Data directory is {}", dataDir.toString());
+		log.info("Data directory is {}", dataDir);
+		log.info("Loading assets from {}", assetDir);
+		log.info("Loading computers from {}", computerDir);
 
 		try {
 			setSystemLAF();
@@ -216,9 +225,9 @@ public class Launcher {
 			UserConfig cfg;
 			try {
 				getClass().getClassLoader().loadClass("dan200.computercraft.core.lua.CobaltLuaMachine");
-				cfg = new UserConfigCCTweaked(dataDir, computerDir);
+				cfg = new UserConfigCCTweaked(dataDir, assetDir, computerDir);
 			} catch (ReflectiveOperationException ignored) {
-				cfg = new UserConfig(dataDir, computerDir);
+				cfg = new UserConfig(dataDir, assetDir, computerDir);
 			}
 			log.debug("Config: {}", cfg);
 

@@ -277,7 +277,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 			// From plugin files
 			new VirtualMount(romBuilder.build()),
 			// From data directory
-			new FileMount(cfg.getDataDir().resolve(path).toFile(), 0)
+			new FileMount(cfg.getAssetDir().resolve(path).toFile(), 0)
 		});
 	}
 
@@ -286,7 +286,7 @@ public class CCEmuX implements Runnable, Emulator, IComputerEnvironment {
 		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
 		if (path.startsWith("/")) path = path.substring(1);
 
-		File assetFile = cfg.getDataDir().resolve(path).toFile();
+		File assetFile = cfg.getAssetDir().resolve(path).toFile();
 		if (assetFile.exists() && assetFile.isFile()) {
 			try {
 				return new FileInputStream(assetFile);

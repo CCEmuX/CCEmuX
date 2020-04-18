@@ -24,12 +24,15 @@ public class UserConfig extends EmuConfig {
 
 	private final Path dataDir;
 
+	private final Path assetDir;
+
 	private final Path computerDir;
 
 	private final JsonAdapter adapter;
 
-	public UserConfig(Path dataDir, Path computerDir) {
+	public UserConfig(Path dataDir, Path assetDir, Path computerDir) {
 		this.dataDir = dataDir;
+		this.assetDir = assetDir;
 		this.computerDir = computerDir;
 		this.adapter = new JsonAdapter(gson, this);
 	}
@@ -38,6 +41,11 @@ public class UserConfig extends EmuConfig {
 	@Override
 	public Path getDataDir() {
 		return dataDir;
+	}
+
+	@Nonnull
+	public Path getAssetDir() {
+		return assetDir;
 	}
 
 	@Nonnull

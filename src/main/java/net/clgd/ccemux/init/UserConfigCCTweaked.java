@@ -49,8 +49,8 @@ public class UserConfigCCTweaked extends UserConfig {
 		.setDescription("The maximum size (in bytes) that a computer can send or receive in one websocket packet.");
 
 
-	public UserConfigCCTweaked(Path dataDir, Path computerDir) {
-		super(dataDir, computerDir);
+	public UserConfigCCTweaked(Path dataDir, Path assetDir, Path computerDir) {
+		super(dataDir, assetDir, computerDir);
 	}
 
 	@Override
