@@ -61,6 +61,7 @@ dependencies {
 	implementation 'commons-cli:commons-cli:1.4'
 	implementation 'org.apache.commons:commons-lang3:3.6'
 	implementation 'io.netty:netty-all:4.1.9.Final'
+	implementation 'it.unimi.dsi:fastutil:8.3.0'
 
 	implementation 'com.google.code.gson:gson:2.8.1'
 
@@ -196,7 +197,7 @@ gradle.projectsEvaluated {
 			// Preserve all dependencies of the plugin-api
 			"net.clgd.ccemux", "dan200.computercraft", "com.google.common", "org.slf4j",
 			// We use reflection to create library functions, so we need to be a little basic.
-			"org.squiddev.cobalt.lib", "org.luaj.vm2.lib",
+			"org.luaj.vm2.lib",
 			// Ideally we could strip more from here, but this'll do for now
 			"org.apache.logging.log4j",
 		].each { keep "class ${it}.** { *; }" }
