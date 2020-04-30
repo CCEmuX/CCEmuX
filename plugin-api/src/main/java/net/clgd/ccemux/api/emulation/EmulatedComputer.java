@@ -51,6 +51,21 @@ public abstract class EmulatedComputer extends Computer {
 		Builder rootMount(@Nullable Supplier<IWritableMount> rootMount);
 
 		/**
+		 * Sets the root ({@code /}) mount of the computer to construct. Setting
+		 * the root mount to {@code null} (the default value) will result in one
+		 * being created by the environment.
+		 *
+		 * @param rootMount The writable mount to use as a root mount.
+		 * @return This builder, for chaining
+		 * @deprecated Use the {@link #rootMount(Supplier)} override.
+		 */
+		@Nonnull
+		@Deprecated
+		default Builder rootMount(@Nullable IWritableMount rootMount) {
+			return rootMount(() -> rootMount);
+		}
+
+		/**
 		 * Sets the label of the computer to construct. Setting the label to
 		 * {@code null} (the default value) will result in no label being set.
 		 *
