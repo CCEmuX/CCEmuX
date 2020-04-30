@@ -111,7 +111,10 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		public EmulatedComputer build() {
 			if (built.getAndSet(true)) throw new IllegalStateException("This computer has already been built!");
 
-			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, Optional.ofNullable(this.id).orElseGet(emu::assignNewID), rootMount);
+			int id = Optional.ofNullable(this.id).orElse(-1);
+			if (id < 0) id = emu.assignNewID();
+
+			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, id, rootMount);
 			ec.setLabel(label);
 			return ec;
 		}

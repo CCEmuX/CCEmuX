@@ -104,13 +104,13 @@ class ComputerEnvironment implements IComputerEnvironment {
 	public IWritableMount createSaveDirMount(String path, long capacity) {
 		// createSaveDirMount should only be called with computer/$id.
 		if (!path.equals("computer/" + id)) {
-			log.error("Unexpected call to createSaveDirMount for {}", capacity);
+			log.error("Unexpected call to createSaveDirMount for {}", path);
 			return new FileMount(emu.getConfig().getComputerDir().resolve(path).toFile(), capacity);
 		}
 
 		return Optional.ofNullable(mount)
 			.map(Supplier::get)
-			.orElseGet(() -> new FileMount(emu.getConfig().getComputerDir().resolve(path).toFile(), capacity));
+			.orElseGet(() -> new FileMount(emu.getConfig().getComputerDir().resolve(Integer.toString(id)).toFile(), capacity));
 	}
 
 	@Override
