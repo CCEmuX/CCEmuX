@@ -4,20 +4,17 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
@@ -30,10 +27,8 @@ import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
-import dan200.computercraft.core.computer.Computer;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
@@ -47,56 +42,6 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	private static final Logger log = LoggerFactory.getLogger(EmulatedComputerImpl.class);
 	private static final ListeningExecutorService SCREENSHOTS = MoreExecutors.listeningDecorator(Executors.newSingleThreadExecutor());
 
-	private static final BiConsumer<EmulatedComputer, IWritableMount> setRootMount;
-
-	static {
-		setRootMount = createSetter();
-	}
-
-	private static BiConsumer<EmulatedComputer, IWritableMount> createSetter() {
-		List<Exception> errors = new ArrayList<>();
-		try {
-			Field mountField = Computer.class.getDeclaredField("m_rootMount");
-			mountField.setAccessible(true);
-			return (computer, mount) -> {
-				try {
-					mountField.set(computer, mount);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					throw new RuntimeException("Failed to set root mount while building computer ID " + computer.getID(), e);
-				}
-			};
-		} catch (NoSuchFieldException | SecurityException e) {
-			errors.add(e);
-		}
-
-		try {
-			Field executorField = Computer.class.getDeclaredField("executor");
-			executorField.setAccessible(true);
-
-			Field mountField = executorField.getType().getDeclaredField("rootMount");
-			mountField.setAccessible(true);
-			return (computer, mount) -> {
-				try {
-					mountField.set(executorField.get(computer), mount);
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					throw new RuntimeException("Failed to set root mount while building computer ID " + computer.getID(), e);
-				}
-			};
-		} catch (NoSuchFieldException | SecurityException e) {
-			errors.add(e);
-		}
-
-		if (errors.isEmpty()) {
-			log.error("Failed to get computer root mount field");
-		} else {
-			Exception error = errors.get(0);
-			for (int i = 1; i < errors.size(); i++) error.addSuppressed(errors.get(i));
-			log.error("Failed to get computer root mount field", error);
-		}
-
-		return null;
-	}
-
 	/**
 	 * A class used to create new {@link EmulatedComputer} instances
 	 *
@@ -108,7 +53,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		private Integer id = null;
 
-		private IWritableMount rootMount = null;
+		private Supplier<IWritableMount> rootMount = null;
 
 		private String label = null;
 
@@ -139,7 +84,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		 */
 		@Nonnull
 		@Override
-		public Builder rootMount(IWritableMount rootMount) {
+		public Builder rootMount(Supplier<IWritableMount> rootMount) {
 			this.rootMount = rootMount;
 			return this;
 		}
@@ -166,21 +111,8 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		public EmulatedComputer build() {
 			if (built.getAndSet(true)) throw new IllegalStateException("This computer has already been built!");
 
-			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, Optional.ofNullable(id).orElse(-1));
-			ec.assignID();
-
-			if (label != null) ec.setLabel(label);
-
-			if (setRootMount == null) {
-				throw new RuntimeException("Failed to set root mount while building computer ID " + ec.getID() + ". No mount setter available.");
-			}
-
-			if (rootMount != null) {
-				setRootMount.accept(ec, rootMount);
-			} else {
-				setRootMount.accept(ec, emu.createSaveDirMount(Integer.toString(ec.getID()), ComputerCraft.computerSpaceLimit));
-			}
-
+			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, Optional.ofNullable(this.id).orElseGet(emu::assignNewID), rootMount);
+			ec.setLabel(label);
 			return ec;
 		}
 	}
@@ -201,8 +133,8 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
-	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id) {
-		super(emulator, terminal, id);
+	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id, Supplier<IWritableMount> mount) {
+		super(new ComputerEnvironment(emulator, id, mount), terminal, id);
 		this.emulator = emulator;
 	}
 

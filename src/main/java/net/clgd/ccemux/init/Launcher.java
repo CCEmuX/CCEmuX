@@ -292,7 +292,7 @@ public class Launcher {
 			// Either load the requested computers, restore the session or add a new computer
 			if (startDirs.size() > 0) {
 				for (Path dir : startDirs) {
-					emu.createComputer(b -> b.rootMount(new FileMount(dir.toFile(), ComputerCraft.computerSpaceLimit)));
+					emu.createComputer(b -> b.rootMount(() -> new FileMount(dir.toFile(), ComputerCraft.computerSpaceLimit)));
 				}
 			} else {
 				SessionState session = cfg.restoreSession.get() ? SessionState.load(sessionPath) : null;

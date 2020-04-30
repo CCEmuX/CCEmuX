@@ -2,6 +2,7 @@ package net.clgd.ccemux.api.emulation;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -42,11 +43,12 @@ public abstract class EmulatedComputer extends Computer {
 		 * the root mount to {@code null} (the default value) will result in one
 		 * being created by the environment.
 		 *
-		 * @param rootMount The writable mount to use as a root mount
+		 * @param rootMount A factory which constructs the writable mount to use as a root mount. This may be
+		 *                  {@code null}, or return {@code null}.
 		 * @return This builder, for chaining
 		 */
 		@Nonnull
-		Builder rootMount(@Nullable IWritableMount rootMount);
+		Builder rootMount(@Nullable Supplier<IWritableMount> rootMount);
 
 		/**
 		 * Sets the label of the computer to construct. Setting the label to
