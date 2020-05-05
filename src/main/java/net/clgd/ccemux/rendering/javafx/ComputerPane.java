@@ -320,9 +320,6 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		computer.click(button, p.x, p.y, false);
 		lastDragButton = button;
 		lastDragPosition = p;
-
-		log.info("Mouse pressed");
-		lastMovePosition = p;
 	}
 
 	private void mouseReleased(MouseEvent e) {

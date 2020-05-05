@@ -76,6 +76,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private boolean lastBlink = false;
 	private int lastDragButton = -1;
 	private Point lastDragPosition = null;
+	private Point lastMousePosition = null;
 
 	private double blinkLockedTime = 0d;
 
@@ -402,7 +403,13 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	}
 
 	@Override
-	public void mouseMoved(MouseEvent e) {}
+	public void mouseMoved(MouseEvent e) {
+		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
+		if (p.equals(lastMousePosition)) return;
+
+		computer.move(p.x, p.y);
+		lastMousePosition = p;
+	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {}
