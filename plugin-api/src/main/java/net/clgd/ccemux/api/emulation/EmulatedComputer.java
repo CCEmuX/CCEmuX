@@ -201,6 +201,17 @@ public abstract class EmulatedComputer extends Computer {
 		if (inTerminal(x, y)) queueEvent("mouse_scroll", new Object[] { lines, x, y });
 	}
 
+	/**
+	 * Queues a mouse move event
+	 */
+	public void move(int x, int y) {
+		if (inTerminal(x, y)) {
+			queueEvent("mouse_move", new Object[] { x, y });
+		} else {
+			queueEvent("mouse_move", new Object[] { });
+		}
+	}
+
 	private boolean inTerminal(int x, int y) {
 		return x >= 1 && x <= terminal.getWidth() && y >= 1 && y <= terminal.getHeight();
 	}

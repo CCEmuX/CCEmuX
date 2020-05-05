@@ -72,6 +72,11 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private int lastDragButton;
 
 	/**
+	 * The last CC X and Y coordinates of a mouse moved event, to prevent duplicate events.
+	 */
+	private Point lastMovePosition;
+
+	/**
 	 * @return Whether the cursor should be shown
 	 */
 	private boolean cursorBlink() {
@@ -108,6 +113,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		setOnMousePressed(this::mousePressed);
 		setOnMouseReleased(this::mouseReleased);
 		setOnMouseDragged(this::mouseDragged);
+		setOnMouseMoved(this::mouseMoved);
 
 		setOnScroll(this::mouseScroll);
 
@@ -314,6 +320,9 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		computer.click(button, p.x, p.y, false);
 		lastDragButton = button;
 		lastDragPosition = p;
+
+		log.info("Mouse pressed");
+		lastMovePosition = p;
 	}
 
 	private void mouseReleased(MouseEvent e) {
@@ -331,6 +340,14 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 
 		computer.drag(lastDragButton, p.x, p.y);
 		lastDragPosition = p;
+	}
+
+	private void mouseMoved(MouseEvent e) {
+		Point p = coordsToCC(e.getX(), e.getY());
+		if (p.equals(lastMovePosition)) return;
+
+		computer.move(p.x, p.y);
+		lastMovePosition = p;
 	}
 
 	private void mouseScroll(ScrollEvent e) {
