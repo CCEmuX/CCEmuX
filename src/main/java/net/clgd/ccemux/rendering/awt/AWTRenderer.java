@@ -84,9 +84,14 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private double shutdownTimer = -1;
 	private double rebootTimer = -1;
 
+	private long lastMouseMove = -1;
+	private double mouseMoveThrottle;
+
 	private final BitSet keysDown = new BitSet(256);
 
 	public AWTRenderer(EmulatedComputer computer, EmuConfig config, AWTConfig rendererConfig) {
+		mouseMoveThrottle = config.mouseMoveThrottle.get();
+
 		frame = new Frame(EMU_WINDOW_TITLE);
 
 		this.computer = computer;
@@ -405,10 +410,11 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		Point p = mapPointToCC(new Point(e.getX(), e.getY()));
-		if (p.equals(lastMousePosition)) return;
+		if (p.equals(lastMousePosition) || System.currentTimeMillis() - lastMouseMove < mouseMoveThrottle) return;
 
 		computer.move(p.x, p.y);
 		lastMousePosition = p;
+		lastMouseMove = System.currentTimeMillis();
 	}
 
 	@Override

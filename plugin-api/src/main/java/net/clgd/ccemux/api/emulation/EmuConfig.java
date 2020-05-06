@@ -45,6 +45,11 @@ public abstract class EmuConfig extends Config {
 			.setDescription("Set how many files a computer can have open at the same time. Set to 0 for unlimited.");
 
 	@Nonnull
+	public ConfigProperty<Double> mouseMoveThrottle = property("mouseMoveThrottle", double.class, 50.0)
+			.setName("mouse_move Event Throttle")
+			.setDescription("Minimum time between mouse events (in milliseconds)");
+
+	@Nonnull
 	public ConfigProperty<Boolean> httpEnabled = property("httpEnable", boolean.class, true)
 			.setName("Enable HTTP API")
 			.setDescription("Enable the \"http\" API on Computers (see \"httpWhitelist\" and \"httpBlacklist\" for more fine grained control than this)");
