@@ -206,9 +206,9 @@ public abstract class EmulatedComputer extends Computer {
 	 */
 	public void move(int x, int y) {
 		if (inTerminal(x, y)) {
-			queueEvent("mouse_move", new Object[] { x, y });
+			queueEvent("mouse_move", new Object[] { 1, x, y });
 		} else {
-			queueEvent("mouse_move", new Object[] { });
+			queueEvent("mouse_move", new Object[] { 1 });
 		}
 	}
 
