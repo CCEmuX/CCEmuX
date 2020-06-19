@@ -2,6 +2,7 @@ package net.clgd.ccemux.api.emulation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nonnull;
 
@@ -37,10 +38,20 @@ public class EmulatedTerminal extends Terminal {
 
 	private final EmulatedPalette palette;
 	private final List<Listener> listeners = new ArrayList<>();
+	private final AtomicBoolean changed;
 
 	public EmulatedTerminal(int width, int height) {
-		super(width, height);
+		this(width, height, new AtomicBoolean(false));
+	}
+
+	private EmulatedTerminal(int width, int height, AtomicBoolean changed) {
+		super(width, height, () -> changed.set(true));
 		this.palette = new EmulatedPalette(super.getPalette());
+		this.changed = changed;
+	}
+
+	public boolean getAndClearChanged() {
+		return changed.getAndSet(false);
 	}
 
 	@Override

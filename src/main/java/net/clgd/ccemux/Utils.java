@@ -7,10 +7,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.ILuaCallback;
+import dan200.computercraft.api.lua.MethodResult;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 
 public final class Utils {
@@ -47,35 +49,48 @@ public final class Utils {
 	 * Observe a {@link ListenableFuture} and resume the computer when it has completed.
 	 *
 	 * @param computer The computer to resume.
-	 * @param context  The current Lua context.
 	 * @param future   The future to observe.
 	 * @param success  A function to process the results when the future succeeds.
 	 * @param failure  A function to process the exception when the future fails. Currently this cannot throw a
 	 *                 exception.
 	 * @return The result of {@code success} or {@code failure}
-	 * @throws LuaException         If the coroutine is terminated.
-	 * @throws InterruptedException If the computer is interrupted.
 	 */
-	public static <T> Object[] awaitFuture(EmulatedComputer computer, ILuaContext context, ListenableFuture<T> future, Function<T, Object[]> success, Function<Throwable, Object[]> failure) throws LuaException, InterruptedException {
+	public static <T> MethodResult awaitFuture(EmulatedComputer computer, ListenableFuture<T> future, Function<T, MethodResult> success, Function<Throwable, MethodResult> failure) {
 		int id = taskId.getAndIncrement();
-		Box box = new Box();
+		Task task = new Task(id);
 		future.addListener(() -> {
 			try {
-				box.contents = success.apply(future.get());
+				task.result = success.apply(future.get());
 			} catch (InterruptedException e) {
-				box.contents = failure.apply(e);
+				task.result = failure.apply(e);
 			} catch (ExecutionException e) {
-				box.contents = failure.apply(e.getCause());
+				task.result = failure.apply(e.getCause());
 			}
 
 			computer.queueEvent(TASK_EVENT, new Object[] { id });
 		}, MoreExecutors.directExecutor());
 
-		while (true) {
-			Object[] result = context.pullEvent(TASK_EVENT);
-			if (result.length >= 2 && result[1] instanceof Number && ((Number) result[1]).intValue() == id) {
-				return box.contents;
+		return task.pullEvent;
+	}
+
+	private static class Task implements ILuaCallback {
+		private final int id;
+
+		final MethodResult pullEvent = MethodResult.pullEvent(TASK_EVENT, this);
+		MethodResult result;
+
+		Task(int id) {
+			this.id = id;
+		}
+
+		@Nonnull
+		@Override
+		public MethodResult resume(Object[] objects) {
+			if (objects.length >= 2 && objects[1] instanceof Number && ((Number) objects[1]).intValue() == id) {
+				return result;
 			}
+
+			return pullEvent;
 		}
 	}
 }

@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import javax.swing.*;
 
 import org.apache.commons.cli.*;
-import org.apache.logging.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -245,9 +244,7 @@ public class Launcher {
 			//noinspection ResultOfMethodCallIgnored
 			dataDir.resolve("assets").resolve("computercraft").resolve("lua").toFile().mkdirs();
 
-			ComputerCraft.log = LogManager.getLogger(ComputerCraft.class);
 			cfg.setup();
-
 			pluginMgr.setup();
 
 			String renderer;

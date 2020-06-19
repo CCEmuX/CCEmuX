@@ -41,17 +41,6 @@ allprojects { it ->
 
 mainClassName = 'net.clgd.ccemux.init.Launcher'
 
-repositories {
-	maven {
-		name = "cc.crzd.me"
-		url = "http://cc.crzd.me/maven"
-	}
-}
-
-configurations {
-	computercraft
-}
-
 dependencies {
 	implementation project(':plugin-api')
 
@@ -62,6 +51,7 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.6'
 	implementation 'io.netty:netty-all:4.1.9.Final'
 	implementation 'it.unimi.dsi:fastutil:8.3.0'
+	implementation 'org.ow2.asm:asm:8.0.1'
 
 	implementation 'com.google.code.gson:gson:2.8.1'
 
@@ -73,8 +63,6 @@ dependencies {
 
 	testCompile 'junit:junit:4.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.10'
-
-	computercraft 'dan200.computercraft:ComputerCraft:1.80pr1-build5'
 }
 
 processResources {
@@ -117,33 +105,10 @@ task cctweakedJar(type: ShadowJar) {
 	manifest.inheritFrom jar.manifest
 }
 
-task computercraftJar(type: ShadowJar) {
-	classifier = 'cc'
-	description "A shadowed jar which bundles ComputerCraft"
-
-	from sourceSets.main.output
-	configurations = [project.configurations.runtimeClasspath, project.configurations.computercraft]
-	manifest.inheritFrom jar.manifest
-
-	dependencies {
-		exclude dependency('.*:cc-tweaked-1.12.2:.*')
-	}
-}
-
 task cctweakedMin(type: ProGuardTask) {
 	dependsOn(cctweakedJar)
 	injars cctweakedJar.archivePath
 	outjars "${cctweakedJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-}
-
-task computercraftMin(type: ProGuardTask) {
-	dependsOn(computercraftJar)
-	injars computercraftJar.archivePath
-	outjars "${computercraftJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-
-	// Ignore some CC:T specific code
-	dontwarn "dan200.computercraft.core.apis.handles.ArrayByteChannel"
-	dontwarn "net.clgd.ccemux.init.UserConfigCCTweaked"
 }
 
 gradle.projectsEvaluated {
@@ -182,7 +147,7 @@ gradle.projectsEvaluated {
 
 		// We want to avoid as much obfuscation as possible. We're only doing this to shrink code size
 		dontobfuscate; dontoptimize; keepattributes; keepparameternames
-		keepdirectories "assets/computercraft/lua**"
+		keepdirectories "data/computercraft/lua**"
 		keepdirectories "rom/**"
 
 		// Keep all members of an enum. Otherwise things like EnumSet start complaining

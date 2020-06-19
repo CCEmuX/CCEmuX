@@ -3,7 +3,10 @@ package net.clgd.ccemux.emulation;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import javax.annotation.Nonnull;
@@ -29,6 +33,11 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import dan200.computercraft.api.filesystem.IWritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
+import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.computer.ComputerSide;
+import dan200.computercraft.core.filesystem.FileSystem;
+import dan200.computercraft.core.filesystem.FileSystemException;
+import dan200.computercraft.core.filesystem.FileSystemWrapper;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
@@ -152,38 +161,48 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	}
 
 	@Override
-	public void advance(double dt) {
-		super.advance(dt);
+	public void tick() {
+		super.tick();
 
-		for (int i = 0; i < 6; i++) {
-			IPeripheral peripheral = getPeripheral(i);
-			if (peripheral instanceof Listener) ((Listener) peripheral).onAdvance(dt);
+		IAPIEnvironment environment = getAPIEnvironment();
+		for (ComputerSide side : ComputerSide.values()) {
+			IPeripheral peripheral = environment.getPeripheral(side);
+			if (peripheral instanceof Listener) ((Listener) peripheral).onAdvance(0.05);
 		}
 
-		listeners.forEach(l -> l.onAdvance(dt));
+		listeners.forEach(l -> l.onAdvance(0.05));
 	}
 
-	@Override
-	@SuppressWarnings("deprecation")
-	public void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException {
-		IWritableMount mount = this.getRootMount();
+	private void doCopyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException, FileSystemException {
+		FileSystem mount = this.getAPIEnvironment().getFileSystem();
 		Path base = Paths.get(location);
 
 		for (File f : files) {
-			String path = base.resolve(f.getName()).toString();
+			Path path = base.resolve(f.getName());
+			String pathName = path.toString();
 
 			if (f.isFile()) {
-				if (f.length() > mount.getRemainingSpace()) {
+				if (f.length() > mount.getFreeSpace("")) {
 					throw new IOException("Not enough space on computer");
 				}
 
-				try (OutputStream s = mount.openForWrite(path); InputStream o = new FileInputStream(f)) {
-					ByteStreams.copy(o, s);
+				try (FileSystemWrapper<WritableByteChannel> s = mount.openForWrite(pathName, false, Function.identity());
+					 FileChannel o = FileChannel.open(path)) {
+					ByteStreams.copy(o, s.get());
 				}
 			} else {
-				mount.makeDirectory(path);
-				copyFiles(Arrays.asList(f.listFiles()), path);
+				mount.makeDir(pathName);
+				doCopyFiles(Arrays.asList(f.listFiles()), pathName);
 			}
+		}
+	}
+
+	@Override
+	public void copyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException {
+		try {
+			doCopyFiles(files, location);
+		} catch (FileSystemException e) {
+			throw new IOException(e);
 		}
 	}
 

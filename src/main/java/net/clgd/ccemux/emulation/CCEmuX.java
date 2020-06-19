@@ -181,7 +181,7 @@ public class CCEmuX implements Runnable, Emulator {
 		synchronized (computers) {
 			computers.keySet().forEach(c -> {
 				synchronized (c) {
-					c.advance(dt);
+					c.tick();
 				}
 			});
 		}

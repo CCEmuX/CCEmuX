@@ -1,16 +1,14 @@
 package net.clgd.ccemux.plugins.builtin.peripherals;
 
-import static dan200.computercraft.core.apis.ArgumentHelper.optString;
-
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
 import dan200.computercraft.api.filesystem.IWritableMount;
-import dan200.computercraft.api.lua.ILuaContext;
-import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.core.filesystem.FileMount;
 import net.clgd.ccemux.api.config.ConfigProperty;
@@ -61,63 +59,58 @@ public class DiskDrivePeripheral implements Peripheral {
 		return "drive";
 	}
 
-	@Nonnull
-	@Override
-	public String[] getMethodNames() {
-		return new String[] {
-			"isDiskPresent",
-			"getDiskLabel",
-			"setDiskLabel",
-			"hasData",
-			"getMountPath",
-			"hasAudio",
-			"getAudioTitle",
-			"playAudio",
-			"stopAudio",
-			"ejectDisk",
-			"getDiskID"
-		};
+	@LuaFunction
+	public final boolean isPresent() {
+		return mountId.get() >= 0;
 	}
 
-	@Override
-	public Object[] callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException {
-		switch (method) {
-			case 0: // isPresent
-				return new Object[] { mountId.get() >= 0 };
-			case 1: { // getDiskLabel
-				MountInfo info = mountInfo;
-				return info != null ? new Object[] { info.label } : null;
-			}
-			case 2: { // setDiskLabel
-				String label = optString(arguments, 0, null);
+	@LuaFunction
+	public final Object[] getDiskLabel() {
+		MountInfo info = mountInfo;
+		return info != null ? new Object[] { info.label } : null;
+	}
 
-				MountInfo info = mountInfo;
-				if (info != null) info.label = label;
-				return null;
-			}
-			case 3:// hasData
-				return new Object[] { mountPath != null };
-			case 4:// getMountPath
-				return new Object[] { mountPath };
-			case 5: // hasAudio
-				return new Object[] { false };
-			case 6: // getAudioTitle
-				return new Object[] { mountId.get() >= 0 ? null : false };
-			case 7: // playAudio
-				return null;
-			case 8: // stopAudio
-				return null;
-			case 9: { // eject
-				mountId.set(-1);
-				return null;
-			}
-			case 10: { // getDiskID
-				int id = mountId.get();
-				return id >= 0 ? new Object[id] : null;
-			}
-			default:
-				return null;
-		}
+	@LuaFunction
+	public final void setDiskLabel(Optional<String> label) {
+		MountInfo info = mountInfo;
+		if (info != null) info.label = label.orElse(null);
+	}
+
+	@LuaFunction
+	public final boolean hasData() {
+		return mountPath != null;
+	}
+
+	@LuaFunction
+	public final String getMountPath() {
+		return mountPath;
+	}
+
+	@LuaFunction
+	public final boolean hasAudio() {
+		return false;
+	}
+
+	@LuaFunction
+	public final Object getAudioTitle() {
+		return mountId.get() >= 0 ? null : false;
+	}
+
+	@LuaFunction
+	public final void playAudio() {}
+
+	@LuaFunction
+	public final void stopAudio() {}
+
+	@LuaFunction
+	public final void ejectDisk() {
+		mountId.set(-1);
+	}
+
+	@LuaFunction
+	public final Object[] getDiskID() {
+		int id = mountId.get();
+		return id >= 0 ? new Object[id] : null;
 	}
 
 	@Override

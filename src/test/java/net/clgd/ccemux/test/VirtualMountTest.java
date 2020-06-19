@@ -4,7 +4,7 @@ import static java.nio.file.Paths.get;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +105,7 @@ public class VirtualMountTest {
 	@Test
 	@SuppressWarnings("deprecation")
 	public void testRead() throws IOException {
-		assertEquals("hello", CharStreams.toString(new InputStreamReader(rom.openForRead("file"), StandardCharsets.UTF_8)));
-		assertEquals("hello2", CharStreams.toString(new InputStreamReader(rom.openForRead("folder/file2"), StandardCharsets.UTF_8)));
+		assertEquals("hello", CharStreams.toString(Channels.newReader(rom.openForRead("file"), StandardCharsets.UTF_8.name())));
+		assertEquals("hello2", CharStreams.toString(Channels.newReader(rom.openForRead("folder/file2"), StandardCharsets.UTF_8.name())));
 	}
 }

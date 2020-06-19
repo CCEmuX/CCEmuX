@@ -6,12 +6,17 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
 import com.google.gson.*;
 import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.core.apis.AddressPredicate;
+import dan200.computercraft.core.apis.http.options.Action;
+import dan200.computercraft.core.apis.http.options.AddressRule;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.config.JsonAdapter;
 
@@ -84,13 +89,20 @@ public class UserConfig extends EmuConfig {
 	public void setup() {
 		// Setup the properties to sync with the original.
 		// computerSpaceLimit isn't technically needed, but we do it for consistency's sake.
-		ComputerCraft.logPeripheralErrors = true;
+		ComputerCraft.logComputerErrors = true;
 		maxComputerCapacity.addAndFireListener((o, n) -> ComputerCraft.computerSpaceLimit = n.intValue());
 		maximumFilesOpen.addAndFireListener((o, n) -> ComputerCraft.maximumFilesOpen = n);
-		httpEnabled.addAndFireListener((o, n) -> ComputerCraft.http_enable = n);
-		httpWhitelist.addAndFireListener((o, n) -> ComputerCraft.http_whitelist = new AddressPredicate(n));
-		httpBlacklist.addAndFireListener((o, n) -> ComputerCraft.http_blacklist = new AddressPredicate(n));
-		disableLua51Features.addAndFireListener((o, n) -> ComputerCraft.disable_lua51_features = n);
-		defaultComputerSettings.addAndFireListener((o, n) -> ComputerCraft.default_computer_settings = n);
+		httpEnabled.addAndFireListener((o, n) -> ComputerCraft.httpEnabled = n);
+		httpWhitelist.addAndFireListener(this::updateHttpRules);
+		httpBlacklist.addAndFireListener(this::updateHttpRules);
+		disableLua51Features.addAndFireListener((o, n) -> ComputerCraft.disableLua51Features = n);
+		defaultComputerSettings.addAndFireListener((o, n) -> ComputerCraft.defaultComputerSettings = n);
+	}
+
+	private void updateHttpRules(String[] oldValue, String[] newValue) {
+		ComputerCraft.httpRules = Collections.unmodifiableList(Stream.concat(
+			Stream.of(httpBlacklist.get()).map((x) -> AddressRule.parse(x, Action.DENY.toPartial())).filter(Objects::nonNull),
+			Stream.of(httpWhitelist.get()).map((x) -> AddressRule.parse(x, Action.ALLOW.toPartial())).filter(Objects::nonNull)
+		).collect(Collectors.toList()));
 	}
 }

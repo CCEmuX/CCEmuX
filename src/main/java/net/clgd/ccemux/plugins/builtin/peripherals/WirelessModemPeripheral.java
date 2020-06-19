@@ -5,10 +5,9 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.api.lua.ILuaContext;
 import dan200.computercraft.api.lua.LuaException;
+import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.apis.ArgumentHelper;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.peripheral.Peripheral;
@@ -16,7 +15,8 @@ import net.clgd.ccemux.api.peripheral.Peripheral;
 /**
  * Emulates ComputerCraft's wireless and ender modem
  *
- * @see dan200.computercraft.shared.peripheral.modem.WirelessModemPeripheral
+ * @see dan200.computercraft.shared.peripheral.modem.wireless.WirelessModemPeripheral
+ * @see dan200.computercraft.shared.peripheral.modem.ModemPeripheral
  */
 public class WirelessModemPeripheral implements Peripheral {
 	private static final Set<WirelessModemPeripheral> modems = new HashSet<>();
@@ -47,7 +47,7 @@ public class WirelessModemPeripheral implements Peripheral {
 		if (packet.getSender() != this) {
 			synchronized (this) {
 				if (computer != null && channels.contains(packet.getChannel())) {
-					computer.queueEvent("modem_message", new Object[] { computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance });
+					computer.queueEvent("modem_message", computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload(), distance);
 				}
 			}
 		}
@@ -57,7 +57,7 @@ public class WirelessModemPeripheral implements Peripheral {
 		if (packet.getSender() != this) {
 			synchronized (this) {
 				if (computer != null && channels.contains(packet.getChannel())) {
-					computer.queueEvent("modem_message", new Object[] { computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload() });
+					computer.queueEvent("modem_message", computer.getAttachmentName(), packet.getChannel(), packet.getReplyChannel(), packet.getPayload());
 				}
 			}
 		}
@@ -69,87 +69,67 @@ public class WirelessModemPeripheral implements Peripheral {
 		return "modem";
 	}
 
-	@Override
-	@Nonnull
-	public String[] getMethodNames() {
-		return new String[] {
-			"open",
-			"isOpen",
-			"close",
-			"closeAll",
-			"transmit",
-			"isWireless",
-		};
+	private static void checkChannel(int channel) throws LuaException {
+		if (channel < 0 || channel > 65535) throw new LuaException("Expected number in range 0-65535");
 	}
 
-	private static int parseChannel(Object[] arguments, int index) throws LuaException {
-		int channel = ArgumentHelper.getInt(arguments, index);
-		if (channel >= 0 && channel <= 65535) {
-			return channel;
-		} else {
-			throw new LuaException("Expected number in range 0-65535");
+	@LuaFunction
+	public final void open(int channel) throws LuaException {
+		checkChannel(channel);
+		synchronized (this) {
+			if (!channels.contains(channel)) {
+				if (channels.size() >= 128) {
+					throw new LuaException("Too many open channels");
+				}
+
+				channels.add(channel);
+				open = true;
+			}
 		}
 	}
 
-	@Override
-	public Object[] callMethod(@Nonnull IComputerAccess computer, @Nonnull ILuaContext context, int method, @Nonnull Object[] arguments) throws LuaException {
-		switch (method) {
-			case 0: { // open
-				int channel = parseChannel(arguments, 0);
-				synchronized (this) {
-					if (!channels.contains(channel)) {
-						if (channels.size() >= 128) {
-							throw new LuaException("Too many open channels");
-						}
-
-						channels.add(channel);
-						open = true;
-					}
-				}
-
-				return null;
-			}
-			case 1: { // isOpen
-				int channel = parseChannel(arguments, 0);
-				synchronized (this) {
-					boolean open = channels.contains(channel);
-					return new Object[] { open };
-				}
-			}
-			case 2: { // close
-				int channel = parseChannel(arguments, 0);
-				synchronized (this) {
-					if (channels.remove(channel) && channels.size() == 0) open = false;
-
-					return null;
-				}
-			}
-			case 3: // closeAll
-				synchronized (this) {
-					if (channels.size() > 0) {
-						channels.clear();
-						open = false;
-					}
-
-					return null;
-				}
-			case 4: { // transmit
-				int channel = parseChannel(arguments, 0);
-				int replyChannel = parseChannel(arguments, 1);
-				Object payload = arguments.length >= 3 ? arguments[2] : null;
-				synchronized (this) {
-					Packet packet = new Packet(channel, replyChannel, payload, this);
-					synchronized (modems) {
-						for (WirelessModemPeripheral receiver : modems) receiver.tryTransmit(packet);
-					}
-					return null;
-				}
-			}
-			case 5: // isWireless
-				return new Object[] { true };
-			default:
-				return null;
+	@LuaFunction
+	public final boolean isOpen(int channel) throws LuaException {
+		checkChannel(channel);
+		synchronized (this) {
+			return channels.contains(channel);
 		}
+	}
+
+	@LuaFunction
+	public final void close(int channel) throws LuaException {
+		checkChannel(channel);
+		synchronized (this) {
+			if (channels.remove(channel) && channels.size() == 0) open = false;
+		}
+	}
+
+	@LuaFunction
+	public final void closeAll() {
+		synchronized (this) {
+			if (channels.size() > 0) {
+				channels.clear();
+				open = false;
+			}
+		}
+	}
+
+	@LuaFunction
+	public final void transmit(int channel, int replyChannel, Object payload) throws LuaException {
+		checkChannel(channel);
+		checkChannel(replyChannel);
+
+		synchronized (this) {
+			Packet packet = new Packet(channel, replyChannel, payload, this);
+			synchronized (modems) {
+				for (WirelessModemPeripheral receiver : modems) receiver.tryTransmit(packet);
+			}
+		}
+	}
+
+	@LuaFunction
+	public final boolean isWireless() {
+		return true;
 	}
 
 	private void tryTransmit(Packet packet) {
