@@ -1,133 +1,128 @@
 package net.clgd.ccemux.rendering.awt;
 
 import java.awt.event.KeyEvent;
-import java.util.HashMap;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
 
 public class KeyTranslator {
-	@SuppressWarnings("serial")
-	private static final ImmutableBiMap<Integer, Integer> swingToCCMap = ImmutableBiMap.copyOf(new HashMap<Integer, Integer>() {{
-		put(KeyEvent.VK_1, 2);
-		put(KeyEvent.VK_2, 3);
-		put(KeyEvent.VK_3, 4);
-		put(KeyEvent.VK_4, 5);
-		put(KeyEvent.VK_5, 6);
-		put(KeyEvent.VK_6, 7);
-		put(KeyEvent.VK_7, 8);
-		put(KeyEvent.VK_8, 9);
-		put(KeyEvent.VK_9, 10);
-		put(KeyEvent.VK_0, 11);
-		put(KeyEvent.VK_MINUS, 12);
-		put(KeyEvent.VK_EQUALS, 13);
-		put(KeyEvent.VK_BACK_SPACE, 14);
-		put(KeyEvent.VK_TAB, 15);
-		put(KeyEvent.VK_Q, 16);
-		put(KeyEvent.VK_W, 17);
-		put(KeyEvent.VK_E, 18);
-		put(KeyEvent.VK_R, 19);
-		put(KeyEvent.VK_T, 20);
-		put(KeyEvent.VK_Y, 21);
-		put(KeyEvent.VK_U, 22);
-		put(KeyEvent.VK_I, 23);
-		put(KeyEvent.VK_O, 24);
-		put(KeyEvent.VK_P, 25);
-		put(KeyEvent.VK_OPEN_BRACKET, 26);
-		put(KeyEvent.VK_CLOSE_BRACKET, 27);
-		put(KeyEvent.VK_ENTER, 28);
-		put(KeyEvent.VK_CONTROL, 29);
-		put(KeyEvent.VK_A, 30);
-		put(KeyEvent.VK_S, 31);
-		put(KeyEvent.VK_D, 32);
-		put(KeyEvent.VK_F, 33);
-		put(KeyEvent.VK_G, 34);
-		put(KeyEvent.VK_H, 35);
-		put(KeyEvent.VK_J, 36);
-		put(KeyEvent.VK_K, 37);
-		put(KeyEvent.VK_L, 38);
-		put(KeyEvent.VK_SEMICOLON, 39);
-		put(KeyEvent.VK_QUOTE, 40);
-		put(KeyEvent.VK_DEAD_GRAVE, 41);
-		put(KeyEvent.VK_SHIFT, 42);
-		put(KeyEvent.VK_BACK_SLASH, 43);
-		put(KeyEvent.VK_Z, 44);
-		put(KeyEvent.VK_X, 45);
-		put(KeyEvent.VK_C, 46);
-		put(KeyEvent.VK_V, 47);
-		put(KeyEvent.VK_B, 48);
-		put(KeyEvent.VK_N, 49);
-		put(KeyEvent.VK_M, 50);
-		put(KeyEvent.VK_COMMA, 51);
-		put(KeyEvent.VK_PERIOD, 52);
-		put(KeyEvent.VK_SLASH, 53);
-		/* RIGHT_SHIFT */
-		put(KeyEvent.VK_MULTIPLY, 55);
-		put(KeyEvent.VK_ALT, 56);
-		put(KeyEvent.VK_SPACE, 57);
-		put(KeyEvent.VK_CAPS_LOCK, 58);
-		put(KeyEvent.VK_F1, 59);
-		put(KeyEvent.VK_F2, 60);
-		put(KeyEvent.VK_F3, 61);
-		put(KeyEvent.VK_F4, 62);
-		put(KeyEvent.VK_F5, 63);
-		put(KeyEvent.VK_F6, 64);
-		put(KeyEvent.VK_F7, 65);
-		put(KeyEvent.VK_F8, 66);
-		put(KeyEvent.VK_F9, 67);
-		put(KeyEvent.VK_F10, 68);
-		put(KeyEvent.VK_NUM_LOCK, 69);
-		put(KeyEvent.VK_SCROLL_LOCK, 70);
-		/* KP7-9 */
-		put(KeyEvent.VK_SUBTRACT, 74);
-		/* KP4-6 */
-		put(KeyEvent.VK_ADD, 78);
-		/* KP1-3 & 0 */
-		put(KeyEvent.VK_DECIMAL, 83);
-		put(KeyEvent.VK_F11, 87);
-		put(KeyEvent.VK_F12, 88);
-		put(KeyEvent.VK_F13, 100);
-		put(KeyEvent.VK_F14, 101);
-		put(KeyEvent.VK_F15, 102);
-		/* KP_EQUAL */
-		/* KP_ENTER */
-		/* RIGHT_CTRL */
-		put(KeyEvent.VK_DIVIDE, 181);
-		/* RIGHT_ALT */
-		put(KeyEvent.VK_PAUSE, 197);
-		put(KeyEvent.VK_HOME, 199);
-		put(KeyEvent.VK_UP, 200);
-		put(KeyEvent.VK_PAGE_UP, 201);
-		put(KeyEvent.VK_LEFT, 203);
-		put(KeyEvent.VK_RIGHT, 205);
-		put(KeyEvent.VK_END, 207);
-		put(KeyEvent.VK_DOWN, 208);
-		put(KeyEvent.VK_PAGE_DOWN, 209);
-		put(KeyEvent.VK_INSERT, 210);
-		put(KeyEvent.VK_DELETE, 211);
-	}});
+	private static final ImmutableMap<Integer, Integer> swingToCCMap = ImmutableMap.<Integer, Integer>builder()
+		.put(KeyEvent.VK_SPACE, 32)
+		.put(KeyEvent.VK_QUOTE, 39)
+		.put(KeyEvent.VK_COMMA, 44)
+		.put(KeyEvent.VK_MINUS, 45)
+		.put(KeyEvent.VK_PERIOD, 46)
+		.put(KeyEvent.VK_SLASH, 47)
+		.put(KeyEvent.VK_0, 48)
+		.put(KeyEvent.VK_1, 49)
+		.put(KeyEvent.VK_2, 50)
+		.put(KeyEvent.VK_3, 51)
+		.put(KeyEvent.VK_4, 52)
+		.put(KeyEvent.VK_5, 53)
+		.put(KeyEvent.VK_6, 54)
+		.put(KeyEvent.VK_7, 55)
+		.put(KeyEvent.VK_8, 56)
+		.put(KeyEvent.VK_9, 57)
+		.put(KeyEvent.VK_SEMICOLON, 59)
+		.put(KeyEvent.VK_EQUALS, 61)
+		.put(KeyEvent.VK_A, 65)
+		.put(KeyEvent.VK_B, 66)
+		.put(KeyEvent.VK_C, 67)
+		.put(KeyEvent.VK_D, 68)
+		.put(KeyEvent.VK_E, 69)
+		.put(KeyEvent.VK_F, 70)
+		.put(KeyEvent.VK_G, 71)
+		.put(KeyEvent.VK_H, 72)
+		.put(KeyEvent.VK_I, 73)
+		.put(KeyEvent.VK_J, 74)
+		.put(KeyEvent.VK_K, 75)
+		.put(KeyEvent.VK_L, 76)
+		.put(KeyEvent.VK_M, 77)
+		.put(KeyEvent.VK_N, 78)
+		.put(KeyEvent.VK_O, 79)
+		.put(KeyEvent.VK_P, 80)
+		.put(KeyEvent.VK_Q, 81)
+		.put(KeyEvent.VK_R, 82)
+		.put(KeyEvent.VK_S, 83)
+		.put(KeyEvent.VK_T, 84)
+		.put(KeyEvent.VK_U, 85)
+		.put(KeyEvent.VK_V, 86)
+		.put(KeyEvent.VK_W, 87)
+		.put(KeyEvent.VK_X, 88)
+		.put(KeyEvent.VK_Y, 89)
+		.put(KeyEvent.VK_Z, 90)
+		.put(KeyEvent.VK_OPEN_BRACKET, 91)
+		.put(KeyEvent.VK_BACK_SLASH, 92)
+		.put(KeyEvent.VK_CLOSE_BRACKET, 93)
+		.put(KeyEvent.VK_BACK_QUOTE, 96)
+		.put(KeyEvent.VK_ENTER, 257)
+		.put(KeyEvent.VK_TAB, 258)
+		.put(KeyEvent.VK_BACK_SPACE, 259)
+		.put(KeyEvent.VK_INSERT, 260)
+		.put(KeyEvent.VK_DELETE, 261)
+		.put(KeyEvent.VK_RIGHT, 262)
+		.put(KeyEvent.VK_LEFT, 263)
+		.put(KeyEvent.VK_DOWN, 264)
+		.put(KeyEvent.VK_UP, 265)
+		.put(KeyEvent.VK_PAGE_UP, 266)
+		.put(KeyEvent.VK_PAGE_DOWN, 267)
+		.put(KeyEvent.VK_HOME, 268)
+		.put(KeyEvent.VK_END, 269)
+		.put(KeyEvent.VK_CAPS_LOCK, 280)
+		.put(KeyEvent.VK_SCROLL_LOCK, 281)
+		.put(KeyEvent.VK_NUM_LOCK, 282)
+		.put(KeyEvent.VK_PAUSE, 284)
+		.put(KeyEvent.VK_F1, 290)
+		.put(KeyEvent.VK_F2, 291)
+		.put(KeyEvent.VK_F3, 292)
+		.put(KeyEvent.VK_F4, 293)
+		.put(KeyEvent.VK_F5, 294)
+		.put(KeyEvent.VK_F6, 295)
+		.put(KeyEvent.VK_F7, 296)
+		.put(KeyEvent.VK_F8, 297)
+		.put(KeyEvent.VK_F9, 298)
+		.put(KeyEvent.VK_F10, 299)
+		.put(KeyEvent.VK_F11, 300)
+		.put(KeyEvent.VK_F12, 301)
+		.put(KeyEvent.VK_F13, 302)
+		.put(KeyEvent.VK_F14, 303)
+		.put(KeyEvent.VK_F15, 304)
+		.put(KeyEvent.VK_F16, 305)
+		.put(KeyEvent.VK_F17, 306)
+		.put(KeyEvent.VK_F18, 307)
+		.put(KeyEvent.VK_F19, 308)
+		.put(KeyEvent.VK_F20, 309)
+		.put(KeyEvent.VK_F21, 310)
+		.put(KeyEvent.VK_F22, 311)
+		.put(KeyEvent.VK_F23, 312)
+		.put(KeyEvent.VK_F24, 313)
+		.put(KeyEvent.VK_NUMPAD0, 320)
+		.put(KeyEvent.VK_NUMPAD1, 321)
+		.put(KeyEvent.VK_NUMPAD2, 322)
+		.put(KeyEvent.VK_NUMPAD3, 323)
+		.put(KeyEvent.VK_NUMPAD4, 324)
+		.put(KeyEvent.VK_NUMPAD5, 325)
+		.put(KeyEvent.VK_NUMPAD6, 326)
+		.put(KeyEvent.VK_NUMPAD7, 327)
+		.put(KeyEvent.VK_NUMPAD8, 328)
+		.put(KeyEvent.VK_NUMPAD9, 329)
+		.put(KeyEvent.VK_SHIFT, 340)
+		.put(KeyEvent.VK_CONTROL, 341)
+		.put(KeyEvent.VK_ALT, 342)
+		.put(KeyEvent.VK_ALT_GRAPH, 346)
+		.build();
 
-	private static final ImmutableBiMap<Integer, Integer> swingRightToCC;
-
-	static {
-		Map<Integer, Integer> sw = new HashMap<>();
-		sw.put(KeyEvent.VK_SHIFT, 54);
-		sw.put(KeyEvent.VK_CONTROL, 157);
-		sw.put(KeyEvent.VK_ALT, 184);
-
-		swingRightToCC = ImmutableBiMap.copyOf(sw);
-	}
+	private static final ImmutableMap<Integer, Integer> swingRightToCCMap = ImmutableMap.<Integer, Integer>builder()
+		.put(KeyEvent.VK_SHIFT, 344)
+		.put(KeyEvent.VK_CONTROL, 345)
+		.put(KeyEvent.VK_ALT, 346)
+		.build();
 
 	public static int translateToCC(int keycode, int location) {
 		if (location == KeyEvent.KEY_LOCATION_RIGHT) {
-			Integer code = swingRightToCC.get(keycode);
+			Integer code = swingRightToCCMap.get(keycode);
 			if (code != null) return code;
 		}
 
 		return swingToCCMap.getOrDefault(keycode, -1);
-	}
-
-	public static int translateToSwing(int keycode) {
-		return swingToCCMap.inverse().getOrDefault(keycode, 0);
 	}
 }
