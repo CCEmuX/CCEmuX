@@ -134,7 +134,7 @@ gradle.projectsEvaluated {
 		libraryjars "${System.getProperty('java.home')}/lib/ext/jfxrt.jar"
 
 		// Ignore references to these packages
-		["net.minecraft", "net.minecraftforge", "org.apache.bcel"].each { dontwarn "${it}.**" }
+		["net.minecraft", "net.minecraftforge", "org.apache.bcel", "com.electronwill.nightconfig"].each { dontwarn "${it}.**" }
 		// Ignore any warnings in these packages. They have a lot of soft dependencies.
 		["io.netty", "org.apache.logging", "org.slf4j"].each { dontwarn "${it}.**" }
 		// It appears in the constant table, but not in the actual code, hence we need to ignore it.
