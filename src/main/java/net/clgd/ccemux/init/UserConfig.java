@@ -58,6 +58,12 @@ public class UserConfig extends EmuConfig {
 		return computerDir;
 	}
 
+	@Nonnull
+	@Override
+	public Path getComputerDir(int id) {
+		return getComputerDir().resolve(Integer.toString(id));
+	}
+
 	@Override
 	public void load() throws IOException {
 		Path configPath = dataDir.resolve(CONFIG_FILE_NAME);

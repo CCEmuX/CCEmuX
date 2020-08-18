@@ -18,6 +18,12 @@ public abstract class EmuConfig extends Config {
 	@Nonnull
 	public abstract Path getDataDir();
 
+	/**
+	 * The directory a particular computer is stored in.
+	 */
+	@Nonnull
+	public abstract Path getComputerDir(int id);
+
 	@Nonnull
 	public ConfigProperty<Double> termScale = property("termScale", double.class, 2.0)
 		.setName("Terminal scale");

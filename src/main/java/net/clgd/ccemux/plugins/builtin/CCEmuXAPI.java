@@ -4,6 +4,8 @@ import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -66,9 +68,12 @@ public class CCEmuXAPI extends Plugin {
 		}
 
 		@LuaFunction
-		public final Object[] openDataDir() {
+		public final Object[] openDataDir(Optional<Integer> id) {
 			try {
-				Desktop.getDesktop().browse(emu.getConfig().getDataDir().toUri());
+				Path path = id.isPresent() ? emu.getConfig().getComputerDir(id.get()) : emu.getConfig().getDataDir();
+				if (!Files.isDirectory(path)) return new Object[] { false, "Directory does not exist." };
+
+				Desktop.getDesktop().browse(path.toUri());
 				return new Object[] { true };
 			} catch (Exception e) {
 				return new Object[] { false, e.toString() };
