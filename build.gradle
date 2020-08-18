@@ -134,13 +134,13 @@ gradle.projectsEvaluated {
 		libraryjars "${System.getProperty('java.home')}/lib/ext/jfxrt.jar"
 
 		// Ignore references to these packages
-		["net.minecraft", "net.minecraftforge", "org.apache.bcel", "com.electronwill.nightconfig"].each { dontwarn "${it}.**" }
+		["net.minecraft", "net.minecraftforge", "com.electronwill.nightconfig"].each { dontwarn "${it}.**" }
 		// Ignore any warnings in these packages. They have a lot of soft dependencies.
 		["io.netty", "org.apache.logging", "org.slf4j"].each { dontwarn "${it}.**" }
 		// It appears in the constant table, but not in the actual code, hence we need to ignore it.
 		dontwarn "lombok.val"
 		// Exclude the non-core portions of CC. These end up referencing a lot of MC stuff indirectly.
-		["client", "shared", "server"].each { dontwarn "dan200.computercraft.${it}.**" }
+		["client", "shared", "server", "data"].each { dontwarn "dan200.computercraft.${it}.**" }
 		dontwarn "dan200.computercraft.core.tracking.ComputerTracker"
 		dontwarn "dan200.computercraft.api.turtle.**"
 		dontwarn "org.apache.commons.io.IOUtils"
@@ -161,8 +161,6 @@ gradle.projectsEvaluated {
 		[
 			// Preserve all dependencies of the plugin-api
 			"net.clgd.ccemux", "dan200.computercraft", "com.google.common", "org.slf4j",
-			// We use reflection to create library functions, so we need to be a little basic.
-			"org.luaj.vm2.lib",
 			// Ideally we could strip more from here, but this'll do for now
 			"org.apache.logging.log4j",
 		].each { keep "class ${it}.** { *; }" }
