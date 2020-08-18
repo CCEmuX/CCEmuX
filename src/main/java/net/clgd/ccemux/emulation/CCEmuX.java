@@ -85,20 +85,6 @@ public class CCEmuX implements Runnable, Emulator {
 
 	/**
 	 * Creates a new computer and renderer, applying config settings and plugin
-	 * hooks appropriately.
-	 *
-	 * @return The new computer
-	 * @see #createComputer(Consumer)
-	 */
-	@Override
-	@Nonnull
-	public EmulatedComputer createComputer() {
-		return createComputer(b -> {
-		});
-	}
-
-	/**
-	 * Creates a new computer and renderer, applying config settings and plugin
 	 * hooks appropriately. Additionally takes a {@link Consumer} which will be
 	 * called on the {@link EmulatedComputer.Builder} after plugin hooks, which
 	 * can be used to change the computers ID or other properties.
