@@ -41,17 +41,6 @@ allprojects { it ->
 
 mainClassName = 'net.clgd.ccemux.init.Launcher'
 
-repositories {
-	maven {
-		name = "cc.crzd.me"
-		url = "http://cc.crzd.me/maven"
-	}
-}
-
-configurations {
-	computercraft
-}
-
 dependencies {
 	implementation project(':plugin-api')
 
@@ -62,6 +51,7 @@ dependencies {
 	implementation 'org.apache.commons:commons-lang3:3.6'
 	implementation 'io.netty:netty-all:4.1.9.Final'
 	implementation 'it.unimi.dsi:fastutil:8.3.0'
+	implementation 'org.ow2.asm:asm:8.0.1'
 
 	implementation 'com.google.code.gson:gson:2.8.1'
 
@@ -73,8 +63,6 @@ dependencies {
 
 	testCompile 'junit:junit:4.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.10'
-
-	computercraft 'dan200.computercraft:ComputerCraft:1.80pr1-build5'
 }
 
 processResources {
@@ -117,33 +105,10 @@ task cctweakedJar(type: ShadowJar) {
 	manifest.inheritFrom jar.manifest
 }
 
-task computercraftJar(type: ShadowJar) {
-	classifier = 'cc'
-	description "A shadowed jar which bundles ComputerCraft"
-
-	from sourceSets.main.output
-	configurations = [project.configurations.runtimeClasspath, project.configurations.computercraft]
-	manifest.inheritFrom jar.manifest
-
-	dependencies {
-		exclude dependency('.*:cc-tweaked-1.12.2:.*')
-	}
-}
-
 task cctweakedMin(type: ProGuardTask) {
 	dependsOn(cctweakedJar)
 	injars cctweakedJar.archivePath
 	outjars "${cctweakedJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-}
-
-task computercraftMin(type: ProGuardTask) {
-	dependsOn(computercraftJar)
-	injars computercraftJar.archivePath
-	outjars "${computercraftJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
-
-	// Ignore some CC:T specific code
-	dontwarn "dan200.computercraft.core.apis.handles.ArrayByteChannel"
-	dontwarn "net.clgd.ccemux.init.UserConfigCCTweaked"
 }
 
 gradle.projectsEvaluated {
@@ -169,20 +134,20 @@ gradle.projectsEvaluated {
 		libraryjars "${System.getProperty('java.home')}/lib/ext/jfxrt.jar"
 
 		// Ignore references to these packages
-		["net.minecraft", "net.minecraftforge", "org.apache.bcel"].each { dontwarn "${it}.**" }
+		["net.minecraft", "net.minecraftforge", "com.electronwill.nightconfig"].each { dontwarn "${it}.**" }
 		// Ignore any warnings in these packages. They have a lot of soft dependencies.
 		["io.netty", "org.apache.logging", "org.slf4j"].each { dontwarn "${it}.**" }
 		// It appears in the constant table, but not in the actual code, hence we need to ignore it.
 		dontwarn "lombok.val"
 		// Exclude the non-core portions of CC. These end up referencing a lot of MC stuff indirectly.
-		["client", "shared", "server"].each { dontwarn "dan200.computercraft.${it}.**" }
+		["client", "shared", "server", "data"].each { dontwarn "dan200.computercraft.${it}.**" }
 		dontwarn "dan200.computercraft.core.tracking.ComputerTracker"
 		dontwarn "dan200.computercraft.api.turtle.**"
 		dontwarn "org.apache.commons.io.IOUtils"
 
 		// We want to avoid as much obfuscation as possible. We're only doing this to shrink code size
 		dontobfuscate; dontoptimize; keepattributes; keepparameternames
-		keepdirectories "assets/computercraft/lua**"
+		keepdirectories "data/computercraft/lua**"
 		keepdirectories "rom/**"
 
 		// Keep all members of an enum. Otherwise things like EnumSet start complaining
@@ -196,8 +161,6 @@ gradle.projectsEvaluated {
 		[
 			// Preserve all dependencies of the plugin-api
 			"net.clgd.ccemux", "dan200.computercraft", "com.google.common", "org.slf4j",
-			// We use reflection to create library functions, so we need to be a little basic.
-			"org.luaj.vm2.lib",
 			// Ideally we could strip more from here, but this'll do for now
 			"org.apache.logging.log4j",
 		].each { keep "class ${it}.** { *; }" }

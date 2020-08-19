@@ -9,7 +9,7 @@ import javax.annotation.Nonnull;
 import com.google.common.primitives.Primitives;
 import com.google.gson.reflect.TypeToken;
 import dan200.computercraft.api.lua.LuaException;
-import dan200.computercraft.core.apis.ArgumentHelper;
+import dan200.computercraft.api.lua.LuaValues;
 import net.clgd.ccemux.api.config.ConfigEntry;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
@@ -63,13 +63,13 @@ public final class LuaAdapter {
 		if (!(element instanceof Map)) {
 			throw new LuaException(String.format("bad key '%s' for property group (table expected, got %s)",
 				group.getKey(),
-				ArgumentHelper.getType(element)));
+				LuaValues.getType(element)));
 		}
 
 		for (Map.Entry<?, ?> entry : ((Map<?, ?>) element).entrySet()) {
 			if (!(entry.getKey() instanceof String)) {
 				throw new LuaException(String.format("unexpected key of type '%s' in group '%s'",
-					ArgumentHelper.getType(entry.getKey()), group.getKey()));
+					LuaValues.getType(entry.getKey()), group.getKey()));
 			}
 
 			String key = (String) entry.getKey();
@@ -143,7 +143,7 @@ public final class LuaAdapter {
 				Iterator<Object> keys = map.keySet().iterator();
 				if (keys.hasNext()) {
 					throw new IllegalArgumentException(String.format("Unexpected key of type '%s'",
-						ArgumentHelper.getType(keys.next())));
+						LuaValues.getType(keys.next())));
 				}
 				return array;
 			}
@@ -151,7 +151,7 @@ public final class LuaAdapter {
 
 		throw new IllegalArgumentException(String.format(
 			"%s expected, got %s",
-			getType(klass), ArgumentHelper.getType(input)));
+			getType(klass), LuaValues.getType(input)));
 	}
 
 

@@ -24,7 +24,7 @@ public interface Emulator {
 	 * Gets the renderer factory in use
 	 */
 	@Nonnull
-	<T extends Renderer> RendererFactory<T> getRendererFactory();
+	RendererFactory<?> getRendererFactory();
 
 	/**
 	 * Get the peripheral factory with the given name

@@ -239,13 +239,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 				if (terminateTimer >= ACTION_TIME) computer.terminate();
 			}
 
-			boolean doRepaint = false;
-
-			if (computer.terminal.getChanged()) {
-				doRepaint = true;
-				computer.terminal.clearChanged();
-			}
-
+			boolean doRepaint = computer.terminal.getAndClearChanged();
 			if (computer.terminal.getPalette().isChanged()) {
 				doRepaint = true;
 				computer.terminal.getPalette().setChanged(false);

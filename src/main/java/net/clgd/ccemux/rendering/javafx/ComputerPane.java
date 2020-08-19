@@ -200,11 +200,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
 
 		boolean repaint = lastBlink != cursorBlink();
-
-		if (computer.terminal.getChanged()) {
-			repaint = true;
-			computer.terminal.clearChanged();
-		}
+		repaint |= computer.terminal.getAndClearChanged();
 
 		if (computer.terminal.getPalette().isChanged()) {
 			repaint = true;

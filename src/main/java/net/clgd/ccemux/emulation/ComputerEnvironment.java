@@ -59,12 +59,9 @@ class ComputerEnvironment implements IComputerEnvironment {
 
 	@Override
 	public IMount createResourceMount(String domain, String subPath) {
-		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
-		if (path.startsWith("/")) path = path.substring(1);
-
 		JarMount jarMount;
 		try {
-			jarMount = new JarMount(emu.getCCJar(), path);
+			jarMount = new JarMount(emu.getCCJar(), "data/" + domain + "/" + subPath);
 		} catch (IOException e) {
 			log.error("Could not create mount from mod jar", e);
 			return null;
@@ -79,16 +76,13 @@ class ComputerEnvironment implements IComputerEnvironment {
 			// From plugin files
 			new VirtualMount(romBuilder.build()),
 			// From data directory
-			new FileMount(emu.getConfig().getAssetDir().resolve(path).toFile(), 0)
+			new FileMount(emu.getConfig().getAssetDir().resolve(Paths.get("assets", domain, subPath)).toFile(), 0)
 		});
 	}
 
 	@Override
 	public InputStream createResourceFile(String domain, String subPath) {
-		String path = Paths.get("assets", domain, subPath).toString().replace('\\', '/');
-		if (path.startsWith("/")) path = path.substring(1);
-
-		File assetFile = emu.getConfig().getAssetDir().resolve(path).toFile();
+		File assetFile = emu.getConfig().getAssetDir().resolve(Paths.get("assets", domain, subPath)).toFile();
 		if (assetFile.exists() && assetFile.isFile()) {
 			try {
 				return new FileInputStream(assetFile);
@@ -97,7 +91,7 @@ class ComputerEnvironment implements IComputerEnvironment {
 			}
 		}
 
-		return CCEmuX.class.getClassLoader().getResourceAsStream(path);
+		return CCEmuX.class.getClassLoader().getResourceAsStream("data/" + domain + "/" + subPath);
 	}
 
 	@Override

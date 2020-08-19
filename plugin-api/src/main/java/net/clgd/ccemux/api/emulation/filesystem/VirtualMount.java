@@ -1,8 +1,6 @@
 package net.clgd.ccemux.api.emulation.filesystem;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.util.List;
@@ -12,6 +10,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Streams;
+import dan200.computercraft.api.filesystem.FileOperationException;
 import dan200.computercraft.api.filesystem.IMount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
@@ -89,7 +88,7 @@ public class VirtualMount implements IMount {
 	@Override
 	public long getSize(@Nonnull String path) throws IOException {
 		VirtualMountEntry e = follow(path);
-		if (e == null) throw new IOException("No such file or directory");
+		if (e == null) throw new FileOperationException("No such file or directory");
 		return e instanceof VirtualFile ? ((VirtualFile) e).length() : 0;
 	}
 
@@ -104,30 +103,19 @@ public class VirtualMount implements IMount {
 		if (e instanceof VirtualDirectory) {
 			names.addAll(((VirtualDirectory) e).getEntryNames());
 		} else {
-			throw new IOException("Cannot list children of non-directory");
+			throw new FileOperationException("Cannot list children of non-directory");
 		}
 	}
 
 	@Nonnull
 	@Override
 	@Deprecated
-	public InputStream openForRead(@Nonnull String path) throws IOException {
-		VirtualMountEntry e = follow(path);
-		if (e instanceof VirtualFile) {
-			return new ByteArrayInputStream(((VirtualFile) e).getData());
-		} else {
-			throw new IOException("Only files can be read");
-		}
-	}
-
-	@Nonnull
-	@Override
-	public ReadableByteChannel openChannelForRead(@Nonnull String path) throws IOException {
+	public ReadableByteChannel openForRead(@Nonnull String path) throws IOException {
 		VirtualMountEntry e = follow(path);
 		if (e instanceof VirtualFile) {
 			return new ArrayByteChannel(((VirtualFile) e).getData());
 		} else {
-			throw new IOException("Only files can be read");
+			throw new FileOperationException("Only files can be read");
 		}
 	}
 
