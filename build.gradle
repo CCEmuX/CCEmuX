@@ -69,7 +69,7 @@ processResources {
 	exclude '**/*.xcf' // GIMP images
 
 	filesMatching("ccemux.version") {
-		expand 'version': version
+		expand 'version': version, 'cc_version': cc_version
 	}
 }
 

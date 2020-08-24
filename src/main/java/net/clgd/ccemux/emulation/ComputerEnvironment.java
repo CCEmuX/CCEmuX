@@ -44,11 +44,13 @@ class ComputerEnvironment implements IComputerEnvironment {
 	@Override
 	public String getHostString() {
 		String version = CCEmuX.getVersion();
-		if (version != null) {
-			return String.format("ComputerCraft %s (CCEmuX %s)", ComputerCraft.getVersion(), version);
-		} else {
-			return String.format("ComputerCraft %s (CCEmuX)", ComputerCraft.getVersion());
-		}
+		String ccVersion = CCEmuX.getCCVersion();
+		return String.format("ComputerCraft %s (CCEmuX %s)", ccVersion, version);
+	}
+
+	@Override
+	public String getUserAgent() {
+		return "computercraft/" + CCEmuX.getCCVersion();
 	}
 
 	@Override

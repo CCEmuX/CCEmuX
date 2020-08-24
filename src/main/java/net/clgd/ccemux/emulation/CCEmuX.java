@@ -31,14 +31,22 @@ import net.clgd.ccemux.plugins.PluginManager;
 public class CCEmuX implements Runnable, Emulator {
 	private static final Logger log = LoggerFactory.getLogger(CCEmuX.class);
 
-	public static String getVersion() {
+	private static String getVersionProperty(String name) {
 		try (InputStream s = CCEmuX.class.getResourceAsStream("/ccemux.version")) {
 			Properties props = new Properties();
 			props.load(s);
-			return props.getProperty("version");
+			return props.getProperty(name);
 		} catch (IOException e) {
-			return "UNKNOWN";
+			return "?";
 		}
+	}
+
+	public static String getVersion() {
+		return getVersionProperty("version");
+	}
+
+public static String getCCVersion() {
+		return getVersionProperty("cc_version");
 	}
 
 	private final UserConfig cfg;
