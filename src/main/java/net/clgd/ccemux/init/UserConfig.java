@@ -107,8 +107,8 @@ public class UserConfig extends EmuConfig {
 
 	private void updateHttpRules(String[] oldValue, String[] newValue) {
 		ComputerCraft.httpRules = Collections.unmodifiableList(Stream.concat(
-			Stream.of(httpBlacklist.get()).map((x) -> AddressRule.parse(x, Action.DENY.toPartial())).filter(Objects::nonNull),
-			Stream.of(httpWhitelist.get()).map((x) -> AddressRule.parse(x, Action.ALLOW.toPartial())).filter(Objects::nonNull)
+			Stream.of(httpBlacklist.get()).map((x) -> AddressRule.parse(x, null, Action.DENY.toPartial())).filter(Objects::nonNull),
+			Stream.of(httpWhitelist.get()).map((x) -> AddressRule.parse(x, null, Action.ALLOW.toPartial())).filter(Objects::nonNull)
 		).collect(Collectors.toList()));
 	}
 }
