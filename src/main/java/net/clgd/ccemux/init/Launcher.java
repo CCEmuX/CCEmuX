@@ -66,7 +66,7 @@ public class Launcher {
 		new HelpFormatter().printHelp("ccemux [args]", opts);
 	}
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		// parse cli options
 		CommandLine cli;
 		try {

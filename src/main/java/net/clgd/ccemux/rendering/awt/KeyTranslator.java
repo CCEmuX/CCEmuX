@@ -117,12 +117,31 @@ public class KeyTranslator {
 		.put(KeyEvent.VK_ALT, 346)
 		.build();
 
+
+	private static final ImmutableMap<Integer, Integer> swingNumpadToCC = ImmutableMap.<Integer, Integer>builder()
+		.put(KeyEvent.VK_PERIOD, 330)
+		.put(KeyEvent.VK_DIVIDE, 331)
+		.put(KeyEvent.VK_SUBTRACT, 333)
+		.put(KeyEvent.VK_ADD, 334)
+		.put(KeyEvent.VK_ENTER, 335)
+		.put(KeyEvent.VK_EQUALS, 336)
+		.build();
+
 	public static int translateToCC(int keycode, int location) {
-		if (location == KeyEvent.KEY_LOCATION_RIGHT) {
-			Integer code = swingRightToCCMap.get(keycode);
-			if (code != null) return code;
+		Integer code;
+		switch (location)
+		{
+			case KeyEvent.KEY_LOCATION_RIGHT:
+				code = swingRightToCCMap.get(keycode);
+				break;
+			case KeyEvent.KEY_LOCATION_NUMPAD:
+				code = swingNumpadToCC.get(keycode);
+				break;
+			default:
+				code = null;
+				break;
 		}
 
-		return swingToCCMap.getOrDefault(keycode, -1);
+		return code != null ? code : swingToCCMap.getOrDefault(keycode, -1);
 	}
 }
