@@ -60,7 +60,7 @@ public class DiskDrivePeripheral implements Peripheral {
 	}
 
 	@LuaFunction
-	public final boolean isPresent() {
+	public final boolean isDiskPresent() {
 		return mountId.get() >= 0;
 	}
 
