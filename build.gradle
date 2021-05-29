@@ -85,30 +85,14 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import proguard.gradle.ProGuardTask
 
 shadowJar {
-	classifier = 'base'
-	description "A shadowed jar which bundles all dependencies aside from CC"
+	archiveClassifier = 'cct'
+	description "A shadowed jar which bundles all dependencies"
 
 	from sourceSets.main.output
-	configurations = [project.configurations.runtimeClasspath]
-
-	dependencies {
-		exclude dependency('.*:cc-tweaked-1.12.2:.*')
+	minimize {
+		exclude(dependency('org.slf4j:.*:.*'))
+		exclude(dependency('org.apache.logging.log4j:.*:.*'))
 	}
-}
-
-task cctweakedJar(type: ShadowJar) {
-	classifier = 'cct'
-	description "A shadowed jar which bundles CC: Tweaked"
-
-	from sourceSets.main.output
-	configurations = [project.configurations.runtimeClasspath]
-	manifest.inheritFrom jar.manifest
-}
-
-task cctweakedMin(type: ProGuardTask) {
-	dependsOn(cctweakedJar)
-	injars cctweakedJar.archivePath
-	outjars "${cctweakedJar.archivePath.absolutePath.replace(".jar", "")}-min.jar"
 }
 
 gradle.projectsEvaluated {
@@ -124,46 +108,12 @@ gradle.projectsEvaluated {
 		exclude 'META-INF/maven/*/*/*.*'
 
 		// Prune arbitrary stuff from the CC jar
-		exclude(['api/dan200/**', 'docs/**'])
-		exclude(['assets/computercraft/**/*.json', 'assets/computercraft/textures/blocks/*', 'assets/computercraft/textures/items/*'])
-	}
-
-	tasks.withType(ProGuardTask) {
-		libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-		libraryjars "${System.getProperty('java.home')}/lib/jce.jar"
-		libraryjars "${System.getProperty('java.home')}/lib/ext/jfxrt.jar"
-
-		// Ignore references to these packages
-		["net.minecraft", "net.minecraftforge", "com.electronwill.nightconfig"].each { dontwarn "${it}.**" }
-		// Ignore any warnings in these packages. They have a lot of soft dependencies.
-		["io.netty", "org.apache.logging", "org.slf4j"].each { dontwarn "${it}.**" }
-		// It appears in the constant table, but not in the actual code, hence we need to ignore it.
-		dontwarn "lombok.val"
-		// Exclude the non-core portions of CC. These end up referencing a lot of MC stuff indirectly.
-		["client", "shared", "server", "data"].each { dontwarn "dan200.computercraft.${it}.**" }
-		dontwarn "dan200.computercraft.core.tracking.ComputerTracker"
-		dontwarn "dan200.computercraft.api.turtle.**"
-		dontwarn "org.apache.commons.io.IOUtils"
-
-		// We want to avoid as much obfuscation as possible. We're only doing this to shrink code size
-		dontobfuscate; dontoptimize; keepattributes; keepparameternames
-		keepdirectories "data/computercraft/lua**"
-		keepdirectories "rom/**"
-
-		// Keep all members of an enum. Otherwise things like EnumSet start complaining
-		keep "enum ** { *; }"
-		// Keep all MBean interfaces.
-		keep "interface **MBean { public *; }"
-
-		// Log4j bundles Java 9 versions, which is great, but rather breaks Proguard
-		dontwarn 'module-info'
-
-		[
-			// Preserve all dependencies of the plugin-api
-			"net.clgd.ccemux", "dan200.computercraft", "com.google.common", "org.slf4j",
-			// Ideally we could strip more from here, but this'll do for now
-			"org.apache.logging.log4j",
-		].each { keep "class ${it}.** { *; }" }
+		exclude([
+			'assets/computercraft/**/*.json',
+			'data/computercraft/**/*.json',
+			'assets/computercraft/textures/blocks/*',
+			'assets/computercraft/textures/items/*'
+		])
 	}
 }
 
@@ -171,4 +121,3 @@ run { standardInput = System.in }
 runShadow { standardInput = System.in }
 
 assemble.dependsOn tasks.withType(ShadowJar)
-assemble.dependsOn tasks.withType(ProGuardTask)
