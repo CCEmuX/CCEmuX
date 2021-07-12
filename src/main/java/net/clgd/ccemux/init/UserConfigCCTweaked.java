@@ -7,10 +7,6 @@ import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 
 public class UserConfigCCTweaked extends UserConfig {
-	private final ConfigProperty<Boolean> debugEnabled = property("debugEnable", boolean.class, true)
-		.setName("Enable debug library")
-		.setDescription("Enable Lua's debug library.");
-
 	private final ConfigProperty<Integer> computerThreads = property("computerThreads", int.class, 1)
 		.setName("Computer thread count")
 		.setDescription("Set the number of threads computers can run on. A higher number means more computers can run at once, but may induce lag.\n" +
@@ -41,7 +37,6 @@ public class UserConfigCCTweaked extends UserConfig {
 	public void setup() {
 		super.setup();
 
-		debugEnabled.addAndFireListener((o, n) -> ComputerCraft.debugEnable = n);
 		computerThreads.addAndFireListener((o, n) -> ComputerCraft.computerThreads = n);
 
 		httpWebsocketEnabled.addAndFireListener((o, n) -> ComputerCraft.httpWebsocketEnabled = n);
