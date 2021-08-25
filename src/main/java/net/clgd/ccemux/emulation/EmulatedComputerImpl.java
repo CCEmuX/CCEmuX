@@ -178,8 +178,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		Path base = Paths.get(location);
 
 		for (File f : files) {
-			Path path = base.resolve(f.getName());
-			String pathName = path.toString();
+			String pathName = base.resolve(f.getName()).toString();
 
 			if (f.isFile()) {
 				if (f.length() > mount.getFreeSpace("")) {
@@ -187,7 +186,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 				}
 
 				try (FileSystemWrapper<WritableByteChannel> s = mount.openForWrite(pathName, false, Function.identity());
-					 FileChannel o = FileChannel.open(path)) {
+					 FileChannel o = FileChannel.open(f.toPath())) {
 					ByteStreams.copy(o, s.get());
 				}
 			} else {
