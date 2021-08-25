@@ -28,7 +28,7 @@ allprojects { it ->
 
 		maven {
 			name = 'cc-tweaked'
-			url = "http://squiddev.cc/maven/"
+			url = "https://squiddev.cc/maven/"
 		}
 	}
 
@@ -61,7 +61,7 @@ dependencies {
 	compileOnly 'com.google.auto.service:auto-service:1.0-rc6'
 	annotationProcessor 'com.google.auto.service:auto-service:1.0-rc6'
 
-	testCompile 'junit:junit:4.12'
+	testImplementation 'junit:junit:4.12'
 	testCompileOnly 'org.projectlombok:lombok:1.18.10'
 }
 
