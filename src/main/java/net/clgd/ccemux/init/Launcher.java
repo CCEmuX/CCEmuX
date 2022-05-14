@@ -12,6 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.swing.*;
@@ -52,6 +54,10 @@ public class Launcher {
 		opts.addOption(builder("c").longOpt("start-dir")
 			.desc("Start a computer whose root is this directory").hasArg()
 			.argName("path").build());
+
+		opts.addOption(builder("t").longOpt("term-size")
+			.desc("Set the size of the initial computer's terminal. Later computers will use the default config. This should be a string of the form [width]x[height], for instance 51x19.").hasArg()
+			.argName("termSize").build());
 
 		opts.addOption(builder("r").longOpt("renderer")
 			.desc("Sets the renderer to use. Run without a value to list all available renderers.").hasArg()
@@ -106,7 +112,9 @@ public class Launcher {
 		boolean listRenderers = cli.hasOption('r') && cli.getOptionValue('r') == null;
 		String renderer = cli.getOptionValue('r');
 
-		new Launcher(dataDir, assetDir, computerDir, startIn, listRenderers, renderer, plugins).launch();
+		String termSize = cli.getOptionValue("term-size");
+
+		new Launcher(dataDir, assetDir, computerDir, startIn, listRenderers, renderer, termSize, plugins).launch();
 		System.exit(0);
 	}
 
@@ -116,15 +124,17 @@ public class Launcher {
 	private final List<Path> startDirs;
 	private final boolean listRenderers;
 	private final String renderer;
+	private final String termSize;
 	private final List<Path> plugins;
 
-	public Launcher(Path dataDir, Path assetDir, Path computerDir, List<Path> startDirs, boolean listRenderers, String renderer, List<Path> plugins) {
+	public Launcher(Path dataDir, Path assetDir, Path computerDir, List<Path> startDirs, boolean listRenderers, String renderer, String termSize, List<Path> plugins) {
 		this.dataDir = dataDir;
 		this.assetDir = assetDir;
 		this.computerDir = computerDir;
 		this.startDirs = startDirs;
 		this.listRenderers = listRenderers;
 		this.renderer = renderer;
+		this.termSize = termSize;
 		this.plugins = plugins;
 	}
 
@@ -273,6 +283,25 @@ public class Launcher {
 				System.exit(1);
 			}
 
+			int termWidth, termHeight;
+			if(termSize != null) {
+				Matcher result = Pattern.compile("^(\\d+)x(\\d+)$").matcher(termSize);
+				if(!result.matches()) {
+					log.error("Cannot parse terminal size '{}', should be of the form [width]x[height].", termSize);
+					System.exit(1);
+				}
+
+				termWidth = Integer.parseInt(result.group(1));
+				termHeight = Integer.parseInt(result.group(2));
+				if(termWidth <= 0 || termHeight <= 0) {
+					log.error("Width and height should both be positive.");
+					System.exit(1);
+				}
+			} else {
+				termWidth = cfg.termWidth.get();
+				termHeight = cfg.termHeight.get();
+			}
+
 			pluginMgr.onInitializationCompleted();
 
 			log.info("Setting up emulation environment");
@@ -289,15 +318,18 @@ public class Launcher {
 			// Either load the requested computers, restore the session or add a new computer
 			if (startDirs.size() > 0) {
 				for (Path dir : startDirs) {
-					emu.createComputer(b -> b.rootMount(() -> new FileMount(dir.toFile(), ComputerCraft.computerSpaceLimit)));
+					emu.createComputer(b -> b
+						.rootMount(() -> new FileMount(dir.toFile(), ComputerCraft.computerSpaceLimit))
+						.termSize(termWidth, termHeight)
+					);
 				}
 			} else {
 				SessionState session = cfg.restoreSession.get() ? SessionState.load(sessionPath) : null;
 				if (session == null || session.computers.isEmpty()) {
-					emu.createComputer();
+					emu.createComputer(b -> b.termSize(termWidth, termHeight));
 				} else {
 					for (SessionState.ComputerState computer : session.computers) {
-						emu.createComputer(b -> b.id(computer.id).label(computer.label));
+						emu.createComputer(b -> b.id(computer.id).label(computer.label).termSize(termWidth, termHeight));
 					}
 				}
 			}

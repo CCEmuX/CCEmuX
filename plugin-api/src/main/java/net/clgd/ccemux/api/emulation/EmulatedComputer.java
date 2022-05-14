@@ -75,6 +75,15 @@ public abstract class EmulatedComputer extends Computer {
 		Builder label(@Nullable String label);
 
 		/**
+		 * Set the dimension of the computer's terminal.
+		 *
+		 * @param width  The new width.
+		 * @param height The new height.
+		 * @return This builder, for chaining.
+		 */
+		Builder termSize(int width, int height);
+
+		/**
 		 * Builds an emulated computer using the given values
 		 */
 		@Nonnull

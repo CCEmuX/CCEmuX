@@ -110,6 +110,12 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 			return this;
 		}
 
+		@Override
+		public Builder termSize(int width, int height) {
+			if(term.getWidth() != width || term.getHeight() != height) term.resize(width, height);
+			return this;
+		}
+
 		/*
 		 * (non-Javadoc)
 		 *

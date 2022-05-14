@@ -45,7 +45,7 @@ public class CCEmuX implements Runnable, Emulator {
 		return getVersionProperty("version");
 	}
 
-public static String getCCVersion() {
+	public static String getCCVersion() {
 		return getVersionProperty("cc_version");
 	}
 
