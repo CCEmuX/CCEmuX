@@ -13,13 +13,16 @@ import javax.swing.JComponent;
 
 import net.clgd.ccemux.rendering.awt.config.TypedComponentProvider.Factory;
 
-public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<K, V>, MapPropertyComponent.Entry> implements Accessible {
+public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<K, V>, MapPropertyComponent.Entry<K, V>> implements Accessible {
 	private static final long serialVersionUID = -5168107222176592501L;
 
-	private final Factory keyFactory, valueFactory;
+	private final Factory<K> keyFactory;
+	private final Factory<V> valueFactory;
 	private final Type keyType, valueType;
-	private final Object keyDefault, valueDefault;
+	private final K keyDefault;
+	private final V valueDefault;
 
+	@SuppressWarnings("unchecked")
 	public MapPropertyComponent(
 		Map<K, V> value, Consumer<Map<K, V>> valueChanged,
 		TypedComponentProvider factory, Type keyType, Type valueType
@@ -27,19 +30,18 @@ public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<
 		super(valueChanged);
 		this.keyType = keyType;
 		this.valueType = valueType;
-		this.keyFactory = factory.getFactory(keyType).orElse(null);
-		this.valueFactory = factory.getFactory(valueType).orElse(null);
-		this.keyDefault = factory.getDefault(keyType).orElse(null);
-		this.valueDefault = factory.getDefault(valueType).orElse(null);
+		this.keyFactory = (Factory<K>) factory.getFactory(keyType).orElse(null);
+		this.valueFactory = (Factory<V>) factory.getFactory(valueType).orElse(null);
+		this.keyDefault = (K) factory.getDefault(keyType).orElse(null);
+		this.valueDefault = (V) factory.getDefault(valueType).orElse(null);
 
 		for (Map.Entry<K, V> mapEntry : value.entrySet()) {
-			addEntry(new Entry(mapEntry.getKey(), mapEntry.getValue()));
+			addEntry(new Entry<>(mapEntry.getKey(), mapEntry.getValue()));
 		}
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected void addEntry(Entry entry) {
+	protected void addEntry(Entry<K, V> entry) {
 		super.addEntry(entry);
 
 		if (keyFactory != null) {
@@ -67,7 +69,7 @@ public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<
 	}
 
 	@Override
-	protected void removeEntry(Entry entry) {
+	protected void removeEntry(Entry<K, V> entry) {
 		super.removeEntry(entry);
 
 		if (entry.keyComponent != null) components.remove(entry.keyComponent);
@@ -76,24 +78,24 @@ public class MapPropertyComponent<K, V> extends CollectionPropertyComponent<Map<
 	}
 
 	@Override
-	protected Entry createBlank() {
-		return new Entry(keyDefault, valueDefault);
+	protected Entry<K, V> createBlank() {
+		return new Entry<>(keyDefault, valueDefault);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected Map<K, V> toValue(List<Entry> entries) {
+	protected Map<K, V> toValue(List<Entry<K, V>> entries) {
 		Map<K, V> result = new LinkedHashMap<>(entries.size());
-		for (Entry entry : entries) result.put((K) entry.key, (V) entry.value);
+		for (Entry<K, V> entry : entries) result.put(entry.key, entry.value);
 		return result;
 	}
 
-	public static class Entry implements CollectionPropertyEntry {
-		Object key, value;
+	public static class Entry<K, V> implements CollectionPropertyEntry {
+		K key;
+		V value;
 		final GridBagConstraints keyConstraint, valueConstraint, removeConstraint;
 		JComponent keyComponent, valueComponent, removeComponent;
 
-		Entry(Object key, Object value) {
+		Entry(K key, V value) {
 			this.key = key;
 			this.value = value;
 

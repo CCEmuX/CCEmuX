@@ -23,7 +23,7 @@ public final class LuaAdapter {
 
 	@SuppressWarnings("unchecked")
 	public static Map<?, ?> toLua(Group group, Object existing) {
-		Map<Object, Object> object = existing instanceof Map ? (Map) existing : new HashMap<>();
+		Map<Object, Object> object = existing instanceof Map ? (Map<Object, Object>) existing : new HashMap<>();
 
 		for (ConfigEntry entry : group.children()) {
 			if (entry instanceof ConfigProperty<?>) {
@@ -80,7 +80,7 @@ public final class LuaAdapter {
 				if (configEntry.get() instanceof Group) {
 					fromLua((Group) configEntry.get(), entry.getValue());
 				} else if (configEntry.get() instanceof ConfigProperty<?>) {
-					ConfigProperty property = (ConfigProperty<?>) configEntry.get();
+					ConfigProperty<Object> property = (ConfigProperty<Object>) configEntry.get();
 
 					try {
 						property.set(fromValue(entry.getValue(), property.getType()));

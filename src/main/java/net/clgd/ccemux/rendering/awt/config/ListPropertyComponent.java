@@ -12,30 +12,30 @@ import javax.swing.JComponent;
 
 import net.clgd.ccemux.rendering.awt.config.TypedComponentProvider.Factory;
 
-public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T>, ListPropertyComponent.Entry> implements Accessible {
+public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T>, ListPropertyComponent.Entry<T>> implements Accessible {
 	private static final long serialVersionUID = 7353851041165416599L;
 
-	private final Factory factory;
+	private final Factory<T> factory;
 	private final Type type;
-	private final Object defaultValue;
+	private final T defaultValue;
 
+	@SuppressWarnings("unchecked")
 	public ListPropertyComponent(
 		List<T> value, Consumer<List<T>> valueChanged,
 		TypedComponentProvider factory, Type type
 	) {
 		super(valueChanged);
 		this.type = type;
-		this.factory = factory.getFactory(type).orElse(null);
-		this.defaultValue = factory.getDefault(type).orElse(null);
+		this.factory = (Factory<T>)factory.getFactory(type).orElse(null);
+		this.defaultValue = (T)factory.getDefault(type).orElse(null);
 
 		for (T mapEntry : value) {
-			addEntry(new Entry(mapEntry));
+			addEntry(new Entry<>(mapEntry));
 		}
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected void addEntry(Entry entry) {
+	protected void addEntry(Entry<T> entry) {
 		super.addEntry(entry);
 
 		if (factory != null) {
@@ -56,7 +56,7 @@ public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T
 	}
 
 	@Override
-	protected void removeEntry(Entry entry) {
+	protected void removeEntry(Entry<T> entry) {
 		super.removeEntry(entry);
 
 		if (entry.valueComponent != null) components.remove(entry.valueComponent);
@@ -64,24 +64,23 @@ public class ListPropertyComponent<T> extends CollectionPropertyComponent<List<T
 	}
 
 	@Override
-	protected Entry createBlank() {
-		return new Entry(defaultValue);
+	protected Entry<T> createBlank() {
+		return new Entry<>(defaultValue);
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected List<T> toValue(List<Entry> entries) {
+	protected List<T> toValue(List<Entry<T>> entries) {
 		List<T> result = new ArrayList<>(entries.size());
-		for (Entry entry : entries) result.add((T) entry.value);
+		for (Entry<T> entry : entries) result.add(entry.value);
 		return result;
 	}
 
-	public static class Entry implements CollectionPropertyEntry {
-		Object value;
+	public static class Entry<T> implements CollectionPropertyEntry {
+		T value;
 		final GridBagConstraints valueConstraint, removeConstraint;
 		JComponent valueComponent, removeComponent;
 
-		Entry(Object value) {
+		Entry(T value) {
 			this.value = value;
 
 			valueConstraint = new GridBagConstraints();

@@ -113,7 +113,6 @@ public class JsonAdapter {
 		return object;
 	}
 
-	@SuppressWarnings("unchecked")
 	private void fromJson(Group group, JsonElement element) {
 		if (!(element instanceof JsonObject)) {
 			log.error("Expected object for property group {}, got {}", group.getKey(), element);
@@ -129,7 +128,7 @@ public class JsonAdapter {
 				if (configEntry.get() instanceof Group) {
 					fromJson((Group) configEntry.get(), jsonEntry.getValue());
 				} else if (configEntry.get() instanceof ConfigProperty<?>) {
-					ConfigProperty property = (ConfigProperty<?>) configEntry.get();
+					ConfigProperty<?> property = (ConfigProperty<?>) configEntry.get();
 
 					try {
 						property.set(gson.fromJson(jsonEntry.getValue(), property.getType()));

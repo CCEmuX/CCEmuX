@@ -14,6 +14,7 @@ import com.google.common.reflect.TypeToken;
 import com.google.gson.JsonPrimitive;
 import net.clgd.ccemux.api.config.ConfigProperty;
 
+@SuppressWarnings("rawtypes")
 public class TypedComponentProvider {
 	private static final TypedComponentProvider instance = new TypedComponentProvider();
 

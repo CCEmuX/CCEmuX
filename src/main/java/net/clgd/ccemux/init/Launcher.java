@@ -269,7 +269,7 @@ public class Launcher {
 				renderer = cfg.renderer.get();
 			}
 
-			RendererFactory renderFactory = pluginMgr.getRenderers().get(renderer);
+			RendererFactory<?> renderFactory = pluginMgr.getRenderers().get(renderer);
 			if (renderFactory == null) {
 				log.error("Specified renderer '{}' does not exist - are you missing a plugin?", renderer);
 

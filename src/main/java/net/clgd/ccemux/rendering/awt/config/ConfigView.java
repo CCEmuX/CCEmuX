@@ -162,7 +162,7 @@ public class ConfigView extends JFrame {
 				SwingHelpers.setTooltip(label, entry.getDescription());
 				scrollBody.add(label, labelConstraints);
 
-				ConfigProperty property = (ConfigProperty) entry;
+				ConfigProperty<?> property = (ConfigProperty<?>) entry;
 				Optional<JComponent> component = TypedComponentProvider.instance().fromProperty(property);
 				if (component.isPresent()) {
 					GridBagConstraints componentConstraints = new GridBagConstraints();
