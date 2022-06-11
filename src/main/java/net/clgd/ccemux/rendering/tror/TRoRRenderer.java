@@ -2,8 +2,8 @@ package net.clgd.ccemux.rendering.tror;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -11,21 +11,14 @@ import java.util.concurrent.BlockingDeque;
 
 import javax.annotation.Nonnull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import net.clgd.ccemux.api.Utils;
-import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedPalette;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import net.clgd.ccemux.api.rendering.Renderer;
 
 public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, EmulatedPalette.ColorChangeListener {
-	private static final Logger log = LoggerFactory.getLogger(TRoRRenderer.class);
-
 	private final EmulatedComputer computer;
-	private final EmuConfig config;
 
 	private final List<Renderer.Listener> listeners = new ArrayList<>();
 
@@ -34,15 +27,10 @@ public class TRoRRenderer implements Renderer, EmulatedTerminal.Listener, Emulat
 	private final Writer output;
 	private boolean isVisible = true;
 
-	public TRoRRenderer(EmulatedComputer computer, EmuConfig config) {
+	public TRoRRenderer(EmulatedComputer computer) {
 		this.computer = computer;
-		this.config = config;
 
-		try {
-			output = new OutputStreamWriter(System.out, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
-		}
+		output = new OutputStreamWriter(System.out, StandardCharsets.UTF_8);
 
 		computer.terminal.addListener(this);
 		computer.terminal.getPalette().addListener(this);

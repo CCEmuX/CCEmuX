@@ -45,6 +45,6 @@ public class TRoRPlugin extends Plugin {
 
 	@Override
 	public void setup(@Nonnull PluginManager manager) {
-		manager.addRenderer("TRoR", TRoRRenderer::new);
+		manager.addRenderer("TRoR", (comp, cfg) -> new TRoRRenderer(comp));
 	}
 }

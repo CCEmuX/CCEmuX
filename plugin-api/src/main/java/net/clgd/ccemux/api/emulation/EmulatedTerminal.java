@@ -1,5 +1,6 @@
 package net.clgd.ccemux.api.emulation;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -24,6 +25,10 @@ public class EmulatedTerminal extends Terminal {
 		default void setTextColour(int colour) {}
 
 		default void setBackgroundColour(int colour) {}
+
+		default void blit(@Nonnull ByteBuffer text, @Nonnull ByteBuffer textColour, @Nonnull ByteBuffer backgroundColour) {
+			blit(LuaHelpers.decode(text), LuaHelpers.decode(textColour), LuaHelpers.decode(backgroundColour));
+		}
 
 		default void blit(@Nonnull String text, @Nonnull String textColour, @Nonnull String backgroundColour) {}
 
@@ -95,7 +100,7 @@ public class EmulatedTerminal extends Terminal {
 	}
 
 	@Override
-	public void blit(@Nonnull String text, @Nonnull String textColour, @Nonnull String backgroundColour) {
+	public void blit(@Nonnull ByteBuffer text, @Nonnull ByteBuffer textColour, @Nonnull ByteBuffer backgroundColour) {
 		super.blit(text, textColour, backgroundColour);
 		for (Listener listener : listeners) {
 			listener.blit(text, textColour, backgroundColour);
