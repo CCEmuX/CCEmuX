@@ -1,27 +1,26 @@
 package net.clgd.ccemux.test;
 
-import static java.nio.file.Paths.get;
-import static org.junit.Assert.*;
-
 import java.io.IOException;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.CharStreams;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualFile;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualMount;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static java.nio.file.Paths.get;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VirtualMountTest {
 	public VirtualMount rom;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		VirtualDirectory.Builder builder = new VirtualDirectory.Builder();
 
@@ -103,7 +102,6 @@ public class VirtualMountTest {
 	}
 
 	@Test
-	@SuppressWarnings("deprecation")
 	public void testRead() throws IOException {
 		assertEquals("hello", CharStreams.toString(Channels.newReader(rom.openForRead("file"), StandardCharsets.UTF_8.name())));
 		assertEquals("hello2", CharStreams.toString(Channels.newReader(rom.openForRead("folder/file2"), StandardCharsets.UTF_8.name())));

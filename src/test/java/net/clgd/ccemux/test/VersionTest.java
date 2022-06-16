@@ -1,10 +1,9 @@
 package net.clgd.ccemux.test;
 
-import static org.junit.Assert.assertNotNull;
-
-import org.junit.Test;
-
 import net.clgd.ccemux.emulation.CCEmuX;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class VersionTest {
 	@Test

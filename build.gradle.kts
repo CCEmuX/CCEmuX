@@ -1,9 +1,3 @@
-buildscript {
-	dependencies {
-		classpath("net.sf.proguard:proguard-gradle:6.2.2")
-	}
-}
-
 plugins {
 	application
 	id("com.github.johnrengelman.shadow") version "7.1.2"
@@ -63,8 +57,7 @@ dependencies {
 	compileOnly("com.google.auto.service:auto-service:1.0-rc6")
 	annotationProcessor("com.google.auto.service:auto-service:1.0-rc6")
 
-	testImplementation("junit:junit:4.12")
-	testCompileOnly("org.projectlombok:lombok:1.18.10")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
 }
 
 tasks.processResources {
@@ -111,4 +104,8 @@ tasks.shadowJar {
 
 tasks.assemble.configure {
 	dependsOn(tasks.shadowJar)
+}
+
+tasks.test {
+	useJUnitPlatform()
 }

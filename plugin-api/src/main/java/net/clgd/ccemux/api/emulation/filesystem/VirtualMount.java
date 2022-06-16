@@ -109,7 +109,6 @@ public class VirtualMount implements IMount {
 
 	@Nonnull
 	@Override
-	@Deprecated
 	public ReadableByteChannel openForRead(@Nonnull String path) throws IOException {
 		VirtualMountEntry e = follow(path);
 		if (e instanceof VirtualFile) {
