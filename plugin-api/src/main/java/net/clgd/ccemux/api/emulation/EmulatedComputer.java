@@ -9,8 +9,9 @@ import javax.annotation.Nullable;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.Computer;
-import dan200.computercraft.core.computer.IComputerEnvironment;
+import dan200.computercraft.core.computer.ComputerEnvironment;
 
 public abstract class EmulatedComputer extends Computer {
 	/**
@@ -96,8 +97,8 @@ public abstract class EmulatedComputer extends Computer {
 	@Nonnull
 	public final EmulatedTerminal terminal;
 
-	protected EmulatedComputer(@Nonnull IComputerEnvironment environment, @Nonnull EmulatedTerminal terminal, int id) {
-		super(environment, terminal, id);
+	protected EmulatedComputer(@Nonnull ComputerContext context, @Nonnull ComputerEnvironment environment, @Nonnull EmulatedTerminal terminal, int id) {
+		super(context, environment, terminal, id);
 		this.terminal = terminal;
 	}
 
@@ -136,21 +137,21 @@ public abstract class EmulatedComputer extends Computer {
 	 * Queues a key event
 	 */
 	public void pressKey(int keycode, boolean repeat) {
-		queueEvent("key", new Object[] { keycode, repeat });
+		queueEvent("key", new Object[]{keycode, repeat});
 	}
 
 	/**
 	 * Queues a key up event
 	 */
 	public void releaseKey(int keycode) {
-		queueEvent("key_up", new Object[] { keycode });
+		queueEvent("key_up", new Object[]{keycode});
 	}
 
 	/**
 	 * Queues a char event
 	 */
 	public void pressChar(char c) {
-		queueEvent("char", new Object[] { "" + c });
+		queueEvent("char", new Object[]{"" + c});
 	}
 
 	/**
@@ -179,35 +180,35 @@ public abstract class EmulatedComputer extends Computer {
 
 		// Clip to 512 characters and queue.
 		if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
-		queueEvent("paste", new Object[] { clipboard });
+		queueEvent("paste", new Object[]{clipboard});
 	}
 
 	/**
 	 * Queues a terminate event
 	 */
 	public void terminate() {
-		queueEvent("terminate", new Object[] {});
+		queueEvent("terminate", new Object[]{});
 	}
 
 	/**
 	 * Queues a mouse click event
 	 */
 	public void click(int button, int x, int y, boolean release) {
-		if (inTerminal(x, y)) queueEvent(release ? "mouse_up" : "mouse_click", new Object[] { button, x, y });
+		if (inTerminal(x, y)) queueEvent(release ? "mouse_up" : "mouse_click", new Object[]{button, x, y});
 	}
 
 	/**
 	 * Queues a mouse drag event
 	 */
 	public void drag(int button, int x, int y) {
-		if (inTerminal(x, y)) queueEvent("mouse_drag", new Object[] { button, x, y });
+		if (inTerminal(x, y)) queueEvent("mouse_drag", new Object[]{button, x, y});
 	}
 
 	/**
 	 * Queues a mouse scroll event
 	 */
 	public void scroll(int lines, int x, int y) {
-		if (inTerminal(x, y)) queueEvent("mouse_scroll", new Object[] { lines, x, y });
+		if (inTerminal(x, y)) queueEvent("mouse_scroll", new Object[]{lines, x, y});
 	}
 
 	private boolean inTerminal(int x, int y) {

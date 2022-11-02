@@ -13,9 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import dan200.computercraft.core.ComputerContext;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
@@ -26,6 +24,8 @@ import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.init.UserConfig;
 import net.clgd.ccemux.plugins.PluginManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 public class CCEmuX implements Runnable, Emulator {
@@ -67,6 +67,10 @@ public class CCEmuX implements Runnable, Emulator {
 
 	private long started = -1;
 	private boolean running;
+
+	private final ComputerContext context = new ComputerContext(
+		new GlobalEnvironmentImpl(this), 1, x -> NoWorkMainThreadScheduler.INSTANCE
+	);
 
 	@Nonnull
 	@Override
@@ -237,5 +241,9 @@ public class CCEmuX implements Runnable, Emulator {
 
 	public int assignNewID() {
 		return nextID++;
+	}
+
+	ComputerContext context() {
+		return context;
 	}
 }

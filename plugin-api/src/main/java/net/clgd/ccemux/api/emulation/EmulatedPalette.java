@@ -29,6 +29,7 @@ public class EmulatedPalette extends Palette {
 	private boolean changed = true;
 
 	public EmulatedPalette(@Nonnull Palette delegate) {
+		super(true);
 		this.delegate = delegate;
 	}
 

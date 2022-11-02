@@ -1,8 +1,7 @@
 package net.clgd.ccemux.emulation;
 
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
+import java.awt.*;
+import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -23,9 +22,6 @@ import java.util.function.Supplier;
 import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Objects;
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -43,6 +39,8 @@ import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import net.clgd.ccemux.rendering.awt.AWTTerminalFont;
 import net.clgd.ccemux.rendering.awt.TerminalRenderer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Represents a computer that can be emulated via CCEmuX
@@ -112,7 +110,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		@Override
 		public Builder termSize(int width, int height) {
-			if(term.getWidth() != width || term.getHeight() != height) term.resize(width, height);
+			if (term.getWidth() != width || term.getHeight() != height) term.resize(width, height);
 			return this;
 		}
 
@@ -152,7 +150,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
 	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id, Supplier<IWritableMount> mount) {
-		super(new ComputerEnvironment(emulator, id, mount), terminal, id);
+		super(emulator.context(), new ComputerEnvironmentImpl(emulator, id, mount), terminal, id);
 		this.emulator = emulator;
 	}
 

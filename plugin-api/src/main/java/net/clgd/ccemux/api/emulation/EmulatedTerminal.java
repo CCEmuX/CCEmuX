@@ -50,7 +50,7 @@ public class EmulatedTerminal extends Terminal {
 	}
 
 	private EmulatedTerminal(int width, int height, AtomicBoolean changed) {
-		super(width, height, () -> changed.set(true));
+		super(width, height, true, () -> changed.set(true));
 		this.palette = new EmulatedPalette(super.getPalette());
 		this.changed = changed;
 	}
