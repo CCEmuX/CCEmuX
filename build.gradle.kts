@@ -45,7 +45,7 @@ dependencies {
 
 	implementation("commons-cli:commons-cli:1.4")
 	implementation("org.apache.commons:commons-lang3:3.6")
-	implementation("io.netty:netty-all:4.1.9.Final")
+	implementation("io.netty:netty-codec-http:4.1.85.Final")
 	implementation("it.unimi.dsi:fastutil:8.3.0")
 	implementation("org.ow2.asm:asm:8.0.1")
 

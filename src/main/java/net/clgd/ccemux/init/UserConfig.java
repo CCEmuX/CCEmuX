@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,8 +108,8 @@ public class UserConfig extends EmuConfig {
 
 	private void updateHttpRules(String[] oldValue, String[] newValue) {
 		ComputerCraft.httpRules = Collections.unmodifiableList(Stream.concat(
-			Stream.of(httpBlacklist.get()).map((x) -> AddressRule.parse(x, null, Action.DENY.toPartial())).filter(Objects::nonNull),
-			Stream.of(httpWhitelist.get()).map((x) -> AddressRule.parse(x, null, Action.ALLOW.toPartial())).filter(Objects::nonNull)
+			Stream.of(httpBlacklist.get()).map((x) -> AddressRule.parse(x, OptionalInt.empty(), Action.DENY.toPartial())).filter(Objects::nonNull),
+			Stream.of(httpWhitelist.get()).map((x) -> AddressRule.parse(x, OptionalInt.empty(), Action.ALLOW.toPartial())).filter(Objects::nonNull)
 		).collect(Collectors.toList()));
 	}
 }
