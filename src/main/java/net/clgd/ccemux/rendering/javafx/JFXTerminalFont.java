@@ -25,36 +25,7 @@ public class JFXTerminalFont extends TerminalFont {
 
 	private final Image base;
 
-	public static class CharImageRequest {
-		private final char character;
-		private final Color color;
-		private final double termScale;
-
-		public CharImageRequest(char character, Color color, double termScale) {
-			this.character = character;
-			this.color = color;
-			this.termScale = termScale;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-
-			CharImageRequest that = (CharImageRequest) o;
-			if (character != that.character) return false;
-			if (Double.compare(that.termScale, termScale) != 0) return false;
-			return color.equals(that.color);
-		}
-
-		@Override
-		public int hashCode() {
-			int result;
-			result = character;
-			result = 31 * result + color.hashCode();
-			result = 31 * result + Double.hashCode(termScale);
-			return result;
-		}
+	private record CharImageRequest(char character, Color color, double termScale) {
 	}
 
 	private final Cache<CharImageRequest, Image> charCache = CacheBuilder.newBuilder().expireAfterAccess(30, SECONDS)

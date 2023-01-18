@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.shared.util.Palette;
+import dan200.computercraft.core.terminal.Palette;
 
 /**
  * A wrapper for {@link Palette} that allows {@link ColorChangeListener

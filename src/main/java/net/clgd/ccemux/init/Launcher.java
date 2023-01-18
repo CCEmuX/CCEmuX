@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 import javax.swing.*;
 
+import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import dan200.computercraft.ComputerCraft;
-import dan200.computercraft.core.filesystem.FileMount;
 import net.clgd.ccemux.api.OperatingSystem;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 import net.clgd.ccemux.api.rendering.TerminalFont;
@@ -207,7 +207,7 @@ public class Launcher {
 	}
 
 	private File getCCSource() throws URISyntaxException {
-		URI source = Optional.ofNullable(ComputerCraft.class.getProtectionDomain().getCodeSource())
+		URI source = Optional.ofNullable(ComputerContext.class.getProtectionDomain().getCodeSource())
 			.orElseThrow(() -> new IllegalStateException("Cannot locate CC")).getLocation().toURI();
 
 		log.debug("Loaded ComputerCraft from {}", source);
@@ -319,7 +319,7 @@ public class Launcher {
 			if (startDirs.size() > 0) {
 				for (Path dir : startDirs) {
 					emu.createComputer(b -> b
-						.rootMount(() -> new FileMount(dir.toFile(), ComputerCraft.computerSpaceLimit))
+						.rootMount(() -> new WritableFileMount(dir.toFile(), emu.getConfig().getMaxComputerCapacity()))
 						.termSize(termWidth, termHeight)
 					);
 				}

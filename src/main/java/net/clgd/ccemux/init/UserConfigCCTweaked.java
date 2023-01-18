@@ -2,7 +2,7 @@ package net.clgd.ccemux.init;
 
 import java.nio.file.Path;
 
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.CoreConfig;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 
@@ -16,31 +16,32 @@ public class UserConfigCCTweaked extends UserConfig {
 		.setName("HTTP API")
 		.setDescription("Additional config options relating to the HTTP API");
 
-	private final ConfigProperty<Boolean> httpWebsocketEnabled = http.property("websocketEnabled", boolean.class, ComputerCraft.httpWebsocketEnabled)
+	private final ConfigProperty<Boolean> httpWebsocketEnabled = http.property("websocketEnabled", boolean.class, CoreConfig.httpWebsocketEnabled)
 		.setName("Enable websockets")
 		.setDescription("Enable use of http websockets. This requires \"httpEnable\" to also be true.");
 
-	private final ConfigProperty<Integer> httpMaxRequests = http.property("max_requests", int.class, ComputerCraft.httpMaxRequests)
+	private final ConfigProperty<Integer> httpMaxRequests = http.property("max_requests", int.class, CoreConfig.httpMaxRequests)
 		.setName("Maximum concurrent requests")
 		.setDescription("The number of http requests a computer can make at one time. Additional requests will be queued, and sent when the running requests have finished. Set to 0 for unlimited.");
 
-	private final ConfigProperty<Integer> httpMaxWebsockets = http.property("max_websockets", int.class, ComputerCraft.httpMaxWebsockets)
+	private final ConfigProperty<Integer> httpMaxWebsockets = http.property("max_websockets", int.class, CoreConfig.httpMaxWebsockets)
 		.setName("Maximum concurrent websockets")
 		.setDescription("The number of websockets a computer can have open at one time. Set to 0 for unlimited.");
 
-
 	public UserConfigCCTweaked(Path dataDir, Path assetDir, Path computerDir) {
 		super(dataDir, assetDir, computerDir);
+	}
+
+	public int getComputerThreads() {
+		return computerThreads.get();
 	}
 
 	@Override
 	public void setup() {
 		super.setup();
 
-		computerThreads.addAndFireListener((o, n) -> ComputerCraft.computerThreads = n);
-
-		httpWebsocketEnabled.addAndFireListener((o, n) -> ComputerCraft.httpWebsocketEnabled = n);
-		httpMaxRequests.addAndFireListener((o, n) -> ComputerCraft.httpMaxRequests = n);
-		httpMaxWebsockets.addAndFireListener((o, n) -> ComputerCraft.httpMaxWebsockets = n);
+		httpWebsocketEnabled.addAndFireListener((o, n) -> CoreConfig.httpWebsocketEnabled = n);
+		httpMaxRequests.addAndFireListener((o, n) -> CoreConfig.httpMaxRequests = n);
+		httpMaxWebsockets.addAndFireListener((o, n) -> CoreConfig.httpMaxWebsockets = n);
 	}
 }

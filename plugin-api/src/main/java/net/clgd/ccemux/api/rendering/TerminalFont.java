@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class TerminalFont {
 	private static final Logger log = LoggerFactory.getLogger(TerminalFont.class);
-	public static final String FONT_RESOURCE_PATH = "assets/computercraft/textures/gui/term_font.png";
+	public static final String FONT_RESOURCE_PATH = "img/term_font.png";
 	public static final int BASE_WIDTH = 256;
 	public static final int BASE_HEIGHT = 256;
 	public static final int BASE_CHAR_WIDTH = 6;

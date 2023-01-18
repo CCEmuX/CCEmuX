@@ -7,19 +7,16 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IComputerAccess;
-import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import net.clgd.ccemux.api.config.ConfigProperty;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.peripheral.Peripheral;
 
 /**
  * Emulates ComputerCraft's disk drive
- *
- * @see dan200.computercraft.shared.peripheral.diskdrive.DiskDrivePeripheral
- * @see dan200.computercraft.shared.peripheral.diskdrive.TileDiskDrive
  */
 public class DiskDrivePeripheral implements Peripheral {
 	private static final Map<Integer, MountInfo> mounts = new HashMap<>();
@@ -67,7 +64,7 @@ public class DiskDrivePeripheral implements Peripheral {
 	@LuaFunction
 	public final Object[] getDiskLabel() {
 		MountInfo info = mountInfo;
-		return info != null ? new Object[] { info.label } : null;
+		return info != null ? new Object[]{info.label} : null;
 	}
 
 	@LuaFunction
@@ -133,7 +130,7 @@ public class DiskDrivePeripheral implements Peripheral {
 		synchronized (mounts) {
 			mountInfo = mounts.get(id);
 			if (mountInfo == null) {
-				mounts.put(id, mountInfo = new MountInfo(new FileMount(
+				mounts.put(id, mountInfo = new MountInfo(new WritableFileMount(
 					rootPath.resolve("computer").resolve("disk").resolve(Integer.toString(mountId.get())).toFile(),
 					capacity.get()
 				)));
@@ -148,27 +145,27 @@ public class DiskDrivePeripheral implements Peripheral {
 		this.mountInfo = mountInfo;
 		this.mountPath = mountPath;
 
-		computer.queueEvent("disk", new Object[] { computer.getAttachmentName() });
+		computer.queueEvent("disk", new Object[]{computer.getAttachmentName()});
 	}
 
 	private synchronized void removeMount() {
 		if (mountPath == null) return;
 
 		computer.unmount(mountPath);
-		computer.queueEvent("disk_eject", new Object[] { computer.getAttachmentName() });
+		computer.queueEvent("disk_eject", new Object[]{computer.getAttachmentName()});
 		mountPath = null;
 	}
 
 	/**
 	 * Represents information about a particular disk. This is shared across all
-	 * instances of a given disk ID, ensuring {@link FileMount}'s usage/capacity tracking
+	 * instances of a given disk ID, ensuring {@link WritableFileMount}'s usage/capacity tracking
 	 * is consistent.
 	 */
 	private static class MountInfo {
 		String label;
-		IWritableMount mount;
+		WritableMount mount;
 
-		MountInfo(IWritableMount mount) {
+		MountInfo(WritableMount mount) {
 			this.mount = mount;
 		}
 	}

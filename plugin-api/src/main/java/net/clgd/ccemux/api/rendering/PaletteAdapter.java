@@ -2,7 +2,8 @@ package net.clgd.ccemux.api.rendering;
 
 import javax.annotation.Nonnull;
 
-import dan200.computercraft.shared.util.Palette;
+import dan200.computercraft.core.terminal.Palette;
+import dan200.computercraft.core.util.Colour;
 import net.clgd.ccemux.api.Utils;
 
 /**
@@ -16,14 +17,14 @@ public final class PaletteAdapter<C> {
 	/**
 	 * The default color index for backgrounds
 	 *
-	 * @see dan200.computercraft.shared.util.Colour#Black
+	 * @see Colour#BLACK
 	 */
 	public static final int DEFAULT_BACKGROUND = 0;
 
 	/**
 	 * The default color index for foregrounds
 	 *
-	 * @see dan200.computercraft.shared.util.Colour#White
+	 * @see Colour#WHITE
 	 */
 	public static final int DEFAULT_FOREGROUND = 15;
 

@@ -3,18 +3,18 @@ package net.clgd.ccemux.emulation;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.filesystem.FileMount;
+import dan200.computercraft.core.filesystem.WritableFileMount;
 import dan200.computercraft.core.metrics.Metric;
 import dan200.computercraft.core.metrics.MetricsObserver;
 
 class ComputerEnvironmentImpl implements ComputerEnvironment, MetricsObserver {
 	private final CCEmuX emu;
 	private final int id;
-	private final Supplier<IWritableMount> mount;
+	private final Supplier<WritableMount> mount;
 
-	ComputerEnvironmentImpl(CCEmuX emu, int id, Supplier<IWritableMount> mount) {
+	ComputerEnvironmentImpl(CCEmuX emu, int id, Supplier<WritableMount> mount) {
 		this.emu = emu;
 		this.id = id;
 		this.mount = mount;
@@ -26,10 +26,10 @@ class ComputerEnvironmentImpl implements ComputerEnvironment, MetricsObserver {
 	}
 
 	@Override
-	public IWritableMount createRootMount() {
+	public WritableMount createRootMount() {
 		return Optional.ofNullable(mount)
 			.map(Supplier::get)
-			.orElseGet(() -> new FileMount(
+			.orElseGet(() -> new WritableFileMount(
 				emu.getConfig().getComputerDir().resolve(Integer.toString(id)).toFile(),
 				emu.getConfig().maxComputerCapacity.get()
 			));

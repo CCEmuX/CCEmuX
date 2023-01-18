@@ -36,37 +36,4 @@ public class Packet {
 	public WirelessModemPeripheral getSender() {
 		return this.sender;
 	}
-
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		} else if (o != null && this.getClass() == o.getClass()) {
-			Packet packet = (Packet) o;
-			if (this.channel != packet.channel) {
-				return false;
-			} else if (this.replyChannel != packet.replyChannel) {
-				return false;
-			} else {
-				if (this.payload != null) {
-					if (!this.payload.equals(packet.payload)) {
-						return false;
-					}
-				} else if (packet.payload != null) {
-					return false;
-				}
-
-				return this.sender.equals(packet.sender);
-			}
-		} else {
-			return false;
-		}
-	}
-
-	public int hashCode() {
-		int result = this.channel;
-		result = 31 * result + this.replyChannel;
-		result = 31 * result + (this.payload != null ? this.payload.hashCode() : 0);
-		result = 31 * result + this.sender.hashCode();
-		return result;
-	}
 }

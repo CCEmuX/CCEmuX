@@ -1,7 +1,7 @@
 package net.clgd.ccemux.api.emulation.filesystem;
 
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,16 +11,16 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Streams;
 import dan200.computercraft.api.filesystem.FileOperationException;
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.apis.handles.ArrayByteChannel;
 
 /**
- * An immutable, in-memory {@link dan200.computercraft.api.filesystem.IMount
+ * An immutable, in-memory {@link dan200.computercraft.api.filesystem.Mount
  * IMount} implementation.
  *
  * @author apemanzilla
  */
-public class VirtualMount implements IMount {
+public class VirtualMount implements Mount {
 	private final VirtualDirectory root;
 
 	/**
@@ -109,7 +109,7 @@ public class VirtualMount implements IMount {
 
 	@Nonnull
 	@Override
-	public ReadableByteChannel openForRead(@Nonnull String path) throws IOException {
+	public SeekableByteChannel openForRead(@Nonnull String path) throws IOException {
 		VirtualMountEntry e = follow(path);
 		if (e instanceof VirtualFile) {
 			return new ArrayByteChannel(((VirtualFile) e).getData());

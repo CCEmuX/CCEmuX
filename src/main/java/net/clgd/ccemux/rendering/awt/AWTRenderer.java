@@ -294,7 +294,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// Pasting should be handled first as it blocks all events
-		boolean hasModifier = (e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) != 0;
+		boolean hasModifier = (e.getModifiersEx() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()) != 0;
 		if (rendererConfig.nativePaste.get()
 			? DefaultEditorKit.pasteAction.equals(
 			((InputMap) UIManager.getLookAndFeelDefaults().get("TextField.focusInputMap"))
@@ -344,7 +344,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		if (key == KeyEvent.VK_S) shutdownTimer = -1;
 		if (key == KeyEvent.VK_R) rebootTimer = -1;
 		if (key == KeyEvent.VK_T) terminateTimer = -1;
-		if ((e.getModifiers() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()) == 0) {
+		if ((e.getModifiersEx() & Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()) == 0) {
 			shutdownTimer = rebootTimer = terminateTimer = -1;
 		}
 

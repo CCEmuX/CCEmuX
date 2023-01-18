@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import com.google.gson.*;
-import dan200.computercraft.ComputerCraft;
+import dan200.computercraft.core.CoreConfig;
 import dan200.computercraft.core.apis.http.options.Action;
 import dan200.computercraft.core.apis.http.options.AddressRule;
 import net.clgd.ccemux.api.emulation.EmuConfig;
@@ -65,6 +65,10 @@ public class UserConfig extends EmuConfig {
 		return getComputerDir().resolve(Integer.toString(id));
 	}
 
+	public long getMaxComputerCapacity() {
+		return maxComputerCapacity.get();
+	}
+
 	@Override
 	public void load() throws IOException {
 		Path configPath = dataDir.resolve(CONFIG_FILE_NAME);
@@ -96,18 +100,16 @@ public class UserConfig extends EmuConfig {
 	public void setup() {
 		// Setup the properties to sync with the original.
 		// computerSpaceLimit isn't technically needed, but we do it for consistency's sake.
-		ComputerCraft.logComputerErrors = true;
-		maxComputerCapacity.addAndFireListener((o, n) -> ComputerCraft.computerSpaceLimit = n.intValue());
-		maximumFilesOpen.addAndFireListener((o, n) -> ComputerCraft.maximumFilesOpen = n);
-		httpEnabled.addAndFireListener((o, n) -> ComputerCraft.httpEnabled = n);
+		maximumFilesOpen.addAndFireListener((o, n) -> CoreConfig.maximumFilesOpen = n);
+		httpEnabled.addAndFireListener((o, n) -> CoreConfig.httpEnabled = n);
 		httpWhitelist.addAndFireListener(this::updateHttpRules);
 		httpBlacklist.addAndFireListener(this::updateHttpRules);
-		disableLua51Features.addAndFireListener((o, n) -> ComputerCraft.disableLua51Features = n);
-		defaultComputerSettings.addAndFireListener((o, n) -> ComputerCraft.defaultComputerSettings = n);
+		disableLua51Features.addAndFireListener((o, n) -> CoreConfig.disableLua51Features = n);
+		defaultComputerSettings.addAndFireListener((o, n) -> CoreConfig.defaultComputerSettings = n);
 	}
 
 	private void updateHttpRules(String[] oldValue, String[] newValue) {
-		ComputerCraft.httpRules = Collections.unmodifiableList(Stream.concat(
+		CoreConfig.httpRules = Collections.unmodifiableList(Stream.concat(
 			Stream.of(httpBlacklist.get()).map((x) -> AddressRule.parse(x, OptionalInt.empty(), Action.DENY.toPartial())).filter(Objects::nonNull),
 			Stream.of(httpWhitelist.get()).map((x) -> AddressRule.parse(x, OptionalInt.empty(), Action.ALLOW.toPartial())).filter(Objects::nonNull)
 		).collect(Collectors.toList()));

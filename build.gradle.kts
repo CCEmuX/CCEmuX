@@ -1,13 +1,14 @@
 plugins {
 	application
 	id("com.github.johnrengelman.shadow") version "7.1.2"
+	id("org.openjfx.javafxplugin") version "0.0.13"
 }
 
-val ccVersion = project.property("cc_version")
+val ccVersion: String by extra
 
 allprojects {
 	group = "net.clgd"
-	version = "1.0.0" + if (System.getenv("GITHUB_SHA") == null) {
+	version = "1.1.0" + if (System.getenv("GITHUB_SHA") == null) {
 		""
 	} else {
 		"-${System.getenv("GITHUB_SHA")}"
@@ -23,8 +24,9 @@ allprojects {
 
 	gradle.projectsEvaluated {
 		java {
-			sourceCompatibility = JavaVersion.VERSION_1_8
-			targetCompatibility = JavaVersion.VERSION_1_8
+			toolchain {
+				languageVersion.set(JavaLanguageVersion.of(17))
+			}
 		}
 
 		tasks.withType(JavaCompile::class) {
@@ -40,21 +42,22 @@ application {
 dependencies {
 	implementation(project(":plugin-api"))
 
-	implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.11.2")
-	implementation("org.apache.logging.log4j:log4j-core:2.11.2")
+	runtimeOnly("org.slf4j:slf4j-simple:2.0.6")
 
 	implementation("commons-cli:commons-cli:1.4")
 	implementation("org.apache.commons:commons-lang3:3.6")
-	implementation("io.netty:netty-codec-http:4.1.85.Final")
-	implementation("it.unimi.dsi:fastutil:8.3.0")
-	implementation("org.ow2.asm:asm:8.0.1")
 
 	implementation("com.google.code.gson:gson:2.8.1")
 
-	compileOnly("com.google.auto.service:auto-service:1.0-rc6")
-	annotationProcessor("com.google.auto.service:auto-service:1.0-rc6")
+	compileOnly("com.google.auto.service:auto-service:1.0.1")
+	annotationProcessor("com.google.auto.service:auto-service:1.0.1")
 
 	testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+}
+
+javafx {
+	version = "19"
+	modules = listOf("javafx.controls")
 }
 
 tasks.processResources {
@@ -80,9 +83,9 @@ tasks.shadowJar {
 
 	minimize {
 		exclude(dependency("org.slf4j:.*:.*"))
-		exclude(dependency("org.apache.logging.log4j:.*:.*"))
 	}
 
+	mergeServiceFiles()
 	append("META-INF/LICENSE")
 	append("META-INF/LICENSE.txt")
 	append("META-INF/NOTICE")

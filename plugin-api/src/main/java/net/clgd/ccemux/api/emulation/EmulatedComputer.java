@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
@@ -49,7 +49,7 @@ public abstract class EmulatedComputer extends Computer {
 		 * @return This builder, for chaining
 		 */
 		@Nonnull
-		Builder rootMount(@Nullable Supplier<IWritableMount> rootMount);
+		Builder rootMount(@Nullable Supplier<WritableMount> rootMount);
 
 		/**
 		 * Sets the root ({@code /}) mount of the computer to construct. Setting
@@ -62,7 +62,7 @@ public abstract class EmulatedComputer extends Computer {
 		 */
 		@Nonnull
 		@Deprecated
-		default Builder rootMount(@Nullable IWritableMount rootMount) {
+		default Builder rootMount(@Nullable WritableMount rootMount) {
 			return rootMount(() -> rootMount);
 		}
 

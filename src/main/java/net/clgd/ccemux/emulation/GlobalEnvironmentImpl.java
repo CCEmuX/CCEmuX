@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 
-import dan200.computercraft.api.filesystem.IMount;
+import dan200.computercraft.api.filesystem.Mount;
 import dan200.computercraft.core.computer.GlobalEnvironment;
-import dan200.computercraft.core.filesystem.ComboMount;
 import dan200.computercraft.core.filesystem.FileMount;
 import dan200.computercraft.core.filesystem.JarMount;
 import net.clgd.ccemux.api.emulation.filesystem.VirtualDirectory;
@@ -39,7 +38,7 @@ class GlobalEnvironmentImpl implements GlobalEnvironment {
 	}
 
 	@Override
-	public IMount createResourceMount(String domain, String subPath) {
+	public Mount createResourceMount(String domain, String subPath) {
 		JarMount jarMount;
 		try {
 			jarMount = new JarMount(emu.getCCJar(), "data/" + domain + "/" + subPath);
@@ -51,13 +50,13 @@ class GlobalEnvironmentImpl implements GlobalEnvironment {
 		VirtualDirectory.Builder romBuilder = new VirtualDirectory.Builder();
 		emu.getPluginMgr().onCreatingROM(emu, romBuilder);
 
-		return new ComboMount(new IMount[]{
-			// From ComputerCraft JAR
-			jarMount,
+		return new ComboMount(new Mount[]{
+			// From data directory
+			new FileMount(emu.getConfig().getAssetDir().resolve(Paths.get("assets", domain, subPath))),
 			// From plugin files
 			new VirtualMount(romBuilder.build()),
-			// From data directory
-			new FileMount(emu.getConfig().getAssetDir().resolve(Paths.get("assets", domain, subPath)).toFile(), 0)
+			// From ComputerCraft JAR
+			jarMount,
 		});
 	}
 

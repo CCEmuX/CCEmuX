@@ -1,15 +1,11 @@
 package net.clgd.ccemux.rendering.awt;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.RescaleOp;
+import java.awt.image.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -17,6 +13,8 @@ import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.core.terminal.TextBuffer;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Renders a terminal to arbitrary {@link java.awt.Graphics} objects. This is suitable both for taking
@@ -122,8 +120,7 @@ public class TerminalRenderer {
 				char character = (textLine == null) ? ' ' : textLine.charAt(x);
 				char fgChar = (fgLine == null) ? ' ' : fgLine.charAt(x);
 
-				drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin,
-					Utils.base16ToInt(fgChar));
+				drawChar(font, g, character, x * pixelWidth + margin, y * pixelHeight + margin, Utils.base16ToInt(fgChar));
 
 				dx += width;
 			}
@@ -138,33 +135,6 @@ public class TerminalRenderer {
 		}
 	}
 
-	private static class CharImageRequest {
-		private final char character;
-		private final Color color;
-		private final AWTTerminalFont font;
-
-		private CharImageRequest(char character, @Nonnull Color color, @Nonnull AWTTerminalFont font) {
-			this.character = character;
-			this.color = color;
-			this.font = font;
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-
-			CharImageRequest that = (CharImageRequest) o;
-
-			return character == that.character && color.equals(that.color) && font.equals(that.font);
-		}
-
-		@Override
-		public int hashCode() {
-			int result = character;
-			result = 31 * result + color.hashCode();
-			result = 31 * result + font.hashCode();
-			return result;
-		}
+	private record CharImageRequest(char character, @Nonnull Color color, @Nonnull AWTTerminalFont font) {
 	}
 }

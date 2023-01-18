@@ -5,7 +5,6 @@ import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,13 +26,12 @@ import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import dan200.computercraft.api.filesystem.IWritableMount;
+import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
-import dan200.computercraft.core.filesystem.FileSystemWrapper;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
@@ -60,7 +58,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		private Integer id = null;
 
-		private Supplier<IWritableMount> rootMount = null;
+		private Supplier<WritableMount> rootMount = null;
 
 		private String label = null;
 
@@ -87,11 +85,11 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		 * (non-Javadoc)
 		 *
 		 * @see net.clgd.ccemux.emulation.Builder#rootMount(dan200.computercraft.api.
-		 * filesystem.IWritableMount)
+		 * filesystem.WritableMount)
 		 */
 		@Nonnull
 		@Override
-		public Builder rootMount(Supplier<IWritableMount> rootMount) {
+		public Builder rootMount(Supplier<WritableMount> rootMount) {
 			this.rootMount = rootMount;
 			return this;
 		}
@@ -149,7 +147,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
-	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id, Supplier<IWritableMount> mount) {
+	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id, Supplier<WritableMount> mount) {
 		super(emulator.context(), new ComputerEnvironmentImpl(emulator, id, mount), terminal, id);
 		this.emulator = emulator;
 	}
@@ -189,7 +187,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 					throw new IOException("Not enough space on computer");
 				}
 
-				try (FileSystemWrapper<WritableByteChannel> s = mount.openForWrite(pathName, false, Function.identity());
+				try (var s = mount.openForWrite(pathName, false, Function.identity());
 					 FileChannel o = FileChannel.open(f.toPath())) {
 					ByteStreams.copy(o, s.get());
 				}
