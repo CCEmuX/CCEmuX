@@ -13,13 +13,11 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import lombok.Value;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
 
-@Value
-public class JFXRenderer implements Renderer {
+public final class JFXRenderer implements Renderer {
 	private final Stage stage;
 	private final EmulatedComputer computer;
 	private final ReadOnlyDoubleProperty termScale;

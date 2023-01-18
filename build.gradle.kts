@@ -51,9 +51,6 @@ dependencies {
 
 	implementation("com.google.code.gson:gson:2.8.1")
 
-	compileOnly("org.projectlombok:lombok:1.18.10")
-	annotationProcessor("org.projectlombok:lombok:1.18.10")
-
 	compileOnly("com.google.auto.service:auto-service:1.0-rc6")
 	annotationProcessor("com.google.auto.service:auto-service:1.0-rc6")
 

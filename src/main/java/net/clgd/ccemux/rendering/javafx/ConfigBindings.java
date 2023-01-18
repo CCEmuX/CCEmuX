@@ -9,9 +9,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import net.clgd.ccemux.api.config.ConfigProperty;
 
 public class ConfigBindings {
@@ -22,11 +19,13 @@ public class ConfigBindings {
 	 * @param <T>
 	 * @author apemanzilla
 	 */
-	@RequiredArgsConstructor
 	public static class WrappedConfigProperty<T> extends ObjectProperty<T> {
-		@Value
 		public class WrappedChangeListener implements BiConsumer<T, T> {
 			private final ChangeListener<? super T> changeListener;
+
+			public WrappedChangeListener(ChangeListener<? super T> changeListener) {
+				this.changeListener = changeListener;
+			}
 
 			@Override
 			public void accept(T from, T to) {
@@ -34,9 +33,12 @@ public class ConfigBindings {
 			}
 		}
 
-		@Value
 		public class WrappedInvalidationListener implements BiConsumer<T, T> {
 			private final InvalidationListener invalidationListener;
+
+			public WrappedInvalidationListener(InvalidationListener invalidationListener) {
+				this.invalidationListener = invalidationListener;
+			}
 
 			@Override
 			public void accept(T arg0, T arg1) {
@@ -44,8 +46,11 @@ public class ConfigBindings {
 			}
 		}
 
-		@Getter
 		private final ConfigProperty<T> cfgProp;
+
+		public WrappedConfigProperty(ConfigProperty<T> cfgProp) {
+			this.cfgProp = cfgProp;
+		}
 
 		@Override
 		public Object getBean() {

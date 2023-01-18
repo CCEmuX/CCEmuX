@@ -1,8 +1,6 @@
 package net.clgd.ccemux.rendering.javafx;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import java.awt.Rectangle;
+import java.awt.*;
 import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
@@ -13,24 +11,50 @@ import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Value;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 
-@Value
-@EqualsAndHashCode(callSuper = false)
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class JFXTerminalFont extends TerminalFont {
-	@Getter(lazy = true)
-	private static final JFXTerminalFont bestFont = TerminalFont.getBest(JFXTerminalFont::new);
+	private static JFXTerminalFont bestFont;
+
+	public static JFXTerminalFont getBestFont() {
+		JFXTerminalFont font = bestFont;
+		return font != null ? font : (bestFont = TerminalFont.getBest(JFXTerminalFont::new));
+	}
 
 	private final Image base;
 
-	@Value
 	public static class CharImageRequest {
-		private char character;
-		private Color color;
-		private double termScale;
+		private final char character;
+		private final Color color;
+		private final double termScale;
+
+		public CharImageRequest(char character, Color color, double termScale) {
+			this.character = character;
+			this.color = color;
+			this.termScale = termScale;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			CharImageRequest that = (CharImageRequest) o;
+			if (character != that.character) return false;
+			if (Double.compare(that.termScale, termScale) != 0) return false;
+			return color.equals(that.color);
+		}
+
+		@Override
+		public int hashCode() {
+			int result;
+			result = character;
+			result = 31 * result + color.hashCode();
+			result = 31 * result + Double.hashCode(termScale);
+			return result;
+		}
 	}
 
 	private final Cache<CharImageRequest, Image> charCache = CacheBuilder.newBuilder().expireAfterAccess(30, SECONDS)

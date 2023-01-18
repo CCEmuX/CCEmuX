@@ -1,11 +1,7 @@
 package net.clgd.ccemux.rendering.awt;
 
-import static net.clgd.ccemux.rendering.awt.KeyTranslator.translateToCC;
-import static net.clgd.ccemux.rendering.awt.MouseTranslator.swingToCC;
-
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.datatransfer.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
 import java.io.File;
@@ -24,19 +20,20 @@ import javax.swing.KeyStroke;
 import javax.swing.UIManager;
 import javax.swing.text.DefaultEditorKit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.io.CharStreams;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import lombok.Getter;
 import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.Renderer;
 import net.clgd.ccemux.api.rendering.TerminalFont;
 import net.clgd.ccemux.plugins.builtin.AWTPlugin.AWTConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static net.clgd.ccemux.rendering.awt.KeyTranslator.translateToCC;
+import static net.clgd.ccemux.rendering.awt.MouseTranslator.swingToCC;
 
 public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseMotionListener, MouseWheelListener, WindowFocusListener {
 	private static final Logger log = LoggerFactory.getLogger(AWTRenderer.class);
@@ -45,8 +42,12 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	private static final double ACTION_TIME = 0.5;
 
-	@Getter(lazy = true)
-	private static final AWTTerminalFont font = loadBestFont();
+	private static AWTTerminalFont font;
+
+	private AWTTerminalFont getFont() {
+		AWTTerminalFont font = AWTRenderer.font;
+		return font != null ? font : (AWTRenderer.font = loadBestFont());
+	}
 
 	private static AWTTerminalFont loadBestFont() {
 		return TerminalFont.getBest(AWTTerminalFont::new);

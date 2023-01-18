@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
 import dan200.computercraft.core.ComputerContext;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.emulation.EmulatedTerminal;
 import net.clgd.ccemux.api.emulation.Emulator;
@@ -27,9 +25,16 @@ import net.clgd.ccemux.plugins.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@RequiredArgsConstructor
 public class CCEmuX implements Runnable, Emulator {
 	private static final Logger log = LoggerFactory.getLogger(CCEmuX.class);
+
+	public CCEmuX(UserConfig cfg, RendererFactory<?> rendererFactory, PluginManager pluginMgr, File ccSource, Path sessionPath) {
+		this.cfg = cfg;
+		this.rendererFactory = rendererFactory;
+		this.pluginMgr = pluginMgr;
+		this.ccSource = ccSource;
+		this.sessionPath = sessionPath;
+	}
 
 	private static String getVersionProperty(String name) {
 		try (InputStream s = CCEmuX.class.getResourceAsStream("/ccemux.version")) {
@@ -51,10 +56,8 @@ public class CCEmuX implements Runnable, Emulator {
 
 	private final UserConfig cfg;
 
-	@Getter
 	private final RendererFactory<?> rendererFactory;
 
-	@Getter
 	private final PluginManager pluginMgr;
 
 	private final File ccSource;
@@ -71,6 +74,16 @@ public class CCEmuX implements Runnable, Emulator {
 	private final ComputerContext context = new ComputerContext(
 		new GlobalEnvironmentImpl(this), 1, x -> NoWorkMainThreadScheduler.INSTANCE
 	);
+
+	@Nonnull
+	@Override
+	public RendererFactory<?> getRendererFactory() {
+		return rendererFactory;
+	}
+
+	public PluginManager getPluginMgr() {
+		return pluginMgr;
+	}
 
 	@Nonnull
 	@Override
