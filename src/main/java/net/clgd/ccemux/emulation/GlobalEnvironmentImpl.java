@@ -52,7 +52,7 @@ class GlobalEnvironmentImpl implements GlobalEnvironment {
 
 		return new ComboMount(new Mount[]{
 			// From data directory
-			new FileMount(emu.getConfig().getAssetDir().resolve(Paths.get("assets", domain, subPath))),
+			new FileMount(emu.getConfig().getAssetDir().resolve(Paths.get(domain, subPath))),
 			// From plugin files
 			new VirtualMount(romBuilder.build()),
 			// From ComputerCraft JAR
@@ -62,7 +62,7 @@ class GlobalEnvironmentImpl implements GlobalEnvironment {
 
 	@Override
 	public InputStream createResourceFile(String domain, String subPath) {
-		File assetFile = emu.getConfig().getAssetDir().resolve(Paths.get("assets", domain, subPath)).toFile();
+		File assetFile = emu.getConfig().getAssetDir().resolve(Paths.get(domain, subPath)).toFile();
 		if (assetFile.exists() && assetFile.isFile()) {
 			try {
 				return new FileInputStream(assetFile);

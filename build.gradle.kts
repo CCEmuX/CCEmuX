@@ -94,11 +94,6 @@ tasks.shadowJar {
 	exclude(listOf(
 		// Exclude random junk
 		"META-INF/maven/*/*/*.*",
-		// Exclude textures and JSON from the CC jar
-		"assets/computercraft/**/*.json",
-		"data/computercraft/**/*.json",
-		"assets/computercraft/textures/block/*",
-		"assets/computercraft/textures/item/*",
 	))
 }
 
