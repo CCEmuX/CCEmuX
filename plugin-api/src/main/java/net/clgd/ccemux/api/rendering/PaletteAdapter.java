@@ -80,12 +80,12 @@ public final class PaletteAdapter<C> {
 	 * @return The converted color
 	 */
 	public C getColor(int c, int def) {
-		double[] col;
-		if ((col = palette.getColour(15 - c)) == null) {
-			col = palette.getColour(def);
-		}
-		col = Utils.clampColor(col);
-		return getColor(col[0], col[1], col[2]);
+		double[] col = c >= 0 && c <= 15 ? palette.getColour(15 - c) : palette.getColour(def);
+		return getColor(
+			Utils.constrainToRange(col[0], 0, 1),
+			Utils.constrainToRange(col[1], 0, 1),
+			Utils.constrainToRange(col[2], 0, 1)
+		);
 	}
 
 	/**
