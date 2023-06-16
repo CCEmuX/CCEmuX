@@ -63,7 +63,7 @@ public abstract class EmuConfig extends Config {
 			"You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").");
 
 	@Nonnull
-	public ConfigProperty<String[]> httpBlacklist = property("httpBlacklist", String[].class, new String[] { "127.0.0.0/8", "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fd00::/8" })
+	public ConfigProperty<String[]> httpBlacklist = property("httpBlacklist", String[].class, new String[] { "$private" })
 		.setName("Blocked domains")
 		.setDescription("A list of wildcards for domains or IP ranges that cannot be accessed through the \"http\" API on Computers.\n" +
 			"If this is empty then all whitelisted domains will be accessible. Example: \"*.github.com\" will block access to all subdomains of github.com.\n" +
