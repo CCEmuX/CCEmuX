@@ -71,9 +71,7 @@ public class CCEmuX implements Runnable, Emulator {
 	private long started = -1;
 	private boolean running;
 
-	private final ComputerContext context = new ComputerContext(
-		new GlobalEnvironmentImpl(this), 1, x -> NoWorkMainThreadScheduler.INSTANCE
-	);
+	private final ComputerContext context = ComputerContext.builder(new GlobalEnvironmentImpl(this)).build();
 
 	@Nonnull
 	@Override
