@@ -111,7 +111,7 @@ public class CCEmuXAPI extends Plugin {
 		}
 
 		@LuaFunction
-		public final MethodResult attach(IArguments arguments) throws LuaException {
+		public final void attach(IArguments arguments) throws LuaException {
 			ComputerSide side = arguments.getEnum(0, ComputerSide.class);
 			String peripheral = arguments.getString(1);
 			Object configuration = arguments.get(2);
@@ -127,15 +127,14 @@ public class CCEmuXAPI extends Plugin {
 			if (configuration != null) LuaAdapter.fromLua(group, configuration);
 
 			computer.getEnvironment().setPeripheral(side, built);
-			return awaitPeripheralChange(computer);
 		}
 
 		@LuaFunction
-		public final MethodResult detach(ComputerSide side) {
+		public final void detach(ComputerSide side) {
 			computer.getEnvironment().setPeripheral(side, null);
-			return awaitPeripheralChange(computer);
 		}
 
+		@LuaFunction
 		public final MethodResult screenshot() {
 			return Utils.awaitFuture(computer, computer.screenshot(),
 				f -> MethodResult.of(f.getName()),
@@ -148,20 +147,6 @@ public class CCEmuXAPI extends Plugin {
 		@Override
 		public String[] getNames() {
 			return new String[] { "ccemux" };
-		}
-
-		/**
-		 * Waits for peripherals to finish attaching/detaching.
-		 *
-		 * Peripherals are attached/detached on the {@link ComputerThread}, which means they won't have been properly
-		 * changed after {@code ccemux.attach}/{@code ccemux.detach} has been called. Instead, we queue an event on the
-		 * computer thread, so we are resumed after peripherals have actually been attached.
-		 *
-		 * @param computer The computer to queue an event on
-		 */
-		static MethodResult awaitPeripheralChange(EmulatedComputer computer) {
-			computer.queueEvent("ccemux_peripheral_update", null);
-			return MethodResult.pullEvent("ccemux_peripheral_update", x -> MethodResult.of());
 		}
 	}
 
