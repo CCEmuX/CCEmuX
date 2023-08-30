@@ -1,8 +1,5 @@
 package net.clgd.ccemux.rendering.javafx;
 
-import static javafx.beans.property.DoubleProperty.doubleProperty;
-import static net.clgd.ccemux.rendering.javafx.ConfigBindings.wrap;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -13,13 +10,14 @@ import javax.annotation.Nonnull;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.stage.Stage;
 import net.clgd.ccemux.api.emulation.EmuConfig;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.RendererFactory;
 
 public class JFXRendererFactory implements RendererFactory<JFXRenderer> {
-	private AtomicBoolean jfxStarted = new AtomicBoolean(false);
+	private final AtomicBoolean jfxStarted = new AtomicBoolean(false);
 
 	public static class JFXStarter extends Application {
 		public static final CountDownLatch latch = new CountDownLatch(1);
@@ -46,7 +44,7 @@ public class JFXRendererFactory implements RendererFactory<JFXRenderer> {
 				startJFX();
 			}
 
-			DoubleProperty termScale = doubleProperty(wrap(cfg.termScale));
+			DoubleProperty termScale = new SimpleDoubleProperty(null, "termScale", computer.getTermScale());
 			FutureTask<JFXRenderer> task = new FutureTask<>(() -> new JFXRenderer(new Stage(), computer, termScale));
 			Platform.runLater(task);
 

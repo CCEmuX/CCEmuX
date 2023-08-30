@@ -92,14 +92,14 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 		this.computer = computer;
 		this.rendererConfig = rendererConfig;
 
-		pixelWidth = (int) (6 * config.termScale.get());
-		pixelHeight = (int) (9 * config.termScale.get());
+		pixelWidth = (int) (6 * computer.getTermScale());
+		pixelHeight = (int) (9 * computer.getTermScale());
 
 		frame.setLayout(new BorderLayout());
 
 		// setMinimumSize(new Dimension(300, 200));
 
-		termComponent = new TerminalComponent(computer.terminal, config.termScale.get());
+		termComponent = new TerminalComponent(computer.terminal, computer.getTermScale());
 		frame.add(termComponent, BorderLayout.CENTER);
 
 		// required for tab to work

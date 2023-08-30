@@ -8,10 +8,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.swing.text.html.Option;
 
+import dan200.computercraft.core.apis.TableHelper;
+import dan200.computercraft.core.util.ArgumentHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +44,6 @@ import net.clgd.ccemux.config.LuaAdapter;
 public class CCEmuXAPI extends Plugin {
 	private static final Logger log = LoggerFactory.getLogger(CCEmuXAPI.class);
 
-	@FunctionalInterface
-	private interface APIMethod {
-		Object[] accept(ILuaContext c, Object[] o) throws LuaException, InterruptedException;
-	}
-
 	public static class API implements ILuaAPI {
 		private final Emulator emu;
 		private final EmulatedComputer computer;
@@ -62,9 +64,30 @@ public class CCEmuXAPI extends Plugin {
 			emu.removeComputer(computer);
 		}
 
+		private record TermSize(int width, int height) { }
+
 		@LuaFunction
-		public final int openEmu(Optional<Integer> id) {
-			return emu.createComputer(b -> b.id(id.orElse(-1))).getID();
+		public final int openEmu(Optional<Integer> id, Optional<Map<?, ?>> properties) throws LuaException {
+			var props = properties.orElse(Collections.emptyMap());
+			TermSize termSize = null;
+			if (props.containsKey("width") || props.containsKey("height")) {
+				termSize = new TermSize(
+					TableHelper.getIntField(props, "width"),
+					TableHelper.getIntField(props, "height")
+				);
+			}
+
+			Optional<Double> termScale = TableHelper.optRealField(props, "scale");
+
+			return createComputer(id, termSize, termScale);
+		}
+
+		private int createComputer(Optional<Integer> id, @Nullable TermSize termSize, Optional<Double> termScale) {
+			return emu.createComputer(b -> {
+				b.id(id.orElse(-1));
+				if (termSize != null) b.termSize(termSize.width(), termSize.height());
+				termScale.ifPresent(b::termScale);
+			}).getID();
 		}
 
 		@LuaFunction

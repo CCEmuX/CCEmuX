@@ -76,13 +76,22 @@ public abstract class EmulatedComputer extends Computer {
 		Builder label(@Nullable String label);
 
 		/**
-		 * Set the dimension of the computer's terminal.
+		 * Set the dimension of the computer's terminal. This overrides {@link EmuConfig#termWidth} and
+		 * {@link EmuConfig#termHeight}
 		 *
 		 * @param width  The new width.
 		 * @param height The new height.
 		 * @return This builder, for chaining.
 		 */
 		Builder termSize(int width, int height);
+
+		/**
+		 * Set the scale for this computer's terminal. This overrides {@link EmuConfig#termScale}.
+		 *
+		 * @param scale The new scale.
+		 * @return This builder, for chaining.
+		 */
+		Builder termScale(double scale);
 
 		/**
 		 * Builds an emulated computer using the given values
@@ -132,6 +141,13 @@ public abstract class EmulatedComputer extends Computer {
 	 */
 	@Nonnull
 	public abstract ListenableFuture<File> screenshot();
+
+	/**
+	 * Get the terminal scale for renderers to use.
+	 *
+	 * @return The terminal scale.
+	 */
+	public abstract double getTermScale();
 
 	/**
 	 * Queues a key event

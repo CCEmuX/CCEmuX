@@ -55,6 +55,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	public static class BuilderImpl implements Builder {
 		private final CCEmuX emu;
 		private final EmulatedTerminal term;
+		private double termScale;
 
 		private Integer id = null;
 
@@ -62,11 +63,12 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 		private String label = null;
 
-		private transient AtomicBoolean built = new AtomicBoolean();
+		private transient final AtomicBoolean built = new AtomicBoolean();
 
 		private BuilderImpl(CCEmuX emu, EmulatedTerminal term) {
 			this.emu = emu;
 			this.term = term;
+			this.termScale = emu.getConfig().termScale.get();
 		}
 
 		/*
@@ -112,6 +114,12 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 			return this;
 		}
 
+		@Override
+		public Builder termScale(double scale) {
+			this.termScale = scale;
+			return this;
+		}
+
 		/*
 		 * (non-Javadoc)
 		 *
@@ -125,7 +133,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 			int id = Optional.ofNullable(this.id).orElse(-1);
 			if (id < 0) id = emu.assignNewID();
 
-			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, id, rootMount);
+			EmulatedComputer ec = new EmulatedComputerImpl(emu, term, id, termScale, rootMount);
 			ec.setLabel(label);
 			return ec;
 		}
@@ -147,9 +155,12 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 
 	private final CopyOnWriteArrayList<Listener> listeners = new CopyOnWriteArrayList<>();
 
-	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id, Supplier<WritableMount> mount) {
+	private final double termScale;
+
+	private EmulatedComputerImpl(CCEmuX emulator, EmulatedTerminal terminal, int id, double termScale, Supplier<WritableMount> mount) {
 		super(emulator.context(), new ComputerEnvironmentImpl(emulator, id, mount), terminal, id);
 		this.emulator = emulator;
+		this.termScale = termScale;
 	}
 
 	@Override
@@ -160,6 +171,11 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 	@Override
 	public boolean removeListener(@Nonnull Listener l) {
 		return listeners.remove(l);
+	}
+
+	@Override
+	public double getTermScale() {
+		return termScale;
 	}
 
 	@Override
@@ -221,7 +237,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 			), ".png");
 
 			AWTTerminalFont font = AWTTerminalFont.getBest(AWTTerminalFont::new);
-			TerminalRenderer renderer = new TerminalRenderer(terminal, emulator.getConfig().termScale.get());
+			TerminalRenderer renderer = new TerminalRenderer(terminal, termScale);
 			try {
 				synchronized (terminal) {
 					Dimension dimension = renderer.getSize();

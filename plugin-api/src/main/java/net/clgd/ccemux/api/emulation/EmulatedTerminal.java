@@ -44,6 +44,7 @@ public class EmulatedTerminal extends Terminal {
 	private final EmulatedPalette palette;
 	private final List<Listener> listeners = new ArrayList<>();
 	private final AtomicBoolean changed;
+	private int scale;
 
 	public EmulatedTerminal(int width, int height) {
 		this(width, height, new AtomicBoolean(false));
