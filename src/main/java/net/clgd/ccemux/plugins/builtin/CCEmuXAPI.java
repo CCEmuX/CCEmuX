@@ -216,8 +216,8 @@ public class CCEmuXAPI extends Plugin {
 				romBuilder.addEntry("help/emu.txt", new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_help.txt"))));
 
-				romBuilder.addEntry("help/credits-emu.txt", new VirtualFile(
-					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/credits_help.txt"))));
+				romBuilder.addEntry("help/credits-emu.md", new VirtualFile(
+					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/credits_help.md"))));
 
 				romBuilder.addEntry("autorun/emu.lua", new VirtualFile(
 					ByteStreams.toByteArray(CCEmuXAPI.class.getResourceAsStream("/rom/emu_completion.lua"))));
