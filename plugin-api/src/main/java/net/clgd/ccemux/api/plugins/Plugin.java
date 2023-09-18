@@ -2,21 +2,36 @@ package net.clgd.ccemux.api.plugins;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import dan200.computercraft.api.lua.ILuaAPI;
+import net.clgd.ccemux.api.config.Group;
+import net.clgd.ccemux.api.emulation.EmulatedComputer;
+import net.clgd.ccemux.api.plugins.hooks.Hook;
+import net.clgd.ccemux.api.rendering.RendererFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.clgd.ccemux.api.config.Group;
-import net.clgd.ccemux.api.plugins.hooks.Hook;
-
 /**
- * Represents a plugin for CCEmuX. Plugins can add or change behavior, such as
- * adding Lua APIs, adding rendering systems, or even changing the behavior of
- * CC itself. (albeit through classloader hacks)
+ * The entry interface for a CCEmuX. Plugins can add or change behavior, such as
+ * {@linkplain EmulatedComputer#addApi(ILuaAPI)} adding Lua APIs} or
+ * {@linkplain PluginManager#addRenderer(String, RendererFactory) registering rendering plugins}.
+ * <p>
+ * Plugins are loaded via Java's {@link ServiceLoader} mechanism. Implementing classes should be listed in
+ * a {@code META-INF/services/net.clgd.ccemux.api.plugins.Plugin} file - it is recommended one uses
+ * <a href="https://github.com/google/auto/tree/main/service">the {@code @AutoService} annotation</a> to generate this
+ * file.
+ * <p>
+ * Plugins typically implement their behaviour by registering various hooks with the {@link #registerHook(Hook) method}.
+ * See subclasses of the {@link Hook} interface for useful behaviour.
  *
  * @author apemanzilla
  * @see Hook
@@ -40,10 +55,9 @@ public abstract class Plugin {
 	 * @param cls The type
 	 * @return A set of all hooks of the given type
 	 */
-	@SuppressWarnings("unchecked")
 	@Nonnull
 	public final <T extends Hook> Set<T> getHooks(@Nonnull Class<T> cls) {
-		return Collections.unmodifiableSet(Collections.unmodifiableSet(hooks.stream().filter(h -> cls.isAssignableFrom(h.getClass())).map(h -> (T) h).collect(Collectors.toSet())));
+		return hooks.stream().filter(h -> cls.isAssignableFrom(h.getClass())).map(cls::cast).collect(Collectors.toUnmodifiableSet());
 	}
 
 	/**
