@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * <a href="https://github.com/google/auto/tree/main/service">the {@code @AutoService} annotation</a> to generate this
  * file.
  * <p>
- * Plugins typically implement their behaviour by registering various hooks with the {@link #registerHook(Hook) method}.
+ * Plugins typically implement their behaviour by registering various hooks with the {@link #registerHook(Hook)} method.
  * See subclasses of the {@link Hook} interface for useful behaviour.
  *
  * @author apemanzilla
