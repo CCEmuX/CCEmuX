@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoField;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -29,6 +31,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
+import dan200.computercraft.core.apis.handles.ArrayByteChannel;
+import dan200.computercraft.core.apis.transfer.TransferredFile;
+import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.core.computer.ComputerSide;
 import dan200.computercraft.core.filesystem.FileSystem;
 import dan200.computercraft.core.filesystem.FileSystemException;
@@ -189,6 +194,21 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 		}
 
 		listeners.forEach(l -> l.onAdvance(0.05));
+	}
+
+	@Override
+	public void transferFiles(@Nonnull Iterable<File> files) throws IOException {
+		List<TransferredFile> toTransfer = new ArrayList<>();
+		for (var file : files) {
+			if (file.isFile()) {
+				toTransfer.add(new TransferredFile(file.getName(), new ArrayByteChannel(Files.readAllBytes(file.toPath()))));
+			}
+		}
+
+		if (!toTransfer.isEmpty()) {
+			queueEvent(TransferredFiles.EVENT, new Object[]{new TransferredFiles(toTransfer, () -> {
+			})});
+		}
 	}
 
 	private void doCopyFiles(@Nonnull Iterable<File> files, @Nonnull String location) throws IOException, FileSystemException {

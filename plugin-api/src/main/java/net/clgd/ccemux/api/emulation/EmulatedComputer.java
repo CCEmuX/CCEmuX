@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import com.google.common.util.concurrent.ListenableFuture;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.core.ComputerContext;
+import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
 
@@ -122,6 +123,16 @@ public abstract class EmulatedComputer extends Computer {
 	 * @see #addListener(Listener)
 	 */
 	public abstract boolean removeListener(@Nonnull Listener l);
+
+	/**
+	 * Transfer a list of files onto the computer, queuing a {@link TransferredFiles#EVENT {@code file_transfer}} event.
+	 * <p>
+	 * Unlike {@link #copyFiles(Iterable, String)}, this does not visit or copy directories. Only the selected files
+	 * will be transferred to the computer.
+	 *
+	 * @param files The files to copy
+	 */
+	public abstract void transferFiles(@Nonnull Iterable<File> files) throws IOException;
 
 	/**
 	 * Copies the given files into this computer's root mount at the given location.

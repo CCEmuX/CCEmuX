@@ -353,14 +353,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	public boolean transferContents(Clipboard cb) {
 		if (cb.hasFiles()) {
 			try {
-				computer.copyFiles(cb.getFiles(), "/");
-
-				Alert a = new Alert(AlertType.INFORMATION);
-				a.setTitle("Files copied");
-				a.setHeaderText("Files copied");
-				a.setContentText("Files were successfully copied to computer ID " + computer.getID());
-				a.initStyle(StageStyle.UTILITY);
-				a.show();
+				computer.transferFiles(cb.getFiles());
 				return true;
 			} catch (IOException e1) {
 				log.error("Error copying files {}", cb.getFiles(), e1);

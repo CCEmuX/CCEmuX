@@ -138,9 +138,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 						@SuppressWarnings("unchecked")
 						List<File> data = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-						computer.copyFiles(data, "/");
-						JOptionPane.showMessageDialog(null, "Files have been copied to the computer root.",
-							"Files copied", JOptionPane.INFORMATION_MESSAGE);
+						computer.transferFiles(data);
 					} else if (DataFlavor.selectBestTextFlavor(flavors) != null) {
 						DataFlavor f = DataFlavor.selectBestTextFlavor(flavors);
 
