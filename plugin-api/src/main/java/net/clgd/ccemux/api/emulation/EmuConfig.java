@@ -70,11 +70,6 @@ public abstract class EmuConfig extends Config {
 			"You can use domain names (\"pastebin.com\"), wilcards (\"*.pastebin.com\") or CIDR notation (\"127.0.0.0/8\").");
 
 	@Nonnull
-	public ConfigProperty<Boolean> disableLua51Features = property("disableLua51Features", boolean.class, false)
-		.setName("Disable Lua 5.1 features")
-		.setDescription("Set this to true to disable Lua 5.1 functions that will be removed in a future update. Useful for ensuring forward compatibility of your programs now.");
-
-	@Nonnull
 	public ConfigProperty<String> defaultComputerSettings = property("defaultComputerSettings", String.class, "")
 		.setName("Default computer settings")
 		.setDescription("A comma seperated list of default system settings to set on new computers. Example: \"shell.autocomplete=false,lua.autocomplete=false,edit.autocomplete=false\" will disable all autocompletion");

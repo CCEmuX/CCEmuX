@@ -26,7 +26,6 @@ import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
 import dan200.computercraft.api.lua.*;
 import dan200.computercraft.core.computer.ComputerSide;
-import dan200.computercraft.core.computer.ComputerThread;
 import net.clgd.ccemux.Utils;
 import net.clgd.ccemux.api.config.Group;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;

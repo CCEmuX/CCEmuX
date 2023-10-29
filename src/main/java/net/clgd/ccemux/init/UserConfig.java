@@ -104,7 +104,6 @@ public class UserConfig extends EmuConfig {
 		httpEnabled.addAndFireListener((o, n) -> CoreConfig.httpEnabled = n);
 		httpWhitelist.addAndFireListener(this::updateHttpRules);
 		httpBlacklist.addAndFireListener(this::updateHttpRules);
-		disableLua51Features.addAndFireListener((o, n) -> CoreConfig.disableLua51Features = n);
 		defaultComputerSettings.addAndFireListener((o, n) -> CoreConfig.defaultComputerSettings = n);
 	}
 
