@@ -28,6 +28,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
+import dan200.computercraft.api.filesystem.MountConstants;
 import dan200.computercraft.api.filesystem.WritableMount;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import dan200.computercraft.core.apis.IAPIEnvironment;
@@ -223,7 +224,7 @@ public class EmulatedComputerImpl extends EmulatedComputer {
 					throw new IOException("Not enough space on computer");
 				}
 
-				try (var s = mount.openForWrite(pathName, false, Function.identity());
+				try (var s = mount.openForWrite(pathName, MountConstants.WRITE_OPTIONS);
 					 FileChannel o = FileChannel.open(f.toPath())) {
 					ByteStreams.copy(o, s.get());
 				}
