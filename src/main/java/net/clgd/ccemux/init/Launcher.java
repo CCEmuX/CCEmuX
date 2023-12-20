@@ -44,7 +44,7 @@ public class Launcher {
 			.argName("path").build());
 
 		opts.addOption(builder("a").longOpt("assets-dir")
-			.desc("Sets the directory where assets are located. This should contain an 'assets/computercraft/lua' folder.").hasArg()
+			.desc("Sets the directory where assets are located. This should contain a 'computercraft/lua' folder.").hasArg()
 			.argName("path").build());
 
 		opts.addOption(builder("C").longOpt("computers-dir")
@@ -98,7 +98,7 @@ public class Launcher {
 			? Paths.get(cli.getOptionValue("data-dir"))
 			: OperatingSystem.get().getAppDataDir().resolve("ccemux");
 
-		Path assetDir = cli.hasOption('a') ? Paths.get(cli.getOptionValue('a')) : dataDir;
+		Path assetDir = cli.hasOption('a') ? Paths.get(cli.getOptionValue('a')) : dataDir.resolve("data");
 		Path computerDir = cli.hasOption('C') ? Paths.get(cli.getOptionValue('C')) : dataDir.resolve("computer");
 
 		List<Path> startIn = cli.hasOption("start-dir")
@@ -252,7 +252,7 @@ public class Launcher {
 
 			// Create a stub for the assets directory if needed.
 			//noinspection ResultOfMethodCallIgnored
-			dataDir.resolve("assets").resolve("computercraft").resolve("lua").toFile().mkdirs();
+			assetDir.resolve("computercraft").resolve("lua").toFile().mkdirs();
 
 			cfg.setup();
 			pluginMgr.setup();
