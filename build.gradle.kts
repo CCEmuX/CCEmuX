@@ -17,8 +17,13 @@ allprojects {
 	repositories {
 		mavenCentral()
 
-		maven("https://squiddev.cc/maven/") {
-			name = "cc-tweaked"
+		exclusiveContent {
+			forRepository {
+				maven("https://squiddev.cc/maven")
+			}
+			filter {
+				includeGroup("cc.tweaked")
+			}
 		}
 	}
 
