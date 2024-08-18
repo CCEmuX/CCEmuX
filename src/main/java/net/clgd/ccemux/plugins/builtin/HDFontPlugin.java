@@ -41,7 +41,7 @@ public class HDFontPlugin extends Plugin {
 	@Override
 	public Optional<String> getWebsite() {
 		return Optional
-			.of("http://www.computercraft.info/forums2/index.php?/topic/25429-cc-176-enlarged-terminal-font/");
+			.of("https://ccf.squiddev.cc/topic/25429-cc-176-enlarged-terminal-font.html");
 	}
 
 	@Override
