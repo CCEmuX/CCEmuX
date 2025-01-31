@@ -16,9 +16,6 @@ import dan200.computercraft.api.lua.MethodResult;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 
 public final class Utils {
-	private static final int RETRIES = 10;
-	private static Random random = new Random();
-
 	private Utils() {
 	}
 

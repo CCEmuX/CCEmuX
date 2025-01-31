@@ -2,8 +2,6 @@ package net.clgd.ccemux.api;
 
 import java.lang.Character.UnicodeBlock;
 
-import javax.annotation.Nonnull;
-
 /**
  * A set of general-purpose CC-related utilities
  */
@@ -53,23 +51,12 @@ public final class Utils {
 	}
 
 	/**
-	 * Clamps a set of three doubles (RGB values) to the range [0, 1]
-	 *
-	 * @param col The three values
-	 * @return A new array with the constrained values
-	 */
-	@Nonnull
-	public static double[] clampColor(@Nonnull double[] col) {
-		return new double[] { constrainToRange(col[0], 0, 1), constrainToRange(col[1], 0, 1), constrainToRange(col[2], 0, 1) };
-	}
-
-	/**
 	 * Checks if a character is printable
 	 *
 	 * @param c The character
 	 * @return Whether the character is printable
 	 */
-	public static boolean isPrintableChar(char c) {
+	public static boolean isPrintableChar(int c) {
 		UnicodeBlock block = UnicodeBlock.of(c);
 		return !Character.isISOControl(c) && block != null && block != UnicodeBlock.SPECIALS;
 	}

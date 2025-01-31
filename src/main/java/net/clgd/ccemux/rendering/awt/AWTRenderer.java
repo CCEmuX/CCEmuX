@@ -78,8 +78,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	private int lastDragButton = -1;
 	private Point lastDragPosition = null;
 
-	private double blinkLockedTime = 0d;
-
 	private double terminateTimer = -1;
 	private double shutdownTimer = -1;
 	private double rebootTimer = -1;
@@ -212,8 +210,6 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 	@Override
 	public void onAdvance(double dt) {
 		frame.setTitle(getWindowTitle());
-		blinkLockedTime = Math.max(0, blinkLockedTime - dt);
-		termComponent.blinkLocked = blinkLockedTime > 0;
 
 		if (isVisible()) {
 			// Handle action keys
@@ -283,10 +279,7 @@ public class AWTRenderer implements Renderer, KeyListener, MouseListener, MouseM
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (Utils.isPrintableChar(e.getKeyChar()) && allowKeyEvents()) {
-			computer.pressChar(e.getKeyChar());
-			blinkLockedTime = 0.25d;
-		}
+		if (allowKeyEvents()) computer.pressChar(e.getKeyChar());
 	}
 
 	@Override

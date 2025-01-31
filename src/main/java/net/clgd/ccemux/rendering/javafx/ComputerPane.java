@@ -1,15 +1,9 @@
 package net.clgd.ccemux.rendering.javafx;
 
-import static com.google.common.primitives.Ints.constrainToRange;
-import static net.clgd.ccemux.api.rendering.TerminalFont.*;
-
-import java.awt.Point;
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import dan200.computercraft.core.terminal.TextBuffer;
 import javafx.application.Platform;
@@ -21,7 +15,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.StageStyle;
@@ -30,6 +30,13 @@ import net.clgd.ccemux.api.Utils;
 import net.clgd.ccemux.api.emulation.EmulatedComputer;
 import net.clgd.ccemux.api.rendering.PaletteAdapter;
 import net.clgd.ccemux.plugins.builtin.JFXPlugin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static com.google.common.primitives.Ints.constrainToRange;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_HEIGHT;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_CHAR_WIDTH;
+import static net.clgd.ccemux.api.rendering.TerminalFont.BASE_MARGIN;
 
 public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 	private static final Logger log = LoggerFactory.getLogger(ComputerPane.class);
@@ -225,8 +232,7 @@ public class ComputerPane extends Pane implements EmulatedComputer.Listener {
 		if (e.isShortcutDown() && e.getCharacter().toLowerCase().trim().equals("v")) return;
 
 		if (e.getCharacter().length() <= 0) return;
-		char c = e.getCharacter().charAt(0);
-		if (Utils.isPrintableChar(c)) computer.pressChar(c);
+		computer.pressChar(e.getCharacter().codePointAt(0));
 	}
 
 	private void keyPressed(KeyEvent e) {

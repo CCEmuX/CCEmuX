@@ -1,8 +1,6 @@
 package net.clgd.ccemux.rendering.awt;
 
-import java.awt.Canvas;
-import java.awt.Dimension;
-import java.awt.Graphics;
+import java.awt.*;
 
 import dan200.computercraft.core.terminal.Terminal;
 
@@ -11,8 +9,6 @@ class TerminalComponent extends Canvas {
 
 	private final Terminal terminal;
 	private final TerminalRenderer renderer;
-
-	boolean blinkLocked = false;
 
 	public TerminalComponent(Terminal terminal, double termScale) {
 		this.terminal = terminal;

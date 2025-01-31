@@ -13,6 +13,9 @@ import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
+import dan200.computercraft.core.computer.ComputerEvents;
+import dan200.computercraft.core.util.StringUtil;
+import net.clgd.ccemux.api.Utils;
 
 public abstract class EmulatedComputer extends Computer {
 	/**
@@ -164,21 +167,24 @@ public abstract class EmulatedComputer extends Computer {
 	 * Queues a key event
 	 */
 	public void pressKey(int keycode, boolean repeat) {
-		queueEvent("key", new Object[]{keycode, repeat});
+		ComputerEvents.keyDown(this, keycode, repeat);
 	}
 
 	/**
 	 * Queues a key up event
 	 */
 	public void releaseKey(int keycode) {
-		queueEvent("key_up", new Object[]{keycode});
+		ComputerEvents.keyUp(this, keycode);
 	}
 
 	/**
 	 * Queues a char event
 	 */
-	public void pressChar(char c) {
-		queueEvent("char", new Object[]{"" + c});
+	public void pressChar(int c) {
+		if (!Utils.isPrintableChar(c)) return;
+
+		var terminalChar = StringUtil.unicodeToTerminal(c);
+		if (StringUtil.isTypableChar(terminalChar)) ComputerEvents.charTyped(this, terminalChar);
 	}
 
 	/**
@@ -189,25 +195,7 @@ public abstract class EmulatedComputer extends Computer {
 	 * need to paste arbitrary text.
 	 */
 	public void paste(String clipboard) {
-		// Clip to the first occurrence of \r or \n.
-		int newLineIndex = clipboard.indexOf('\r');
-		int returnIndex = clipboard.indexOf('\n');
-		if (newLineIndex >= 0 && returnIndex >= 0) {
-			clipboard = clipboard.substring(0, Math.min(newLineIndex, returnIndex));
-		} else if (newLineIndex >= 0) {
-			clipboard = clipboard.substring(0, newLineIndex);
-		} else if (returnIndex >= 0) {
-			clipboard = clipboard.substring(0, returnIndex);
-		}
-
-		// Filter the string: We allow everything greater than a space except the section signal (00a7) and
-		// delete (007f).
-		clipboard = clipboard.replaceAll("[\0-\31\u00a7\u007F]", "");
-		if (clipboard.isEmpty()) return;
-
-		// Clip to 512 characters and queue.
-		if (clipboard.length() > 512) clipboard = clipboard.substring(0, 512);
-		queueEvent("paste", new Object[]{clipboard});
+		ComputerEvents.paste(this, StringUtil.getClipboardString(clipboard));
 	}
 
 	/**
@@ -221,21 +209,26 @@ public abstract class EmulatedComputer extends Computer {
 	 * Queues a mouse click event
 	 */
 	public void click(int button, int x, int y, boolean release) {
-		if (inTerminal(x, y)) queueEvent(release ? "mouse_up" : "mouse_click", new Object[]{button, x, y});
+		if (!inTerminal(x, y)) return;
+		if (release) {
+			ComputerEvents.mouseUp(this, button, x, y);
+		} else {
+			ComputerEvents.mouseClick(this, button, x, y);
+		}
 	}
 
 	/**
 	 * Queues a mouse drag event
 	 */
 	public void drag(int button, int x, int y) {
-		if (inTerminal(x, y)) queueEvent("mouse_drag", new Object[]{button, x, y});
+		if (inTerminal(x, y)) ComputerEvents.mouseDrag(this, button, x, y);
 	}
 
 	/**
 	 * Queues a mouse scroll event
 	 */
 	public void scroll(int lines, int x, int y) {
-		if (inTerminal(x, y)) queueEvent("mouse_scroll", new Object[]{lines, x, y});
+		if (inTerminal(x, y)) ComputerEvents.mouseScroll(this, lines, x, y);
 	}
 
 	private boolean inTerminal(int x, int y) {
