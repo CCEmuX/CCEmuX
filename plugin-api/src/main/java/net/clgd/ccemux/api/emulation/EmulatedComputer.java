@@ -184,7 +184,7 @@ public abstract class EmulatedComputer extends Computer {
 		if (!Utils.isPrintableChar(c)) return;
 
 		var terminalChar = StringUtil.unicodeToTerminal(c);
-		if (StringUtil.isTypableChar(terminalChar)) ComputerEvents.charTyped(this, terminalChar);
+		if (StringUtil.isTypableChar(terminalChar)) ComputerEvents.charTyped(this, (byte) terminalChar);
 	}
 
 	/**
