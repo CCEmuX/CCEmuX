@@ -10,15 +10,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.swing.text.html.Option;
 
-import dan200.computercraft.core.apis.TableHelper;
-import dan200.computercraft.core.util.ArgumentHelpers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,16 +62,13 @@ public class CCEmuXAPI extends Plugin {
 
 		@LuaFunction
 		public final int openEmu(Optional<Integer> id, Optional<Map<?, ?>> properties) throws LuaException {
-			var props = properties.orElse(Collections.emptyMap());
+			var props = new ObjectLuaTable(properties.orElse(Collections.emptyMap()));
 			TermSize termSize = null;
 			if (props.containsKey("width") || props.containsKey("height")) {
-				termSize = new TermSize(
-					TableHelper.getIntField(props, "width"),
-					TableHelper.getIntField(props, "height")
-				);
+				termSize = new TermSize(props.getInt("width"), props.getInt("height"));
 			}
 
-			Optional<Double> termScale = TableHelper.optRealField(props, "scale");
+			Optional<Double> termScale = props.optFiniteDouble("scale");
 
 			return createComputer(id, termSize, termScale);
 		}
