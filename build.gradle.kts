@@ -1,6 +1,6 @@
 plugins {
 	application
-	id("com.gradleup.shadow") version "8.3.5"
+	id("com.gradleup.shadow") version "9.3.0"
 	id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
@@ -27,10 +27,10 @@ allprojects {
 		}
 	}
 
-	gradle.projectsEvaluated {
+	plugins.withType<JavaBasePlugin> {
 		java {
 			toolchain {
-				languageVersion.set(JavaLanguageVersion.of(17))
+				languageVersion = JavaLanguageVersion.of(17)
 			}
 		}
 
@@ -83,7 +83,7 @@ tasks.jar {
 }
 
 tasks.shadowJar {
-	archiveClassifier.set("cct")
+	archiveClassifier = "cct"
 	description = "A shadowed jar which bundles all dependencies"
 
 	minimize {

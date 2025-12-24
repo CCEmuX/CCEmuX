@@ -13,7 +13,8 @@ import dan200.computercraft.core.ComputerContext;
 import dan200.computercraft.core.apis.transfer.TransferredFiles;
 import dan200.computercraft.core.computer.Computer;
 import dan200.computercraft.core.computer.ComputerEnvironment;
-import dan200.computercraft.core.computer.ComputerEvents;
+import dan200.computercraft.core.input.ComputerInput;
+import dan200.computercraft.core.input.EventComputerInput;
 import dan200.computercraft.core.util.StringUtil;
 import net.clgd.ccemux.api.Utils;
 
@@ -110,9 +111,12 @@ public abstract class EmulatedComputer extends Computer {
 	@Nonnull
 	public final EmulatedTerminal terminal;
 
+	private final ComputerInput input;
+
 	protected EmulatedComputer(@Nonnull ComputerContext context, @Nonnull ComputerEnvironment environment, @Nonnull EmulatedTerminal terminal, int id) {
 		super(context, environment, terminal, id);
 		this.terminal = terminal;
+		this.input = new EventComputerInput(this);
 	}
 
 	/**
@@ -167,14 +171,14 @@ public abstract class EmulatedComputer extends Computer {
 	 * Queues a key event
 	 */
 	public void pressKey(int keycode, boolean repeat) {
-		ComputerEvents.keyDown(this, keycode, repeat);
+		input.keyDown(keycode, repeat);
 	}
 
 	/**
 	 * Queues a key up event
 	 */
 	public void releaseKey(int keycode) {
-		ComputerEvents.keyUp(this, keycode);
+		input.keyUp(keycode);
 	}
 
 	/**
@@ -184,7 +188,7 @@ public abstract class EmulatedComputer extends Computer {
 		if (!Utils.isPrintableChar(c)) return;
 
 		var terminalChar = StringUtil.unicodeToTerminal(c);
-		if (StringUtil.isTypableChar(terminalChar)) ComputerEvents.charTyped(this, (byte) terminalChar);
+		if (StringUtil.isTypableChar(terminalChar)) input.charTyped((byte) terminalChar);
 	}
 
 	/**
@@ -195,7 +199,7 @@ public abstract class EmulatedComputer extends Computer {
 	 * need to paste arbitrary text.
 	 */
 	public void paste(String clipboard) {
-		ComputerEvents.paste(this, StringUtil.getClipboardString(clipboard));
+		input.paste(StringUtil.getClipboardString(clipboard));
 	}
 
 	/**
@@ -211,9 +215,9 @@ public abstract class EmulatedComputer extends Computer {
 	public void click(int button, int x, int y, boolean release) {
 		if (!inTerminal(x, y)) return;
 		if (release) {
-			ComputerEvents.mouseUp(this, button, x, y);
+			input.mouseUp(button, x, y);
 		} else {
-			ComputerEvents.mouseClick(this, button, x, y);
+			input.mouseClick(button, x, y);
 		}
 	}
 
@@ -221,14 +225,14 @@ public abstract class EmulatedComputer extends Computer {
 	 * Queues a mouse drag event
 	 */
 	public void drag(int button, int x, int y) {
-		if (inTerminal(x, y)) ComputerEvents.mouseDrag(this, button, x, y);
+		if (inTerminal(x, y)) input.mouseDrag(button, x, y);
 	}
 
 	/**
 	 * Queues a mouse scroll event
 	 */
 	public void scroll(int lines, int x, int y) {
-		if (inTerminal(x, y)) ComputerEvents.mouseScroll(this, lines, x, y);
+		if (inTerminal(x, y)) input.mouseScroll(lines, x, y);
 	}
 
 	private boolean inTerminal(int x, int y) {
